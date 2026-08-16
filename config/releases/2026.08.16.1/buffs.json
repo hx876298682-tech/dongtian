@@ -73,5 +73,155 @@
       }
     ],
     "applicable_tags": ["combat"]
+  },
+  {
+    "id": "buff.t1.mind_pill",
+    "name_key": "buff.mind_pill.name",
+    "description_key": "buff.mind_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 4,
+    "tags": ["pill", "cultivation"],
+    "source_note": "06_炼丹配方:9",
+    "source_item_id": "item.t1.mind_pill",
+    "duration_seconds": 1800,
+    "slot_cost": 1,
+    "stack_group": "cultivation",
+    "stack_rule": "REPLACE",
+    "modifiers": [
+      {
+        "stat": "skill_xp",
+        "operation": "MULTIPLY",
+        "value": "1.15",
+        "tags": ["crafting"]
+      }
+    ],
+    "applicable_tags": ["crafting"]
+  },
+  {
+    "id": "buff.t1.gathering_pill",
+    "name_key": "buff.gathering_pill.name",
+    "description_key": "buff.gathering_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 5,
+    "tags": ["pill", "gathering"],
+    "source_note": "06_炼丹配方:10",
+    "source_item_id": "item.t1.gathering_pill",
+    "duration_seconds": 1800,
+    "slot_cost": 1,
+    "stack_group": "gathering",
+    "stack_rule": "REPLACE",
+    "modifiers": [
+      {
+        "stat": "rare_drop_rate",
+        "operation": "MULTIPLY",
+        "value": "1.08",
+        "tags": ["gathering"]
+      }
+    ],
+    "applicable_tags": ["gathering"]
+  },
+  {
+    "id": "buff.t1.body_pill",
+    "name_key": "buff.body_pill.name",
+    "description_key": "buff.body_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 6,
+    "tags": ["pill", "combat"],
+    "source_note": "06_炼丹配方:11",
+    "source_item_id": "item.t1.body_pill",
+    "duration_seconds": 1800,
+    "slot_cost": 1,
+    "stack_group": "combat",
+    "stack_rule": "REPLACE",
+    "modifiers": [
+      {
+        "stat": "combat_power",
+        "operation": "MULTIPLY",
+        "value": "1.12",
+        "tags": ["combat"]
+      }
+    ],
+    "applicable_tags": ["combat"]
+  },
+  {
+    "id": "buff.t1.meridian_pill",
+    "name_key": "buff.meridian_pill.name",
+    "description_key": "buff.meridian_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 7,
+    "tags": ["pill", "breakthrough"],
+    "source_note": "06_炼丹配方:12",
+    "source_item_id": "item.t1.meridian_pill",
+    "duration_seconds": 0,
+    "slot_cost": 1,
+    "stack_group": "breakthrough",
+    "stack_rule": "REPLACE",
+    "modifiers": [
+      {
+        "stat": "breakthrough_prepared",
+        "operation": "ADD",
+        "value": "1",
+        "tags": ["breakthrough"]
+      }
+    ],
+    "applicable_tags": ["breakthrough"]
+  },
+  {
+    "id": "buff.t1.foundation_pill",
+    "name_key": "buff.foundation_pill.name",
+    "description_key": "buff.foundation_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 8,
+    "tags": ["pill", "breakthrough"],
+    "source_note": "06_炼丹配方:13",
+    "source_item_id": "item.t1.foundation_pill",
+    "duration_seconds": 0,
+    "slot_cost": 1,
+    "stack_group": "breakthrough",
+    "stack_rule": "REPLACE",
+    "modifiers": [
+      {
+        "stat": "breakthrough_progress",
+        "operation": "ADD",
+        "value": "1",
+        "tags": ["breakthrough"]
+      }
+    ],
+    "applicable_tags": ["breakthrough"]
+  },
+  {
+    "id": "buff.t1.essence_pill",
+    "name_key": "buff.essence_pill.name",
+    "description_key": "buff.essence_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 9,
+    "tags": ["pill", "cultivation"],
+    "source_note": "06_炼丹配方:14",
+    "source_item_id": "item.t1.essence_pill",
+    "duration_seconds": 1800,
+    "slot_cost": 1,
+    "stack_group": "cultivation",
+    "stack_rule": "REPLACE",
+    "modifiers": [
+      {
+        "stat": "cultivation_xp",
+        "operation": "MULTIPLY",
+        "value": "1.40",
+        "tags": ["cultivation"]
+      }
+    ],
+    "applicable_tags": ["cultivation"]
   }
 ]

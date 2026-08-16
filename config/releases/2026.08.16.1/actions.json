@@ -17,7 +17,7 @@
     ],
     "skill_xp": "4",
     "cultivation_xp": "0",
-    "loot_table_id": null,
+    "loot_table_id": "loot.t1.herb_baicao_valley",
     "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
     "required_tool_tag": "herbalism_tool",
     "modifier_tags": ["herbalism"],
@@ -41,7 +41,7 @@
     ],
     "skill_xp": "7",
     "cultivation_xp": "0",
-    "loot_table_id": null,
+    "loot_table_id": "loot.t1.herb_wuyin_slope",
     "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
     "required_tool_tag": "herbalism_tool",
     "modifier_tags": ["herbalism"],
@@ -67,7 +67,7 @@
     ],
     "skill_xp": "6",
     "cultivation_xp": "0",
-    "loot_table_id": null,
+    "loot_table_id": "loot.t1.ore_chitong_kuang",
     "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
     "required_tool_tag": "alchemy_tool",
     "modifier_tags": ["alchemy"],
@@ -94,7 +94,7 @@
     ],
     "skill_xp": "14",
     "cultivation_xp": "0",
-    "loot_table_id": null,
+    "loot_table_id": "loot.t1.ore_xuantie_kuang",
     "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
     "required_tool_tag": "alchemy_tool",
     "modifier_tags": ["alchemy"],
@@ -121,7 +121,7 @@
     ],
     "skill_xp": "11",
     "cultivation_xp": "0",
-    "loot_table_id": null,
+    "loot_table_id": "loot.t1.ore_xingwen_gang",
     "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
     "required_tool_tag": "alchemy_tool",
     "modifier_tags": ["alchemy"],
@@ -145,7 +145,7 @@
     ],
     "skill_xp": "5",
     "cultivation_xp": "0",
-    "loot_table_id": null,
+    "loot_table_id": "loot.t1.ore_lingyu_kuang",
     "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
     "required_tool_tag": "mining_tool",
     "modifier_tags": ["gathering", "ore"],
@@ -709,5 +709,218 @@
     "required_tool_tag": null,
     "modifier_tags": ["cultivation"],
     "scope": "MVP"
+  },
+  {
+    "id": "action.t1.herb_lingquan_valley",
+    "name_key": "action.herb_lingquan_valley.name",
+    "description_key": "action.herb_lingquan_valley.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 28,
+    "tags": ["gathering", "herb"],
+    "source_note": "05_采集行动:8",
+    "skill_id": "skill.herbalism",
+    "base_duration_us": "190000000",
+    "inputs": [],
+    "outputs": [
+      { "item_id": "item.t1.ziye_lan", "quantity": "1" }
+    ],
+    "skill_xp": "11",
+    "cultivation_xp": "0",
+    "loot_table_id": "loot.t1.herb_lingquan_valley",
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "herbalism_tool",
+    "modifier_tags": ["herbalism"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.herb_zhuji_garden",
+    "name_key": "action.herb_zhuji_garden.name",
+    "description_key": "action.herb_zhuji_garden.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 29,
+    "tags": ["gathering", "herb"],
+    "source_note": "05_采集行动:9",
+    "skill_id": "skill.herbalism",
+    "base_duration_us": "260000000",
+    "inputs": [],
+    "outputs": [
+      { "item_id": "item.t1.dimai_can", "quantity": "1" }
+    ],
+    "skill_xp": "18",
+    "cultivation_xp": "0",
+    "loot_table_id": "loot.t1.herb_zhuji_garden",
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "herbalism_tool",
+    "modifier_tags": ["herbalism"],
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "action.t1.mind_pill",
+    "name_key": "action.mind_pill.name",
+    "description_key": "action.mind_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 30,
+    "tags": ["alchemy", "cultivation"],
+    "source_note": "06_炼丹配方:9",
+    "skill_id": "skill.alchemy",
+    "base_duration_us": "300000000",
+    "inputs": [
+      { "item_id": "item.t1.ninglu_hua", "quantity": "2" },
+      { "item_id": "item.t1.ziye_lan", "quantity": "1" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.mind_pill", "quantity": "1" }
+    ],
+    "skill_xp": "18",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "alchemy_tool",
+    "modifier_tags": ["alchemy"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.gathering_pill",
+    "name_key": "action.gathering_pill.name",
+    "description_key": "action.gathering_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 31,
+    "tags": ["alchemy", "cultivation"],
+    "source_note": "06_炼丹配方:10",
+    "skill_id": "skill.alchemy",
+    "base_duration_us": "350000000",
+    "inputs": [
+      { "item_id": "item.t1.ninglu_hua", "quantity": "2" },
+      { "item_id": "item.t1.yaolang_ya", "quantity": "1" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.gathering_pill", "quantity": "1" }
+    ],
+    "skill_xp": "22",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "alchemy_tool",
+    "modifier_tags": ["alchemy"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.body_pill",
+    "name_key": "action.body_pill.name",
+    "description_key": "action.body_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 32,
+    "tags": ["alchemy", "combat"],
+    "source_note": "06_炼丹配方:11",
+    "skill_id": "skill.alchemy",
+    "base_duration_us": "400000000",
+    "inputs": [
+      { "item_id": "item.t1.ziye_lan", "quantity": "2" },
+      { "item_id": "item.t1.shijia", "quantity": "1" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.body_pill", "quantity": "1" }
+    ],
+    "skill_xp": "28",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "alchemy_tool",
+    "modifier_tags": ["alchemy"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.meridian_pill",
+    "name_key": "action.meridian_pill.name",
+    "description_key": "action.meridian_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 33,
+    "tags": ["alchemy", "breakthrough"],
+    "source_note": "06_炼丹配方:12",
+    "skill_id": "skill.alchemy",
+    "base_duration_us": "750000000",
+    "inputs": [
+      { "item_id": "item.t1.ziye_lan", "quantity": "3" },
+      { "item_id": "item.t2.lingsui", "quantity": "1" },
+      { "item_id": "item.t1.qingshe_dan", "quantity": "2" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.meridian_pill", "quantity": "1" }
+    ],
+    "skill_xp": "55",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "alchemy_tool",
+    "modifier_tags": ["alchemy"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.foundation_pill",
+    "name_key": "action.foundation_pill.name",
+    "description_key": "action.foundation_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 34,
+    "tags": ["alchemy", "breakthrough"],
+    "source_note": "06_炼丹配方:13",
+    "skill_id": "skill.alchemy",
+    "base_duration_us": "4500000000",
+    "inputs": [
+      { "item_id": "item.t1.ninglu_hua", "quantity": "20" },
+      { "item_id": "item.t2.lingsui", "quantity": "3" },
+      { "item_id": "item.t1.yaodan", "quantity": "2" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.foundation_pill", "quantity": "1" }
+    ],
+    "skill_xp": "250",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "alchemy_tool",
+    "modifier_tags": ["alchemy"],
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "action.t1.essence_pill",
+    "name_key": "action.essence_pill.name",
+    "description_key": "action.essence_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 35,
+    "tags": ["alchemy", "cultivation"],
+    "source_note": "06_炼丹配方:14",
+    "skill_id": "skill.alchemy",
+    "base_duration_us": "900000000",
+    "inputs": [
+      { "item_id": "item.t1.dimai_can", "quantity": "3" },
+      { "item_id": "item.t1.yaodan", "quantity": "1" },
+      { "item_id": "item.t1.heifeng_jing", "quantity": "1" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.essence_pill", "quantity": "1" }
+    ],
+    "skill_xp": "80",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "alchemy_tool",
+    "modifier_tags": ["alchemy"],
+    "scope": "ANCHOR"
   }
 ]

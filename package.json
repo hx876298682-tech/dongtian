@@ -17,6 +17,9 @@
     "infra:up": "docker compose up -d postgres postgres-test",
     "infra:down": "docker compose down",
     "infra:status": "docker compose ps",
+    "test:e2e:prepare": "pnpm infra:up && pnpm db:migrate && pnpm db:seed",
+    "test:e2e:serve": "tsx tests/e2e/start-server.ts",
+    "test:e2e:install": "playwright install chromium",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:integration": "vitest run tests/integration",
@@ -30,6 +33,7 @@
     "openapi:check": "pnpm --filter @dongtian/contracts openapi:check"
   },
   "devDependencies": {
+    "@dongtian/database": "workspace:*",
     "@babel/core": "8.0.1",
     "@babel/eslint-parser": "8.0.1",
     "@babel/plugin-syntax-jsx": "8.0.1",

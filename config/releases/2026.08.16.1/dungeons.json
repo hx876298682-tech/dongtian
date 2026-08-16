@@ -102,5 +102,218 @@
     "reward_table_id": "loot.t1.qingshe.success",
     "failure_reward_table_id": "loot.t1.qingshe.failure",
     "scope": "MVP"
+  },
+  {
+    "id": "dungeon.t1.xuantie_cavern",
+    "name_key": "dungeon.xuantie_cavern.name",
+    "description_key": "dungeon.xuantie_cavern.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "feature_flag": null,
+    "sort_order": 2,
+    "tags": ["dungeon", "ore", "formal"],
+    "source_note": "10_怪物秘境:4",
+    "opportunity_cost": 1,
+    "entry_items": [
+      { "item_id": "item.t1.xuantie_kuang", "quantity": "1" }
+    ],
+    "recommended_power": "140",
+    "base_success_model": {
+      "base_success_rate": "0.78",
+      "recommended_power": "140",
+      "power_elasticity": "0.45",
+      "min_success_rate": "0.25",
+      "max_success_rate": "0.92"
+    },
+    "choice_timeout_seconds": 60,
+    "default_safe_choice_id": "choice.t1.xuantie_cavern.safe_route",
+    "prepare_node_id": "node.t1.xuantie_cavern.prepare",
+    "entry_node_id": "node.t1.xuantie_cavern.entry",
+    "choice_node_id": "node.t1.xuantie_cavern.choice",
+    "battle_node_id": "node.t1.xuantie_cavern.battle",
+    "reward_node_id": "node.t1.xuantie_cavern.reward",
+    "nodes": [
+      {
+        "id": "node.t1.xuantie_cavern.prepare",
+        "type": "PREPARE",
+        "monster_ids": [],
+        "choice_ids": [],
+        "next_node_ids": ["node.t1.xuantie_cavern.entry"],
+        "auto_resolve_policy": "NONE"
+      },
+      {
+        "id": "node.t1.xuantie_cavern.entry",
+        "type": "ENTRY",
+        "monster_ids": [],
+        "choice_ids": [],
+        "next_node_ids": ["node.t1.xuantie_cavern.choice"],
+        "auto_resolve_policy": "NONE"
+      },
+      {
+        "id": "node.t1.xuantie_cavern.choice",
+        "type": "CHOICE",
+        "monster_ids": [],
+        "choice_ids": [
+          "choice.t1.xuantie_cavern.safe_route",
+          "choice.t1.xuantie_cavern.deep_route"
+        ],
+        "next_node_ids": ["node.t1.xuantie_cavern.battle"],
+        "auto_resolve_policy": "TIMEOUT_SAFE_ROUTE"
+      },
+      {
+        "id": "node.t1.xuantie_cavern.battle",
+        "type": "BATTLE",
+        "monster_ids": [
+          "monster.t1.gray_wolf",
+          "monster.t1.shijia_beast",
+          "monster.t1.chitong_jiachong"
+        ],
+        "choice_ids": [],
+        "next_node_ids": ["node.t1.xuantie_cavern.reward"],
+        "auto_resolve_policy": "NONE"
+      },
+      {
+        "id": "node.t1.xuantie_cavern.reward",
+        "type": "REWARD",
+        "monster_ids": [],
+        "choice_ids": [],
+        "next_node_ids": [],
+        "auto_resolve_policy": "NONE"
+      }
+    ],
+    "choices": [
+      {
+        "id": "choice.t1.xuantie_cavern.safe_route",
+        "route_id": "route.t1.xuantie_cavern.safe_route",
+        "risk": "SAFE",
+        "label_key": "dungeon.xuantie_cavern.route.safe",
+        "monster_id": "monster.t1.gray_wolf",
+        "success_reward_table_id": "loot.t1.xuantie_cavern.success",
+        "failure_reward_table_id": "loot.t1.xuantie_cavern.failure",
+        "max_events": 72,
+        "max_rounds": 36
+      },
+      {
+        "id": "choice.t1.xuantie_cavern.deep_route",
+        "route_id": "route.t1.xuantie_cavern.deep_route",
+        "risk": "HIGH_RISK",
+        "label_key": "dungeon.xuantie_cavern.route.risk",
+        "monster_id": "monster.t1.shijia_beast",
+        "success_reward_table_id": "loot.t1.xuantie_cavern.success",
+        "failure_reward_table_id": "loot.t1.xuantie_cavern.failure",
+        "max_events": 72,
+        "max_rounds": 36
+      }
+    ],
+    "reward_table_id": "loot.t1.xuantie_cavern.success",
+    "failure_reward_table_id": "loot.t1.xuantie_cavern.failure",
+    "scope": "MVP"
+  },
+  {
+    "id": "dungeon.t1.heifeng_mijing",
+    "name_key": "dungeon.heifeng_mijing.name",
+    "description_key": "dungeon.heifeng_mijing.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "feature_flag": null,
+    "sort_order": 3,
+    "tags": ["dungeon", "boss", "formal"],
+    "source_note": "10_怪物秘境:7",
+    "opportunity_cost": 1,
+    "entry_items": [
+      { "item_id": "item.t1.heifeng_jing", "quantity": "1" }
+    ],
+    "recommended_power": "520",
+    "base_success_model": {
+      "base_success_rate": "0.65",
+      "recommended_power": "520",
+      "power_elasticity": "0.4",
+      "min_success_rate": "0.2",
+      "max_success_rate": "0.9"
+    },
+    "choice_timeout_seconds": 60,
+    "default_safe_choice_id": "choice.t1.heifeng_mijing.safe_route",
+    "prepare_node_id": "node.t1.heifeng_mijing.prepare",
+    "entry_node_id": "node.t1.heifeng_mijing.entry",
+    "choice_node_id": "node.t1.heifeng_mijing.choice",
+    "battle_node_id": "node.t1.heifeng_mijing.battle",
+    "reward_node_id": "node.t1.heifeng_mijing.reward",
+    "nodes": [
+      {
+        "id": "node.t1.heifeng_mijing.prepare",
+        "type": "PREPARE",
+        "monster_ids": [],
+        "choice_ids": [],
+        "next_node_ids": ["node.t1.heifeng_mijing.entry"],
+        "auto_resolve_policy": "NONE"
+      },
+      {
+        "id": "node.t1.heifeng_mijing.entry",
+        "type": "ENTRY",
+        "monster_ids": [],
+        "choice_ids": [],
+        "next_node_ids": ["node.t1.heifeng_mijing.choice"],
+        "auto_resolve_policy": "NONE"
+      },
+      {
+        "id": "node.t1.heifeng_mijing.choice",
+        "type": "CHOICE",
+        "monster_ids": [],
+        "choice_ids": [
+          "choice.t1.heifeng_mijing.safe_route",
+          "choice.t1.heifeng_mijing.deep_route"
+        ],
+        "next_node_ids": ["node.t1.heifeng_mijing.battle"],
+        "auto_resolve_policy": "TIMEOUT_SAFE_ROUTE"
+      },
+      {
+        "id": "node.t1.heifeng_mijing.battle",
+        "type": "BATTLE",
+        "monster_ids": [
+          "monster.t1.heifeng_lang",
+          "monster.t1.heifeng_yaowang"
+        ],
+        "choice_ids": [],
+        "next_node_ids": ["node.t1.heifeng_mijing.reward"],
+        "auto_resolve_policy": "NONE"
+      },
+      {
+        "id": "node.t1.heifeng_mijing.reward",
+        "type": "REWARD",
+        "monster_ids": [],
+        "choice_ids": [],
+        "next_node_ids": [],
+        "auto_resolve_policy": "NONE"
+      }
+    ],
+    "choices": [
+      {
+        "id": "choice.t1.heifeng_mijing.safe_route",
+        "route_id": "route.t1.heifeng_mijing.safe_route",
+        "risk": "SAFE",
+        "label_key": "dungeon.heifeng_mijing.route.safe",
+        "monster_id": "monster.t1.heifeng_lang",
+        "success_reward_table_id": "loot.t1.heifeng_mijing.success",
+        "failure_reward_table_id": "loot.t1.heifeng_mijing.failure",
+        "max_events": 80,
+        "max_rounds": 40
+      },
+      {
+        "id": "choice.t1.heifeng_mijing.deep_route",
+        "route_id": "route.t1.heifeng_mijing.deep_route",
+        "risk": "HIGH_RISK",
+        "label_key": "dungeon.heifeng_mijing.route.risk",
+        "monster_id": "monster.t1.heifeng_yaowang",
+        "success_reward_table_id": "loot.t1.heifeng_mijing.success",
+        "failure_reward_table_id": "loot.t1.heifeng_mijing.failure",
+        "max_events": 80,
+        "max_rounds": 40
+      }
+    ],
+    "reward_table_id": "loot.t1.heifeng_mijing.success",
+    "failure_reward_table_id": "loot.t1.heifeng_mijing.failure",
+    "scope": "MVP_ENDGAME"
   }
 ]

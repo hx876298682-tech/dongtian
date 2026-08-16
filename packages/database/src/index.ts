@@ -41,6 +41,7 @@ export * from './buffs.js';
 export * from './characters.js';
 export * from './assets.js';
 export * from './equipment.js';
+export * from './skill-tool-assignments.js';
 export * from './dungeon.js';
 export * from './idempotency.js';
 export * from './outbox.js';

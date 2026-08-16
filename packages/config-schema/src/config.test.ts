@@ -52,6 +52,10 @@ describe('versioned config registry', () => {
       'item.t1.ninglu_hua',
     ]);
     expect(registry.getAction('action.t1.ore_chitong_kuang').required_tool_tag).toBe('mining_tool');
+    expect(registry.getAction('action.t1.herb_lingquan_valley').loot_table_id).toBe(
+      'loot.t1.herb_lingquan_valley',
+    );
+    expect(registry.getAction('action.t1.essence_pill').scope).toBe('ANCHOR');
     expect(registry.getAction('action.cultivation.qi')).toMatchObject({
       skill_id: null,
       skill_xp: '0.000000',
@@ -65,6 +69,7 @@ describe('versioned config registry', () => {
     expect(registry.getRecipeAction('recipe.t1.qi_gathering_powder').id).toBe('action.t1.qi_gathering_powder');
     expect(registry.getRecipeAction('recipe.t1.qi_gathering_pill').outputs[0]?.item_id).toBe('item.t1.qi_gathering_pill');
     expect(registry.getRecipeAction('recipe.t1.recovery_pill').inputs[1]?.item_id).toBe('item.t1.qingshe_dan');
+    expect(registry.getRecipeAction('recipe.t1.foundation_pill').outputs[0]?.item_id).toBe('item.t1.foundation_pill');
     expect(registry.getRecipeAction('recipe.t1.mubing_yaochu').id).toBe('action.t1.mubing_yaochu');
     expect(registry.getDungeon('dungeon.t1.qingshe_cave')).toMatchObject({
       id: 'dungeon.t1.qingshe_cave',
@@ -73,12 +78,26 @@ describe('versioned config registry', () => {
       reward_table_id: 'loot.t1.qingshe.success',
       failure_reward_table_id: 'loot.t1.qingshe.failure',
     });
+    expect(registry.getDungeon('dungeon.t1.xuantie_cavern')).toMatchObject({
+      id: 'dungeon.t1.xuantie_cavern',
+      reward_table_id: 'loot.t1.xuantie_cavern.success',
+      failure_reward_table_id: 'loot.t1.xuantie_cavern.failure',
+    });
     expect(registry.getMonster('monster.t1.qingshe')).toMatchObject({
       id: 'monster.t1.qingshe',
       combat: {
         attack: '18',
         loot_table_id: 'loot.t1.qingshe.monster',
       },
+    });
+    expect(registry.getRegion('region.t2.blackwind_valley')).toMatchObject({
+      id: 'region.t2.blackwind_valley',
+      region_kind: 'VALLEY',
+      dungeon_ids: ['dungeon.t1.heifeng_mijing'],
+    });
+    expect(registry.getCaveFacility('cave_facility.t1.forging_room_lv4')).toMatchObject({
+      level: 4,
+      effect_value: '0.07',
     });
     expect(registry.getLootTable('loot.t1.qingshe.success')).toMatchObject({
       id: 'loot.t1.qingshe.success',
@@ -112,6 +131,14 @@ describe('versioned config registry', () => {
     expect(registry.getSkill('skill.herbalism').max_level).toBe(100);
     expect(registry.getSkillXpCurve('skill.herbalism').levels).toHaveLength(100);
     expect(registry.getSkillXpCurve('skill.herbalism').levels[1]?.cumulative_xp).toBe('83');
+    expect(registry.actions).toHaveLength(35);
+    expect(registry.items).toHaveLength(49);
+    expect(registry.recipes).toHaveLength(25);
+    expect(registry.buffs).toHaveLength(9);
+    expect(registry.monsters).toHaveLength(11);
+    expect(registry.dungeons).toHaveLength(3);
+    expect(registry.regions).toHaveLength(6);
+    expect(registry.caveFacilities).toHaveLength(12);
   });
 
   it('rejects a release whose content hash no longer matches', () => {

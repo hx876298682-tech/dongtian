@@ -120,6 +120,46 @@
         ]
       }
     },
+    "/api/v1/actions": {
+      "get": {
+        "tags": [
+          "content"
+        ],
+        "summary": "读取当前角色可见行动与来源用途",
+        "responses": {
+          "200": {
+            "description": "当前角色可见行动列表。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeActions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recipes": {
+      "get": {
+        "tags": [
+          "content"
+        ],
+        "summary": "读取当前角色可见配方与来源用途",
+        "responses": {
+          "200": {
+            "description": "当前角色可见配方列表。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeRecipes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/characters/{character_id}/inventory": {
       "get": {
         "operationId": "AssetController_inventory",
@@ -159,9 +199,9 @@
         ]
       }
     },
-    "/api/v1/characters/{character_id}/loadouts/{preset_id}": {
-      "get": {
-        "operationId": "EquipmentController_getPreset",
+    "/api/v1/characters/{character_id}/buffs/use": {
+      "post": {
+        "operationId": "BuffController_use",
         "parameters": [
           {
             "name": "character_id",
@@ -170,9 +210,42 @@
             "schema": {
               "type": "string"
             }
-          },
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuffUseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeBuffUse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "使用丹药 Buff",
+        "tags": [
+          "characters"
+        ]
+      }
+    },
+    "/api/v1/characters/{character_id}/settlements/latest": {
+      "get": {
+        "operationId": "SettlementController_getLatest",
+        "parameters": [
           {
-            "name": "preset_id",
+            "name": "character_id",
             "required": true,
             "in": "path",
             "schema": {
@@ -186,19 +259,31 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoadoutPresetEnvelope"
+                  "$ref": "#/components/schemas/SuccessEnvelopeSettlementSummary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
                 }
               }
             }
           }
         },
-        "summary": "读取装备预设",
+        "summary": "读取角色最近一次离线结算摘要",
         "tags": [
-          "characters"
+          "settlement"
         ]
-      },
-      "put": {
-        "operationId": "EquipmentController_savePreset",
+      }
+    },
+    "/api/v1/characters/{character_id}/settlements/{settlement_id}": {
+      "get": {
+        "operationId": "SettlementController_getById",
         "parameters": [
           {
             "name": "character_id",
@@ -209,9 +294,97 @@
             }
           },
           {
-            "name": "preset_id",
+            "name": "settlement_id",
             "required": true,
             "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeSettlementSummary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "summary": "读取指定离线结算摘要",
+        "tags": [
+          "settlement"
+        ]
+      }
+    },
+    "/api/v1/characters/{character_id}/loadouts/{preset_id}": {
+      "get": {
+        "tags": [
+          "characters"
+        ],
+        "summary": "读取装备预设",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "preset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "装备预设详情。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoadoutPresetEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "characters"
+        ],
+        "summary": "保存装备预设",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "preset_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -229,7 +402,7 @@
         },
         "responses": {
           "200": {
-            "description": "",
+            "description": "保存后的装备预设。",
             "content": {
               "application/json": {
                 "schema": {
@@ -238,27 +411,121 @@
               }
             }
           }
-        },
-        "summary": "保存装备预设",
-        "tags": [
-          "characters"
-        ]
+        }
       }
     },
     "/api/v1/characters/{character_id}/loadouts/{preset_id}/equip": {
       "post": {
-        "operationId": "EquipmentController_equipPreset",
+        "tags": [
+          "characters"
+        ],
+        "summary": "启用装备预设",
         "parameters": [
           {
             "name": "character_id",
-            "required": true,
             "in": "path",
+            "required": true,
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "preset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "启用后的装备预设。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoadoutPresetEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{character_id}/skill-tool-assignments": {
+      "get": {
+        "tags": [
+          "characters"
+        ],
+        "summary": "读取角色工具分配与工具对比",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "角色工具分配与工具对比。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkillToolAssignmentsEnvelope"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "characters"
+        ],
+        "summary": "保存角色工具分配",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkillToolAssignmentsSaveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "保存后的角色工具分配。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkillToolAssignmentsEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/characters/dungeons/{dungeon_id}/preview": {
+      "post": {
+        "operationId": "DungeonController_previewDungeon",
+        "parameters": [
+          {
+            "name": "dungeon_id",
             "required": true,
             "in": "path",
             "schema": {
@@ -272,15 +539,246 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoadoutPresetEnvelope"
+                  "$ref": "#/components/schemas/DungeonPreviewResponse"
                 }
               }
             }
           }
         },
-        "summary": "启用装备预设",
+        "summary": "预览秘境运行",
         "tags": [
-          "characters"
+          "dungeon"
+        ]
+      }
+    },
+    "/api/v1/characters/{character_id}/dungeon-opportunities": {
+      "get": {
+        "tags": [
+          "dungeon"
+        ],
+        "summary": "读取角色秘境机会",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "角色秘境机会信息。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonOpportunity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{character_id}/dungeon-opportunities/teaching-grant": {
+      "post": {
+        "tags": [
+          "dungeon"
+        ],
+        "summary": "领取教学赠送的秘境机会",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "教学赠送结果。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonOpportunity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/characters/{character_id}/dungeon-runs": {
+      "post": {
+        "tags": [
+          "dungeon"
+        ],
+        "summary": "创建秘境运行并消耗一次机会",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DungeonRunCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "秘境运行已创建。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonRun"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/characters/dungeon-runs/{run_id}": {
+      "get": {
+        "operationId": "DungeonController_getDungeonRunById",
+        "parameters": [
+          {
+            "name": "run_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonRun"
+                }
+              }
+            }
+          }
+        },
+        "summary": "读取秘境当前状态",
+        "tags": [
+          "dungeon"
+        ]
+      }
+    },
+    "/api/v1/characters/{character_id}/dungeon-runs/{run_id}": {
+      "get": {
+        "tags": [
+          "dungeon"
+        ],
+        "summary": "读取秘境运行",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "秘境运行详情。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonRun"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/characters/dungeon-runs/{run_id}/choices": {
+      "post": {
+        "operationId": "DungeonController_chooseDungeonRun",
+        "parameters": [
+          {
+            "name": "run_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonRun"
+                }
+              }
+            }
+          }
+        },
+        "summary": "选择秘境路线",
+        "tags": [
+          "dungeon"
+        ]
+      }
+    },
+    "/api/v1/characters/dungeon-runs/{run_id}/finalize": {
+      "post": {
+        "operationId": "DungeonController_finalizeDungeonRun",
+        "parameters": [
+          {
+            "name": "run_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonRun"
+                }
+              }
+            }
+          }
+        },
+        "summary": "结算秘境运行",
+        "tags": [
+          "dungeon"
         ]
       }
     },
@@ -531,188 +1029,6 @@
         ]
       }
     },
-    "/api/v1/actions": {
-      "get": {
-        "operationId": "ContentController_actions",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "当前角色可见行动列表。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessEnvelopeActions"
-                }
-              }
-            }
-          }
-        },
-        "summary": "读取当前角色可见行动与来源用途",
-        "tags": [
-          "content"
-        ]
-      }
-    },
-    "/api/v1/recipes": {
-      "get": {
-        "operationId": "ContentController_recipes",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "当前角色可见配方列表。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessEnvelopeRecipes"
-                }
-              }
-            }
-          }
-        },
-        "summary": "读取当前角色可见配方与来源用途",
-        "tags": [
-          "content"
-        ]
-      }
-    },
-    "/api/v1/characters/{character_id}/dungeon-opportunities": {
-      "get": {
-        "tags": [
-          "dungeon"
-        ],
-        "summary": "读取角色秘境机会",
-        "parameters": [
-          {
-            "name": "character_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "角色秘境机会信息。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonOpportunity"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/characters/{character_id}/dungeon-opportunities/teaching-grant": {
-      "post": {
-        "tags": [
-          "dungeon"
-        ],
-        "summary": "领取教学赠送的秘境机会",
-        "parameters": [
-          {
-            "name": "character_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "教学赠送结果。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonOpportunity"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/characters/{character_id}/dungeon-runs": {
-      "post": {
-        "tags": [
-          "dungeon"
-        ],
-        "summary": "创建秘境运行并消耗一次机会",
-        "parameters": [
-          {
-            "name": "character_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DungeonRunCreateRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "秘境运行已创建。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonRun"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/characters/{character_id}/dungeon-runs/{run_id}": {
-      "get": {
-        "tags": [
-          "dungeon"
-        ],
-        "summary": "读取秘境运行",
-        "parameters": [
-          {
-            "name": "character_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "run_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "秘境运行详情。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessEnvelopeDungeonRun"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/dungeons/{dungeon_id}/preview": {
       "post": {
         "tags": [
@@ -851,96 +1167,6 @@
             }
           }
         }
-      }
-    },
-    "/api/v1/characters/{character_id}/settlements/latest": {
-      "get": {
-        "operationId": "SettlementController_getLatest",
-        "parameters": [
-          {
-            "name": "character_id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "最近一次离线结算摘要。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessEnvelopeSettlementSummary"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "资源未找到。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "summary": "读取角色最近一次离线结算摘要",
-        "tags": [
-          "settlement"
-        ]
-      }
-    },
-    "/api/v1/characters/{character_id}/settlements/{settlement_id}": {
-      "get": {
-        "operationId": "SettlementController_getById",
-        "parameters": [
-          {
-            "name": "character_id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "settlement_id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "指定离线结算摘要。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessEnvelopeSettlementSummary"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "资源未找到。",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            }
-          }
-        },
-        "summary": "读取指定离线结算摘要",
-        "tags": [
-          "settlement"
-        ]
       }
     }
   },
@@ -1111,6 +1337,785 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/InventorySnapshot"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        }
+      },
+      "SuccessEnvelopeBuffUse": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/BuffUseResponse"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        }
+      },
+      "DungeonOpportunityCharacter": {
+        "type": "object",
+        "required": [
+          "character_id",
+          "state_version",
+          "active_config_version"
+        ],
+        "properties": {
+          "character_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state_version": {
+            "type": "integer"
+          },
+          "active_config_version": {
+            "type": "string"
+          }
+        }
+      },
+      "DungeonOpportunityDetails": {
+        "type": "object",
+        "required": [
+          "current_opportunities",
+          "opportunity_cap",
+          "recovery_anchor_at",
+          "next_recovery_at",
+          "recovery_interval_seconds",
+          "is_capped"
+        ],
+        "properties": {
+          "current_opportunities": {
+            "type": "integer"
+          },
+          "opportunity_cap": {
+            "type": "integer"
+          },
+          "recovery_anchor_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "next_recovery_at": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recovery_interval_seconds": {
+            "type": "integer"
+          },
+          "is_capped": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DungeonTeachingGrantDetails": {
+        "type": "object",
+        "required": [
+          "source_tutorial_id",
+          "claimed_at",
+          "available",
+          "applied_quantity"
+        ],
+        "properties": {
+          "source_tutorial_id": {
+            "type": "string"
+          },
+          "claimed_at": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "applied_quantity": {
+            "type": "integer"
+          }
+        }
+      },
+      "DungeonOpportunityResponse": {
+        "type": "object",
+        "required": [
+          "character",
+          "opportunity",
+          "teaching_grant",
+          "calculation_as_of",
+          "config_version"
+        ],
+        "properties": {
+          "character": {
+            "$ref": "#/components/schemas/DungeonOpportunityCharacter"
+          },
+          "opportunity": {
+            "$ref": "#/components/schemas/DungeonOpportunityDetails"
+          },
+          "teaching_grant": {
+            "$ref": "#/components/schemas/DungeonTeachingGrantDetails"
+          },
+          "calculation_as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "config_version": {
+            "type": "string"
+          }
+        }
+      },
+      "DungeonRunCreateRequest": {
+        "type": "object",
+        "required": [
+          "dungeon_id",
+          "loadout_preset_id",
+          "strategy_preset_id",
+          "initial_route_id",
+          "expected_state_version",
+          "config_version"
+        ],
+        "properties": {
+          "dungeon_id": {
+            "type": "string"
+          },
+          "loadout_preset_id": {
+            "type": "string"
+          },
+          "strategy_preset_id": {
+            "type": "string"
+          },
+          "initial_route_id": {
+            "type": "string"
+          },
+          "expected_state_version": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "config_version": {
+            "type": "string"
+          }
+        }
+      },
+      "DungeonRunDetails": {
+        "type": "object",
+        "required": [
+          "run_id",
+          "dungeon_id",
+          "status",
+          "current_node_id",
+          "phase",
+          "outcome",
+          "revision",
+          "initial_route_id",
+          "loadout_preset_id",
+          "strategy_preset_id",
+          "opportunity_cost",
+          "config_version",
+          "created_at",
+          "choice_deadline_at",
+          "selected_choice_id",
+          "selected_route_id",
+          "selected_route_risk",
+          "selected_at",
+          "combat_resolved_at",
+          "finalized_at",
+          "run_state"
+        ],
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dungeon_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "current_node_id": {
+            "type": "string"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer"
+          },
+          "initial_route_id": {
+            "type": "string"
+          },
+          "loadout_preset_id": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "strategy_preset_id": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "opportunity_cost": {
+            "type": "integer"
+          },
+          "config_version": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "choice_deadline_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "selected_choice_id": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_route_id": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_route_risk": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_at": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "combat_resolved_at": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "finalized_at": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_state": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "DungeonPreviewRequest": {
+        "type": "object",
+        "required": [
+          "character_id",
+          "loadout_preset_id",
+          "strategy_preset_id",
+          "initial_route_id"
+        ],
+        "properties": {
+          "character_id": {
+            "type": "string"
+          },
+          "loadout_preset_id": {
+            "type": "string"
+          },
+          "strategy_preset_id": {
+            "type": "string"
+          },
+          "initial_route_id": {
+            "type": "string"
+          }
+        }
+      },
+      "DungeonChoiceRequest": {
+        "type": "object",
+        "required": [
+          "choice_id",
+          "expected_run_version"
+        ],
+        "properties": {
+          "choice_id": {
+            "type": "string"
+          },
+          "expected_run_version": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      "DungeonPreviewResponse": {
+        "type": "object",
+        "required": [
+          "character",
+          "dungeon",
+          "config_version",
+          "calculation_as_of"
+        ],
+        "properties": {
+          "character": {
+            "$ref": "#/components/schemas/DungeonOpportunityCharacter"
+          },
+          "dungeon": {
+            "type": "object",
+            "required": [
+              "dungeon_id",
+              "recommended_power",
+              "base_success_rate",
+              "estimated_success_rate",
+              "choice_timeout_seconds",
+              "opportunity_cost",
+              "entry_items",
+              "choices",
+              "core_rewards"
+            ],
+            "properties": {
+              "dungeon_id": {
+                "type": "string"
+              },
+              "recommended_power": {
+                "type": "string"
+              },
+              "base_success_rate": {
+                "type": "string"
+              },
+              "estimated_success_rate": {
+                "type": "string"
+              },
+              "choice_timeout_seconds": {
+                "type": "integer"
+              },
+              "opportunity_cost": {
+                "type": "integer"
+              },
+              "entry_items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "core_rewards": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "config_version": {
+            "type": "string"
+          },
+          "calculation_as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DungeonRunResponse": {
+        "type": "object",
+        "required": [
+          "character",
+          "opportunity",
+          "teaching_grant",
+          "calculation_as_of",
+          "config_version",
+          "run"
+        ],
+        "properties": {
+          "character": {
+            "$ref": "#/components/schemas/DungeonOpportunityCharacter"
+          },
+          "opportunity": {
+            "$ref": "#/components/schemas/DungeonOpportunityDetails"
+          },
+          "teaching_grant": {
+            "$ref": "#/components/schemas/DungeonTeachingGrantDetails"
+          },
+          "calculation_as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "config_version": {
+            "type": "string"
+          },
+          "run": {
+            "$ref": "#/components/schemas/DungeonRunDetails"
+          }
+        }
+      },
+      "SuccessEnvelopeDungeonOpportunity": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DungeonOpportunityResponse"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        }
+      },
+      "SuccessEnvelopeDungeonRun": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DungeonRunResponse"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        }
+      },
+      "SettlementRewardItem": {
+        "type": "object",
+        "required": [
+          "item_id",
+          "quantity"
+        ],
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          }
+        }
+      },
+      "SettlementRewards": {
+        "type": "object",
+        "required": [
+          "cultivation_xp",
+          "skill_xp",
+          "items"
+        ],
+        "properties": {
+          "cultivation_xp": {
+            "type": "string"
+          },
+          "skill_xp": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettlementRewardItem"
+            }
+          }
+        }
+      },
+      "SettlementTimelineEntry": {
+        "type": "object",
+        "required": [
+          "segment_index",
+          "queue_entry_id",
+          "action_config_id",
+          "from_at",
+          "to_at",
+          "completed_cycles",
+          "inputs",
+          "outputs",
+          "xp_changes",
+          "transition_reason",
+          "snapshot"
+        ],
+        "properties": {
+          "segment_index": {
+            "type": "integer"
+          },
+          "queue_entry_id": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "action_config_id": {
+            "type": "string"
+          },
+          "from_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed_cycles": {
+            "type": "string"
+          },
+          "inputs": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "outputs": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "xp_changes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "transition_reason": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "snapshot": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "SettlementLedgerEntry": {
+        "type": "object",
+        "required": [
+          "entry_id",
+          "transaction_id",
+          "asset_type",
+          "asset_id",
+          "delta",
+          "balance_after",
+          "reason_code",
+          "reference_type",
+          "reference_id",
+          "config_version",
+          "created_at"
+        ],
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "asset_type": {
+            "type": "string"
+          },
+          "asset_id": {
+            "type": "string"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "balance_after": {
+            "type": "string"
+          },
+          "reason_code": {
+            "type": "string"
+          },
+          "reference_type": {
+            "type": "string"
+          },
+          "reference_id": {
+            "type": "string"
+          },
+          "config_version": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LatestSettlementSummary": {
+        "type": "object",
+        "required": [
+          "settlement_id",
+          "character_id",
+          "as_of",
+          "from_at",
+          "requested_until",
+          "effective_until",
+          "effective_time_us",
+          "capped_time_us",
+          "continuation_required",
+          "status",
+          "summary",
+          "rewards",
+          "timeline",
+          "ledger_entries"
+        ],
+        "properties": {
+          "settlement_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "character_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "from_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requested_until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "effective_until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "effective_time_us": {
+            "type": "string"
+          },
+          "capped_time_us": {
+            "type": "string"
+          },
+          "continuation_required": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "rewards": {
+            "$ref": "#/components/schemas/SettlementRewards"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettlementTimelineEntry"
+            }
+          },
+          "ledger_entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettlementLedgerEntry"
+            }
+          }
+        }
+      },
+      "LatestSettlementResponse": {
+        "type": "object",
+        "required": [
+          "settlement"
+        ],
+        "properties": {
+          "settlement": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LatestSettlementSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "SuccessEnvelopeSettlementSummary": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/LatestSettlementResponse"
           },
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -1303,6 +2308,233 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/LoadoutPreset"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        }
+      },
+      "SkillToolAssignmentComparison": {
+        "type": "object",
+        "required": [
+          "preferred_equipment_instance_id",
+          "throughput_delta_per_hour",
+          "cycles_delta_per_hour"
+        ],
+        "properties": {
+          "preferred_equipment_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "throughput_delta_per_hour": {
+            "type": "string"
+          },
+          "cycles_delta_per_hour": {
+            "type": "string"
+          }
+        }
+      },
+      "SkillToolAssignmentToolOption": {
+        "type": "object",
+        "required": [
+          "equipment_instance_id",
+          "item_id",
+          "item_name_key",
+          "source_note",
+          "required_realm",
+          "required_tags",
+          "tool_tag",
+          "speed_multiplier",
+          "efficiency_multiplier",
+          "cycles_per_hour",
+          "effective_throughput_per_hour",
+          "source_routes",
+          "usage_routes",
+          "comparison"
+        ],
+        "properties": {
+          "equipment_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "item_name_key": {
+            "type": "string"
+          },
+          "source_note": {
+            "type": "string"
+          },
+          "required_realm": {
+            "type": "string"
+          },
+          "required_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tool_tag": {
+            "type": "string"
+          },
+          "speed_multiplier": {
+            "type": "string"
+          },
+          "efficiency_multiplier": {
+            "type": "string"
+          },
+          "cycles_per_hour": {
+            "type": "string"
+          },
+          "effective_throughput_per_hour": {
+            "type": "string"
+          },
+          "source_routes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "usage_routes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "comparison": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SkillToolAssignmentComparison"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "SkillToolAssignmentView": {
+        "type": "object",
+        "required": [
+          "skill_id",
+          "current",
+          "options"
+        ],
+        "properties": {
+          "skill_id": {
+            "type": "string"
+          },
+          "current": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SkillToolAssignmentToolOption"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillToolAssignmentToolOption"
+            }
+          }
+        }
+      },
+      "SkillToolAssignmentsSaveRequest": {
+        "type": "object",
+        "required": [
+          "expected_state_version",
+          "assignments"
+        ],
+        "properties": {
+          "expected_state_version": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?:0|[1-9]\\d*)$"
+              }
+            ]
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "skill_id"
+              ],
+              "properties": {
+                "skill_id": {
+                  "type": "string"
+                },
+                "equipment_instance_id": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "SkillToolAssignmentsResponse": {
+        "type": "object",
+        "required": [
+          "character_id",
+          "state_version",
+          "config_version",
+          "as_of",
+          "assignments"
+        ],
+        "properties": {
+          "character_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state_version": {
+            "type": "integer"
+          },
+          "config_version": {
+            "type": "string"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "effective_next_cycle": {
+            "type": "boolean"
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillToolAssignmentView"
+            }
+          }
+        }
+      },
+      "SkillToolAssignmentsEnvelope": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/SkillToolAssignmentsResponse"
           },
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -1644,6 +2876,132 @@
           }
         }
       },
+      "BuffUseRequest": {
+        "type": "object",
+        "required": [
+          "item_id",
+          "quantity",
+          "target_slot_index",
+          "expected_state_version"
+        ],
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "target_slot_index": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "expected_state_version": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
+      "BuffUseResponse": {
+        "type": "object",
+        "required": [
+          "character_id",
+          "item_id",
+          "quantity",
+          "target_slot_index",
+          "buff_instance",
+          "replaced_buff_instance_id",
+          "effective_next_cycle",
+          "state_version"
+        ],
+        "properties": {
+          "character_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "target_slot_index": {
+            "type": "integer"
+          },
+          "buff_instance": {
+            "type": "object",
+            "required": [
+              "buff_instance_id",
+              "buff_config_id",
+              "source_item_id",
+              "slot_index",
+              "stack_group",
+              "started_at",
+              "expires_at"
+            ],
+            "properties": {
+              "buff_instance_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "buff_config_id": {
+                "type": "string"
+              },
+              "source_item_id": {
+                "type": "string"
+              },
+              "slot_index": {
+                "type": "integer"
+              },
+              "stack_group": {
+                "type": "string"
+              },
+              "started_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "replaced_buff_instance_id": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "effective_next_cycle": {
+            "type": "boolean"
+          },
+          "state_version": {
+            "type": "integer"
+          }
+        }
+      },
       "SuccessEnvelopeQueue": {
         "type": "object",
         "required": [
@@ -1969,6 +3327,16 @@
           "progress_time_us": {
             "type": "string"
           },
+          "blocked_reason": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "snapshot_config_version": {
             "oneOf": [
               {
@@ -2137,78 +3505,18 @@
                 "type": "string"
               }
             ]
-          }
-        }
-      },
-      "EquipmentInstance": {
-        "type": "object",
-        "required": [
-          "instance_id",
-          "item_id",
-          "temper_level",
-          "bound",
-          "created_config_version"
-        ],
-        "properties": {
-          "instance_id": {
-            "type": "string",
-            "format": "uuid"
           },
-          "item_id": {
-            "type": "string"
+          "source_routes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentRoute"
+            }
           },
-          "temper_level": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "bound": {
-            "type": "boolean"
-          },
-          "created_config_version": {
-            "type": "string"
-          }
-        }
-      },
-      "Manifest": {
-        "type": "object",
-        "required": [
-          "config_version",
-          "schema_version",
-          "formula_version",
-          "created_at",
-          "min_client_version",
-          "content_hash",
-          "previous_version"
-        ],
-        "properties": {
-          "config_version": {
-            "type": "string"
-          },
-          "schema_version": {
-            "type": "integer"
-          },
-          "formula_version": {
-            "type": "integer"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "min_client_version": {
-            "type": "string"
-          },
-          "content_hash": {
-            "type": "string"
-          },
-          "previous_version": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "usage_routes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentRoute"
+            }
           }
         }
       },
@@ -2687,767 +3995,75 @@
           }
         }
       },
-      "DungeonOpportunityCharacter": {
+      "EquipmentInstance": {
         "type": "object",
         "required": [
-          "character_id",
-          "state_version",
-          "active_config_version"
-        ],
-        "properties": {
-          "character_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "state_version": {
-            "type": "integer"
-          },
-          "active_config_version": {
-            "type": "string"
-          }
-        }
-      },
-      "DungeonOpportunityDetails": {
-        "type": "object",
-        "required": [
-          "current_opportunities",
-          "opportunity_cap",
-          "recovery_anchor_at",
-          "next_recovery_at",
-          "recovery_interval_seconds",
-          "is_capped"
-        ],
-        "properties": {
-          "current_opportunities": {
-            "type": "integer"
-          },
-          "opportunity_cap": {
-            "type": "integer"
-          },
-          "recovery_anchor_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "next_recovery_at": {
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "recovery_interval_seconds": {
-            "type": "integer"
-          },
-          "is_capped": {
-            "type": "boolean"
-          }
-        }
-      },
-      "DungeonTeachingGrantDetails": {
-        "type": "object",
-        "required": [
-          "source_tutorial_id",
-          "claimed_at",
-          "available",
-          "applied_quantity"
-        ],
-        "properties": {
-          "source_tutorial_id": {
-            "type": "string"
-          },
-          "claimed_at": {
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "available": {
-            "type": "boolean"
-          },
-          "applied_quantity": {
-            "type": "integer"
-          }
-        }
-      },
-      "DungeonOpportunityResponse": {
-        "type": "object",
-        "required": [
-          "character",
-          "opportunity",
-          "teaching_grant",
-          "calculation_as_of",
-          "config_version"
-        ],
-        "properties": {
-          "character": {
-            "$ref": "#/components/schemas/DungeonOpportunityCharacter"
-          },
-          "opportunity": {
-            "$ref": "#/components/schemas/DungeonOpportunityDetails"
-          },
-          "teaching_grant": {
-            "$ref": "#/components/schemas/DungeonTeachingGrantDetails"
-          },
-          "calculation_as_of": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "config_version": {
-            "type": "string"
-          }
-        }
-      },
-      "DungeonRunCreateRequest": {
-        "type": "object",
-        "required": [
-          "dungeon_id",
-          "loadout_preset_id",
-          "strategy_preset_id",
-          "initial_route_id",
-          "expected_state_version",
-          "config_version"
-        ],
-        "properties": {
-          "dungeon_id": {
-            "type": "string"
-          },
-          "loadout_preset_id": {
-            "type": "string"
-          },
-          "strategy_preset_id": {
-            "type": "string"
-          },
-          "initial_route_id": {
-            "type": "string"
-          },
-          "expected_state_version": {
-            "oneOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          },
-          "config_version": {
-            "type": "string"
-          }
-        }
-      },
-      "DungeonRunDetails": {
-        "type": "object",
-        "required": [
-          "run_id",
-          "dungeon_id",
-          "status",
-          "current_node_id",
-          "phase",
-          "outcome",
-          "revision",
-          "initial_route_id",
-          "loadout_preset_id",
-          "strategy_preset_id",
-          "opportunity_cost",
-          "config_version",
-          "created_at",
-          "choice_deadline_at",
-          "selected_choice_id",
-          "selected_route_id",
-          "selected_route_risk",
-          "selected_at",
-          "combat_resolved_at",
-          "finalized_at",
-          "run_state"
-        ],
-        "properties": {
-          "run_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "dungeon_id": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "current_node_id": {
-            "type": "string"
-          },
-          "phase": {
-            "type": "string"
-          },
-          "outcome": {
-            "type": "string"
-          },
-          "revision": {
-            "type": "integer"
-          },
-          "initial_route_id": {
-            "type": "string"
-          },
-          "loadout_preset_id": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "strategy_preset_id": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "opportunity_cost": {
-            "type": "integer"
-          },
-          "config_version": {
-            "type": "string"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "choice_deadline_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "selected_choice_id": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "selected_route_id": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "selected_route_risk": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "selected_at": {
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "combat_resolved_at": {
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "finalized_at": {
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "run_state": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        }
-      },
-      "DungeonRunResponse": {
-        "type": "object",
-        "required": [
-          "character",
-          "opportunity",
-          "teaching_grant",
-          "calculation_as_of",
-          "config_version",
-          "run"
-        ],
-        "properties": {
-          "character": {
-            "$ref": "#/components/schemas/DungeonOpportunityCharacter"
-          },
-          "opportunity": {
-            "$ref": "#/components/schemas/DungeonOpportunityDetails"
-          },
-          "teaching_grant": {
-            "$ref": "#/components/schemas/DungeonTeachingGrantDetails"
-          },
-          "calculation_as_of": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "config_version": {
-            "type": "string"
-          },
-          "run": {
-            "$ref": "#/components/schemas/DungeonRunDetails"
-          }
-        }
-      },
-      "SuccessEnvelopeDungeonOpportunity": {
-        "type": "object",
-        "required": [
-          "data",
-          "meta"
-        ],
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/DungeonOpportunityResponse"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/ApiMeta"
-          }
-        }
-      },
-      "SuccessEnvelopeDungeonRun": {
-        "type": "object",
-        "required": [
-          "data",
-          "meta"
-        ],
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/DungeonRunResponse"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/ApiMeta"
-          }
-        }
-      },
-      "DungeonPreviewRequest": {
-        "type": "object",
-        "required": [
-          "character_id",
-          "loadout_preset_id",
-          "strategy_preset_id",
-          "initial_route_id"
-        ],
-        "properties": {
-          "character_id": {
-            "type": "string"
-          },
-          "loadout_preset_id": {
-            "type": "string"
-          },
-          "strategy_preset_id": {
-            "type": "string"
-          },
-          "initial_route_id": {
-            "type": "string"
-          }
-        }
-      },
-      "DungeonChoiceRequest": {
-        "type": "object",
-        "required": [
-          "choice_id",
-          "expected_run_version"
-        ],
-        "properties": {
-          "choice_id": {
-            "type": "string"
-          },
-          "expected_run_version": {
-            "oneOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        }
-      },
-      "DungeonPreviewResponse": {
-        "type": "object",
-        "required": [
-          "character",
-          "dungeon",
-          "config_version",
-          "calculation_as_of"
-        ],
-        "properties": {
-          "character": {
-            "$ref": "#/components/schemas/DungeonOpportunityCharacter"
-          },
-          "dungeon": {
-            "type": "object",
-            "required": [
-              "dungeon_id",
-              "recommended_power",
-              "base_success_rate",
-              "estimated_success_rate",
-              "choice_timeout_seconds",
-              "opportunity_cost",
-              "entry_items",
-              "choices",
-              "core_rewards"
-            ],
-            "properties": {
-              "dungeon_id": {
-                "type": "string"
-              },
-              "recommended_power": {
-                "type": "string"
-              },
-              "base_success_rate": {
-                "type": "string"
-              },
-              "estimated_success_rate": {
-                "type": "string"
-              },
-              "choice_timeout_seconds": {
-                "type": "integer"
-              },
-              "opportunity_cost": {
-                "type": "integer"
-              },
-              "entry_items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "additionalProperties": true
-                }
-              },
-              "choices": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "additionalProperties": true
-                }
-              },
-              "core_rewards": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "config_version": {
-            "type": "string"
-          },
-          "calculation_as_of": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "SettlementRewardItem": {
-        "type": "object",
-        "required": [
+          "instance_id",
           "item_id",
-          "quantity"
+          "temper_level",
+          "bound",
+          "created_config_version"
         ],
         "properties": {
+          "instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "item_id": {
             "type": "string"
           },
-          "quantity": {
+          "temper_level": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "bound": {
+            "type": "boolean"
+          },
+          "created_config_version": {
             "type": "string"
           }
         }
       },
-      "SettlementRewards": {
+      "Manifest": {
         "type": "object",
         "required": [
-          "cultivation_xp",
-          "skill_xp",
-          "items"
-        ],
-        "properties": {
-          "cultivation_xp": {
-            "type": "string"
-          },
-          "skill_xp": {
-            "type": "string"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SettlementRewardItem"
-            }
-          }
-        }
-      },
-      "SettlementTimelineEntry": {
-        "type": "object",
-        "required": [
-          "segment_index",
-          "queue_entry_id",
-          "action_config_id",
-          "from_at",
-          "to_at",
-          "completed_cycles",
-          "inputs",
-          "outputs",
-          "xp_changes",
-          "transition_reason",
-          "snapshot"
-        ],
-        "properties": {
-          "segment_index": {
-            "type": "integer"
-          },
-          "queue_entry_id": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "action_config_id": {
-            "type": "string"
-          },
-          "from_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "to_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "completed_cycles": {
-            "type": "string"
-          },
-          "inputs": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "outputs": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "xp_changes": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "transition_reason": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "snapshot": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        }
-      },
-      "SettlementLedgerEntry": {
-        "type": "object",
-        "required": [
-          "entry_id",
-          "transaction_id",
-          "asset_type",
-          "asset_id",
-          "delta",
-          "balance_after",
-          "reason_code",
-          "reference_type",
-          "reference_id",
           "config_version",
-          "created_at"
+          "schema_version",
+          "formula_version",
+          "created_at",
+          "min_client_version",
+          "content_hash",
+          "previous_version"
         ],
         "properties": {
-          "entry_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "transaction_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "asset_type": {
-            "type": "string"
-          },
-          "asset_id": {
-            "type": "string"
-          },
-          "delta": {
-            "type": "string"
-          },
-          "balance_after": {
-            "type": "string"
-          },
-          "reason_code": {
-            "type": "string"
-          },
-          "reference_type": {
-            "type": "string"
-          },
-          "reference_id": {
-            "type": "string"
-          },
           "config_version": {
             "type": "string"
+          },
+          "schema_version": {
+            "type": "integer"
+          },
+          "formula_version": {
+            "type": "integer"
           },
           "created_at": {
             "type": "string",
             "format": "date-time"
-          }
-        }
-      },
-      "LatestSettlementSummary": {
-        "type": "object",
-        "required": [
-          "settlement_id",
-          "character_id",
-          "as_of",
-          "from_at",
-          "requested_until",
-          "effective_until",
-          "effective_time_us",
-          "capped_time_us",
-          "continuation_required",
-          "status",
-          "summary",
-          "rewards",
-          "timeline",
-          "ledger_entries"
-        ],
-        "properties": {
-          "settlement_id": {
-            "type": "string",
-            "format": "uuid"
           },
-          "character_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "as_of": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "from_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "requested_until": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "effective_until": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "effective_time_us": {
+          "min_client_version": {
             "type": "string"
           },
-          "capped_time_us": {
+          "content_hash": {
             "type": "string"
           },
-          "continuation_required": {
-            "type": "boolean"
-          },
-          "status": {
-            "type": "string"
-          },
-          "summary": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "rewards": {
-            "$ref": "#/components/schemas/SettlementRewards"
-          },
-          "timeline": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SettlementTimelineEntry"
-            }
-          },
-          "ledger_entries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SettlementLedgerEntry"
-            }
-          }
-        }
-      },
-      "LatestSettlementResponse": {
-        "type": "object",
-        "required": [
-          "settlement"
-        ],
-        "properties": {
-          "settlement": {
+          "previous_version": {
             "oneOf": [
               {
-                "$ref": "#/components/schemas/LatestSettlementSummary"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ]
-          }
-        }
-      },
-      "SuccessEnvelopeSettlementSummary": {
-        "type": "object",
-        "required": [
-          "data",
-          "meta"
-        ],
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/LatestSettlementResponse"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/ApiMeta"
           }
         }
       }

@@ -12,6 +12,7 @@ const requiredPaths = [
   '/api/v1/characters/{character_id}/queue/preview',
   '/api/v1/characters/{character_id}/queue/pause',
   '/api/v1/characters/{character_id}/queue/resume',
+  '/api/v1/characters/{character_id}/skill-tool-assignments',
   '/api/v1/characters/{character_id}/settlements/latest',
   '/api/v1/characters/{character_id}/settlements/{settlement_id}',
 ];
@@ -40,6 +41,10 @@ if (!document.components?.schemas?.SuccessEnvelopeRecipes) {
 
 if (!document.components?.schemas?.SuccessEnvelopeSettlementSummary) {
   throw new Error('OPENAPI_SETTLEMENT_SUMMARY_SCHEMA_MISSING');
+}
+
+if (!document.components?.schemas?.SkillToolAssignmentsEnvelope) {
+  throw new Error('OPENAPI_SKILL_TOOL_ASSIGNMENTS_SCHEMA_MISSING');
 }
 
 if (Object.keys(document.paths).some((path) => path.includes('market'))) {

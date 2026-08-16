@@ -147,6 +147,8 @@ const registry = new ConfigRegistry({
   lootTables: [],
   monsters: [],
   dungeons: [],
+  regions: [],
+  caveFacilities: [],
 });
 
 const character: CharacterProgressionRecord = {

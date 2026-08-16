@@ -81,6 +81,14 @@ const DungeonSuccessModelSchema = z.object({
   max_success_rate: z.string().regex(/^(?:0(?:\.\d+)?|1(?:\.0+)?)$/),
 });
 
+const RegionKindSchema = z.enum(['FOOTHILL', 'SLOPE', 'SPRING', 'PASS', 'MINE', 'VALLEY']);
+const CaveFacilityKindSchema = z.enum(['JULING_ROOM', 'ALCHEMY_ROOM', 'FORGING_ROOM']);
+const CaveFacilityEffectTypeSchema = z.enum(['cultivation_efficiency', 'alchemy_efficiency', 'forging_efficiency']);
+const MaterialCostSchema = z.object({
+  item_id: StableIdSchema,
+  quantity: PositiveIntegerStringSchema,
+});
+
 export const ManifestSchema = z.object({
   config_version: z.string().regex(/^\d{4}\.\d{2}\.\d+\.\d+$/),
   schema_version: z.number().int().positive(),
@@ -193,6 +201,40 @@ export const DungeonConfigSchema = z.object({
   scope: ScopeSchema,
 });
 
+export const RegionConfigSchema = z.object({
+  ...CommonContentShape,
+  region_kind: RegionKindSchema,
+  stage_label: z.string().min(1),
+  resource_item_ids: z.array(StableIdSchema).min(1),
+  action_ids: z.array(StableIdSchema).min(1),
+  monster_ids: z.array(StableIdSchema).min(1),
+  dungeon_ids: z.array(StableIdSchema),
+  recommended_goal: z.string().min(1),
+  scope: ScopeSchema,
+});
+
+export const CaveFacilityConfigSchema = z.object({
+  id: StableIdSchema,
+  facility_id: StableIdSchema,
+  name_key: z.string().min(1),
+  description_key: z.string().min(1),
+  enabled: z.boolean(),
+  deprecated: z.boolean(),
+  realm_required: StableIdSchema,
+  feature_flag: StableIdSchema.nullable().optional(),
+  sort_order: z.number().int().nonnegative(),
+  tags: z.array(z.string().min(1)),
+  source_note: z.string().min(1),
+  level: z.number().int().positive(),
+  facility_kind: CaveFacilityKindSchema,
+  spirit_stone_cost: PositiveIntegerStringSchema,
+  material_costs: z.array(MaterialCostSchema),
+  build_duration_us: PositiveIntegerStringSchema,
+  effect_type: CaveFacilityEffectTypeSchema,
+  effect_value: NonNegativeDecimalStringSchema,
+  scope: ScopeSchema,
+});
+
 export const ActionConfigSchema = z.object({
   ...CommonContentShape,
   skill_id: StableIdSchema.nullable(),
@@ -274,6 +316,8 @@ export type ToolEffect = z.infer<typeof ToolEffectSchema>;
 export type LootTableConfig = z.infer<typeof LootTableConfigSchema>;
 export type MonsterConfig = z.infer<typeof MonsterConfigSchema>;
 export type DungeonConfig = z.infer<typeof DungeonConfigSchema>;
+export type RegionConfig = z.infer<typeof RegionConfigSchema>;
+export type CaveFacilityConfig = z.infer<typeof CaveFacilityConfigSchema>;
 
 const configFiles = [
   'realms.json',
@@ -288,6 +332,8 @@ const configFiles = [
   'loot_tables.json',
   'monsters.json',
   'dungeons.json',
+  'regions.json',
+  'cave_facilities.json',
 ] as const;
 
 function readJson(filePath: string): unknown {
@@ -362,6 +408,8 @@ export type ConfigRelease = Readonly<{
   lootTables: readonly LootTableConfig[];
   monsters: readonly MonsterConfig[];
   dungeons: readonly DungeonConfig[];
+  regions: readonly RegionConfig[];
+  caveFacilities: readonly CaveFacilityConfig[];
 }>;
 
 export class ConfigRegistry {
@@ -378,6 +426,8 @@ export class ConfigRegistry {
   private readonly lootTableById: ReadonlyMap<string, LootTableConfig>;
   private readonly monsterById: ReadonlyMap<string, MonsterConfig>;
   private readonly dungeonById: ReadonlyMap<string, DungeonConfig>;
+  private readonly regionById: ReadonlyMap<string, RegionConfig>;
+  private readonly caveFacilityById: ReadonlyMap<string, CaveFacilityConfig>;
 
   public constructor(private readonly release: ConfigRelease) {
     this.realmById = indexById(release.realms, 'realm');
@@ -393,6 +443,8 @@ export class ConfigRegistry {
     this.lootTableById = indexById(release.lootTables, 'loot_table');
     this.monsterById = indexById(release.monsters, 'monster');
     this.dungeonById = indexById(release.dungeons, 'dungeon');
+    this.regionById = indexById(release.regions, 'region');
+    this.caveFacilityById = indexById(release.caveFacilities, 'cave_facility');
   }
 
   public get manifest(): Manifest {
@@ -409,6 +461,10 @@ export class ConfigRegistry {
 
   public getItem(id: string): ItemConfig {
     return this.getRequired(this.itemById, id, 'item');
+  }
+
+  public get items(): readonly ItemConfig[] {
+    return this.release.items;
   }
 
   public getFeatureUnlock(id: string): FeatureUnlockConfig {
@@ -496,6 +552,22 @@ export class ConfigRegistry {
     return this.release.dungeons;
   }
 
+  public getRegion(id: string): RegionConfig {
+    return this.getRequired(this.regionById, id, 'region');
+  }
+
+  public get regions(): readonly RegionConfig[] {
+    return this.release.regions;
+  }
+
+  public getCaveFacility(id: string): CaveFacilityConfig {
+    return this.getRequired(this.caveFacilityById, id, 'cave_facility');
+  }
+
+  public get caveFacilities(): readonly CaveFacilityConfig[] {
+    return this.release.caveFacilities;
+  }
+
   private getRequired<T>(values: ReadonlyMap<string, T>, id: string, label: string): T {
     const value = values.get(id);
 
@@ -529,6 +601,8 @@ export function loadConfigRegistry(options: LoadConfigRegistryOptions): ConfigRe
   const lootTables = z.array(LootTableConfigSchema).parse(readJson(join(releaseDir, 'loot_tables.json')));
   const monsters = z.array(MonsterConfigSchema).parse(readJson(join(releaseDir, 'monsters.json')));
   const dungeons = z.array(DungeonConfigSchema).parse(readJson(join(releaseDir, 'dungeons.json')));
+  const regions = z.array(RegionConfigSchema).parse(readJson(join(releaseDir, 'regions.json')));
+  const caveFacilities = z.array(CaveFacilityConfigSchema).parse(readJson(join(releaseDir, 'cave_facilities.json')));
 
   if (manifest.config_version !== options.version) {
     throw new Error(`CONFIG_VERSION_MISMATCH:${options.version}:${manifest.config_version}`);
@@ -589,6 +663,7 @@ export function loadConfigRegistry(options: LoadConfigRegistryOptions): ConfigRe
   );
   const lootTableById = indexById(lootTables, 'loot_table');
   const monsterById = indexById(monsters, 'monster');
+  const dungeonById = indexById(dungeons, 'dungeon');
   for (const item of items) {
     assertReference(realmById, item.realm_required, 'item.realm_required');
   }
@@ -744,6 +819,42 @@ export function loadConfigRegistry(options: LoadConfigRegistryOptions): ConfigRe
     }
   }
 
+  for (const region of regions) {
+    assertReference(realmById, region.realm_required, 'region.realm_required');
+    for (const itemId of region.resource_item_ids) {
+      assertReference(itemById, itemId, 'region.resource_item_ids');
+    }
+    for (const actionId of region.action_ids) {
+      assertReference(actionById, actionId, 'region.action_ids');
+    }
+    for (const monsterId of region.monster_ids) {
+      assertReference(monsterById, monsterId, 'region.monster_ids');
+    }
+    for (const dungeonId of region.dungeon_ids) {
+      assertReference(dungeonById, dungeonId, 'region.dungeon_ids');
+    }
+  }
+
+  const caveLevelsByFacility = new Map<string, number[]>();
+  for (const facility of caveFacilities) {
+    assertReference(realmById, facility.realm_required, 'cave_facility.realm_required');
+    for (const material of facility.material_costs) {
+      assertReference(itemById, material.item_id, 'cave_facility.material_costs.item_id');
+    }
+    const levels = caveLevelsByFacility.get(facility.facility_id) ?? [];
+    levels.push(facility.level);
+    caveLevelsByFacility.set(facility.facility_id, levels);
+  }
+  for (const levels of caveLevelsByFacility.values()) {
+    const sorted = [...levels].sort((left, right) => left - right);
+    for (let index = 0; index < sorted.length; index += 1) {
+      const expectedLevel = index + 1;
+      if (sorted[index] !== expectedLevel) {
+        throw new Error(`CONFIG_CAVE_FACILITY_LEVEL_GAP:${expectedLevel}`);
+      }
+    }
+  }
+
   return new ConfigRegistry({
     manifest,
     realms,
@@ -758,5 +869,7 @@ export function loadConfigRegistry(options: LoadConfigRegistryOptions): ConfigRe
     lootTables,
     monsters,
     dungeons,
+    regions,
+    caveFacilities,
   });
 }

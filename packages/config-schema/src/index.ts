@@ -73,3 +73,5 @@ export function parseEnvironment(input: Record<string, string | undefined>): Env
 }
 
 export * from './config.js';
+export * from './region.js';
+export * from './cave-facility.js';

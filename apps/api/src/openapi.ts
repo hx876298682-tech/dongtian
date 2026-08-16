@@ -493,6 +493,97 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
           meta: { $ref: '#/components/schemas/ApiMeta' },
         },
       },
+      SkillToolAssignmentComparison: {
+        type: 'object',
+        required: ['preferred_equipment_instance_id', 'throughput_delta_per_hour', 'cycles_delta_per_hour'],
+        properties: {
+          preferred_equipment_instance_id: { type: 'string', format: 'uuid' },
+          throughput_delta_per_hour: { type: 'string' },
+          cycles_delta_per_hour: { type: 'string' },
+        },
+      },
+      SkillToolAssignmentToolOption: {
+        type: 'object',
+        required: [
+          'equipment_instance_id',
+          'item_id',
+          'item_name_key',
+          'source_note',
+          'required_realm',
+          'required_tags',
+          'tool_tag',
+          'speed_multiplier',
+          'efficiency_multiplier',
+          'cycles_per_hour',
+          'effective_throughput_per_hour',
+          'source_routes',
+          'usage_routes',
+          'comparison',
+        ],
+        properties: {
+          equipment_instance_id: { type: 'string', format: 'uuid' },
+          item_id: { type: 'string' },
+          item_name_key: { type: 'string' },
+          source_note: { type: 'string' },
+          required_realm: { type: 'string' },
+          required_tags: { type: 'array', items: { type: 'string' } },
+          tool_tag: { type: 'string' },
+          speed_multiplier: { type: 'string' },
+          efficiency_multiplier: { type: 'string' },
+          cycles_per_hour: { type: 'string' },
+          effective_throughput_per_hour: { type: 'string' },
+          source_routes: { type: 'array', items: { type: 'object', additionalProperties: true } },
+          usage_routes: { type: 'array', items: { type: 'object', additionalProperties: true } },
+          comparison: { oneOf: [{ $ref: '#/components/schemas/SkillToolAssignmentComparison' }, { type: 'null' }] },
+        },
+      },
+      SkillToolAssignmentView: {
+        type: 'object',
+        required: ['skill_id', 'current', 'options'],
+        properties: {
+          skill_id: { type: 'string' },
+          current: { oneOf: [{ $ref: '#/components/schemas/SkillToolAssignmentToolOption' }, { type: 'null' }] },
+          options: { type: 'array', items: { $ref: '#/components/schemas/SkillToolAssignmentToolOption' } },
+        },
+      },
+      SkillToolAssignmentsSaveRequest: {
+        type: 'object',
+        required: ['expected_state_version', 'assignments'],
+        properties: {
+          expected_state_version: { oneOf: [{ type: 'integer', minimum: 0 }, { type: 'string', pattern: '^(?:0|[1-9]\\d*)$' }] },
+          assignments: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['skill_id'],
+              properties: {
+                skill_id: { type: 'string' },
+                equipment_instance_id: { oneOf: [{ type: 'string', format: 'uuid' }, { type: 'null' }] },
+              },
+            },
+          },
+        },
+      },
+      SkillToolAssignmentsResponse: {
+        type: 'object',
+        required: ['character_id', 'state_version', 'config_version', 'as_of', 'assignments'],
+        properties: {
+          character_id: { type: 'string', format: 'uuid' },
+          state_version: { type: 'integer' },
+          config_version: { type: 'string' },
+          as_of: { type: 'string', format: 'date-time' },
+          effective_next_cycle: { type: 'boolean' },
+          assignments: { type: 'array', items: { $ref: '#/components/schemas/SkillToolAssignmentView' } },
+        },
+      },
+      SkillToolAssignmentsEnvelope: {
+        type: 'object',
+        required: ['data', 'meta'],
+        properties: {
+          data: { $ref: '#/components/schemas/SkillToolAssignmentsResponse' },
+          meta: { $ref: '#/components/schemas/ApiMeta' },
+        },
+      },
       AuthAnonymousSession: {
         type: 'object',
         required: ['account_id', 'character_id', 'account_type', 'csrf_token', 'session_expires_at'],
@@ -1138,6 +1229,46 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/LoadoutPresetEnvelope' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/characters/{character_id}/skill-tool-assignments': {
+      get: {
+        tags: ['characters'],
+        summary: '读取角色工具分配与工具对比',
+        parameters: [{ name: 'character_id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: {
+            description: '角色工具分配与工具对比。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SkillToolAssignmentsEnvelope' },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        tags: ['characters'],
+        summary: '保存角色工具分配',
+        parameters: [{ name: 'character_id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/SkillToolAssignmentsSaveRequest' },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: '保存后的角色工具分配。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SkillToolAssignmentsEnvelope' },
               },
             },
           },

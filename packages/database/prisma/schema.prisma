@@ -273,6 +273,21 @@ model EquipmentInstance {
   @@map("equipment_instances")
 }
 
+model SkillToolAssignment {
+  characterId        String   @map("character_id") @db.Uuid
+  skillId            String   @map("skill_id")
+  equipmentInstanceId String  @map("equipment_instance_id") @db.Uuid
+  version            BigInt   @default(0)
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character       @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  equipmentInstance EquipmentInstance @relation(fields: [equipmentInstanceId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@id([characterId, skillId])
+  @@index([characterId, updatedAt])
+  @@map("skill_tool_assignments")
+}
+
 model LoadoutPreset {
   id                   String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
   characterId          String   @map("character_id") @db.Uuid

@@ -63,5 +63,352 @@
     "entries": [],
     "cultivation_xp": "0",
     "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.herb_baicao_valley",
+    "name_key": "loot.herb_baicao_valley.name",
+    "description_key": "loot.herb_baicao_valley.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 4,
+    "tags": ["gathering", "herb"],
+    "source_note": "05_采集行动:6",
+    "entries": [
+      { "item_id": "item.t1.ninglu_hua", "min_qty": "1", "max_qty": "1", "probability": "0.02", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.herb_wuyin_slope",
+    "name_key": "loot.herb_wuyin_slope.name",
+    "description_key": "loot.herb_wuyin_slope.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 5,
+    "tags": ["gathering", "herb"],
+    "source_note": "05_采集行动:7",
+    "entries": [
+      { "item_id": "item.t1.ziye_lan", "min_qty": "1", "max_qty": "1", "probability": "0.015", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.herb_lingquan_valley",
+    "name_key": "loot.herb_lingquan_valley.name",
+    "description_key": "loot.herb_lingquan_valley.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 6,
+    "tags": ["gathering", "herb"],
+    "source_note": "05_采集行动:8",
+    "entries": [
+      { "item_id": "item.t1.dimai_can", "min_qty": "1", "max_qty": "1", "probability": "0.01", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.herb_zhuji_garden",
+    "name_key": "loot.herb_zhuji_garden.name",
+    "description_key": "loot.herb_zhuji_garden.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 7,
+    "tags": ["gathering", "herb"],
+    "source_note": "05_采集行动:9",
+    "entries": [
+      { "item_id": "item.t2.lingsui", "min_qty": "1", "max_qty": "1", "probability": "0.008", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "loot.t1.ore_chitong_kuang",
+    "name_key": "loot.ore_chitong_kuang.name",
+    "description_key": "loot.ore_chitong_kuang.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 8,
+    "tags": ["gathering", "ore"],
+    "source_note": "05_采集行动:10",
+    "entries": [
+      { "item_id": "item.t1.xuantie_kuang", "min_qty": "1", "max_qty": "1", "probability": "0.018", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.ore_xuantie_kuang",
+    "name_key": "loot.ore_xuantie_kuang.name",
+    "description_key": "loot.ore_xuantie_kuang.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 9,
+    "tags": ["gathering", "ore"],
+    "source_note": "05_采集行动:11",
+    "entries": [
+      { "item_id": "item.t1.xingwen_gang", "min_qty": "1", "max_qty": "1", "probability": "0.012", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.ore_xingwen_gang",
+    "name_key": "loot.ore_xingwen_gang.name",
+    "description_key": "loot.ore_xingwen_gang.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 10,
+    "tags": ["gathering", "ore"],
+    "source_note": "05_采集行动:12",
+    "entries": [
+      { "item_id": "item.t1.lingyu_kuang", "min_qty": "1", "max_qty": "1", "probability": "0.008", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.ore_lingyu_kuang",
+    "name_key": "loot.ore_lingyu_kuang.name",
+    "description_key": "loot.ore_lingyu_kuang.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 11,
+    "tags": ["gathering", "ore"],
+    "source_note": "05_采集行动:13",
+    "entries": [
+      { "item_id": "item.t1.heifeng_jing", "min_qty": "1", "max_qty": "1", "probability": "0.005", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "loot.t1.zhuling_yao.monster",
+    "name_key": "loot.zhuling_yao.monster.name",
+    "description_key": "loot.zhuling_yao.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 12,
+    "tags": ["monster", "wood"],
+    "source_note": "10_怪物秘境:2",
+    "entries": [
+      { "item_id": "item.t1.qingzhu", "min_qty": "2", "max_qty": "3", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.ninglu_hua", "min_qty": "1", "max_qty": "1", "probability": "0.15", "rolls": 1 }
+    ],
+    "cultivation_xp": "45",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.gray_wolf.monster",
+    "name_key": "loot.gray_wolf.monster.name",
+    "description_key": "loot.gray_wolf.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 13,
+    "tags": ["monster", "bone"],
+    "source_note": "10_怪物秘境:3",
+    "entries": [
+      { "item_id": "item.t1.yaolang_ya", "min_qty": "1", "max_qty": "2", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.yaodan", "min_qty": "1", "max_qty": "1", "probability": "0.05", "rolls": 1 }
+    ],
+    "cultivation_xp": "60",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.shijia_beast.monster",
+    "name_key": "loot.shijia_beast.monster.name",
+    "description_key": "loot.shijia_beast.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 14,
+    "tags": ["monster", "ore"],
+    "source_note": "10_怪物秘境:4",
+    "entries": [
+      { "item_id": "item.t1.shijia", "min_qty": "1", "max_qty": "2", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.xuantie_kuang", "min_qty": "1", "max_qty": "1", "probability": "0.3", "rolls": 1 }
+    ],
+    "cultivation_xp": "80",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.chitong_jiachong.monster",
+    "name_key": "loot.chitong_jiachong.monster.name",
+    "description_key": "loot.chitong_jiachong.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 15,
+    "tags": ["monster", "ore"],
+    "source_note": "10_怪物秘境:2",
+    "entries": [
+      { "item_id": "item.t1.chitong_kuang", "min_qty": "2", "max_qty": "3", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.xuantie_kuang", "min_qty": "1", "max_qty": "1", "probability": "0.12", "rolls": 1 }
+    ],
+    "cultivation_xp": "50",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.wuying_yuan.monster",
+    "name_key": "loot.wuying_yuan.monster.name",
+    "description_key": "loot.wuying_yuan.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 16,
+    "tags": ["monster", "wood"],
+    "source_note": "10_怪物秘境:3",
+    "entries": [
+      { "item_id": "item.t1.qingzhu", "min_qty": "2", "max_qty": "4", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.yaolang_ya", "min_qty": "1", "max_qty": "1", "probability": "0.1", "rolls": 1 }
+    ],
+    "cultivation_xp": "55",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.xingwen_kui.monster",
+    "name_key": "loot.xingwen_kui.monster.name",
+    "description_key": "loot.xingwen_kui.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 17,
+    "tags": ["monster", "ore"],
+    "source_note": "10_怪物秘境:5",
+    "entries": [
+      { "item_id": "item.t1.xingwen_gang", "min_qty": "1", "max_qty": "2", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.lingyu_kuang", "min_qty": "1", "max_qty": "1", "probability": "0.15", "rolls": 1 }
+    ],
+    "cultivation_xp": "90",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.heifeng_lang.monster",
+    "name_key": "loot.heifeng_lang.monster.name",
+    "description_key": "loot.heifeng_lang.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 18,
+    "tags": ["monster", "dark"],
+    "source_note": "10_怪物秘境:7",
+    "entries": [
+      { "item_id": "item.t1.yaolang_ya", "min_qty": "2", "max_qty": "3", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.heifeng_jing", "min_qty": "1", "max_qty": "1", "probability": "0.03", "rolls": 1 }
+    ],
+    "cultivation_xp": "120",
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "loot.t1.lingquan_guard.monster",
+    "name_key": "loot.lingquan_guard.monster.name",
+    "description_key": "loot.lingquan_guard.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 19,
+    "tags": ["monster", "spring"],
+    "source_note": "10_怪物秘境:4",
+    "entries": [
+      { "item_id": "item.t1.dimai_can", "min_qty": "1", "max_qty": "1", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t2.lingsui", "min_qty": "1", "max_qty": "1", "probability": "0.12", "rolls": 1 }
+    ],
+    "cultivation_xp": "150",
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "loot.t1.heifeng_yaowang.monster",
+    "name_key": "loot.heifeng_yaowang.monster.name",
+    "description_key": "loot.heifeng_yaowang.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 20,
+    "tags": ["monster", "boss"],
+    "source_note": "10_怪物秘境:7",
+    "entries": [
+      { "item_id": "item.t1.heifeng_jing", "min_qty": "2", "max_qty": "3", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.yaodan", "min_qty": "2", "max_qty": "2", "probability": "0.7", "rolls": 1 }
+    ],
+    "cultivation_xp": "240",
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "loot.t1.xuantie_cavern.success",
+    "name_key": "loot.xuantie_cavern.success.name",
+    "description_key": "loot.xuantie_cavern.success.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 21,
+    "tags": ["dungeon", "ore"],
+    "source_note": "10_怪物秘境:4",
+    "entries": [
+      { "item_id": "item.t1.heifeng_jing", "min_qty": "1", "max_qty": "1", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.xuantie_jian", "min_qty": "1", "max_qty": "1", "probability": "0.06", "rolls": 1 }
+    ],
+    "cultivation_xp": "400",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.xuantie_cavern.failure",
+    "name_key": "loot.xuantie_cavern.failure.name",
+    "description_key": "loot.xuantie_cavern.failure.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 22,
+    "tags": ["dungeon", "ore"],
+    "source_note": "10_怪物秘境:4",
+    "entries": [
+      { "item_id": "item.t1.xuantie_kuang", "min_qty": "1", "max_qty": "2", "probability": "1", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.heifeng_mijing.success",
+    "name_key": "loot.heifeng_mijing.success.name",
+    "description_key": "loot.heifeng_mijing.success.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 23,
+    "tags": ["dungeon", "boss"],
+    "source_note": "10_怪物秘境:7",
+    "entries": [
+      { "item_id": "item.t1.heifeng_jing", "min_qty": "2", "max_qty": "3", "probability": "1", "rolls": 1 },
+      { "item_id": "item.t1.heifeng_jian", "min_qty": "1", "max_qty": "1", "probability": "0.035", "rolls": 1 }
+    ],
+    "cultivation_xp": "700",
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "loot.t1.heifeng_mijing.failure",
+    "name_key": "loot.heifeng_mijing.failure.name",
+    "description_key": "loot.heifeng_mijing.failure.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 24,
+    "tags": ["dungeon", "boss"],
+    "source_note": "10_怪物秘境:7",
+    "entries": [
+      { "item_id": "item.t1.yaodan", "min_qty": "1", "max_qty": "2", "probability": "1", "rolls": 1 }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP_ENDGAME"
   }
 ]
