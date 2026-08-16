@@ -1,0 +1,106 @@
+[
+  {
+    "id": "dungeon.t1.qingshe_cave",
+    "name_key": "dungeon.qingshe_cave.name",
+    "description_key": "dungeon.qingshe_cave.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "feature_flag": null,
+    "sort_order": 1,
+    "tags": ["tutorial", "dungeon", "qingshe"],
+    "source_note": "10_怪物秘境:1",
+    "opportunity_cost": 1,
+    "entry_items": [],
+    "recommended_power": "80",
+    "base_success_model": {
+      "base_success_rate": "0.9",
+      "recommended_power": "80",
+      "power_elasticity": "0.5",
+      "min_success_rate": "0.2",
+      "max_success_rate": "0.95"
+    },
+    "choice_timeout_seconds": 60,
+    "default_safe_choice_id": "choice.t1.qingshe_cave.safe_exit",
+    "prepare_node_id": "node.t1.qingshe_cave.prepare",
+    "entry_node_id": "node.t1.qingshe_cave.entry",
+    "choice_node_id": "node.t1.qingshe_cave.choice",
+    "battle_node_id": "node.t1.qingshe_cave.battle",
+    "reward_node_id": "node.t1.qingshe_cave.reward",
+    "nodes": [
+      {
+        "id": "node.t1.qingshe_cave.prepare",
+        "type": "PREPARE",
+        "monster_ids": [],
+        "choice_ids": [],
+        "next_node_ids": ["node.t1.qingshe_cave.entry"],
+        "auto_resolve_policy": "NONE"
+      },
+      {
+        "id": "node.t1.qingshe_cave.entry",
+        "type": "ENTRY",
+        "monster_ids": [],
+        "choice_ids": [],
+        "next_node_ids": ["node.t1.qingshe_cave.choice"],
+        "auto_resolve_policy": "NONE"
+      },
+      {
+        "id": "node.t1.qingshe_cave.choice",
+        "type": "CHOICE",
+        "monster_ids": [],
+        "choice_ids": [
+          "choice.t1.qingshe_cave.safe_exit",
+          "choice.t1.qingshe_cave.deep_den"
+        ],
+        "next_node_ids": ["node.t1.qingshe_cave.battle"],
+        "auto_resolve_policy": "TIMEOUT_SAFE_ROUTE"
+      },
+      {
+        "id": "node.t1.qingshe_cave.battle",
+        "type": "BATTLE",
+        "monster_ids": [
+          "monster.t1.qingshe",
+          "monster.t1.qingshe_wang"
+        ],
+        "choice_ids": [],
+        "next_node_ids": ["node.t1.qingshe_cave.reward"],
+        "auto_resolve_policy": "NONE"
+      },
+      {
+        "id": "node.t1.qingshe_cave.reward",
+        "type": "REWARD",
+        "monster_ids": [],
+        "choice_ids": [],
+        "next_node_ids": [],
+        "auto_resolve_policy": "NONE"
+      }
+    ],
+    "choices": [
+      {
+        "id": "choice.t1.qingshe_cave.safe_exit",
+        "route_id": "route.t1.qingshe_cave.safe_exit",
+        "risk": "SAFE",
+        "label_key": "dungeon.qingshe_cave.route.safe",
+        "monster_id": "monster.t1.qingshe",
+        "success_reward_table_id": "loot.t1.qingshe.success",
+        "failure_reward_table_id": "loot.t1.qingshe.failure",
+        "max_events": 64,
+        "max_rounds": 32
+      },
+      {
+        "id": "choice.t1.qingshe_cave.deep_den",
+        "route_id": "route.t1.qingshe_cave.deep_den",
+        "risk": "HIGH_RISK",
+        "label_key": "dungeon.qingshe_cave.route.risk",
+        "monster_id": "monster.t1.qingshe_wang",
+        "success_reward_table_id": "loot.t1.qingshe.success",
+        "failure_reward_table_id": "loot.t1.qingshe.failure",
+        "max_events": 64,
+        "max_rounds": 32
+      }
+    ],
+    "reward_table_id": "loot.t1.qingshe.success",
+    "failure_reward_table_id": "loot.t1.qingshe.failure",
+    "scope": "MVP"
+  }
+]

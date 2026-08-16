@@ -1,0 +1,544 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AccountType {
+  ANONYMOUS
+  REGISTERED
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  PUBLISHED
+  FAILED
+}
+
+enum AssetReservationStatus {
+  ACTIVE
+  CONSUMED
+  RELEASED
+  EXPIRED
+}
+
+enum QueueMode {
+  COUNT
+  DURATION
+  UNTIL_INVENTORY
+  INFINITE
+}
+
+enum QueueEntryStatus {
+  QUEUED
+  RUNNING
+  BLOCKED
+  DONE
+  DONE_INCOMPLETE
+  DONE_CONDITION_MET
+  CANCELLED
+}
+
+enum BlockedPolicy {
+  SKIP
+  FALLBACK
+}
+
+enum BuffStackRule {
+  REPLACE
+  STACK
+}
+
+model Account {
+  id                String        @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  type              AccountType
+  status            AccountStatus @default(ACTIVE)
+  emailNormalized   String?       @unique @map("email_normalized")
+  usernameNormalized String?      @unique @map("username_normalized")
+  passwordHash      String?       @map("password_hash")
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  lastLoginAt       DateTime?     @map("last_login_at") @db.Timestamptz(3)
+
+  characters        Character[]
+  idempotencyRecords IdempotencyRecord[]
+  sessions          Session[]
+
+  @@map("accounts")
+}
+
+model Session {
+  id               String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  accountId        String    @map("account_id") @db.Uuid
+  sessionTokenHash String    @unique @map("session_token_hash")
+  csrfTokenHash    String    @map("csrf_token_hash")
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  lastSeenAt       DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([accountId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Character {
+  id                  String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  accountId           String   @unique @map("account_id") @db.Uuid
+  name                String
+  realmStageId        String   @map("realm_stage_id")
+  stateVersion        BigInt   @default(0) @map("state_version")
+  activeConfigVersion String   @map("active_config_version")
+  activeLoadoutPresetId String? @map("active_loadout_preset_id") @db.Uuid
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  account             Account              @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  progression         CharacterProgression?
+  skillProgressions   SkillProgression[]
+  inventories         Inventory[]
+  currencyBalances    CurrencyBalance[]
+  assetTransactions   AssetTransaction[]
+  assetLedgerEntries  AssetLedgerEntry[]
+  assetReservations   AssetReservation[]
+  equipmentInstances  EquipmentInstance[]
+  loadoutPresets      LoadoutPreset[]
+  activeLoadoutPreset LoadoutPreset?      @relation("CharacterActiveLoadout", fields: [activeLoadoutPresetId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  buffInstances       BuffInstance[]
+  settlementState     SettlementState?
+  settlementRuns      SettlementRun[]
+  actionQueue         ActionQueue?
+  actionQueueEntries  ActionQueueEntry[]
+  dungeonOpportunityState DungeonOpportunityState?
+  dungeonOpportunityLedger DungeonOpportunityLedger[]
+  dungeonRuns         DungeonRun[]
+
+  @@map("characters")
+}
+
+model CharacterProgression {
+  characterId    String   @id @map("character_id") @db.Uuid
+  cultivationXp  Decimal  @map("cultivation_xp") @db.Decimal(30, 6)
+  realmStageId   String   @map("realm_stage_id")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("character_progression")
+}
+
+model SkillProgression {
+  characterId String   @map("character_id") @db.Uuid
+  skillId     String   @map("skill_id")
+  level       Int      @default(1)
+  xp          Decimal  @db.Decimal(30, 6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@id([characterId, skillId])
+  @@map("skill_progression")
+}
+
+model Inventory {
+  characterId      String   @map("character_id") @db.Uuid
+  itemId           String   @map("item_id")
+  quantity         BigInt
+  reservedQuantity BigInt   @default(0) @map("reserved_quantity")
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@id([characterId, itemId])
+  @@map("inventories")
+}
+
+model CurrencyBalance {
+  characterId      String   @map("character_id") @db.Uuid
+  currencyId       String   @map("currency_id")
+  quantity         Decimal  @db.Decimal(30, 6)
+  reservedQuantity Decimal  @default(0) @map("reserved_quantity") @db.Decimal(30, 6)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@id([characterId, currencyId])
+  @@map("currency_balances")
+}
+
+model AssetTransaction {
+  id                   String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  characterId          String   @map("character_id") @db.Uuid
+  operationType        String   @map("operation_type")
+  reasonCode           String   @map("reason_code")
+  referenceType        String   @map("reference_type")
+  referenceId          String   @map("reference_id")
+  idempotencyRecordId  String?  @unique @map("idempotency_record_id") @db.Uuid
+  configVersion        String   @map("config_version")
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  character        Character          @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  ledgerEntries    AssetLedgerEntry[]
+  outboxEvents     OutboxEvent[]
+  equipmentInstances EquipmentInstance[]
+  createdReservations  AssetReservation[] @relation("AssetReservationCreatedTransaction")
+  consumedReservations AssetReservation[] @relation("AssetReservationConsumedTransaction")
+  releasedReservations AssetReservation[] @relation("AssetReservationReleasedTransaction")
+
+  @@index([characterId, createdAt])
+  @@map("asset_transactions")
+}
+
+model AssetLedgerEntry {
+  entryId        String   @id @default(dbgenerated("uuidv7()")) @map("entry_id") @db.Uuid
+  transactionId   String   @map("transaction_id") @db.Uuid
+  characterId     String   @map("character_id") @db.Uuid
+  assetType       String   @map("asset_type")
+  assetId         String   @map("asset_id")
+  delta           Decimal  @db.Decimal(30, 6)
+  balanceAfter    Decimal  @map("balance_after") @db.Decimal(30, 6)
+  reasonCode      String   @map("reason_code")
+  referenceType   String   @map("reference_type")
+  referenceId     String   @map("reference_id")
+  configVersion   String   @map("config_version")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  transaction AssetTransaction @relation(fields: [transactionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  character   Character        @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([transactionId, assetType, assetId, entryId])
+  @@index([characterId, createdAt])
+  @@index([transactionId])
+  @@index([referenceType, referenceId])
+  @@map("asset_ledger")
+}
+
+model AssetReservation {
+  id                    String                  @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  characterId           String                  @map("character_id") @db.Uuid
+  businessType          String                  @map("business_type")
+  businessId            String                  @map("business_id") @db.Uuid
+  assetType             String                  @map("asset_type")
+  assetId               String                  @map("asset_id")
+  quantity              Decimal                 @db.Decimal(30, 6)
+  status                AssetReservationStatus @default(ACTIVE)
+  createdTransactionId  String                  @map("created_transaction_id") @db.Uuid
+  consumedTransactionId String?                 @unique @map("consumed_transaction_id") @db.Uuid
+  releasedTransactionId String?                 @unique @map("released_transaction_id") @db.Uuid
+  expiresAt             DateTime?               @map("expires_at") @db.Timestamptz(3)
+  createdAt             DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime                @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character           Character        @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdTransaction  AssetTransaction @relation("AssetReservationCreatedTransaction", fields: [createdTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  consumedTransaction AssetTransaction? @relation("AssetReservationConsumedTransaction", fields: [consumedTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  releasedTransaction AssetTransaction? @relation("AssetReservationReleasedTransaction", fields: [releasedTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([characterId, status])
+  @@index([businessType, businessId])
+  @@map("asset_reservations")
+}
+
+model EquipmentInstance {
+  id                   String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  characterId          String   @map("character_id") @db.Uuid
+  itemId               String   @map("item_id")
+  temperLevel          Int      @default(0) @map("temper_level")
+  bound                Boolean  @default(false)
+  createdTransactionId String   @map("created_transaction_id") @db.Uuid
+  createdConfigVersion String   @map("created_config_version")
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character         Character        @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdTransaction AssetTransaction @relation(fields: [createdTransactionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  loadoutWeaponPresets LoadoutPreset[] @relation("LoadoutWeapon")
+  loadoutArmorPresets LoadoutPreset[] @relation("LoadoutArmor")
+  loadoutAccessoryPresets LoadoutPreset[] @relation("LoadoutAccessory")
+
+  @@index([characterId, createdAt])
+  @@map("equipment_instances")
+}
+
+model LoadoutPreset {
+  id                   String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  characterId          String   @map("character_id") @db.Uuid
+  name                 String
+  weaponInstanceId     String?  @map("weapon_instance_id") @db.Uuid
+  armorInstanceId      String?  @map("armor_instance_id") @db.Uuid
+  accessoryInstanceId  String?  @map("accessory_instance_id") @db.Uuid
+  combatConsumables    Json     @map("combat_consumables")
+  strategyId           String   @map("strategy_id")
+  version              BigInt   @default(0)
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character            Character        @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  activeByCharacters   Character[]      @relation("CharacterActiveLoadout")
+  weaponInstance       EquipmentInstance? @relation("LoadoutWeapon", fields: [weaponInstanceId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  armorInstance        EquipmentInstance? @relation("LoadoutArmor", fields: [armorInstanceId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  accessoryInstance    EquipmentInstance? @relation("LoadoutAccessory", fields: [accessoryInstanceId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([characterId, updatedAt])
+  @@map("loadout_presets")
+}
+
+model BuffInstance {
+  id                String         @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  characterId       String         @map("character_id") @db.Uuid
+  buffConfigId      String         @map("buff_config_id")
+  slotIndex         Int            @map("slot_index")
+  stackGroup        String         @map("stack_group")
+  startedAt         DateTime       @map("started_at") @db.Timestamptz(3)
+  expiresAt         DateTime       @map("expires_at") @db.Timestamptz(3)
+  sourceTransactionId String       @map("source_transaction_id") @db.Uuid
+  configVersion     String         @map("config_version")
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([characterId, slotIndex])
+  @@index([characterId, expiresAt])
+  @@map("buff_instances")
+}
+
+model SettlementState {
+  characterId          String   @id @map("character_id") @db.Uuid
+  lastSettledAt        DateTime @map("last_settled_at") @db.Timestamptz(3)
+  offlineCapSeconds    Int      @default(36000) @map("offline_cap_seconds")
+  activeQueueEntryId   String?  @map("active_queue_entry_id") @db.Uuid
+  activeCycleIndex     BigInt   @default(0) @map("active_cycle_index")
+  activeCycleSnapshot  Json?    @map("active_cycle_snapshot")
+  progressTimeUs       BigInt   @default(0) @map("progress_time_us")
+  continuationRequired Boolean  @default(false) @map("continuation_required")
+  updatedAt            DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("settlement_states")
+}
+
+model SettlementRun {
+  id              String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  characterId     String    @map("character_id") @db.Uuid
+  fromAt          DateTime  @map("from_at") @db.Timestamptz(3)
+  effectiveUntil  DateTime  @map("effective_until") @db.Timestamptz(3)
+  requestedUntil  DateTime  @map("requested_until") @db.Timestamptz(3)
+  effectiveSeconds BigInt   @map("effective_seconds")
+  cappedSeconds   BigInt    @map("capped_seconds")
+  status          String
+  segmentCount    Int       @map("segment_count")
+  randomSeed      Bytes     @map("random_seed") @db.ByteA
+  formulaVersion  Int       @map("formula_version")
+  configVersion   String    @map("config_version")
+  summary         Json
+  errorCode       String?   @map("error_code")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  completedAt     DateTime? @map("completed_at") @db.Timestamptz(3)
+
+  character Character        @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  segments  SettlementSegment[]
+
+  @@index([characterId, createdAt(sort: Desc)])
+  @@map("settlement_runs")
+}
+
+model SettlementSegment {
+  id              String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  settlementRunId String    @map("settlement_run_id") @db.Uuid
+  segmentIndex    Int       @map("segment_index")
+  queueEntryId    String?   @map("queue_entry_id") @db.Uuid
+  actionConfigId  String    @map("action_config_id")
+  fromAt          DateTime  @map("from_at") @db.Timestamptz(3)
+  toAt            DateTime  @map("to_at") @db.Timestamptz(3)
+  completedCycles BigInt    @map("completed_cycles")
+  inputs          Json
+  outputs         Json
+  xpChanges       Json      @map("xp_changes")
+  transitionReason String?  @map("transition_reason")
+  snapshot        Json
+
+  settlementRun SettlementRun @relation(fields: [settlementRunId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([settlementRunId, segmentIndex])
+  @@map("settlement_segments")
+}
+
+model ActionQueue {
+  characterId             String   @id @map("character_id") @db.Uuid
+  queueVersion             BigInt   @default(0) @map("queue_version")
+  pendingReplaceAfterCycle Boolean  @default(false) @map("pending_replace_after_cycle")
+  paused                   Boolean  @default(false)
+  fallbackActionId         String   @default("action.cultivation.qi") @map("fallback_action_id")
+  createdAt                DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("action_queues")
+}
+
+model ActionQueueEntry {
+  id                   String            @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  characterId          String            @map("character_id") @db.Uuid
+  position             Int
+  actionConfigId       String            @map("action_config_id")
+  mode                 QueueMode
+  targetValue          Decimal?          @map("target_value") @db.Decimal(30, 6)
+  conditionItemId      String?           @map("condition_item_id")
+  conditionOperator    String?           @map("condition_operator")
+  onBlocked            BlockedPolicy     @map("on_blocked")
+  status               QueueEntryStatus
+  completedCycles      BigInt            @default(0) @map("completed_cycles")
+  progressTimeUs       BigInt            @default(0) @map("progress_time_us")
+  snapshot             Json?
+  snapshotConfigVersion String?          @map("snapshot_config_version")
+  blockedReason         String?          @map("blocked_reason")
+  startedAt            DateTime?         @map("started_at") @db.Timestamptz(3)
+  completedAt          DateTime?         @map("completed_at") @db.Timestamptz(3)
+  createdAt            DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([characterId, position])
+  @@index([characterId, status])
+  @@map("action_queue_entries")
+}
+
+model DungeonOpportunityState {
+  characterId                 String   @id @map("character_id") @db.Uuid
+  opportunityCount            Int      @default(0) @map("opportunity_count")
+  opportunityCap              Int      @default(6) @map("opportunity_cap")
+  recoveryAnchorAt            DateTime @map("recovery_anchor_at") @db.Timestamptz(3)
+  nextRecoveryAt              DateTime? @map("next_recovery_at") @db.Timestamptz(3)
+  teachingGrantTutorialId     String?  @map("teaching_grant_tutorial_id")
+  teachingGrantClaimedAt      DateTime? @map("teaching_grant_claimed_at") @db.Timestamptz(3)
+  createdAt                   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("dungeon_opportunity_states")
+}
+
+model DungeonOpportunityLedger {
+  entryId        String   @id @default(dbgenerated("uuidv7()")) @map("entry_id") @db.Uuid
+  characterId    String   @map("character_id") @db.Uuid
+  delta          Int
+  balanceAfter   Int      @map("balance_after")
+  reasonCode     String   @map("reason_code")
+  referenceType  String   @map("reference_type")
+  referenceId    String   @map("reference_id")
+  configVersion  String   @map("config_version")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([characterId, createdAt])
+  @@index([referenceType, referenceId])
+  @@map("dungeon_opportunity_ledger")
+}
+
+model DungeonRun {
+  id                 String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  characterId        String   @map("character_id") @db.Uuid
+  dungeonId          String   @map("dungeon_id")
+  status             String
+  currentNodeId      String   @map("current_node_id")
+  phase              String
+  outcome            String
+  revision           BigInt
+  initialRouteId     String   @map("initial_route_id")
+  loadoutPresetId    String?  @map("loadout_preset_id") @db.Uuid
+  strategyPresetId   String?  @map("strategy_preset_id")
+  opportunityCost    Int      @map("opportunity_cost")
+  stateVersion       String   @map("state_version")
+  configVersion      String   @map("config_version")
+  choiceDeadlineAt   DateTime @map("choice_deadline_at") @db.Timestamptz(3)
+  selectedChoiceId   String?  @map("selected_choice_id")
+  selectedRouteId    String?  @map("selected_route_id")
+  selectedRouteRisk  String?  @map("selected_route_risk")
+  selectedAt         DateTime? @map("selected_at") @db.Timestamptz(3)
+  combatResolvedAt   DateTime? @map("combat_resolved_at") @db.Timestamptz(3)
+  finalizedAt        DateTime? @map("finalized_at") @db.Timestamptz(3)
+  runState           Json     @map("run_state")
+  rewardIntent       Json?    @map("reward_intent")
+  resultSnapshot     Json?    @map("result_snapshot")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([characterId, createdAt(sort: Desc)])
+  @@map("dungeon_runs")
+}
+
+model IdempotencyRecord {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  accountId       String   @map("account_id") @db.Uuid
+  operationType   String   @map("operation_type")
+  idempotencyKey  String   @map("idempotency_key") @db.Uuid
+  requestHash     String   @map("request_hash")
+  httpStatus      Int      @map("http_status")
+  responseSnapshot Json    @map("response_snapshot")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt       DateTime @map("expires_at") @db.Timestamptz(3)
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([accountId, operationType, idempotencyKey])
+  @@index([expiresAt])
+  @@map("idempotency_records")
+}
+
+model ConfigRelease {
+  configVersion    String    @id @map("config_version")
+  schemaVersion    Int       @map("schema_version")
+  formulaVersion   Int       @map("formula_version")
+  contentHash      String    @unique @map("content_hash")
+  status           String
+  previousVersion  String?   @map("previous_version")
+  minClientVersion String    @map("min_client_version")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  activatedAt      DateTime? @map("activated_at") @db.Timestamptz(3)
+  createdBy        String    @map("created_by")
+
+  @@map("config_releases")
+}
+
+model OutboxEvent {
+  id             String      @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  eventType      String      @map("event_type")
+  aggregateType  String      @map("aggregate_type")
+  aggregateId    String      @map("aggregate_id")
+  transactionId  String      @map("transaction_id") @db.Uuid
+  payload        Json
+  status         OutboxStatus @default(PENDING)
+  attemptCount   Int         @default(0) @map("attempt_count")
+  availableAt    DateTime    @default(now()) @map("available_at") @db.Timestamptz(3)
+  lockedAt       DateTime?   @map("locked_at") @db.Timestamptz(3)
+  publishedAt    DateTime?   @map("published_at") @db.Timestamptz(3)
+  lastError      String?     @map("last_error")
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  transaction AssetTransaction @relation(fields: [transactionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([status, availableAt])
+  @@map("outbox_events")
+}

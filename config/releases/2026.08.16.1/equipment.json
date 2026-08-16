@@ -1,0 +1,456 @@
+[
+  {
+    "item_id": "item.t1.mubing_yaochu",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.mortal.entry",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.herbalism",
+        "action_speed_bonus": "0",
+        "action_efficiency_bonus": "0"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.qingtong_yaochu",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.qi.early",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.herbalism",
+        "action_speed_bonus": "0.12",
+        "action_efficiency_bonus": "0.05"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.xuantie_yaochu",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.qi.mid",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.herbalism",
+        "action_speed_bonus": "0.22",
+        "action_efficiency_bonus": "0.1"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.lingyu_yaochu",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.qi.late",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.herbalism",
+        "action_speed_bonus": "0.35",
+        "action_efficiency_bonus": "0.18"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.mubing_kuanggao",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.qi.early",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.mining",
+        "action_speed_bonus": "0",
+        "action_efficiency_bonus": "0"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.qingtong_kuanggao",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.qi.early",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.mining",
+        "action_speed_bonus": "0.12",
+        "action_efficiency_bonus": "0.05"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.xuantie_kuanggao",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.qi.mid",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.mining",
+        "action_speed_bonus": "0.22",
+        "action_efficiency_bonus": "0.1"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.cuizhi_danlu",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.mortal.entry",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.alchemy",
+        "action_speed_bonus": "0",
+        "action_efficiency_bonus": "0"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.qingtong_danlu",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.qi.early",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.alchemy",
+        "action_speed_bonus": "0.1",
+        "action_efficiency_bonus": "0.06"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.xuanhuo_danlu",
+    "slot": "TOOL",
+    "attack": 0,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 0,
+    "equip_requirements": {
+      "required_realm": "realm.qi.mid",
+      "required_tags": ["tool"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6,
+    "tool_effects": [
+      {
+        "skill_id": "skill.alchemy",
+        "action_speed_bonus": "0.22",
+        "action_efficiency_bonus": "0.14"
+      }
+    ]
+  },
+  {
+    "item_id": "item.t1.cuizhi_jian",
+    "slot": "WEAPON",
+    "attack": 12,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0,
+    "power_index": 48,
+    "equip_requirements": {
+      "required_realm": "realm.mortal.entry",
+      "required_tags": ["weapon"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.qingtong_jian",
+    "slot": "WEAPON",
+    "attack": 24,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0.02,
+    "power_index": 100,
+    "equip_requirements": {
+      "required_realm": "realm.qi.early",
+      "required_tags": ["weapon"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.xuantie_jian",
+    "slot": "WEAPON",
+    "attack": 45,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0.04,
+    "power_index": 188,
+    "equip_requirements": {
+      "required_realm": "realm.qi.mid",
+      "required_tags": ["weapon"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.lingyu_jian",
+    "slot": "WEAPON",
+    "attack": 78,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0.06,
+    "power_index": 324,
+    "equip_requirements": {
+      "required_realm": "realm.qi.late",
+      "required_tags": ["weapon"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.zhuji_feijian",
+    "slot": "WEAPON",
+    "attack": 115,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0.08,
+    "power_index": 476,
+    "equip_requirements": {
+      "required_realm": "realm.foundation.early",
+      "required_tags": ["weapon"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.heifeng_jian",
+    "slot": "WEAPON",
+    "attack": 140,
+    "defense": 0,
+    "hp": 0,
+    "speed": 0.1,
+    "power_index": 580,
+    "equip_requirements": {
+      "required_realm": "realm.foundation.early",
+      "required_tags": ["weapon"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.buyi",
+    "slot": "ARMOR",
+    "attack": 0,
+    "defense": 5,
+    "hp": 40,
+    "speed": 0,
+    "power_index": 23,
+    "equip_requirements": {
+      "required_realm": "realm.mortal.entry",
+      "required_tags": ["armor"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.qingtong_jia",
+    "slot": "ARMOR",
+    "attack": 0,
+    "defense": 16,
+    "hp": 100,
+    "speed": -0.01,
+    "power_index": 66,
+    "equip_requirements": {
+      "required_realm": "realm.qi.early",
+      "required_tags": ["armor"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.xuantie_jia",
+    "slot": "ARMOR",
+    "attack": 0,
+    "defense": 30,
+    "hp": 180,
+    "speed": -0.02,
+    "power_index": 122,
+    "equip_requirements": {
+      "required_realm": "realm.qi.mid",
+      "required_tags": ["armor"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.lingyu_fa_pao",
+    "slot": "ARMOR",
+    "attack": 8,
+    "defense": 38,
+    "hp": 220,
+    "speed": 0.03,
+    "power_index": 196,
+    "equip_requirements": {
+      "required_realm": "realm.qi.late",
+      "required_tags": ["armor"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.zhuji_zhanjia",
+    "slot": "ARMOR",
+    "attack": 0,
+    "defense": 55,
+    "hp": 360,
+    "speed": -0.03,
+    "power_index": 231,
+    "equip_requirements": {
+      "required_realm": "realm.foundation.early",
+      "required_tags": ["armor"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.qingyu_pei",
+    "slot": "ACCESSORY",
+    "attack": 6,
+    "defense": 6,
+    "hp": 50,
+    "speed": 0.02,
+    "power_index": 56,
+    "equip_requirements": {
+      "required_realm": "realm.qi.early",
+      "required_tags": ["accessory"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.xuanling_jie",
+    "slot": "ACCESSORY",
+    "attack": 12,
+    "defense": 8,
+    "hp": 80,
+    "speed": 0.04,
+    "power_index": 96,
+    "equip_requirements": {
+      "required_realm": "realm.qi.late",
+      "required_tags": ["accessory"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  },
+  {
+    "item_id": "item.t1.zhuji_hufu",
+    "slot": "ACCESSORY",
+    "attack": 5,
+    "defense": 20,
+    "hp": 160,
+    "speed": 0.01,
+    "power_index": 114,
+    "equip_requirements": {
+      "required_realm": "realm.foundation.early",
+      "required_tags": ["accessory"]
+    },
+    "modifier_ids": [],
+    "temperable": true,
+    "max_temper_level": 6
+  }
+]

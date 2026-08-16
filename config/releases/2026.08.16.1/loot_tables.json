@@ -1,0 +1,67 @@
+[
+  {
+    "id": "loot.t1.qingshe.monster",
+    "name_key": "loot.qingshe.monster.name",
+    "description_key": "loot.qingshe.monster.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 1,
+    "tags": ["monster", "qingshe"],
+    "source_note": "10_怪物秘境:1",
+    "entries": [
+      {
+        "item_id": "item.t1.qingshe_dan",
+        "min_qty": "1",
+        "max_qty": "1",
+        "probability": "1",
+        "rolls": 1
+      }
+    ],
+    "cultivation_xp": "0",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.qingshe.success",
+    "name_key": "loot.qingshe.success.name",
+    "description_key": "loot.qingshe.success.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 2,
+    "tags": ["dungeon", "qingshe"],
+    "source_note": "10_怪物秘境:1",
+    "entries": [
+      {
+        "item_id": "item.t2.lingsui",
+        "min_qty": "1",
+        "max_qty": "1",
+        "probability": "1",
+        "rolls": 1
+      },
+      {
+        "item_id": "item.t1.qingyu_pei",
+        "min_qty": "1",
+        "max_qty": "1",
+        "probability": "0.05",
+        "rolls": 1
+      }
+    ],
+    "cultivation_xp": "250",
+    "scope": "MVP"
+  },
+  {
+    "id": "loot.t1.qingshe.failure",
+    "name_key": "loot.qingshe.failure.name",
+    "description_key": "loot.qingshe.failure.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 3,
+    "tags": ["dungeon", "qingshe"],
+    "source_note": "10_怪物秘境:1",
+    "entries": [],
+    "cultivation_xp": "0",
+    "scope": "MVP"
+  }
+]

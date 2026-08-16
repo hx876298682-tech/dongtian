@@ -1,0 +1,47 @@
+{
+  "name": "dongtian",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": "24.x",
+    "pnpm": "11.x"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter './apps/*' dev",
+    "build": "pnpm --recursive --if-present build",
+    "lint": "eslint .",
+    "typecheck": "pnpm --recursive --if-present typecheck",
+    "test": "vitest run",
+    "infra:up": "docker compose up -d postgres postgres-test",
+    "infra:down": "docker compose down",
+    "infra:status": "docker compose ps",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test",
+    "db:migrate": "pnpm --filter @dongtian/database db:migrate",
+    "db:seed": "pnpm --filter @dongtian/database db:seed",
+    "db:audit": "pnpm --filter @dongtian/database db:audit",
+    "config:validate": "tsx tooling/config-validate/src/cli.ts",
+    "config:build": "pnpm --filter @dongtian/config-schema config:build",
+    "openapi:generate": "pnpm --filter @dongtian/api build && pnpm --filter @dongtian/contracts openapi:generate",
+    "openapi:check": "pnpm --filter @dongtian/contracts openapi:check"
+  },
+  "devDependencies": {
+    "@babel/core": "8.0.1",
+    "@babel/eslint-parser": "8.0.1",
+    "@babel/plugin-syntax-jsx": "8.0.1",
+    "@babel/plugin-syntax-decorators": "8.0.1",
+    "@babel/plugin-syntax-typescript": "8.0.3",
+    "@types/node": "24.13.3",
+    "@playwright/test": "1.62.1",
+    "eslint": "10.8.1",
+    "prettier": "3.9.6",
+    "tsx": "4.23.12",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10",
+    "yaml": "2.9.0"
+  }
+}

@@ -1,0 +1,481 @@
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import type { FastifyRequest } from 'fastify';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { computeReleaseContentHash, loadConfigRegistry, type ConfigRegistry } from '@dongtian/config-schema';
+import type {
+  AssetRepository,
+  BuffRepository,
+  DatabasePool,
+  JsonValue,
+  PoolClient,
+  SettlementPersistenceInput,
+  SettlementRepository,
+  SettlementStateRecord,
+  SettlementSummaryRecord,
+} from '@dongtian/database';
+
+import type { AuthService } from '../auth/auth.service.js';
+import type { IdempotencyService } from '../idempotency/idempotency.service.js';
+import { SettlementService } from './settlement.service.js';
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-08-16T00:00:01.000Z'));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+const version = '2026.08.16.1';
+const releasePath = fileURLToPath(new URL('../../../../config/releases/2026.08.16.1', import.meta.url));
+const temporaryRoots: string[] = [];
+
+afterEach(() => {
+  for (const root of temporaryRoots.splice(0)) {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+function copyRelease(): string {
+  const root = mkdtempSync(join(tmpdir(), 'dongtian-config-'));
+  temporaryRoots.push(root);
+  cpSync(releasePath, join(root, version), { recursive: true });
+
+  const manifestPath = join(root, version, 'manifest.json');
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+  manifest['content_hash'] = computeReleaseContentHash(join(root, version));
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
+  return root;
+}
+
+const registry: ConfigRegistry = loadConfigRegistry({
+  releasesRoot: copyRelease(),
+  version,
+});
+
+const snapshot = {
+  action_config_id: 'action.t1.herb_baicao_valley',
+  config_version: '2026.08.16.1',
+  formula_version: registry.manifest.formula_version,
+  duration_us: '1000000',
+  cultivation_xp_per_cycle: '1.25',
+  skill_xp_per_cycle: '0.5',
+  outputs: {
+    'item.t1.qingling_herb': '2',
+  },
+} as const;
+
+const state: SettlementStateRecord = {
+  characterId: 'character-1',
+  lastSettledAt: new Date('2026-08-16T00:00:00.000Z'),
+  offlineCapSeconds: 36_000,
+  activeQueueEntryId: 'entry-1',
+  activeCycleIndex: 0n,
+  activeCycleSnapshot: snapshot,
+  progressTimeUs: 0n,
+  continuationRequired: false,
+};
+
+function makeService(
+  currentState: SettlementStateRecord | null = state,
+  ownershipError: Error | null = null,
+) {
+  const queries: string[] = [];
+  const client = {
+    async query<T>(sql: string): Promise<{ readonly rows: T[] }> {
+      queries.push(sql);
+      if (sql.includes('UPDATE skill_progression')) {
+        return { rows: [{ xp: '0.5' }] as T[] };
+      }
+      return { rows: [] as T[] };
+    },
+    release: vi.fn(),
+  } as unknown as PoolClient;
+  const pool = {
+    connect: vi.fn(async () => client),
+  } as unknown as DatabasePool;
+  let lastPersist: SettlementPersistenceInput | undefined;
+  const summaryRecord: SettlementSummaryRecord = {
+    run: {
+      settlementId: 'settlement-1',
+      characterId: 'character-1',
+      fromAt: new Date('2026-08-16T00:00:00.000Z'),
+      effectiveUntil: new Date('2026-08-16T02:00:00.000Z'),
+      requestedUntil: new Date('2026-08-16T02:30:00.000Z'),
+      effectiveSeconds: 7_200n,
+      cappedSeconds: 1_800n,
+      status: 'COMPLETED',
+      segmentCount: 2,
+      randomSeed: new Uint8Array([1, 2, 3]),
+      formulaVersion: registry.manifest.formula_version,
+      configVersion: '2026.08.16.1',
+      summary: {
+        status: 'COMPLETED',
+        requested_until_us: '9000000',
+        effective_until_us: '7200000',
+        effective_time_us: '7200000',
+        capped_time_us: '1800000',
+        completed_cycles: '2',
+        progress_time_us: '0',
+        continuation_required: false,
+        active_queue_entry_id: 'entry-1',
+        active_cycle_index: '2',
+        action_config_id: 'action.t1.herb_baicao_valley',
+        cultivation_xp: '2.5',
+        skill_xp: '1.0',
+        items: [{ item_id: 'item.t1.qingling_herb', quantity: '4' }],
+      },
+      errorCode: null,
+      createdAt: new Date('2026-08-16T02:00:05.000Z'),
+      completedAt: new Date('2026-08-16T02:00:06.000Z'),
+    },
+    segments: [{
+      settlementRunId: 'settlement-1',
+      segmentIndex: 0,
+      queueEntryId: 'entry-1',
+      actionConfigId: 'action.t1.herb_baicao_valley',
+      fromAt: new Date('2026-08-16T00:00:00.000Z'),
+      toAt: new Date('2026-08-16T01:00:00.000Z'),
+      completedCycles: 1n,
+      inputs: { 'item.t1.qingling_herb': '1' },
+      outputs: { 'item.t1.qingling_herb': '2' },
+      xpChanges: { cultivation_xp: '1.25', skill_xp: '0.5' },
+      transitionReason: 'ACTION_SWITCH',
+      snapshot: {
+        action_config_id: 'action.t1.herb_baicao_valley',
+        config_version: '2026.08.16.1',
+        formula_version: registry.manifest.formula_version,
+        duration_us: '1000000',
+        cultivation_xp_per_cycle: '1.25',
+        skill_xp_per_cycle: '0.5',
+        outputs: { 'item.t1.qingling_herb': '2' },
+      },
+    }, {
+      settlementRunId: 'settlement-1',
+      segmentIndex: 1,
+      queueEntryId: 'entry-2',
+      actionConfigId: 'action.t1.herb_baicao_valley',
+      fromAt: new Date('2026-08-16T01:00:00.000Z'),
+      toAt: new Date('2026-08-16T02:00:00.000Z'),
+      completedCycles: 1n,
+      inputs: {},
+      outputs: { 'item.t1.qingling_herb': '2' },
+      xpChanges: { cultivation_xp: '1.25', skill_xp: '0.5' },
+      transitionReason: 'BLOCKED_MATERIAL',
+      snapshot: {
+        action_config_id: 'action.t1.herb_baicao_valley',
+        config_version: '2026.08.16.1',
+        formula_version: registry.manifest.formula_version,
+        duration_us: '1000000',
+        cultivation_xp_per_cycle: '1.25',
+        skill_xp_per_cycle: '0.5',
+        outputs: { 'item.t1.qingling_herb': '2' },
+      },
+    }],
+    ledgerEntries: [{
+      entryId: 'ledger-1',
+      transactionId: 'transaction-1',
+      assetType: 'ITEM',
+      assetId: 'item.t1.qingling_herb',
+      delta: '4',
+      balanceAfter: '4',
+      reasonCode: 'SETTLEMENT_OUTPUT',
+      referenceType: 'SETTLEMENT_RUN',
+      referenceId: 'settlement-1',
+      configVersion: '2026.08.16.1',
+      createdAt: new Date('2026-08-16T02:00:06.000Z'),
+    }, {
+      entryId: 'ledger-2',
+      transactionId: 'transaction-2',
+      assetType: 'PROGRESSION',
+      assetId: 'progression.cultivation',
+      delta: '2.5',
+      balanceAfter: '2.5',
+      reasonCode: 'ACTION_CULTIVATION',
+      referenceType: 'SETTLEMENT_RUN',
+      referenceId: 'settlement-1',
+      configVersion: '2026.08.16.1',
+      createdAt: new Date('2026-08-16T02:00:06.000Z'),
+    }],
+  };
+
+  const settlementRepository: SettlementRepository = {
+    async getState() {
+      return currentState;
+    },
+    async lockState() {
+      return currentState;
+    },
+    async getLatestSummary() {
+      return currentState === null ? null : summaryRecord;
+    },
+    async getSummaryById(characterId, settlementId) {
+      return currentState !== null && characterId === 'character-1' && settlementId === 'settlement-1'
+        ? summaryRecord
+        : null;
+    },
+    async persist(_: PoolClient, input: SettlementPersistenceInput) {
+      lastPersist = input;
+      return 'settlement-1';
+    },
+    async runContinuationBatch(limit, handler) {
+      await handler(undefined as unknown as PoolClient, 'character-1');
+      return limit;
+    },
+  };
+
+  const addedRewards: Array<Record<string, unknown>> = [];
+  const assetRepository: AssetRepository = {
+    async getInventory() {
+      return null;
+    },
+    async getInventoryOnTransaction() {
+      return null;
+    },
+    async add() {
+      throw new Error('not used');
+    },
+    async addOnTransaction(_: PoolClient, input) {
+      addedRewards.push(input);
+      return {
+        assetType: input.assetType,
+        assetId: input.assetId,
+        quantity: '2',
+        reservedQuantity: '0',
+        availableQuantity: '2',
+        transactionId: 'asset-transaction-1',
+        ledgerEntryId: 'asset-ledger-1',
+      };
+    },
+    async deduct() {
+      throw new Error('not used');
+    },
+    async deductOnTransaction() {
+      throw new Error('not used');
+    },
+    async reserve() {
+      throw new Error('not used');
+    },
+    async reserveOnTransaction() {
+      throw new Error('not used');
+    },
+    async findActiveReservationsByBusiness() {
+      return [];
+    },
+    async release() {
+      throw new Error('not used');
+    },
+    async releaseOnTransaction() {
+      throw new Error('not used');
+    },
+    async consume() {
+      throw new Error('not used');
+    },
+    async consumeOnTransaction() {
+      throw new Error('not used');
+    },
+    async audit() {
+      return { ok: true, discrepancyCount: 0, discrepancies: [] };
+    },
+  };
+
+  const buffRepository: BuffRepository = {
+    async getActiveBuffs() {
+      return [];
+    },
+    async lockActiveBuffs() {
+      return [];
+    },
+    async replaceBuffInstance() {
+      throw new Error('not used');
+    },
+  };
+
+  const authService = {
+    async assertCharacterOwnership() {
+      if (ownershipError !== null) {
+        throw ownershipError;
+      }
+      return undefined;
+    },
+    async requireCurrentAccountId() {
+      return 'account-1';
+    },
+    async requireWriteAccess() {
+      return 'account-1';
+    },
+  } as unknown as AuthService;
+
+  const idempotencyService = {
+    async execute<T extends JsonValue>(input: {
+      readonly accountId: string;
+      readonly operationType: string;
+      readonly idempotencyKey: string;
+      readonly request: unknown;
+      readonly now?: Date;
+      readonly execute: (context: {
+        readonly client: PoolClient;
+        readonly idempotencyRecordId: string;
+        readonly requestHash: string;
+      }) => Promise<{
+        readonly statusCode: number;
+        readonly response: T;
+      }>;
+    }) {
+      const result = await input.execute({
+        client: undefined as unknown as PoolClient,
+        idempotencyRecordId: 'idempotency-1',
+        requestHash: 'hash',
+      });
+      return { ...result, replayed: false };
+    },
+  } as unknown as IdempotencyService;
+
+  const service = new SettlementService(
+    settlementRepository,
+    assetRepository,
+    buffRepository,
+    pool,
+    authService,
+    idempotencyService,
+    registry,
+    { ACTIVE_CONFIG_VERSION: '2026.08.16.1' } as never,
+  );
+
+  return { service, settlementRepository, assetRepository, addedRewards, queries, getLastPersist: () => lastPersist };
+}
+
+describe('SettlementService', () => {
+  it('settles the current snapshot and persists rewards in a single transaction', async () => {
+    const { service, assetRepository, addedRewards, queries, getLastPersist } = makeService();
+    const result = await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
+
+    expect(result).toMatchObject({
+      settlement_id: 'settlement-1',
+      character_id: 'character-1',
+      completed_cycles: '1',
+      applied_rewards: {
+        cultivation_xp: '1.25',
+        skill_xp: '0.5',
+        items: [{ item_id: 'item.t1.qingling_herb', quantity: '2' }],
+      },
+    });
+    expect(getLastPersist())
+      .toMatchObject({
+        progressionAward: { cultivationXpDelta: '1.25' },
+        skillProgressionAwards: [{ skillId: 'skill.herbalism', skillXpDelta: '0.5' }],
+      });
+    expect(addedRewards).toHaveLength(1);
+    expect(queries).toEqual(['BEGIN', 'COMMIT']);
+    expect(assetRepository.addOnTransaction).toBeDefined();
+  });
+
+  it('wraps an idempotent settlement write and forwards the settled state to the handler', async () => {
+    const { service, addedRewards } = makeService();
+    const request = {
+      headers: { 'idempotency-key': '0198f6d7-3f09-7c11-8e2d-000000000001' },
+    } as unknown as FastifyRequest;
+
+    const result = await service.executeSettledWrite(request, 'character-1', {
+      operationType: 'QUEUE_SAVE',
+      request: { foo: 'bar' },
+      execute: async ({ settlement, settlementState }) => ({
+        statusCode: 200,
+        response: {
+          settlement_id: settlement.settlement_id,
+          character_id: settlementState.characterId,
+        },
+      }),
+    });
+
+    expect(result).toMatchObject({
+      statusCode: 200,
+      replayed: false,
+      response: {
+        settlement_id: 'settlement-1',
+        character_id: 'character-1',
+      },
+    });
+    expect(addedRewards).toHaveLength(1);
+  });
+
+  it('delegates continuation work to the repository claim helper', async () => {
+    const { service } = makeService(null);
+    await expect(service.continuePendingSettlements(2, async () => undefined)).resolves.toBe(2);
+  });
+
+  it('returns the latest persisted settlement summary without recalculating rewards', async () => {
+    const { service } = makeService();
+    const result = await service.getLatestSettlementSummary({} as unknown as FastifyRequest, 'character-1');
+
+    expect(result).toMatchObject({
+      settlement: {
+        settlement_id: 'settlement-1',
+        character_id: 'character-1',
+        as_of: '2026-08-16T02:00:06.000Z',
+        from_at: '2026-08-16T00:00:00.000Z',
+        requested_until: '2026-08-16T02:30:00.000Z',
+        effective_until: '2026-08-16T02:00:00.000Z',
+        effective_time_us: '7200000',
+        capped_time_us: '1800000',
+        continuation_required: false,
+        status: 'COMPLETED',
+        rewards: {
+          cultivation_xp: '2.5',
+          skill_xp: '1.0',
+          items: [{ item_id: 'item.t1.qingling_herb', quantity: '4' }],
+        },
+        timeline: [
+          expect.objectContaining({
+            segment_index: 0,
+            transition_reason: 'ACTION_SWITCH',
+          }),
+          expect.objectContaining({
+            segment_index: 1,
+            transition_reason: 'BLOCKED_MATERIAL',
+          }),
+        ],
+        ledger_entries: [
+          expect.objectContaining({
+            entry_id: 'ledger-1',
+            asset_type: 'ITEM',
+          }),
+          expect.objectContaining({
+            entry_id: 'ledger-2',
+            asset_type: 'PROGRESSION',
+          }),
+        ],
+      },
+    });
+  });
+
+  it('returns an empty state when there is no settlement summary yet', async () => {
+    const { service } = makeService(null);
+    const result = await service.getLatestSettlementSummary({} as unknown as FastifyRequest, 'character-1');
+
+    expect(result).toEqual({ settlement: null });
+  });
+
+  it('reads a specified settlement summary by settlement id', async () => {
+    const { service } = makeService();
+    const result = await service.getSettlementSummary({} as unknown as FastifyRequest, 'character-1', 'settlement-1');
+
+    expect(result.settlement).toMatchObject({
+      settlement_id: 'settlement-1',
+      rewards: { cultivation_xp: '2.5' },
+    });
+  });
+
+  it('blocks settlement summary access when the character is not owned', async () => {
+    const { service } = makeService(state, new Error('NOT_OWNER'));
+    await expect(service.getLatestSettlementSummary({} as unknown as FastifyRequest, 'character-1'))
+      .rejects.toThrow('NOT_OWNER');
+  });
+});

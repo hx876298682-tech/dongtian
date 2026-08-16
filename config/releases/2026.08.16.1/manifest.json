@@ -1,0 +1,9 @@
+{
+  "config_version": "2026.08.16.1",
+  "schema_version": 1,
+  "formula_version": 1,
+  "created_at": "2026-08-16T00:00:00Z",
+  "min_client_version": "0.1.0",
+  "content_hash": "sha256:063296141f504c3494767f4e7984f3f0f12534bcf1427140adf584a6da2bd25d",
+  "previous_version": null
+}

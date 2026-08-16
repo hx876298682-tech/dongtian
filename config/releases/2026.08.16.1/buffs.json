@@ -1,0 +1,77 @@
+[
+  {
+    "id": "buff.t1.qi_gathering_powder",
+    "name_key": "buff.qi_gathering_powder.name",
+    "description_key": "buff.qi_gathering_powder.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 1,
+    "tags": ["pill", "cultivation"],
+    "source_note": "06_炼丹配方:6",
+    "source_item_id": "item.t1.qi_gathering_powder",
+    "duration_seconds": 900,
+    "slot_cost": 1,
+    "stack_group": "cultivation",
+    "stack_rule": "REPLACE",
+    "modifiers": [
+      {
+        "stat": "cultivation_xp",
+        "operation": "MULTIPLY",
+        "value": "1.10",
+        "tags": ["cultivation"]
+      }
+    ],
+    "applicable_tags": ["cultivation"]
+  },
+  {
+    "id": "buff.t1.qi_gathering_pill",
+    "name_key": "buff.qi_gathering_pill.name",
+    "description_key": "buff.qi_gathering_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 2,
+    "tags": ["pill", "cultivation"],
+    "source_note": "06_炼丹配方:7",
+    "source_item_id": "item.t1.qi_gathering_pill",
+    "duration_seconds": 1800,
+    "slot_cost": 1,
+    "stack_group": "cultivation",
+    "stack_rule": "REPLACE",
+    "modifiers": [
+      {
+        "stat": "cultivation_xp",
+        "operation": "MULTIPLY",
+        "value": "1.25",
+        "tags": ["cultivation"]
+      }
+    ],
+    "applicable_tags": ["cultivation"]
+  },
+  {
+    "id": "buff.t1.recovery_pill",
+    "name_key": "buff.recovery_pill.name",
+    "description_key": "buff.recovery_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 3,
+    "tags": ["pill", "combat"],
+    "source_note": "06_炼丹配方:8",
+    "source_item_id": "item.t1.recovery_pill",
+    "duration_seconds": 0,
+    "slot_cost": 1,
+    "stack_group": "combat",
+    "stack_rule": "REPLACE",
+    "modifiers": [
+      {
+        "stat": "combat_recovery",
+        "operation": "MULTIPLY",
+        "value": "1",
+        "tags": ["combat"]
+      }
+    ],
+    "applicable_tags": ["combat"]
+  }
+]

@@ -1,0 +1,713 @@
+[
+  {
+    "id": "action.t1.herb_baicao_valley",
+    "name_key": "action.herb_baicao_valley.name",
+    "description_key": "action.herb_baicao_valley.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 1,
+    "tags": ["gathering", "herb"],
+    "source_note": "05_采集行动:6",
+    "skill_id": "skill.herbalism",
+    "base_duration_us": "100000000",
+    "inputs": [],
+    "outputs": [
+      { "item_id": "item.t1.qingling_herb", "quantity": "1" }
+    ],
+    "skill_xp": "4",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "herbalism_tool",
+    "modifier_tags": ["herbalism"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.herb_wuyin_slope",
+    "name_key": "action.herb_wuyin_slope.name",
+    "description_key": "action.herb_wuyin_slope.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 2,
+    "tags": ["gathering", "herb"],
+    "source_note": "05_采集行动:7",
+    "skill_id": "skill.herbalism",
+    "base_duration_us": "140000000",
+    "inputs": [],
+    "outputs": [
+      { "item_id": "item.t1.ninglu_hua", "quantity": "1" }
+    ],
+    "skill_xp": "7",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "herbalism_tool",
+    "modifier_tags": ["herbalism"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.qi_gathering_powder",
+    "name_key": "action.qi_gathering_powder.name",
+    "description_key": "action.qi_gathering_powder.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 3,
+    "tags": ["alchemy", "cultivation"],
+    "source_note": "06_炼丹配方:6",
+    "skill_id": "skill.alchemy",
+    "base_duration_us": "100000000",
+    "inputs": [
+      { "item_id": "item.t1.qingling_herb", "quantity": "2" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.qi_gathering_powder", "quantity": "1" }
+    ],
+    "skill_xp": "6",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "alchemy_tool",
+    "modifier_tags": ["alchemy"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.qi_gathering_pill",
+    "name_key": "action.qi_gathering_pill.name",
+    "description_key": "action.qi_gathering_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 4,
+    "tags": ["alchemy", "cultivation"],
+    "source_note": "06_炼丹配方:7",
+    "skill_id": "skill.alchemy",
+    "base_duration_us": "225000000",
+    "inputs": [
+      { "item_id": "item.t1.qingling_herb", "quantity": "3" },
+      { "item_id": "item.t1.ninglu_hua", "quantity": "1" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.qi_gathering_pill", "quantity": "1" }
+    ],
+    "skill_xp": "14",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "alchemy_tool",
+    "modifier_tags": ["alchemy"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.recovery_pill",
+    "name_key": "action.recovery_pill.name",
+    "description_key": "action.recovery_pill.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 5,
+    "tags": ["alchemy", "combat"],
+    "source_note": "06_炼丹配方:8",
+    "skill_id": "skill.alchemy",
+    "base_duration_us": "175000000",
+    "inputs": [
+      { "item_id": "item.t1.qingling_herb", "quantity": "2" },
+      { "item_id": "item.t1.qingshe_dan", "quantity": "1" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.recovery_pill", "quantity": "1" }
+    ],
+    "skill_xp": "11",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "alchemy_tool",
+    "modifier_tags": ["alchemy"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.ore_chitong_kuang",
+    "name_key": "action.chitong_kuang.name",
+    "description_key": "action.chitong_kuang.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 6,
+    "tags": ["gathering", "ore"],
+    "source_note": "05_采集行动:10",
+    "skill_id": "skill.mining",
+    "base_duration_us": "120000000",
+    "inputs": [],
+    "outputs": [
+      { "item_id": "item.t1.chitong_kuang", "quantity": "1" }
+    ],
+    "skill_xp": "5",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "mining_tool",
+    "modifier_tags": ["gathering", "ore"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.ore_xuantie_kuang",
+    "name_key": "action.xuantie_kuang.name",
+    "description_key": "action.xuantie_kuang.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 7,
+    "tags": ["gathering", "ore"],
+    "source_note": "05_采集行动:11",
+    "skill_id": "skill.mining",
+    "base_duration_us": "170000000",
+    "inputs": [],
+    "outputs": [
+      { "item_id": "item.t1.xuantie_kuang", "quantity": "1" }
+    ],
+    "skill_xp": "8",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "mining_tool",
+    "modifier_tags": ["gathering", "ore"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.ore_xingwen_gang",
+    "name_key": "action.xingwen_gang.name",
+    "description_key": "action.xingwen_gang.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 8,
+    "tags": ["gathering", "ore"],
+    "source_note": "05_采集行动:12",
+    "skill_id": "skill.mining",
+    "base_duration_us": "225000000",
+    "inputs": [],
+    "outputs": [
+      { "item_id": "item.t1.xingwen_gang", "quantity": "1" }
+    ],
+    "skill_xp": "13",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "mining_tool",
+    "modifier_tags": ["gathering", "ore"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.ore_lingyu_kuang",
+    "name_key": "action.lingyu_kuang.name",
+    "description_key": "action.lingyu_kuang.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.foundation.early",
+    "sort_order": 9,
+    "tags": ["gathering", "ore"],
+    "source_note": "05_采集行动:13",
+    "skill_id": "skill.mining",
+    "base_duration_us": "300000000",
+    "inputs": [],
+    "outputs": [
+      { "item_id": "item.t1.lingyu_kuang", "quantity": "1" }
+    ],
+    "skill_xp": "22",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": "mining_tool",
+    "modifier_tags": ["gathering", "ore"],
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "action.t1.mubing_yaochu",
+    "name_key": "action.mubing_yaochu.name",
+    "description_key": "action.mubing_yaochu.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 10,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:6",
+    "skill_id": "skill.forging",
+    "base_duration_us": "300000000",
+    "inputs": [
+      { "item_id": "item.t1.qingzhu", "quantity": "5" },
+      { "item_id": "item.t1.chitong_kuang", "quantity": "2" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.mubing_yaochu", "quantity": "1" }
+    ],
+    "skill_xp": "12",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.qingtong_yaochu",
+    "name_key": "action.qingtong_yaochu.name",
+    "description_key": "action.qingtong_yaochu.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 11,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:7",
+    "skill_id": "skill.forging",
+    "base_duration_us": "900000000",
+    "inputs": [
+      { "item_id": "item.t1.qingzhu", "quantity": "8" },
+      { "item_id": "item.t1.chitong_kuang", "quantity": "20" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.qingtong_yaochu", "quantity": "1" }
+    ],
+    "skill_xp": "35",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.xuantie_yaochu",
+    "name_key": "action.xuantie_yaochu.name",
+    "description_key": "action.xuantie_yaochu.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 12,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:8",
+    "skill_id": "skill.forging",
+    "base_duration_us": "1800000000",
+    "inputs": [
+      { "item_id": "item.t1.tiemu", "quantity": "8" },
+      { "item_id": "item.t1.xuantie_kuang", "quantity": "25" },
+      { "item_id": "item.t1.yaolang_ya", "quantity": "2" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.xuantie_yaochu", "quantity": "1" }
+    ],
+    "skill_xp": "70",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.lingyu_yaochu",
+    "name_key": "action.lingyu_yaochu.name",
+    "description_key": "action.lingyu_yaochu.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 13,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:9",
+    "skill_id": "skill.forging",
+    "base_duration_us": "3600000000",
+    "inputs": [
+      { "item_id": "item.t1.tiemu", "quantity": "20" },
+      { "item_id": "item.t1.lingyu_kuang", "quantity": "12" },
+      { "item_id": "item.t1.heifeng_jing", "quantity": "1" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.lingyu_yaochu", "quantity": "1" }
+    ],
+    "skill_xp": "150",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "action.t1.mubing_kuanggao",
+    "name_key": "action.mubing_kuanggao.name",
+    "description_key": "action.mubing_kuanggao.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 14,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:10",
+    "skill_id": "skill.forging",
+    "base_duration_us": "350000000",
+    "inputs": [
+      { "item_id": "item.t1.qingzhu", "quantity": "5" },
+      { "item_id": "item.t1.chitong_kuang", "quantity": "3" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.mubing_kuanggao", "quantity": "1" }
+    ],
+    "skill_xp": "14",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.qingtong_kuanggao",
+    "name_key": "action.qingtong_kuanggao.name",
+    "description_key": "action.qingtong_kuanggao.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 15,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:11",
+    "skill_id": "skill.forging",
+    "base_duration_us": "1000000000",
+    "inputs": [
+      { "item_id": "item.t1.qingzhu", "quantity": "8" },
+      { "item_id": "item.t1.chitong_kuang", "quantity": "22" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.qingtong_kuanggao", "quantity": "1" }
+    ],
+    "skill_xp": "38",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.xuantie_kuanggao",
+    "name_key": "action.xuantie_kuanggao.name",
+    "description_key": "action.xuantie_kuanggao.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 16,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:12",
+    "skill_id": "skill.forging",
+    "base_duration_us": "2000000000",
+    "inputs": [
+      { "item_id": "item.t1.tiemu", "quantity": "8" },
+      { "item_id": "item.t1.xuantie_kuang", "quantity": "28" },
+      { "item_id": "item.t1.shijia", "quantity": "2" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.xuantie_kuanggao", "quantity": "1" }
+    ],
+    "skill_xp": "75",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.cuizhi_danlu",
+    "name_key": "action.cuizhi_danlu.name",
+    "description_key": "action.cuizhi_danlu.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 17,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:13",
+    "skill_id": "skill.forging",
+    "base_duration_us": "600000000",
+    "inputs": [
+      { "item_id": "item.t1.chitong_kuang", "quantity": "10" },
+      { "item_id": "item.t1.qingzhu", "quantity": "10" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.cuizhi_danlu", "quantity": "1" }
+    ],
+    "skill_xp": "25",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.qingtong_danlu",
+    "name_key": "action.qingtong_danlu.name",
+    "description_key": "action.qingtong_danlu.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 18,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:14",
+    "skill_id": "skill.forging",
+    "base_duration_us": "1800000000",
+    "inputs": [
+      { "item_id": "item.t1.chitong_kuang", "quantity": "40" },
+      { "item_id": "item.t1.xuantie_kuang", "quantity": "8" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.qingtong_danlu", "quantity": "1" }
+    ],
+    "skill_xp": "65",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.xuanhuo_danlu",
+    "name_key": "action.xuanhuo_danlu.name",
+    "description_key": "action.xuanhuo_danlu.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 19,
+    "tags": ["forging", "tool"],
+    "source_note": "07_炼器配方:15",
+    "skill_id": "skill.forging",
+    "base_duration_us": "3500000000",
+    "inputs": [
+      { "item_id": "item.t1.xuantie_kuang", "quantity": "35" },
+      { "item_id": "item.t1.xingwen_gang", "quantity": "8" },
+      { "item_id": "item.t1.yaodan", "quantity": "2" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.xuanhuo_danlu", "quantity": "1" }
+    ],
+    "skill_xp": "130",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "tool"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.cuizhi_jian",
+    "name_key": "action.cuizhi_jian.name",
+    "description_key": "action.cuizhi_jian.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 20,
+    "tags": ["forging", "weapon", "sword"],
+    "source_note": "07_炼器配方:16",
+    "skill_id": "skill.forging",
+    "base_duration_us": "500000000",
+    "inputs": [
+      { "item_id": "item.t1.chitong_kuang", "quantity": "8" },
+      { "item_id": "item.t1.qingzhu", "quantity": "4" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.cuizhi_jian", "quantity": "1" }
+    ],
+    "skill_xp": "20",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "weapon"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.qingtong_jian",
+    "name_key": "action.qingtong_jian.name",
+    "description_key": "action.qingtong_jian.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 21,
+    "tags": ["forging", "weapon", "sword"],
+    "source_note": "07_炼器配方:17",
+    "skill_id": "skill.forging",
+    "base_duration_us": "1500000000",
+    "inputs": [
+      { "item_id": "item.t1.chitong_kuang", "quantity": "45" },
+      { "item_id": "item.t1.qingzhu", "quantity": "10" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.qingtong_jian", "quantity": "1" }
+    ],
+    "skill_xp": "55",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "weapon"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.xuantie_jian",
+    "name_key": "action.xuantie_jian.name",
+    "description_key": "action.xuantie_jian.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 22,
+    "tags": ["forging", "weapon", "sword"],
+    "source_note": "07_炼器配方:18",
+    "skill_id": "skill.forging",
+    "base_duration_us": "3000000000",
+    "inputs": [
+      { "item_id": "item.t1.xuantie_kuang", "quantity": "45" },
+      { "item_id": "item.t1.tiemu", "quantity": "10" },
+      { "item_id": "item.t1.yaolang_ya", "quantity": "3" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.xuantie_jian", "quantity": "1" }
+    ],
+    "skill_xp": "110",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "weapon"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.lingyu_jian",
+    "name_key": "action.lingyu_jian.name",
+    "description_key": "action.lingyu_jian.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 23,
+    "tags": ["forging", "weapon", "sword"],
+    "source_note": "07_炼器配方:19",
+    "skill_id": "skill.forging",
+    "base_duration_us": "6000000000",
+    "inputs": [
+      { "item_id": "item.t1.lingyu_kuang", "quantity": "20" },
+      { "item_id": "item.t1.xingwen_gang", "quantity": "20" },
+      { "item_id": "item.t1.heifeng_jing", "quantity": "2" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.lingyu_jian", "quantity": "1" }
+    ],
+    "skill_xp": "240",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "weapon"],
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "action.t1.xuantie_jia",
+    "name_key": "action.xuantie_jia.name",
+    "description_key": "action.xuantie_jia.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 24,
+    "tags": ["forging", "armor"],
+    "source_note": "07_炼器配方:20",
+    "skill_id": "skill.forging",
+    "base_duration_us": "3250000000",
+    "inputs": [
+      { "item_id": "item.t1.xuantie_kuang", "quantity": "40" },
+      { "item_id": "item.t1.shijia", "quantity": "8" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.xuantie_jia", "quantity": "1" }
+    ],
+    "skill_xp": "115",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "armor"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.t1.lingyu_fa_pao",
+    "name_key": "action.lingyu_fa_pao.name",
+    "description_key": "action.lingyu_fa_pao.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 25,
+    "tags": ["forging", "armor"],
+    "source_note": "07_炼器配方:21",
+    "skill_id": "skill.forging",
+    "base_duration_us": "5500000000",
+    "inputs": [
+      { "item_id": "item.t1.lingyu_kuang", "quantity": "18" },
+      { "item_id": "item.t1.tiemu", "quantity": "5" },
+      { "item_id": "item.t1.heifeng_jing", "quantity": "2" },
+      { "item_id": "item.t2.lingsui", "quantity": "2" }
+    ],
+    "outputs": [
+      { "item_id": "item.t1.lingyu_fa_pao", "quantity": "1" }
+    ],
+    "skill_xp": "220",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["forging", "armor"],
+    "scope": "MVP_ENDGAME"
+  },
+  {
+    "id": "action.t1.qingshe_lingsui",
+    "name_key": "action.qingshe_lingsui.name",
+    "description_key": "action.qingshe_lingsui.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 26,
+    "tags": ["battle", "monster"],
+    "source_note": "10_怪物秘境:1",
+    "skill_id": null,
+    "base_duration_us": "48000000",
+    "inputs": [],
+    "outputs": [
+      { "item_id": "item.t2.lingsui", "quantity": "1" }
+    ],
+    "skill_xp": "0",
+    "cultivation_xp": "0",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["COUNT", "DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["battle", "monster"],
+    "scope": "MVP"
+  },
+  {
+    "id": "action.cultivation.qi",
+    "name_key": "action.cultivation.qi.name",
+    "description_key": "action.cultivation.qi.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "feature_flag": null,
+    "sort_order": 27,
+    "tags": ["cultivation", "fallback_eligible", "mvp"],
+    "source_note": "Numerical Master Sheet V0.1 / 01_核心假设 A13:B13",
+    "skill_id": null,
+    "base_duration_us": "60000000",
+    "inputs": [],
+    "outputs": [],
+    "skill_xp": "0.000000",
+    "cultivation_xp": "4.500000",
+    "loot_table_id": null,
+    "allowed_queue_modes": ["DURATION", "INFINITE"],
+    "required_tool_tag": null,
+    "modifier_tags": ["cultivation"],
+    "scope": "MVP"
+  }
+]

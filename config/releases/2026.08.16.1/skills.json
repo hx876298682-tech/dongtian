@@ -1,0 +1,67 @@
+[
+  {
+    "id": "skill.herbalism",
+    "name_key": "skill.herbalism.name",
+    "description_key": "skill.herbalism.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 1,
+    "tags": ["gathering", "herb"],
+    "source_note": "04_百艺XP:技能成长",
+    "max_level": 100,
+    "scope": "MVP"
+  },
+  {
+    "id": "skill.mining",
+    "name_key": "skill.mining.name",
+    "description_key": "skill.mining.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 2,
+    "tags": ["gathering", "ore"],
+    "source_note": "04_百艺XP:技能成长",
+    "max_level": 100,
+    "scope": "MVP"
+  },
+  {
+    "id": "skill.alchemy",
+    "name_key": "skill.alchemy.name",
+    "description_key": "skill.alchemy.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 3,
+    "tags": ["crafting", "pill"],
+    "source_note": "04_百艺XP:技能成长",
+    "max_level": 100,
+    "scope": "MVP"
+  },
+  {
+    "id": "skill.forging",
+    "name_key": "skill.forging.name",
+    "description_key": "skill.forging.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.mid",
+    "sort_order": 4,
+    "tags": ["crafting", "equipment"],
+    "source_note": "04_百艺XP:技能成长",
+    "max_level": 100,
+    "scope": "MVP"
+  },
+  {
+    "id": "skill.tempering",
+    "name_key": "skill.tempering.name",
+    "description_key": "skill.tempering.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.late",
+    "sort_order": 5,
+    "tags": ["equipment", "tempering"],
+    "source_note": "04_百艺XP:技能成长",
+    "max_level": 100,
+    "scope": "MVP"
+  }
+]

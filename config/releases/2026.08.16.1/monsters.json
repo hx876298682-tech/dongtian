@@ -1,0 +1,48 @@
+[
+  {
+    "id": "monster.t1.qingshe",
+    "name_key": "monster.qingshe.name",
+    "description_key": "monster.qingshe.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 1,
+    "tags": ["dungeon", "safe_route"],
+    "source_note": "10_怪物秘境:1",
+    "combat": {
+      "hp": "180",
+      "attack": "18",
+      "defense": "8",
+      "attack_interval_seconds": "2.4",
+      "skill_script_id": "monster_script.qingshe.basic",
+      "recommended_power": "60",
+      "base_battle_duration_us": "48000000",
+      "spirit_stone": "18",
+      "loot_table_id": "loot.t1.qingshe.monster"
+    },
+    "scope": "MVP"
+  },
+  {
+    "id": "monster.t1.qingshe_wang",
+    "name_key": "monster.qingshe_wang.name",
+    "description_key": "monster.qingshe_wang.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.qi.early",
+    "sort_order": 2,
+    "tags": ["dungeon", "high_risk_route"],
+    "source_note": "10_怪物秘境:1",
+    "combat": {
+      "hp": "240",
+      "attack": "26",
+      "defense": "14",
+      "attack_interval_seconds": "2.2",
+      "skill_script_id": "monster_script.qingshe.elite",
+      "recommended_power": "82",
+      "base_battle_duration_us": "62000000",
+      "spirit_stone": "24",
+      "loot_table_id": "loot.t1.qingshe.monster"
+    },
+    "scope": "MVP"
+  }
+]
