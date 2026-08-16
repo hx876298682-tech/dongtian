@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useEffect, useMemo, useState, type KeyboardEvent, type ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate, useOutletContext } from 'react-router';
 
@@ -41,6 +41,14 @@ import {
 const CONTENT_QUERY_PREFIX = 'content';
 
 type ContentTab = 'actions' | 'recipes';
+
+function nextContentTab(current: ContentTab, direction: -1 | 1): ContentTab {
+  if (current === 'actions') {
+    return direction === 1 ? 'recipes' : 'recipes';
+  }
+
+  return direction === 1 ? 'actions' : 'actions';
+}
 
 function parseSearch(locationSearch: string): URLSearchParams {
   return new URLSearchParams(locationSearch);
@@ -193,7 +201,7 @@ function ActionCard({
 }): ReactElement {
   return (
     <article className={`content-card ${isSelected ? 'content-card--selected' : ''}`}>
-      <button className="content-card__title-button" type="button" onClick={onOpen}>
+      <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={isSelected}>
         <span className="content-card__title-row">
           <strong>{entry.action_id}</strong>
           {isRunning ? <span className="content-card__status">执行中</span> : null}
@@ -236,7 +244,7 @@ function RecipeCard({
 }): ReactElement {
   return (
     <article className={`content-card ${isSelected ? 'content-card--selected' : ''}`}>
-      <button className="content-card__title-button" type="button" onClick={onOpen}>
+      <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={isSelected}>
         <span className="content-card__title-row">
           <strong>{entry.recipe_id}</strong>
           {isRunning ? <span className="content-card__status">执行中</span> : null}
@@ -275,7 +283,7 @@ function ItemCard({
 }): ReactElement {
   return (
     <article className={`content-card ${selected ? 'content-card--selected' : ''}`}>
-      <button className="content-card__title-button" type="button" onClick={onOpen}>
+      <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={selected}>
         <span className="content-card__title-row">
           <strong>{item.asset_id}</strong>
           <span className="content-card__status">{item.asset_type}</span>
@@ -538,6 +546,20 @@ export function CraftPage(): ReactElement {
   const handleOpenInventoryItem = (itemId: string) => {
     syncSearch(navigate, '/inventory', '', { item_id: itemId, tab: null, action_id: null, recipe_id: null });
   };
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+      return;
+    }
+
+    event.preventDefault();
+    const nextTab = nextContentTab(activeTab, event.key === 'ArrowRight' ? 1 : -1);
+    setActiveTab(nextTab);
+    syncSearch(navigate, location.pathname, location.search, {
+      tab: nextTab,
+      action_id: nextTab === 'actions' ? selectedAction?.action_id ?? null : null,
+      recipe_id: nextTab === 'recipes' ? selectedRecipe?.recipe_id ?? null : null,
+    });
+  };
 
   const retryAll = () => {
     void Promise.all([
@@ -583,19 +605,27 @@ export function CraftPage(): ReactElement {
           <div className="dashboard-metrics">
             <div className="metric-chip">
               <span className="metric-chip__label">可见行动</span>
-              <strong className="metric-chip__value">{formatCount(actionCount)}</strong>
+              <strong className="metric-chip__value" title={formatCount(actionCount)}>
+                {formatCount(actionCount)}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">已解锁</span>
-              <strong className="metric-chip__value">{formatCount(unlockedActionCount)}</strong>
+              <strong className="metric-chip__value" title={formatCount(unlockedActionCount)}>
+                {formatCount(unlockedActionCount)}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">配方</span>
-              <strong className="metric-chip__value">{formatCount(recipeCount)}</strong>
+              <strong className="metric-chip__value" title={formatCount(recipeCount)}>
+                {formatCount(recipeCount)}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">队列版本</span>
-              <strong className="metric-chip__value">{String(queueQuery.data?.queue_version ?? '0')}</strong>
+              <strong className="metric-chip__value" title={`队列版本 ${String(queueQuery.data?.queue_version ?? '0')}`}>
+                {String(queueQuery.data?.queue_version ?? '0')}
+              </strong>
             </div>
           </div>
           <div className="content-hero__skills">
@@ -613,11 +643,29 @@ export function CraftPage(): ReactElement {
       </div>
 
       <div className="content-panel">
-        <div className="content-tabs" role="tablist" aria-label="百艺分类">
-          <button className={`chip-button ${activeTab === 'actions' ? 'chip-button--active' : ''}`} type="button" onClick={() => setActiveTab('actions')}>
+        <div className="content-tabs" role="tablist" aria-label="百艺分类" onKeyDown={handleTabKeyDown}>
+          <button
+            id="content-tab-actions"
+            className={`chip-button ${activeTab === 'actions' ? 'chip-button--active' : ''}`}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'actions'}
+            aria-controls="content-panel-actions"
+            tabIndex={activeTab === 'actions' ? 0 : -1}
+            onClick={() => setActiveTab('actions')}
+          >
             行动
           </button>
-          <button className={`chip-button ${activeTab === 'recipes' ? 'chip-button--active' : ''}`} type="button" onClick={() => setActiveTab('recipes')}>
+          <button
+            id="content-tab-recipes"
+            className={`chip-button ${activeTab === 'recipes' ? 'chip-button--active' : ''}`}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'recipes'}
+            aria-controls="content-panel-recipes"
+            tabIndex={activeTab === 'recipes' ? 0 : -1}
+            onClick={() => setActiveTab('recipes')}
+          >
             配方
           </button>
         </div>
@@ -625,27 +673,34 @@ export function CraftPage(): ReactElement {
           {(activeTab === 'actions' ? actionsData.actions : recipesData.recipes).length === 0 ? (
             <EmptyStateScreen title="暂无可见内容" description="当前分类没有内容，或角色未解锁。" />
           ) : null}
-          {activeTab === 'actions'
-            ? actionsData.actions.map((entry) => (
-                <ActionCard
-                  key={entry.action_id}
-                  entry={entry}
-                  isSelected={selectedAction?.action_id === entry.action_id}
-                  isRunning={isActionQueued(entry.action_id, queueData)}
-                  onOpen={() => syncSearch(navigate, location.pathname, location.search, { tab: 'actions', action_id: entry.action_id, recipe_id: null })}
-                  onJoinQueue={() => navigate(joinQueuePath(entry.queue_action_id))}
-                />
-              ))
-            : recipesData.recipes.map((entry) => (
-                <RecipeCard
-                  key={entry.recipe_id}
-                  entry={entry}
-                  isSelected={selectedRecipe?.recipe_id === entry.recipe_id}
-                  isRunning={isActionQueued(entry.queue_action_id, queueData)}
-                  onOpen={() => syncSearch(navigate, location.pathname, location.search, { tab: 'recipes', recipe_id: entry.recipe_id, action_id: null })}
-                  onJoinQueue={() => navigate(joinQueuePath(entry.queue_action_id))}
-                />
-              ))}
+          <div id="content-panel-actions" role="tabpanel" aria-labelledby="content-tab-actions" hidden={activeTab !== 'actions'}>
+            {activeTab === 'actions'
+              ? actionsData.actions.map((entry) => (
+                  <ActionCard
+                    key={entry.action_id}
+                    entry={entry}
+                    isSelected={selectedAction?.action_id === entry.action_id}
+                    isRunning={isActionQueued(entry.action_id, queueData)}
+                    onOpen={() => syncSearch(navigate, location.pathname, location.search, { tab: 'actions', action_id: entry.action_id, recipe_id: null })}
+                    onJoinQueue={() => navigate(joinQueuePath(entry.queue_action_id))}
+                  />
+                ))
+              : null}
+          </div>
+          <div id="content-panel-recipes" role="tabpanel" aria-labelledby="content-tab-recipes" hidden={activeTab !== 'recipes'}>
+            {activeTab === 'recipes'
+              ? recipesData.recipes.map((entry) => (
+                  <RecipeCard
+                    key={entry.recipe_id}
+                    entry={entry}
+                    isSelected={selectedRecipe?.recipe_id === entry.recipe_id}
+                    isRunning={isActionQueued(entry.queue_action_id, queueData)}
+                    onOpen={() => syncSearch(navigate, location.pathname, location.search, { tab: 'recipes', recipe_id: entry.recipe_id, action_id: null })}
+                    onJoinQueue={() => navigate(joinQueuePath(entry.queue_action_id))}
+                  />
+                ))
+              : null}
+          </div>
         </div>
       </div>
 
@@ -735,19 +790,27 @@ export function InventoryPage(): ReactElement {
           <div className="dashboard-metrics">
             <div className="metric-chip">
               <span className="metric-chip__label">物品</span>
-              <strong className="metric-chip__value">{formatCount(itemCount)}</strong>
+              <strong className="metric-chip__value" title={formatCount(itemCount)}>
+                {formatCount(itemCount)}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">货币</span>
-              <strong className="metric-chip__value">{formatCount(currencyCount)}</strong>
+              <strong className="metric-chip__value" title={formatCount(currencyCount)}>
+                {formatCount(currencyCount)}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">装备</span>
-              <strong className="metric-chip__value">{formatCount(equipmentCount)}</strong>
+              <strong className="metric-chip__value" title={formatCount(equipmentCount)}>
+                {formatCount(equipmentCount)}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">总数</span>
-            <strong className="metric-chip__value">{String(inventoryData.total_count)}</strong>
+            <strong className="metric-chip__value" title={`总数 ${String(inventoryData.total_count)}`}>
+              {String(inventoryData.total_count)}
+            </strong>
             </div>
           </div>
         </div>

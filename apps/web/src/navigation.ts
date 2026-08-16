@@ -10,8 +10,8 @@ export const SHELL_ROUTES: readonly ShellRouteItem[] = [
   { id: 'cultivation', label: '修炼', path: '/cultivation', description: '境界、修为和突破项目。' },
   { id: 'craft', label: '百艺', path: '/craft', description: '采药、挖矿、炼丹、炼器和淬炼。' },
   { id: 'expedition', label: '历练', path: '/expedition', description: '青蛇洞机会、准备、运行与恢复。' },
-  { id: 'character', label: '角色', path: '/character', description: '装备、预设、丹药槽与解释。' },
-  { id: 'inventory', label: '背包', path: '/inventory', description: '材料、丹药、装备和临时收纳。' },
+  { id: 'character', label: '角色', path: '/character', description: '装备整理、比较、保留和淬炼。' },
+  { id: 'inventory', label: '背包', path: '/inventory', description: '材料、丹药、装备和分页筛选。' },
 ];
 
 export const SHELL_PANELS = [

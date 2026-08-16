@@ -6,12 +6,21 @@ export const packageName = '@dongtian/observability' as const;
 export const REDACTION_PATHS = [
   'password',
   'password_hash',
+  'email',
+  'email_normalized',
+  'token',
+  'access_token',
+  'refresh_token',
   'session_token',
   'session_token_hash',
   'csrf_token',
   'csrf_token_hash',
   'authorization',
   'cookie',
+  'ip',
+  'ip_address',
+  'client_ip',
+  'remote_ip',
   'req.headers.authorization',
   'req.headers.cookie',
   'req.headers.x-csrf-token',
@@ -115,3 +124,5 @@ export function createLogger(serviceName: string, options: LoggerOptions = {}): 
 
   return options.stream === undefined ? pino(loggerOptions) : pino(loggerOptions, options.stream);
 }
+
+export * from './analytics.js';

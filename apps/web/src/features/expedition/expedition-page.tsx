@@ -252,7 +252,7 @@ function DungeonChoiceButton({
   readonly onSelect: () => void;
 }): ReactElement {
   return (
-    <button className={`expedition-choice ${active ? 'expedition-choice--active' : ''}`} type="button" onClick={onSelect} disabled={disabled}>
+    <button className={`expedition-choice ${active ? 'expedition-choice--active' : ''}`} type="button" onClick={onSelect} disabled={disabled} aria-pressed={active}>
       <span className="expedition-choice__row">
         <strong>{label}</strong>
         <span className="equipment-chip">{riskLabel}</span>
@@ -315,7 +315,7 @@ function ExpeditionPrepareCard({
         {opportunityView.facts.map((fact) => (
           <div key={fact.label} className="expedition-fact">
             <span>{fact.label}</span>
-            <strong>{fact.value}</strong>
+            <strong title={fact.value}>{fact.value}</strong>
           </div>
         ))}
       </div>
@@ -378,7 +378,7 @@ function ExpeditionPrepareCard({
             {previewView.facts.map((fact) => (
               <div key={fact.label} className="expedition-fact">
                 <span>{fact.label}</span>
-                <strong>{fact.value}</strong>
+                <strong title={fact.value}>{fact.value}</strong>
               </div>
             ))}
           </div>
@@ -470,7 +470,7 @@ function ExpeditionRuntimeCard({
         {runView.facts.map((fact) => (
           <div key={fact.label} className="expedition-fact">
             <span>{fact.label}</span>
-            <strong>{fact.value}</strong>
+            <strong title={fact.value}>{fact.value}</strong>
           </div>
         ))}
       </div>

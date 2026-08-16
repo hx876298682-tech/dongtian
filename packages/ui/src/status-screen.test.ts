@@ -33,6 +33,9 @@ describe('StatusScreen', () => {
     for (const markup of screens) {
       expect(markup).toContain('status-screen');
     }
+    expect(screens[0]).toContain('role="status"');
+    expect(screens[2]).toContain('aria-busy="true"');
+    expect(screens[3]).toContain('role="alert"');
     expect(screens[0]).toContain('今日状态');
     expect(screens[1]).toContain('空');
     expect(screens[2]).toContain('加载中');

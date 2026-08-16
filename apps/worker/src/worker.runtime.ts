@@ -6,9 +6,11 @@ import type { Logger } from 'pino';
 import { type Environment } from '@dongtian/config-schema';
 import {
   createDatabasePool,
+  createCaveRepository,
   createOutboxRepository,
   createSettlementRepository,
   type DatabasePool,
+  type CaveRepository,
   type OutboxEvent,
   type OutboxRepository,
   type SettlementRepository,
@@ -27,6 +29,7 @@ export const WORKER_RUNTIME_OPTIONS = Symbol('WORKER_RUNTIME_OPTIONS');
 export const OUTBOX_EVENT_DEDUPE = Symbol('OUTBOX_EVENT_DEDUPE');
 export const OUTBOX_REPOSITORY = Symbol('OUTBOX_REPOSITORY');
 export const SETTLEMENT_REPOSITORY = Symbol('SETTLEMENT_REPOSITORY');
+export const CAVE_REPOSITORY = Symbol('CAVE_REPOSITORY');
 
 export type WorkerSleep = (ms: number, signal: AbortSignal) => Promise<void>;
 
@@ -293,6 +296,84 @@ export class SettlementContinuationService {
 }
 
 @Injectable()
+export class CaveRecoveryService {
+  public constructor(
+    @Inject(CAVE_REPOSITORY) private readonly repository: CaveRepository,
+  ) {}
+
+  public readonly continueCharacter = async (client: PoolClient, characterId: string): Promise<void> => {
+    const now = new Date();
+    const caveState = await this.repository.lockState(client, characterId);
+    if (!caveState) {
+      return;
+    }
+
+    const dueTasks = await this.repository.listDueBuildTasksOnTransaction(client, {
+      characterId,
+      now,
+    });
+    if (dueTasks.length === 0) {
+      return;
+    }
+
+    const character = await client.query<{ state_version: string }>(
+      `SELECT state_version::text AS state_version
+         FROM characters
+        WHERE id = $1
+        FOR UPDATE`,
+      [characterId],
+    );
+    const stateRow = character.rows[0];
+    if (!stateRow) {
+      throw new Error('CAVE_CHARACTER_NOT_FOUND');
+    }
+
+    for (const task of dueTasks) {
+      const transactionId = await client.query<{ id: string }>(
+        `INSERT INTO asset_transactions (
+           character_id, operation_type, reason_code, reference_type, reference_id, config_version
+         )
+         VALUES ($1, 'CAVE_BUILD_COMPLETE', 'CAVE_BUILD_COMPLETE', 'CAVE_BUILD_TASK', $2, $3)
+         RETURNING id`,
+        [characterId, task.id, task.configVersion],
+      ).then((result) => {
+        const row = result.rows[0];
+        if (!row) {
+          throw new Error('CAVE_TRANSACTION_NOT_CREATED');
+        }
+        return row.id;
+      });
+      await this.repository.completeBuildTaskOnTransaction(client, {
+        characterId,
+        buildTaskId: task.id,
+        completeTransactionId: transactionId,
+      });
+    }
+
+    await client.query(
+      `UPDATE characters
+          SET state_version = state_version + 1,
+              updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+          AND state_version::text = $2`,
+      [characterId, stateRow.state_version],
+    );
+  };
+}
+
+@Injectable()
+export class CaveRecoveryWorker {
+  public constructor(
+    private readonly repository: CaveRepository,
+    private readonly handler: CaveRecoveryService,
+  ) {}
+
+  public runOnce(limit = 10): Promise<number> {
+    return this.repository.runRecoveryBatch(limit, this.handler.continueCharacter);
+  }
+}
+
+@Injectable()
 export class WorkerRuntimeService implements OnApplicationBootstrap, BeforeApplicationShutdown, OnApplicationShutdown {
   private loops: readonly PollingLoop[] | null = null;
   private runningPromise: Promise<void> | null = null;
@@ -305,6 +386,7 @@ export class WorkerRuntimeService implements OnApplicationBootstrap, BeforeAppli
     @Inject(WORKER_SLEEP) private readonly sleep: WorkerSleep,
     private readonly outboxWorker: OutboxWorker,
     private readonly settlementWorker: SettlementContinuationWorker,
+    private readonly caveWorker: CaveRecoveryWorker,
   ) {}
 
   public onApplicationBootstrap(): void {
@@ -338,9 +420,13 @@ export class WorkerRuntimeService implements OnApplicationBootstrap, BeforeAppli
       const claimed = await this.settlementWorker.runOnce(this.options.settlementBatchLimit);
       return claimed > 0;
     });
-    this.loops = [outboxLoop, settlementLoop];
+    const caveLoop = makeLoop('cave', async () => {
+      const claimed = await this.caveWorker.runOnce(this.options.settlementBatchLimit);
+      return claimed > 0;
+    });
+    this.loops = [outboxLoop, settlementLoop, caveLoop];
 
-    this.runningPromise = Promise.all([outboxLoop.start(), settlementLoop.start()])
+    this.runningPromise = Promise.all([outboxLoop.start(), settlementLoop.start(), caveLoop.start()])
       .then(() => undefined)
       .catch((error: unknown) => {
         this.logger.error({ error: errorMessage(error) }, 'Worker runtime loop failed.');
@@ -371,10 +457,12 @@ export function createWorkerDatabasePool(environment: Environment): DatabasePool
 export function createWorkerRepositories(pool: DatabasePool): Readonly<{
   readonly outboxRepository: OutboxRepository;
   readonly settlementRepository: SettlementRepository;
+  readonly caveRepository: CaveRepository;
 }> {
   return {
     outboxRepository: createOutboxRepository(pool),
     settlementRepository: createSettlementRepository(pool),
+    caveRepository: createCaveRepository(pool),
   };
 }
 

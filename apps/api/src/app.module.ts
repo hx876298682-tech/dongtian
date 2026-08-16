@@ -9,8 +9,10 @@ import { ContentModule } from './content/content.module.js';
 import { AssetModule } from './asset/asset.module.js';
 import { BuffModule } from './buff/buff.module.js';
 import { EquipmentModule } from './equipment/equipment.module.js';
+import { TemperingModule } from './tempering/tempering.module.js';
 import { SkillToolAssignmentsModule } from './skill-tool-assignments/skill-tool-assignments.module.js';
 import { DungeonModule } from './dungeon/dungeon.module.js';
+import { CaveModule } from './cave/cave.module.js';
 import { IdempotencyModule } from './idempotency/idempotency.module.js';
 import { HealthModule } from './health/health.module.js';
 import { QueueModule } from './queue/queue.module.js';
@@ -26,8 +28,10 @@ import { SuccessEnvelopeInterceptor } from './http/envelope.interceptor.js';
     AssetModule,
     BuffModule,
     EquipmentModule,
+    TemperingModule,
     SkillToolAssignmentsModule,
     DungeonModule,
+    CaveModule,
     IdempotencyModule,
     ConfigModule,
     HealthModule,

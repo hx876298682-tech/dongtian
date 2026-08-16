@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import { useId, type ReactElement, type ReactNode } from 'react';
 
 export type StatusScreenKind = 'normal' | 'empty' | 'loading' | 'local-error' | 'locked' | 'maintenance';
 
@@ -35,14 +35,30 @@ export function StatusScreen({
   kind,
   title,
 }: StatusScreenProps): ReactElement {
+  const titleId = useId();
+  const descriptionId = useId();
+  const footnoteId = useId();
+  const isAlert = kind === 'local-error';
+
   return (
-    <section className={`status-screen status-screen--${kind}`} aria-label={title}>
+    <section
+      className={`status-screen status-screen--${kind}`}
+      aria-labelledby={titleId}
+      aria-describedby={footnote ? `${descriptionId} ${footnoteId}` : descriptionId}
+      aria-busy={kind === 'loading'}
+      aria-live={kind === 'loading' ? 'polite' : isAlert ? 'assertive' : 'polite'}
+      role={isAlert ? 'alert' : 'status'}
+    >
       <div className="status-screen__badge-row">
         <span className="status-screen__badge">{eyebrow ?? KIND_LABELS[kind]}</span>
         {highlight ? <span className="status-screen__highlight">{highlight}</span> : null}
       </div>
-      <h2 className="status-screen__title">{title}</h2>
-      <div className="status-screen__description">{description}</div>
+      <h2 className="status-screen__title" id={titleId}>
+        {title}
+      </h2>
+      <div className="status-screen__description" id={descriptionId}>
+        {description}
+      </div>
       {actions && actions.length > 0 ? (
         <div className="status-screen__actions">
           {actions.map((action) => (
@@ -52,7 +68,11 @@ export function StatusScreen({
           ))}
         </div>
       ) : null}
-      {footnote ? <div className="status-screen__footnote">{footnote}</div> : null}
+      {footnote ? (
+        <div className="status-screen__footnote" id={footnoteId}>
+          {footnote}
+        </div>
+      ) : null}
     </section>
   );
 }

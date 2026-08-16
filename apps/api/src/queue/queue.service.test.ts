@@ -133,6 +133,33 @@ const inventoryConditionItem = {
   overflow_policy: 'MATERIAL_STACK',
 } as ItemConfig;
 
+const temperings = Array.from({ length: 10 }, (_, index) => {
+  const targetLevel = index + 1;
+  return {
+    id: `tempering.t1.level_${targetLevel}`,
+    name_key: `tempering.level_${targetLevel}.name`,
+    description_key: `tempering.level_${targetLevel}.desc`,
+    enabled: true,
+    deprecated: false,
+    realm_required: realm.id,
+    feature_flag: null,
+    sort_order: targetLevel,
+    tags: ['equipment', 'tempering'],
+    source_note: 'test',
+    target_level: targetLevel,
+    success_probability: '1',
+    attribute_increase: '0.1',
+    tempering_stone_cost: '1',
+    spirit_stone_cost: '1',
+    same_equipment_cost: '0',
+    protection_material_cost: '0',
+    tempering_stone_item_id: inventoryConditionItem.id,
+    protection_material_item_id: inventoryConditionItem.id,
+    failure_result: 'KEEP_LEVEL',
+    scope: targetLevel <= 6 ? 'MVP' : 'ANCHOR',
+  };
+});
+
 const registry = new ConfigRegistry({
   manifest,
   realms: [realm, foundationRealm],
@@ -149,6 +176,7 @@ const registry = new ConfigRegistry({
   dungeons: [],
   regions: [],
   caveFacilities: [],
+  temperings: temperings as never,
 });
 
 const character: CharacterProgressionRecord = {

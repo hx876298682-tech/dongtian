@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { DatabasePool } from '@dongtian/database';
-import { PollingLoop, WorkerRuntimeService, type WorkerRuntimeOptions, type WorkerSleep } from './worker.runtime.js';
+import type { CaveBuildTaskRecord, CaveRepository, DatabasePool, PoolClient } from '@dongtian/database';
+import {
+  CaveRecoveryService,
+  PollingLoop,
+  WorkerRuntimeService,
+  type WorkerRuntimeOptions,
+  type WorkerSleep,
+} from './worker.runtime.js';
 
 type Deferred<T> = {
   readonly promise: Promise<T>;
@@ -114,6 +120,9 @@ describe('WorkerRuntimeService', () => {
     const settlementWorker = {
       runOnce: vi.fn(async () => 0),
     };
+    const caveWorker = {
+      runOnce: vi.fn(async () => 0),
+    };
     const service = new WorkerRuntimeService(
       pool,
       logger,
@@ -121,6 +130,7 @@ describe('WorkerRuntimeService', () => {
       sleep,
       outboxWorker as never,
       settlementWorker as never,
+      caveWorker as never,
     );
     const startSpy = vi.spyOn(service, 'start').mockResolvedValue(undefined);
     const stopSpy = vi.spyOn(service, 'stop').mockResolvedValue(undefined);
@@ -156,6 +166,9 @@ describe('WorkerRuntimeService', () => {
     const settlementWorker = {
       runOnce: vi.fn(async () => 0),
     };
+    const caveWorker = {
+      runOnce: vi.fn(async () => 0),
+    };
     const pool = {
       end: vi.fn(async () => undefined),
     } as unknown as DatabasePool;
@@ -179,6 +192,7 @@ describe('WorkerRuntimeService', () => {
       sleep,
       outboxWorker as never,
       settlementWorker as never,
+      caveWorker as never,
     );
 
     const started = service.start();
@@ -194,6 +208,67 @@ describe('WorkerRuntimeService', () => {
       leaseMs: options.outboxLeaseMs,
     });
     expect(settlementWorker.runOnce).toHaveBeenCalledWith(options.settlementBatchLimit);
+    expect(caveWorker.runOnce).toHaveBeenCalledWith(options.settlementBatchLimit);
     expect(pool.end).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('CaveRecoveryService', () => {
+  it('completes due build tasks once and stays idempotent on a second pass', async () => {
+    const state = { completeCount: 0 };
+    let dueTask: CaveBuildTaskRecord = {
+      id: 'build-1',
+      characterId: 'character-1',
+      facilityConfigId: 'cave_facility.juling_room',
+      fromLevel: 0,
+      targetLevel: 1,
+      status: 'RUNNING',
+      startedAt: new Date('2026-08-16T00:00:00.000Z'),
+      completeAt: new Date('2026-08-16T01:00:00.000Z'),
+      costTransactionId: 'asset-tx-1',
+      completeTransactionId: null,
+      configVersion: '2026.08.16.1',
+      createdAt: new Date('2026-08-16T00:00:00.000Z'),
+      updatedAt: new Date('2026-08-16T00:00:00.000Z'),
+    };
+    const repository = {
+      async lockState() {
+        return {
+          characterId: 'character-1',
+          facilities: [],
+          buildTasks: [dueTask],
+        };
+      },
+      async listDueBuildTasksOnTransaction() {
+        return dueTask.status === 'RUNNING' ? [dueTask] : [];
+      },
+      async completeBuildTaskOnTransaction() {
+        state.completeCount += 1;
+        dueTask = { ...dueTask, status: 'COMPLETED', completeTransactionId: 'asset-tx-2' };
+        return dueTask;
+      },
+    } as unknown as CaveRepository;
+
+    const client = {
+      async query<T>(sql: string): Promise<{ readonly rows: T[] }> {
+        if (sql.includes('SELECT state_version::text AS state_version')) {
+          return { rows: [{ state_version: '7' }] as T[] };
+        }
+        if (sql.includes('INSERT INTO asset_transactions')) {
+          return { rows: [{ id: `tx-${state.completeCount + 1}` }] as T[] };
+        }
+        if (sql.includes('UPDATE characters')) {
+          return { rows: [] as T[] };
+        }
+        return { rows: [] as T[] };
+      },
+    } as unknown as PoolClient;
+
+    const service = new CaveRecoveryService(repository);
+    await service.continueCharacter(client, 'character-1');
+    await service.continueCharacter(client, 'character-1');
+
+    expect(state.completeCount).toBe(1);
+    expect(dueTask.status).toBe('COMPLETED');
   });
 });

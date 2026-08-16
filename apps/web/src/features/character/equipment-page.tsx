@@ -9,6 +9,7 @@ import {
   type EquipmentInstance,
   type InventorySnapshot,
   type LoadoutPreset,
+  type TemperingAttemptResponse,
 } from '@dongtian/contracts';
 import {
   EmptyStateScreen,
@@ -28,11 +29,25 @@ import {
   summarizeLoadoutPreset,
 } from './equipment-adapter.js';
 import {
+  buildEquipmentLootSummary,
+  filterEquipmentInstances,
+  TEMPERING_LADDER,
+  type EquipmentFilterMode,
+  type EquipmentSortMode,
+  summarizeEquipmentAvailability,
+  summarizeTemperingResponse,
+} from './tempering-adapter.js';
+import {
   createInitialEquipmentEditorState,
   createLoadoutSaveRequest,
   equipmentEditorReducer,
   isLoadoutComplete,
 } from './equipment-editor.js';
+import {
+  createInitialTemperingPageState,
+  createTemperingAttemptId,
+  temperingPageReducer,
+} from './tempering-reducer.js';
 
 const EQUIPMENT_QUERY_PREFIX = 'equipment';
 
@@ -221,18 +236,24 @@ function EquipmentInstanceCard({
   instance,
   selected,
   assignedSlot,
+  kept,
+  duplicateCount,
   onOpen,
+  onKeep,
   onAssign,
 }: {
   readonly instance: EquipmentInstance;
   readonly selected: boolean;
   readonly assignedSlot: string | null;
+  readonly kept: boolean;
+  readonly duplicateCount: number;
   readonly onOpen: () => void;
+  readonly onKeep: () => void;
   readonly onAssign: (slot: 'WEAPON' | 'ARMOR' | 'ACCESSORY') => void;
 }): ReactElement {
   return (
     <article className={`equipment-instance ${selected ? 'equipment-instance--selected' : ''}`}>
-      <button className="equipment-instance__title-button" type="button" onClick={onOpen}>
+      <button className="equipment-instance__title-button" type="button" onClick={onOpen} aria-pressed={selected}>
         <span className="equipment-instance__title-row">
           <strong>{instance.instance_id}</strong>
           <span className="equipment-chip">{instance.bound ? '已绑定' : '未绑定'}</span>
@@ -243,8 +264,17 @@ function EquipmentInstanceCard({
       <div className="equipment-instance__meta">
         <span className="equipment-chip">实例比较</span>
         <span className="equipment-chip">{assignedSlot ?? '未上阵'}</span>
+        <span className="equipment-chip">{kept ? '已保留' : '待整理'}</span>
+        <span className="equipment-chip">同类 ×{duplicateCount}</span>
+        <span className="equipment-chip">{instance.temper_level >= 6 ? '+7 锁定' : '+1~+6 可淬炼'}</span>
       </div>
       <div className="equipment-instance__actions">
+        <button className="chip-button" type="button" onClick={onKeep}>
+          {kept ? '取消保留' : '保留'}
+        </button>
+        <button className="chip-button" type="button" onClick={onOpen}>
+          查看用途
+        </button>
         <button className="chip-button" type="button" onClick={() => onAssign('WEAPON')}>
           用作武器
         </button>
@@ -328,6 +358,132 @@ function EquipmentNoticeCard({ notice }: { readonly notice: EquipmentNotice | nu
   return <NormalStateScreen title={notice.title} description={notice.description} footnote={notice.footnote} highlight="提示" />;
 }
 
+function buildTemperingNotice(error: unknown): EquipmentNotice {
+  if (error instanceof ApiClientError) {
+    return {
+      kind: 'error',
+      title: `淬炼失败 · HTTP ${error.status}`,
+      description: summarizeEquipmentError(error.status, error.code, error.details),
+      footnote: error.message,
+    };
+  }
+
+  return {
+    kind: 'error',
+    title: '淬炼失败',
+    description: error instanceof Error ? error.message : '未知错误',
+  };
+}
+
+export function TemperingOutcomeCard({
+  response,
+  onRetry,
+}: {
+  readonly response: TemperingAttemptResponse | null;
+  readonly onRetry: () => void;
+}): ReactElement {
+  if (response === null) {
+    return <EmptyStateScreen title="淬炼结果" description="提交后这里会显示成功、失败、审计和资产事务信息。" />;
+  }
+
+  const title = response.success ? `+${response.target_level} 淬炼成功` : response.outcome === 'REJECTED' ? `+${response.target_level} 被拒绝` : `+${response.target_level} 淬炼失败`;
+  const description = [
+    `装备 ${response.equipment.instance_id} · ${response.equipment.item_id}`,
+    `结果 ${response.level_before} → ${response.level_after}`,
+    `审计 ${response.temper_audit_id}`,
+    `资产事务 ${response.asset_transaction_id}`,
+  ].join(' · ');
+  const footnote = response.random_audit === null
+    ? '当前结果未产生随机审计，通常意味着目标阶段被锁定。'
+    : `命名空间 ${response.random_audit.namespace} · seed ${response.random_audit.seed_hex}`;
+
+  return (
+    <NormalStateScreen
+      title={title}
+      description={description}
+      footnote={footnote}
+      highlight={response.success ? '成功' : response.outcome}
+      actions={[{ label: '相同 attempt_id 重试', onClick: onRetry }]}
+    />
+  );
+}
+
+export function TemperingLadderTable({
+  selectedTargetLevel,
+}: {
+  readonly selectedTargetLevel: number;
+}): ReactElement {
+  return (
+    <div className="tempering-ladder" role="table" aria-label="淬炼概率与材料快照">
+      {TEMPERING_LADDER.map((row) => (
+        <article key={row.targetLevel} className={`tempering-ladder__row ${row.targetLevel === selectedTargetLevel ? 'tempering-ladder__row--selected' : ''}`}>
+          <div className="tempering-ladder__header">
+            <strong>+{row.targetLevel}</strong>
+            <span className={`equipment-chip ${row.locked ? 'equipment-chip--locked' : ''}`}>{row.conditionLabel}</span>
+          </div>
+          <p className="tempering-ladder__copy">成功率 {row.successProbability} · 灵石 {row.spiritStoneCost} · 淬炼石 {row.temperingStoneCost} · 同类 {row.sameEquipmentCost} · 保护 {row.protectionMaterialCost}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function EquipmentFilterBar({
+  query,
+  filterMode,
+  sortMode,
+  pageSize,
+  onQueryChange,
+  onFilterModeChange,
+  onSortModeChange,
+  onPageSizeChange,
+}: {
+  readonly query: string;
+  readonly filterMode: EquipmentFilterMode;
+  readonly sortMode: EquipmentSortMode;
+  readonly pageSize: number;
+  readonly onQueryChange: (query: string) => void;
+  readonly onFilterModeChange: (mode: EquipmentFilterMode) => void;
+  readonly onSortModeChange: (mode: EquipmentSortMode) => void;
+  readonly onPageSizeChange: (pageSize: number) => void;
+}): ReactElement {
+  return (
+    <div className="equipment-filterbar">
+      <label className="equipment-form__field">
+        <span className="equipment-form__label">筛选</span>
+        <input className="equipment-form__input" value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder="实例、装备 ID、强化、绑定" />
+      </label>
+      <label className="equipment-form__field">
+        <span className="equipment-form__label">状态</span>
+        <select className="equipment-form__input" value={filterMode} onChange={(event) => onFilterModeChange(event.target.value as EquipmentFilterMode)}>
+          <option value="all">全部</option>
+          <option value="duplicates">同类重复</option>
+          <option value="temperable">可淬炼</option>
+          <option value="bound">已绑定</option>
+          <option value="unbound">未绑定</option>
+        </select>
+      </label>
+      <label className="equipment-form__field">
+        <span className="equipment-form__label">排序</span>
+        <select className="equipment-form__input" value={sortMode} onChange={(event) => onSortModeChange(event.target.value as EquipmentSortMode)}>
+          <option value="recent">最近</option>
+          <option value="item">装备 ID</option>
+          <option value="temper-level">强化等级</option>
+          <option value="duplicates">同类数量</option>
+        </select>
+      </label>
+      <label className="equipment-form__field">
+        <span className="equipment-form__label">分页</span>
+        <select className="equipment-form__input" value={String(pageSize)} onChange={(event) => onPageSizeChange(Number(event.target.value))}>
+          <option value="4">4 / 页</option>
+          <option value="8">8 / 页</option>
+          <option value="12">12 / 页</option>
+        </select>
+      </label>
+    </div>
+  );
+}
+
 function buildMutationNotice(error: unknown): EquipmentNotice {
   if (error instanceof ApiClientError) {
     return {
@@ -372,13 +528,16 @@ export function CharacterEquipmentPage(): ReactElement {
   const queryClient = useQueryClient();
   const params = useMemo(() => parseSearch(location.search), [location.search]);
   const [editorState, dispatch] = useReducer(equipmentEditorReducer, createInitialEquipmentEditorState());
+  const [temperingState, temperingDispatch] = useReducer(temperingPageReducer, createInitialTemperingPageState());
   const [notice, setNotice] = useState<EquipmentNotice | null>(null);
+  const [temperingNotice, setTemperingNotice] = useState<EquipmentNotice | null>(null);
   const [presetInput, setPresetInput] = useState(params.get('preset_id') ?? '');
   const [comparePresetInput, setComparePresetInput] = useState(params.get('compare_preset_id') ?? '');
 
   const presetId = params.get('preset_id') ?? '';
   const comparePresetId = params.get('compare_preset_id') ?? '';
   const selectedInstanceId = params.get('instance_id');
+  const presetMissingInput = presetId.length === 0;
 
   useEffect(() => {
     setPresetInput(presetId);
@@ -399,6 +558,12 @@ export function CharacterEquipmentPage(): ReactElement {
     }
   }, [presetQuery.data]);
 
+  useEffect(() => {
+    if (selectedInstanceId !== temperingState.draft.selectedInstanceId) {
+      temperingDispatch({ type: 'select-instance', instanceId: selectedInstanceId });
+    }
+  }, [selectedInstanceId, temperingState.draft.selectedInstanceId]);
+
   const currentPreset = presetQuery.data ?? null;
   const comparePreset = comparePresetQuery.data ?? currentPreset;
   const inventory = inventoryQuery.data ?? null;
@@ -411,6 +576,43 @@ export function CharacterEquipmentPage(): ReactElement {
     () => (inventory === null ? [] : buildEquipmentSlotComparisonRows(currentPreset, comparePreset, inventory)),
     [comparePreset, currentPreset, inventory],
   );
+  const filteredEquipment = useMemo(
+    () => (inventory === null ? [] : filterEquipmentInstances(inventory, { query: temperingState.query, mode: temperingState.filterMode, sortMode: temperingState.sortMode })),
+    [inventory, temperingState.filterMode, temperingState.query, temperingState.sortMode],
+  );
+  const duplicateCounts = useMemo(() => {
+    if (inventory === null) {
+      return new Map<string, number>();
+    }
+    const counts = new Map<string, number>();
+    for (const instance of inventory.equipment_instances) {
+      counts.set(instance.item_id, (counts.get(instance.item_id) ?? 0) + 1);
+    }
+    return counts;
+  }, [inventory]);
+  const equipmentPageCount = Math.max(1, Math.ceil(filteredEquipment.length / temperingState.pageSize));
+  const equipmentPageIndex = Math.min(temperingState.pageIndex, equipmentPageCount - 1);
+  const pagedEquipment = filteredEquipment.slice(
+    equipmentPageIndex * temperingState.pageSize,
+    equipmentPageIndex * temperingState.pageSize + temperingState.pageSize,
+  );
+  const selectedTemperingInstance = useMemo(
+    () => (inventory === null ? null : inventory.equipment_instances.find((instance) => instance.instance_id === temperingState.draft.selectedInstanceId) ?? null),
+    [inventory, temperingState.draft.selectedInstanceId],
+  );
+  const selectedTemperingDuplicateCount = selectedTemperingInstance === null ? 0 : (duplicateCounts.get(selectedTemperingInstance.item_id) ?? 0);
+  const selectedTemperingSummary = selectedTemperingInstance === null
+    ? null
+    : buildEquipmentLootSummary(selectedTemperingInstance, selectedTemperingDuplicateCount);
+  const selectedTemperingTargetLevel = temperingState.draft.targetLevel;
+
+  useEffect(() => {
+    if (selectedTemperingInstance === null) {
+      return;
+    }
+    const nextTargetLevel = Math.min(selectedTemperingInstance.temper_level + 1, 7);
+    temperingDispatch({ type: 'set-target-level', targetLevel: nextTargetLevel });
+  }, [selectedTemperingInstance?.instance_id, selectedTemperingInstance?.temper_level]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -465,6 +667,49 @@ export function CharacterEquipmentPage(): ReactElement {
     },
   });
 
+  const temperMutation = useMutation({
+    mutationFn: async () => {
+      if (progression === null || selectedTemperingInstance === null) {
+        throw new Error('NO_TEMPERING_TARGET');
+      }
+      if (selectedTemperingTargetLevel > 6) {
+        throw new Error('TEMPERING_LEVEL_LOCKED');
+      }
+
+      let attemptId = temperingState.draft.attemptId;
+      if (attemptId === null) {
+        attemptId = createTemperingAttemptId();
+        temperingDispatch({ type: 'prepare-attempt', attemptId });
+      }
+
+      return apiClient.temperEquipment(
+        session.character_id,
+        selectedTemperingInstance.instance_id,
+        {
+          attempt_id: attemptId,
+          expected_state_version: progression.character.state_version,
+          target_level: selectedTemperingTargetLevel,
+          use_protection_material: temperingState.draft.useProtectionMaterial,
+          config_version: progression.config_version,
+        },
+        attemptId,
+      );
+    },
+    onSuccess: (response) => {
+      temperingDispatch({ type: 'mark-response', response });
+      setTemperingNotice({
+        kind: 'success',
+        title: response.success ? `+${response.target_level} 淬炼成功` : `+${response.target_level} 淬炼完成`,
+        description: summarizeTemperingResponse(response),
+        footnote: `状态版本 ${response.state_version} · 配置 ${response.config_version}`,
+      });
+      void queryClient.invalidateQueries({ queryKey: [EQUIPMENT_QUERY_PREFIX, session.character_id] });
+    },
+    onError: (error: unknown) => {
+      setTemperingNotice(buildTemperingNotice(error));
+    },
+  });
+
   const refreshAll = () => {
     void Promise.all([
       progressionQuery.refetch(),
@@ -476,6 +721,10 @@ export function CharacterEquipmentPage(): ReactElement {
 
   const goToInventory = () => {
     syncSearch(navigate, '/inventory', '', { item_id: selectedInstanceId, tab: null, action_id: null, recipe_id: null });
+  };
+
+  const goToToolAssignments = () => {
+    navigate('/character/tools');
   };
 
   if (progressionQuery.isPending || inventoryQuery.isPending) {
@@ -496,10 +745,6 @@ export function CharacterEquipmentPage(): ReactElement {
 
   if (progression === null || inventory === null) {
     return <EquipmentLoading />;
-  }
-
-  if (presetId.length === 0) {
-    return <EquipmentMissingPreset onOpenInventory={goToInventory} />;
   }
 
   const presetError = presetQuery.error;
@@ -526,19 +771,27 @@ export function CharacterEquipmentPage(): ReactElement {
           <div className="dashboard-metrics">
             <div className="metric-chip">
               <span className="metric-chip__label">角色</span>
-              <strong className="metric-chip__value">{progression.character.name}</strong>
+              <strong className="metric-chip__value" title={progression.character.name}>
+                {progression.character.name}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">状态版本</span>
-              <strong className="metric-chip__value">{progression.character.state_version}</strong>
+              <strong className="metric-chip__value" title={`状态版本 ${progression.character.state_version}`}>
+                {progression.character.state_version}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">装备实例</span>
-              <strong className="metric-chip__value">{inventory.equipment_instances.length}</strong>
+              <strong className="metric-chip__value" title={String(inventory.equipment_instances.length)}>
+                {inventory.equipment_instances.length}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">预设</span>
-              <strong className="metric-chip__value">{summarizeLoadoutPreset(currentPreset)}</strong>
+              <strong className="metric-chip__value" title={summarizeLoadoutPreset(currentPreset)}>
+                {summarizeLoadoutPreset(currentPreset)}
+              </strong>
             </div>
           </div>
           <div className="equipment-hero__controls">
@@ -568,24 +821,52 @@ export function CharacterEquipmentPage(): ReactElement {
               <button className="ghost-button" type="button" onClick={goToInventory}>
                 去背包比较
               </button>
+              <button className="ghost-button" type="button" onClick={goToToolAssignments}>
+                工具分配
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <div className="equipment-panel">
-        <EquipmentPanelHeader title="装备实例" copy="列表直接来自 inventory.equipment_instances，只有权威实例，没有本地估算或市价按钮。" />
+        <EquipmentPanelHeader title="装备实例" copy="列表来自权威 inventory.equipment_instances，支持筛选、排序、分页和保留标记，不会本地改写库存。" />
+        <EquipmentFilterBar
+          query={temperingState.query}
+          filterMode={temperingState.filterMode}
+          sortMode={temperingState.sortMode}
+          pageSize={temperingState.pageSize}
+          onQueryChange={(query) => temperingDispatch({ type: 'set-query', query })}
+          onFilterModeChange={(filterMode) => temperingDispatch({ type: 'set-filter-mode', filterMode })}
+          onSortModeChange={(sortMode) => temperingDispatch({ type: 'set-sort-mode', sortMode })}
+          onPageSizeChange={(pageSize) => temperingDispatch({ type: 'set-page-size', pageSize })}
+        />
+        <div className="equipment-hero__actions">
+          <span className="equipment-chip">总计 {filteredEquipment.length} 件</span>
+          <span className="equipment-chip">同类重复 {Array.from(duplicateCounts.values()).filter((count) => count > 1).length} 组</span>
+          <span className="equipment-chip">
+            第 {Math.min(equipmentPageIndex + 1, equipmentPageCount)} / {equipmentPageCount} 页
+          </span>
+        </div>
         <div className="equipment-list">
-          {inventory.equipment_instances.length === 0 ? <EmptyStateScreen title="没有装备实例" description="当前角色没有可展示的装备实例。" /> : null}
-          {inventory.equipment_instances.map((instance) => {
+          {filteredEquipment.length === 0 ? <EmptyStateScreen title="没有符合条件的装备实例" description="调整筛选条件，或清空搜索后再试。" /> : null}
+          {pagedEquipment.map((instance) => {
             const slotHint = selectedInstanceId === instance.instance_id ? selectedAssignment ?? '未上阵' : getSelectedInstanceAssignment(instance.instance_id, currentPreset);
+            const kept = temperingState.keptInstanceIds.has(instance.instance_id);
             return (
               <EquipmentInstanceCard
                 key={instance.instance_id}
                 instance={instance}
                 selected={selectedInstanceId === instance.instance_id}
                 assignedSlot={slotHint}
-                onOpen={() => syncSearch(navigate, location.pathname, location.search, { instance_id: instance.instance_id })}
+                kept={kept}
+                duplicateCount={duplicateCounts.get(instance.item_id) ?? 0}
+                onOpen={() => {
+                  syncSearch(navigate, location.pathname, location.search, { instance_id: instance.instance_id });
+                  temperingDispatch({ type: 'select-instance', instanceId: instance.instance_id });
+                  temperingDispatch({ type: 'set-target-level', targetLevel: Math.min(instance.temper_level + 1, 7) });
+                }}
+                onKeep={() => temperingDispatch({ type: 'toggle-keep', instanceId: instance.instance_id })}
                 onAssign={(slot) => {
                   dispatch({ type: 'set-slot-instance', slot, instanceId: instance.instance_id });
                   setNotice({
@@ -599,11 +880,21 @@ export function CharacterEquipmentPage(): ReactElement {
             );
           })}
         </div>
+        <div className="equipment-editor__actions">
+          <button className="ghost-button" type="button" onClick={() => temperingDispatch({ type: 'set-page-index', pageIndex: Math.max(0, equipmentPageIndex - 1) })} disabled={equipmentPageIndex <= 0}>
+            上一页
+          </button>
+          <button className="ghost-button" type="button" onClick={() => temperingDispatch({ type: 'set-page-index', pageIndex: Math.min(equipmentPageCount - 1, equipmentPageIndex + 1) })} disabled={equipmentPageIndex >= equipmentPageCount - 1}>
+            下一页
+          </button>
+        </div>
       </div>
 
       <div className="equipment-panel">
         <EquipmentPanelHeader title="预设编辑" copy="编辑内容只影响草稿，提交时才会走服务端校验与版本检查。" />
-        {presetMaintenance ? (
+        {presetMissingInput ? (
+          <EquipmentMissingPreset onOpenInventory={goToInventory} />
+        ) : presetMaintenance ? (
           <MaintenanceStateScreen title="预设维护中" description="当前预设读取失败，服务端或依赖暂不可用。" footnote={presetQuery.error?.message ?? '维护中'} />
         ) : presetLocked ? (
           <LockedStateScreen title="预设被锁定" description={presetQuery.error?.message ?? '没有权限读取当前预设。'} footnote={presetQuery.error?.message ?? undefined} />
@@ -662,6 +953,122 @@ export function CharacterEquipmentPage(): ReactElement {
             </p>
           </div>
         )}
+      </div>
+
+      <div className="equipment-panel">
+        <EquipmentPanelHeader title="淬炼台" copy="选择装备实例后提交 +1~+6，+7 以上锁定；attempt_id 保留以支持响应丢失后的同键恢复。" />
+        {selectedTemperingInstance === null ? (
+          <EmptyStateScreen title="未选中淬炼目标" description="从左侧装备列表选择一个实例，或用下方下拉框指定要淬炼的装备。" />
+        ) : (
+          <NormalStateScreen
+            title={selectedTemperingInstance.instance_id}
+            description={[
+              selectedTemperingInstance.item_id,
+              `强化 +${selectedTemperingInstance.temper_level}`,
+              selectedTemperingSummary?.materialSummary ?? '暂无同类材料',
+            ].join(' · ')}
+            footnote={summarizeEquipmentAvailability(selectedTemperingInstance, inventory)}
+            highlight={selectedTemperingSummary?.stageSummary ?? '淬炼条件'}
+          />
+        )}
+        <div className="equipment-form">
+          <label className="equipment-form__field">
+            <span className="equipment-form__label">装备实例</span>
+            <select
+              className="equipment-form__input"
+              value={temperingState.draft.selectedInstanceId ?? ''}
+              onChange={(event) => {
+                const nextInstanceId = event.target.value.length === 0 ? null : event.target.value;
+                temperingDispatch({ type: 'select-instance', instanceId: nextInstanceId });
+                syncSearch(navigate, location.pathname, location.search, { instance_id: nextInstanceId });
+              }}
+            >
+              <option value="">请选择装备实例</option>
+              {inventory.equipment_instances.map((instance) => (
+                <option key={instance.instance_id} value={instance.instance_id}>
+                  {instance.instance_id} · {instance.item_id} · +{instance.temper_level}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="equipment-form__field">
+            <span className="equipment-form__label">目标阶段</span>
+            <select
+              className="equipment-form__input"
+              value={String(selectedTemperingTargetLevel)}
+              onChange={(event) => temperingDispatch({ type: 'set-target-level', targetLevel: Number(event.target.value) })}
+            >
+              {TEMPERING_LADDER.map((row) => (
+                <option key={row.targetLevel} value={String(row.targetLevel)}>
+                  +{row.targetLevel} {row.locked ? '（锁定）' : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="equipment-form__field">
+            <span className="equipment-form__label">保护字段</span>
+            <select
+              className="equipment-form__input"
+              value={temperingState.draft.useProtectionMaterial ? 'true' : 'false'}
+              onChange={(event) => temperingDispatch({ type: 'set-use-protection', useProtectionMaterial: event.target.value === 'true' })}
+            >
+              <option value="false">不使用保护材料</option>
+              <option value="true">使用保护材料</option>
+            </select>
+          </label>
+          <label className="equipment-form__field">
+            <span className="equipment-form__label">状态版本</span>
+            <input className="equipment-form__input" value={progression.character.state_version} readOnly />
+          </label>
+          <label className="equipment-form__field">
+            <span className="equipment-form__label">配置版本</span>
+            <input className="equipment-form__input" value={progression.config_version} readOnly />
+          </label>
+          <label className="equipment-form__field">
+            <span className="equipment-form__label">attempt_id</span>
+            <input className="equipment-form__input" value={temperingState.draft.attemptId ?? '提交时生成'} readOnly />
+          </label>
+        </div>
+        <div className="equipment-editor__actions">
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={() => temperMutation.mutate()}
+            disabled={
+              temperMutation.isPending ||
+              selectedTemperingInstance === null ||
+              selectedTemperingTargetLevel > 6 ||
+              progression === null ||
+              inventory === null
+            }
+          >
+            提交淬炼
+          </button>
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={() => {
+              if (temperingState.draft.attemptId !== null) {
+                temperMutation.mutate();
+                return;
+              }
+              setTemperingNotice({
+                kind: 'info',
+                title: '尚未生成 attempt_id',
+                description: '请先提交一次淬炼，或在同一草稿上再次点击提交。',
+              });
+            }}
+            disabled={selectedTemperingInstance === null}
+          >
+            相同 attempt_id 重试
+          </button>
+          <button className="ghost-button" type="button" onClick={() => temperingDispatch({ type: 'clear-attempt' })}>
+            重置 attempt
+          </button>
+        </div>
+        <TemperingLadderTable selectedTargetLevel={selectedTemperingTargetLevel} />
+        <TemperingOutcomeCard response={temperingState.lastResponse} onRetry={() => temperMutation.mutate()} />
+        <EquipmentNoticeCard notice={temperingNotice} />
       </div>
 
       <div className="equipment-panel">

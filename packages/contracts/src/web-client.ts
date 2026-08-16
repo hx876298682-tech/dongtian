@@ -133,6 +133,59 @@ export interface ContentRecipesResponse {
   readonly config_version: string;
 }
 
+export interface SkillToolAssignmentComparison {
+  readonly preferred_equipment_instance_id: string;
+  readonly throughput_delta_per_hour: string;
+  readonly cycles_delta_per_hour: string;
+}
+
+export interface SkillToolAssignmentToolOption {
+  readonly equipment_instance_id: string;
+  readonly item_id: string;
+  readonly item_name_key: string;
+  readonly source_note: string;
+  readonly required_realm: string;
+  readonly required_tags: ReadonlyArray<string>;
+  readonly tool_tag: string;
+  readonly speed_multiplier: string;
+  readonly efficiency_multiplier: string;
+  readonly cycles_per_hour: string;
+  readonly effective_throughput_per_hour: string;
+  readonly source_routes: ReadonlyArray<ContentRoute>;
+  readonly usage_routes: ReadonlyArray<ContentRoute>;
+  readonly comparison: SkillToolAssignmentComparison | null;
+}
+
+export interface SkillToolAssignmentView {
+  readonly skill_id: string;
+  readonly current: SkillToolAssignmentToolOption | null;
+  readonly options: ReadonlyArray<SkillToolAssignmentToolOption>;
+}
+
+export interface SkillToolAssignmentsSaveEntry {
+  readonly skill_id: string;
+  readonly equipment_instance_id: string | null;
+}
+
+export interface SkillToolAssignmentsSaveRequest {
+  readonly expected_state_version: number | string;
+  readonly assignments: ReadonlyArray<SkillToolAssignmentsSaveEntry>;
+}
+
+export interface SkillToolAssignmentsResponse {
+  readonly character_id: string;
+  readonly state_version: number;
+  readonly config_version: string;
+  readonly as_of: string;
+  readonly effective_next_cycle?: boolean;
+  readonly assignments: ReadonlyArray<SkillToolAssignmentView>;
+}
+
+export interface SkillToolAssignmentsEnvelope {
+  readonly data: SkillToolAssignmentsResponse;
+  readonly meta: ApiEnvelope<unknown>['meta'];
+}
+
 export interface CharacterProgression {
   readonly character: {
     readonly character_id: string;
@@ -184,6 +237,61 @@ export interface EquipmentInstance {
   readonly temper_level: number;
   readonly bound: boolean;
   readonly created_config_version: string;
+}
+
+export interface TemperingEquipmentSnapshot {
+  readonly instance_id: string;
+  readonly item_id: string;
+  readonly temper_level: number;
+  readonly bound: boolean;
+  readonly created_config_version: string;
+}
+
+export interface TemperingCostSnapshot {
+  readonly tempering_stone_cost: string;
+  readonly spirit_stone_cost: string;
+  readonly same_equipment_cost: string;
+  readonly protection_material_cost_requested: string;
+  readonly protection_material_cost_spent: string;
+}
+
+export interface TemperingRandomAudit {
+  readonly namespace: string;
+  readonly attempt_key: string;
+  readonly seed_hex: string;
+  readonly roll: string;
+  readonly success_probability: string;
+  readonly formula_version: number;
+}
+
+export interface TemperingAttemptRequest {
+  readonly attempt_id: string;
+  readonly expected_state_version: number | string;
+  readonly target_level: number;
+  readonly use_protection_material: boolean;
+  readonly config_version: string;
+}
+
+export interface TemperingAttemptResponse {
+  readonly character_id: string;
+  readonly equipment_instance_id: string;
+  readonly attempt_id: string;
+  readonly from_level: number;
+  readonly target_level: number;
+  readonly level_before: number;
+  readonly level_after: number;
+  readonly status: 'APPLIED' | 'REJECTED';
+  readonly outcome: 'SUCCESS' | 'FAILURE' | 'REJECTED';
+  readonly success: boolean;
+  readonly success_probability: string;
+  readonly attribute_increase: string;
+  readonly random_audit: TemperingRandomAudit | null;
+  readonly cost_snapshot: TemperingCostSnapshot;
+  readonly equipment: TemperingEquipmentSnapshot;
+  readonly asset_transaction_id: string;
+  readonly temper_audit_id: string;
+  readonly state_version: number;
+  readonly config_version: string;
 }
 
 export interface InventoryAsset {
@@ -542,8 +650,20 @@ export interface ApiClient {
     presetId: string,
     idempotencyKey: string,
   ) => Promise<LoadoutPreset>;
+  readonly temperEquipment: (
+    characterId: string,
+    instanceId: string,
+    request: TemperingAttemptRequest,
+    idempotencyKey: string,
+  ) => Promise<TemperingAttemptResponse>;
   readonly getActions: () => Promise<ContentActionsResponse>;
   readonly getRecipes: () => Promise<ContentRecipesResponse>;
+  readonly getSkillToolAssignments: (characterId: string) => Promise<SkillToolAssignmentsResponse>;
+  readonly saveSkillToolAssignments: (
+    characterId: string,
+    request: SkillToolAssignmentsSaveRequest,
+    idempotencyKey: string,
+  ) => Promise<SkillToolAssignmentsResponse>;
   readonly getLatestSettlement: (characterId: string) => Promise<LatestSettlementResponse>;
   readonly getDungeonOpportunities: (characterId: string) => Promise<DungeonOpportunityResponse>;
   readonly claimDungeonTeachingGrant: (characterId: string, idempotencyKey: string) => Promise<DungeonOpportunityResponse>;
@@ -805,6 +925,25 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
       );
       return response.data;
     },
+    async temperEquipment(
+      characterId: string,
+      instanceId: string,
+      request: TemperingAttemptRequest,
+      idempotencyKey: string,
+    ): Promise<TemperingAttemptResponse> {
+      const response = await requestJson<ApiEnvelope<TemperingAttemptResponse>>(
+        baseUrl,
+        fetchImpl,
+        csrfToken,
+        `/api/v1/characters/${characterId}/equipment/${instanceId}/temper`,
+        {
+          method: 'POST',
+          headers: { 'idempotency-key': idempotencyKey },
+          body: JSON.stringify(request),
+        },
+      );
+      return response.data;
+    },
     async getActions(): Promise<ContentActionsResponse> {
       const response = await requestJson<ApiEnvelope<ContentActionsResponse>>(baseUrl, fetchImpl, csrfToken, '/api/v1/actions', {
         method: 'GET',
@@ -815,6 +954,36 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
       const response = await requestJson<ApiEnvelope<ContentRecipesResponse>>(baseUrl, fetchImpl, csrfToken, '/api/v1/recipes', {
         method: 'GET',
       });
+      return response.data;
+    },
+    async getSkillToolAssignments(characterId: string): Promise<SkillToolAssignmentsResponse> {
+      const response = await requestJson<SkillToolAssignmentsEnvelope>(
+        baseUrl,
+        fetchImpl,
+        csrfToken,
+        `/api/v1/characters/${characterId}/skill-tool-assignments`,
+        {
+          method: 'GET',
+        },
+      );
+      return response.data;
+    },
+    async saveSkillToolAssignments(
+      characterId: string,
+      request: SkillToolAssignmentsSaveRequest,
+      idempotencyKey: string,
+    ): Promise<SkillToolAssignmentsResponse> {
+      const response = await requestJson<SkillToolAssignmentsEnvelope>(
+        baseUrl,
+        fetchImpl,
+        csrfToken,
+        `/api/v1/characters/${characterId}/skill-tool-assignments`,
+        {
+          method: 'PUT',
+          headers: { 'idempotency-key': idempotencyKey },
+          body: JSON.stringify(request),
+        },
+      );
       return response.data;
     },
     async getLatestSettlement(characterId: string): Promise<LatestSettlementResponse> {

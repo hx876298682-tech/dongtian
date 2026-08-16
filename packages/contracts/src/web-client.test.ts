@@ -129,6 +129,19 @@ describe('createApiClient', () => {
             };
           }
 
+          if (url.endsWith('/api/v1/characters/character-1/skill-tool-assignments')) {
+            return {
+              data: {
+                character_id: 'character-1',
+                state_version: 8,
+                config_version: '2026.08.16.1',
+                as_of: '2026-08-16T00:00:00.000Z',
+                assignments: [],
+              },
+              meta: { request_id: 'req-5', server_time: '2026-08-16T00:00:00.000Z' },
+            };
+          }
+
           return {
             data: {
               items: [
@@ -163,7 +176,7 @@ describe('createApiClient', () => {
               equipment_instances: [],
               total_count: 1,
             },
-            meta: { request_id: 'req-5', server_time: '2026-08-16T00:00:00.000Z' },
+            meta: { request_id: 'req-6', server_time: '2026-08-16T00:00:00.000Z' },
           };
         },
         async text() {
@@ -179,6 +192,10 @@ describe('createApiClient', () => {
     });
     await expect(client.getRecipes()).resolves.toMatchObject({
       recipes: [{ recipe_id: 'recipe.t1.qi_gathering_pill', unlocked: false }],
+    });
+    await expect(client.getSkillToolAssignments('character-1')).resolves.toMatchObject({
+      character_id: 'character-1',
+      assignments: [],
     });
     await expect(client.getInventory('character-1')).resolves.toMatchObject({
       items: [
@@ -209,14 +226,36 @@ describe('createApiClient', () => {
   it('adds idempotency keys to queue writes', async () => {
     const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       const headers = new Headers(init?.headers);
-      expect(headers.get('idempotency-key')).toBe('key-1');
-      expect(headers.get('x-csrf-token')).toBe('csrf-token');
+      const url = String(_input);
+
+      if (url.endsWith('/api/v1/characters/character-1/skill-tool-assignments')) {
+        expect(headers.get('idempotency-key')).toBe('key-2');
+        expect(headers.get('x-csrf-token')).toBe('csrf-token');
+      } else {
+        expect(headers.get('idempotency-key')).toBe('key-1');
+        expect(headers.get('x-csrf-token')).toBe('csrf-token');
+      }
 
       return {
         ok: true,
         status: 200,
         headers: new Headers({ 'content-type': 'application/json' }),
         async json() {
+          if (String(_input).endsWith('/api/v1/characters/character-1/skill-tool-assignments')) {
+            expect(headers.get('idempotency-key')).toBe('key-2');
+            expect(headers.get('x-csrf-token')).toBe('csrf-token');
+            return {
+              data: {
+                character_id: 'character-1',
+                state_version: 9,
+                config_version: '2026.08.16.1',
+                as_of: '2026-08-16T00:00:00.000Z',
+                assignments: [],
+              },
+              meta: { request_id: 'req-2b', server_time: '2026-08-16T00:00:00.000Z' },
+            };
+          }
+
           return {
             data: {
               queue_version: '8',
@@ -264,6 +303,19 @@ describe('createApiClient', () => {
       ),
     ).resolves.toMatchObject({
       queue_version: '8',
+    });
+
+    await expect(
+      client.saveSkillToolAssignments(
+        'character-1',
+        {
+          expected_state_version: 8,
+          assignments: [],
+        },
+        'key-2',
+      ),
+    ).resolves.toMatchObject({
+      state_version: 9,
     });
   });
 
@@ -702,6 +754,92 @@ describe('createApiClient', () => {
       run: { phase: 'FINALIZED', outcome: 'SUCCESS' },
     });
     expect(fetchImpl).toHaveBeenCalled();
+  });
+
+  it('sends tempering attempts with idempotency and returns audit metadata', async () => {
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(String(_input)).toBe('https://example.test/api/v1/characters/character-1/equipment/equipment-1/temper');
+      const headers = new Headers(init?.headers);
+      expect(headers.get('idempotency-key')).toBe('attempt-1');
+      expect(headers.get('x-csrf-token')).toBe('csrf-token');
+
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        async json() {
+          return {
+            data: {
+              character_id: 'character-1',
+              equipment_instance_id: 'equipment-1',
+              attempt_id: 'attempt-1',
+              from_level: 5,
+              target_level: 6,
+              level_before: 5,
+              level_after: 6,
+              status: 'APPLIED',
+              outcome: 'SUCCESS',
+              success: true,
+              success_probability: '0.34',
+              attribute_increase: '0.065',
+              random_audit: {
+                namespace: 'equipment.tempering',
+                attempt_key: 'attempt-1',
+                seed_hex: '0123456789abcdef0123456789abcdef',
+                roll: '0.12',
+                success_probability: '0.34',
+                formula_version: 1,
+              },
+              cost_snapshot: {
+                tempering_stone_cost: '3',
+                spirit_stone_cost: '283.97139999999996',
+                same_equipment_cost: '100',
+                protection_material_cost_requested: '0',
+                protection_material_cost_spent: '0',
+              },
+              equipment: {
+                instance_id: 'equipment-1',
+                item_id: 'item.t1.cuizhi_jian',
+                temper_level: 6,
+                bound: false,
+                created_config_version: '2026.08.16.1',
+              },
+              asset_transaction_id: 'tx-1',
+              temper_audit_id: 'audit-1',
+              state_version: 9,
+              config_version: '2026.08.16.1',
+            },
+            meta: { request_id: 'req-7', server_time: '2026-08-16T00:00:00.000Z' },
+          };
+        },
+        async text() {
+          return '';
+        },
+      } as Response;
+    });
+
+    const client = createApiClient({ baseUrl: 'https://example.test', fetchImpl: fetchImpl as typeof fetch });
+    client.setCsrfToken('csrf-token');
+
+    await expect(
+      client.temperEquipment(
+        'character-1',
+        'equipment-1',
+        {
+          attempt_id: 'attempt-1',
+          expected_state_version: 8,
+          target_level: 6,
+          use_protection_material: false,
+          config_version: '2026.08.16.1',
+        },
+        'attempt-1',
+      ),
+    ).resolves.toMatchObject({
+      attempt_id: 'attempt-1',
+      temper_audit_id: 'audit-1',
+      asset_transaction_id: 'tx-1',
+      random_audit: { namespace: 'equipment.tempering' },
+    });
   });
 
   it('reads the latest settlement summary without triggering settlement', async () => {

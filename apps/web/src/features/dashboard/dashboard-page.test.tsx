@@ -21,6 +21,24 @@ describe('dashboard page components', () => {
     expect(markup).toContain('先点击预览');
   });
 
+  it('renders queue preview tooltips for numeric summary values', () => {
+    const preview = {
+      queue_version: '3',
+      expected_queue_version: '3',
+      fallback: { action_id: 'action.cultivation.qi', mode: 'INFINITE' },
+      calculation_as_of: '2026-08-16T00:00:00.000Z',
+      config_version: '2026.08.16.1',
+      total_duration_us: '3600',
+      entries: [{ action_id: 'action.cultivation.qi', mode: 'INFINITE' }],
+      warnings: [],
+    } as NonNullable<Parameters<typeof QueuePreviewCard>[0]['preview']>;
+
+    const markup = renderToStaticMarkup(<QueuePreviewCard preview={preview} />);
+
+    expect(markup).toContain('title="总时长 3600 µs · 1 段"');
+    expect(markup).toContain('action.cultivation.qi · INFINITE');
+  });
+
   it('renders settlement empty and ready states without local settlement synthesis', () => {
     const emptyMarkup = renderToStaticMarkup(<SettlementSummaryCard view={buildLatestSettlementView({ settlement: null })} onRefresh={() => undefined} />);
     const readyMarkup = renderToStaticMarkup(

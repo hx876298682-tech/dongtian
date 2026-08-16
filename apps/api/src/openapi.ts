@@ -420,6 +420,173 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
           meta: { $ref: '#/components/schemas/ApiMeta' },
         },
       },
+      CaveModifier: {
+        type: 'object',
+        required: ['stat', 'operation', 'value'],
+        properties: {
+          stat: { type: 'string' },
+          operation: { type: 'string', enum: ['ADD', 'MULTIPLY'] },
+          value: { type: 'string' },
+        },
+      },
+      CaveBuildRequest: {
+        type: 'object',
+        required: ['facility_id', 'target_level', 'expected_state_version', 'config_version'],
+        properties: {
+          facility_id: { type: 'string' },
+          target_level: { type: 'integer', minimum: 1 },
+          expected_state_version: { oneOf: [{ type: 'integer', minimum: 0 }, { type: 'string', pattern: '^(?:0|[1-9]\\d*)$' }] },
+          config_version: { type: 'string' },
+        },
+      },
+      CaveBuildTaskCostSnapshot: {
+        type: 'object',
+        required: [
+          'facility_config_id',
+          'facility_kind',
+          'name_key',
+          'description_key',
+          'level',
+          'required_realm_group',
+          'spirit_stone_cost',
+          'material_costs',
+          'build_duration_us',
+          'modifier',
+          'scope',
+        ],
+        properties: {
+          facility_config_id: { type: 'string' },
+          facility_kind: { type: 'string', enum: ['JULING_ROOM', 'ALCHEMY_ROOM', 'FORGING_ROOM'] },
+          name_key: { type: 'string' },
+          description_key: { type: 'string' },
+          level: { type: 'integer', minimum: 1 },
+          required_realm_group: { type: 'string', enum: ['MORTAL', 'QI', 'FOUNDATION'] },
+          spirit_stone_cost: { type: 'string' },
+          material_costs: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['itemId', 'quantity'],
+              properties: {
+                itemId: { type: 'string' },
+                quantity: { type: 'string' },
+              },
+            },
+          },
+          build_duration_us: { type: 'string' },
+          modifier: { $ref: '#/components/schemas/CaveModifier' },
+          scope: { type: 'string', enum: ['MVP', 'MVP_ENDGAME'] },
+        },
+      },
+      CaveBuildTask: {
+        type: 'object',
+        required: [
+          'build_task_id',
+          'facility_config_id',
+          'from_level',
+          'target_level',
+          'started_at',
+          'projected_completion_at',
+          'completed_at',
+          'status',
+          'cost_snapshot',
+          'completion_reached',
+          'completion_boundary',
+        ],
+        properties: {
+          build_task_id: { type: 'string', format: 'uuid' },
+          facility_config_id: { type: 'string' },
+          from_level: { type: 'integer', minimum: 0 },
+          target_level: { type: 'integer', minimum: 1 },
+          started_at: { type: 'string', format: 'date-time' },
+          projected_completion_at: { type: 'string', format: 'date-time' },
+          completed_at: { oneOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }] },
+          status: { type: 'string', enum: ['RUNNING', 'COMPLETED'] },
+          cost_snapshot: { $ref: '#/components/schemas/CaveBuildTaskCostSnapshot' },
+          completion_reached: { type: 'boolean' },
+          completion_boundary: {
+            type: 'object',
+            required: ['currentCycleApplies', 'nextCycleApplies'],
+            properties: {
+              currentCycleApplies: { type: 'boolean' },
+              nextCycleApplies: { type: 'boolean' },
+            },
+          },
+        },
+      },
+      CaveFacilityView: {
+        type: 'object',
+        required: ['facility_config_id', 'facility_kind', 'name_key', 'description_key', 'level', 'current_modifier', 'next_level_rule', 'build_task'],
+        properties: {
+          facility_config_id: { type: 'string' },
+          facility_kind: { type: 'string', enum: ['JULING_ROOM', 'ALCHEMY_ROOM', 'FORGING_ROOM'] },
+          name_key: { type: 'string' },
+          description_key: { type: 'string' },
+          level: { type: 'integer', minimum: 0 },
+          current_modifier: { oneOf: [{ $ref: '#/components/schemas/CaveModifier' }, { type: 'null' }] },
+          next_level_rule: {
+            oneOf: [
+              {
+                type: 'object',
+                required: ['level', 'required_realm_group', 'spirit_stone_cost', 'material_costs', 'build_duration_us', 'modifier', 'scope'],
+                properties: {
+                  level: { type: 'integer', minimum: 1 },
+                  required_realm_group: { type: 'string', enum: ['MORTAL', 'QI', 'FOUNDATION'] },
+                  spirit_stone_cost: { type: 'string' },
+                  material_costs: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      required: ['itemId', 'quantity'],
+                      properties: {
+                        itemId: { type: 'string' },
+                        quantity: { type: 'string' },
+                      },
+                    },
+                  },
+                  build_duration_us: { type: 'string' },
+                  modifier: { $ref: '#/components/schemas/CaveModifier' },
+                  scope: { type: 'string', enum: ['MVP', 'MVP_ENDGAME'] },
+                },
+              },
+              { type: 'null' },
+            ],
+          },
+          build_task: { oneOf: [{ $ref: '#/components/schemas/CaveBuildTask' }, { type: 'null' }] },
+        },
+      },
+      CaveResponse: {
+        type: 'object',
+        required: ['character', 'cave'],
+        properties: {
+          character: {
+            type: 'object',
+            required: ['character_id', 'state_version', 'active_config_version'],
+            properties: {
+              character_id: { type: 'string', format: 'uuid' },
+              state_version: { type: 'integer' },
+              active_config_version: { type: 'string' },
+            },
+          },
+          cave: {
+            type: 'object',
+            required: ['as_of', 'config_version', 'facilities'],
+            properties: {
+              as_of: { type: 'string', format: 'date-time' },
+              config_version: { type: 'string' },
+              facilities: { type: 'array', items: { $ref: '#/components/schemas/CaveFacilityView' } },
+            },
+          },
+        },
+      },
+      SuccessEnvelopeCave: {
+        type: 'object',
+        required: ['data', 'meta'],
+        properties: {
+          data: { $ref: '#/components/schemas/CaveResponse' },
+          meta: { $ref: '#/components/schemas/ApiMeta' },
+        },
+      },
       LoadoutPresetSaveRequest: {
         type: 'object',
         required: ['expected_state_version', 'name', 'strategy_id'],
@@ -1111,6 +1278,109 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
           created_config_version: { type: 'string' },
         },
       },
+      TemperEquipmentRequest: {
+        type: 'object',
+        required: ['attempt_id', 'expected_state_version', 'target_level', 'use_protection_material', 'config_version'],
+        properties: {
+          attempt_id: { type: 'string' },
+          expected_state_version: { oneOf: [{ type: 'integer', minimum: 0 }, { type: 'string', pattern: '^(?:0|[1-9]\\d*)$' }] },
+          target_level: { type: 'integer', minimum: 1 },
+          use_protection_material: { type: 'boolean' },
+          config_version: { type: 'string' },
+        },
+      },
+      TemperEquipmentCostSnapshot: {
+        type: 'object',
+        required: [
+          'tempering_stone_cost',
+          'spirit_stone_cost',
+          'same_equipment_cost',
+          'protection_material_cost_requested',
+          'protection_material_cost_spent',
+        ],
+        properties: {
+          tempering_stone_cost: { type: 'string' },
+          spirit_stone_cost: { type: 'string' },
+          same_equipment_cost: { type: 'string' },
+          protection_material_cost_requested: { type: 'string' },
+          protection_material_cost_spent: { type: 'string' },
+        },
+      },
+      TemperEquipmentRandomAudit: {
+        type: 'object',
+        required: ['namespace', 'attempt_key', 'seed_hex', 'roll', 'success_probability', 'formula_version'],
+        properties: {
+          namespace: { type: 'string' },
+          attempt_key: { type: 'string' },
+          seed_hex: { type: 'string' },
+          roll: { type: 'string' },
+          success_probability: { type: 'string' },
+          formula_version: { type: 'integer' },
+        },
+      },
+      TemperEquipmentResponse: {
+        type: 'object',
+        required: [
+          'character_id',
+          'equipment_instance_id',
+          'attempt_id',
+          'from_level',
+          'target_level',
+          'level_before',
+          'level_after',
+          'status',
+          'outcome',
+          'success',
+          'success_probability',
+          'attribute_increase',
+          'random_audit',
+          'cost_snapshot',
+          'equipment',
+          'asset_transaction_id',
+          'temper_audit_id',
+          'state_version',
+          'config_version',
+        ],
+        properties: {
+          character_id: { type: 'string', format: 'uuid' },
+          equipment_instance_id: { type: 'string', format: 'uuid' },
+          attempt_id: { type: 'string' },
+          from_level: { type: 'integer', minimum: 0 },
+          target_level: { type: 'integer', minimum: 1 },
+          level_before: { type: 'integer', minimum: 0 },
+          level_after: { type: 'integer', minimum: 0 },
+          status: { type: 'string', enum: ['APPLIED', 'REJECTED'] },
+          outcome: { type: 'string', enum: ['SUCCESS', 'FAILURE', 'REJECTED'] },
+          success: { type: 'boolean' },
+          success_probability: { type: 'string' },
+          attribute_increase: { type: 'string' },
+          random_audit: { oneOf: [{ $ref: '#/components/schemas/TemperEquipmentRandomAudit' }, { type: 'null' }] },
+          cost_snapshot: { $ref: '#/components/schemas/TemperEquipmentCostSnapshot' },
+          equipment: {
+            type: 'object',
+            required: ['instance_id', 'item_id', 'temper_level', 'bound', 'created_config_version'],
+            properties: {
+              instance_id: { type: 'string', format: 'uuid' },
+              item_id: { type: 'string' },
+              temper_level: { type: 'integer', minimum: 0 },
+              bound: { type: 'boolean' },
+              created_config_version: { type: 'string' },
+            },
+          },
+          asset_transaction_id: { type: 'string', format: 'uuid' },
+          temper_audit_id: { type: 'string', format: 'uuid' },
+          state_version: { type: 'integer' },
+          config_version: { type: 'string' },
+        },
+      },
+      TemperEquipmentEnvelope: {
+        type: 'object',
+        required: ['data', 'meta'],
+        properties: {
+          data: { $ref: '#/components/schemas/TemperEquipmentResponse' },
+          meta: { $ref: '#/components/schemas/ApiMeta' },
+        },
+      },
       Manifest: {
         type: 'object',
         required: [
@@ -1229,6 +1499,76 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/LoadoutPresetEnvelope' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/characters/{character_id}/equipment/{instance_id}/temper': {
+      post: {
+        tags: ['characters'],
+        summary: '装备淬炼',
+        parameters: [
+          { name: 'character_id', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'instance_id', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/TemperEquipmentRequest' },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: '淬炼结果。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/TemperEquipmentEnvelope' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/characters/{character_id}/cave': {
+      get: {
+        tags: ['cave'],
+        summary: '读取角色洞府状态',
+        parameters: [{ name: 'character_id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: {
+            description: '角色洞府状态。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SuccessEnvelopeCave' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/characters/{character_id}/cave/builds': {
+      post: {
+        tags: ['cave'],
+        summary: '开建洞府设施',
+        parameters: [{ name: 'character_id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/CaveBuildRequest' },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: '洞府设施开建结果。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SuccessEnvelopeCave' },
               },
             },
           },

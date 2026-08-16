@@ -14,6 +14,8 @@
     "lint": "eslint .",
     "typecheck": "pnpm --recursive --if-present typecheck",
     "test": "vitest run",
+    "test:performance": "tsx tests/performance/cli.ts",
+    "test:performance:unit": "vitest run tests/performance",
     "infra:up": "docker compose up -d postgres postgres-test",
     "infra:down": "docker compose down",
     "infra:status": "docker compose ps",
@@ -30,7 +32,13 @@
     "config:validate": "tsx tooling/config-validate/src/cli.ts",
     "config:build": "pnpm --filter @dongtian/config-schema config:build",
     "openapi:generate": "pnpm --filter @dongtian/api build && pnpm --filter @dongtian/contracts openapi:generate",
-    "openapi:check": "pnpm --filter @dongtian/contracts openapi:check"
+    "openapi:check": "pnpm --filter @dongtian/contracts openapi:check",
+    "ops": "sh tooling/ops/ops.sh",
+    "ops:backup": "sh tooling/ops/ops.sh backup",
+    "ops:restore": "sh tooling/ops/ops.sh restore-drill",
+    "ops:wal-check": "sh tooling/ops/ops.sh check-wal",
+    "ops:outbox-dedupe": "sh tooling/ops/ops.sh outbox-dedupe",
+    "ops:config-rollback": "sh tooling/ops/ops.sh config-rollback"
   },
   "devDependencies": {
     "@dongtian/database": "workspace:*",

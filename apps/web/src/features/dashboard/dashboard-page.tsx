@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useReducer, useRef, type ReactElement } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState, type ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate, useOutletContext } from 'react-router';
+import * as Dialog from '@radix-ui/react-dialog';
 
 import {
   ApiClientError,
@@ -186,7 +187,7 @@ function QueueEditorRow({
   readonly onUpdate: (patch: Partial<Pick<QueueEditorEntryDraft, 'actionId' | 'mode' | 'targetValue' | 'onBlocked'>>) => void;
 }): ReactElement {
   return (
-    <li className="queue-editor__row">
+    <li className="queue-editor__row" tabIndex={0}>
       <div className="queue-editor__row-main">
         <label className="queue-editor__field">
           <span className="queue-editor__label">行动 ID</span>
@@ -242,13 +243,13 @@ function QueueEditorRow({
         </label>
       </div>
       <div className="queue-editor__row-actions">
-        <button className="chip-button" type="button" onClick={onMoveUp} disabled={disabled}>
+        <button className="chip-button" type="button" onClick={onMoveUp} disabled={disabled} aria-label="上移该行动" title="上移">
           上移
         </button>
-        <button className="chip-button" type="button" onClick={onMoveDown} disabled={disabled}>
+        <button className="chip-button" type="button" onClick={onMoveDown} disabled={disabled} aria-label="下移该行动" title="下移">
           下移
         </button>
-        <button className="chip-button queue-editor__chip--danger" type="button" onClick={onRemove} disabled={disabled}>
+        <button className="chip-button queue-editor__chip--danger" type="button" onClick={onRemove} disabled={disabled} aria-label="删除该行动" title="删除">
           删除
         </button>
       </div>
@@ -256,17 +257,9 @@ function QueueEditorRow({
   );
 }
 
-export function QueuePreviewCard({ preview }: { readonly preview: QueueEditorState['preview'] }): ReactElement {
-  if (preview === null) {
-    return <EmptyStateScreen title="预览未生成" description="先点击预览，服务端会校验版本、材料和保底行动。" />;
-  }
-
+function QueuePreviewDetails({ preview }: { readonly preview: NonNullable<QueueEditorState['preview']> }): ReactElement {
   return (
-    <div className="dashboard-preview">
-      <div className="dashboard-preview__summary">
-        <strong>预览结果</strong>
-        <span>{buildQueueEditorPreviewLabel(preview)}</span>
-      </div>
+    <>
       <ul className="dashboard-preview__list">
         {preview.entries.map((entry, index) => (
           <li key={`${index}-${String(entry['action_id'] ?? index)}`} className="dashboard-preview__item">
@@ -285,7 +278,66 @@ export function QueuePreviewCard({ preview }: { readonly preview: QueueEditorSta
           ))
         )}
       </div>
+    </>
+  );
+}
+
+export function QueuePreviewCard({ preview }: { readonly preview: QueueEditorState['preview'] }): ReactElement {
+  if (preview === null) {
+    return <EmptyStateScreen title="预览未生成" description="先点击预览，服务端会校验版本、材料和保底行动。" />;
+  }
+
+  return (
+    <div className="dashboard-preview">
+      <div className="dashboard-preview__summary">
+        <strong>预览结果</strong>
+        <span title={buildQueueEditorPreviewLabel(preview)}>{buildQueueEditorPreviewLabel(preview)}</span>
+      </div>
+      <QueuePreviewDetails preview={preview} />
     </div>
+  );
+}
+
+function QueuePreviewDialog({
+  preview,
+  open,
+  onOpenChange,
+}: {
+  readonly preview: QueueEditorState['preview'];
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+}): ReactElement | null {
+  if (preview === null) {
+    return null;
+  }
+
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Trigger asChild>
+        <button className="ghost-button ghost-button--compact" type="button">
+          查看完整预览
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="dialog-overlay" />
+        <Dialog.Content className="dialog-panel">
+          <div className="dialog-panel__header">
+            <div>
+              <Dialog.Title className="dialog-panel__title">完整闭关预览</Dialog.Title>
+              <Dialog.Description className="dialog-panel__description">
+                这里展示与卡片一致的服务端预览。关闭弹层后，焦点会返回到触发按钮。
+              </Dialog.Description>
+            </div>
+            <Dialog.Close asChild>
+              <button className="ghost-button ghost-button--compact" type="button">
+                关闭
+              </button>
+            </Dialog.Close>
+          </div>
+          <QueuePreviewDetails preview={preview} />
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
@@ -315,7 +367,7 @@ export function SettlementSummaryCard({
         {view.facts.map((fact) => (
           <div key={fact.label} className="settlement-summary__fact">
             <span>{fact.label}</span>
-            <strong>{fact.value}</strong>
+            <strong title={fact.value}>{fact.value}</strong>
           </div>
         ))}
       </div>
@@ -381,6 +433,7 @@ export function DashboardPage(): ReactElement {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const seededActionIdRef = useRef<string | null>(null);
+  const [isPreviewDialogOpen, setPreviewDialogOpen] = useState(false);
   const setShellSummaries = useUiDraftStore((state) => state.setShellSummaries);
   const setQueueDraftTitle = useUiDraftStore((state) => state.setQueueDraftTitle);
   const setQueueDraftNote = useUiDraftStore((state) => state.setQueueDraftNote);
@@ -540,23 +593,33 @@ export function DashboardPage(): ReactElement {
           <div className="dashboard-metrics" aria-label="权威摘要">
             <div className="metric-chip">
               <span className="metric-chip__label">境界</span>
-              <strong className="metric-chip__value">{authoritySnapshot.realmLabel}</strong>
+              <strong className="metric-chip__value" title={`境界 ${authoritySnapshot.realmLabel}`}>
+                {authoritySnapshot.realmLabel}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">修为进度</span>
-              <strong className="metric-chip__value">{authoritySnapshot.cultivationLabel}</strong>
+              <strong className="metric-chip__value" title={`修为进度 ${authoritySnapshot.cultivationLabel}`}>
+                {authoritySnapshot.cultivationLabel}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">当前行动</span>
-              <strong className="metric-chip__value">{authoritySnapshot.currentActionLabel}</strong>
+              <strong className="metric-chip__value" title={authoritySnapshot.currentActionLabel}>
+                {authoritySnapshot.currentActionLabel}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">队列</span>
-              <strong className="metric-chip__value">{authoritySnapshot.queueLabel}</strong>
+              <strong className="metric-chip__value" title={`队列 ${authoritySnapshot.queueLabel}`}>
+                {authoritySnapshot.queueLabel}
+              </strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">库存</span>
-              <strong className="metric-chip__value">{authoritySnapshot.inventoryLabel}</strong>
+              <strong className="metric-chip__value" title={authoritySnapshot.inventoryLabel}>
+                {authoritySnapshot.inventoryLabel}
+              </strong>
             </div>
           </div>
         </div>
@@ -707,19 +770,20 @@ export function DashboardPage(): ReactElement {
 
         <div className="dashboard-preview-shell">
           <QueuePreviewCard preview={editorState.preview} />
+          <QueuePreviewDialog preview={editorState.preview} open={isPreviewDialogOpen} onOpenChange={setPreviewDialogOpen} />
         </div>
 
         <div className="dashboard-preview-shell">
-          <NormalStateScreen
-            title="权威信息摘要"
-            description={
-              <div className="dashboard-facts">
-                <p>境界：{authoritySnapshot.realmLabel}</p>
-                <p>当前行动：{authoritySnapshot.currentActionDetail}</p>
-                <p>目标：{authoritySnapshot.goalTrackerDetail}</p>
-                <p>草稿：{summarizeDraft(editorState.draft)}</p>
-              </div>
-            }
+            <NormalStateScreen
+              title="权威信息摘要"
+              description={
+                <div className="dashboard-facts">
+                  <p>境界：{authoritySnapshot.realmLabel}</p>
+                  <p>当前行动：{authoritySnapshot.currentActionDetail}</p>
+                  <p title={authoritySnapshot.goalTrackerDetail}>目标：{authoritySnapshot.goalTrackerDetail}</p>
+                  <p>草稿：{summarizeDraft(editorState.draft)}</p>
+                </div>
+              }
             highlight="严格基于服务端"
             footnote="保存、暂停、恢复都会走 CSRF + Idempotency-Key。"
           />

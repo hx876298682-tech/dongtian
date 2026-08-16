@@ -15,6 +15,7 @@ import { EmptyStateScreen, LockedStateScreen, LoadingStateScreen, LocalErrorStat
 import { useAuthBootstrap } from './auth/use-auth-bootstrap.js';
 import { DashboardPage } from './features/dashboard/dashboard-page.js';
 import { CharacterEquipmentPage } from './features/character/equipment-page.js';
+import { CharacterToolAssignmentsPage } from './features/character/tool-assignments-page.js';
 import { CraftPage, InventoryPage } from './features/content/content-page.js';
 import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { DEFAULT_SHELL_ROUTE, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
@@ -81,6 +82,9 @@ function AppFrame({
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        跳到主内容
+      </a>
       <header className="app-shell__topbar">
         <div className="brand-block">
           <span className="brand-block__eyebrow">DONGTIAN / Web Shell</span>
@@ -96,21 +100,31 @@ function AppFrame({
         <div className="topbar-metrics" aria-label="角色摘要">
           <div className="metric-chip">
             <span className="metric-chip__label">当前页</span>
-            <strong className="metric-chip__value">{currentRoute.label}</strong>
+            <strong className="metric-chip__value" title={currentRoute.label}>
+              {currentRoute.label}
+            </strong>
           </div>
           <div className="metric-chip">
             <span className="metric-chip__label">连接</span>
-            <strong className="metric-chip__value">CSRF 已就绪</strong>
+            <strong className="metric-chip__value" title="CSRF 已就绪">
+              CSRF 已就绪
+            </strong>
           </div>
           <div className="metric-chip">
             <span className="metric-chip__label">状态版本</span>
-            <strong className="metric-chip__value">受保护</strong>
+            <strong className="metric-chip__value" title="受保护">
+              受保护
+            </strong>
           </div>
           <button className="ghost-button" type="button" onClick={onLogout}>
             退出匿名会话
           </button>
         </div>
       </header>
+
+      <div className="app-shell__announcer sr-only" aria-live="polite" aria-atomic="true">
+        {currentRoute.label} · {currentActionSummary}
+      </div>
 
       <div className="app-shell__workspace">
         <aside className={`shell-nav ${leftRailCollapsed ? 'shell-nav--collapsed' : ''}`}>
@@ -135,7 +149,7 @@ function AppFrame({
           </div>
         </aside>
 
-        <main className="shell-main">
+        <main className="shell-main" id="main-content" tabIndex={-1} aria-label={`${currentRoute.label} 主内容`}>
           <div className="shell-main__hero">
             <div>
               <p className="shell-main__eyebrow">桌面三栏骨架</p>
@@ -192,7 +206,9 @@ function AppFrame({
         </aside>
       </div>
 
-      <footer className="app-shell__footer">状态 / 错误 / 保存反馈</footer>
+      <footer className="app-shell__footer" role="contentinfo">
+        状态 / 错误 / 保存反馈
+      </footer>
     </div>
   );
 }
@@ -323,6 +339,7 @@ const router = createBrowserRouter([
       { path: 'craft', element: <CraftPage /> },
       { path: 'expedition', element: <ExpeditionPage /> },
       { path: 'character', element: <CharacterEquipmentPage /> },
+      { path: 'character/tools', element: <CharacterToolAssignmentsPage /> },
       { path: 'inventory', element: <InventoryPage /> },
     ],
   },

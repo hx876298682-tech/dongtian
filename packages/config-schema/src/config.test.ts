@@ -122,6 +122,21 @@ describe('versioned config registry', () => {
       slot: 'WEAPON',
       attack: 12,
     });
+    expect(registry.getTempering(1)).toMatchObject({
+      target_level: 1,
+      success_probability: '0.95',
+      scope: 'MVP',
+      tempering_stone_item_id: 'item.t1.xingwen_gang',
+      protection_material_item_id: 'item.t1.zhuji_hufu',
+    });
+    expect(registry.getTempering(6)).toMatchObject({
+      target_level: 6,
+      same_equipment_cost: '100',
+    });
+    expect(registry.getTempering(7)).toMatchObject({
+      target_level: 7,
+      scope: 'ANCHOR',
+    });
     const eightHoursUs = 8n * 60n * 60n * 1_000_000n;
     const cultivationTailUs = eightHoursUs
       - BigInt(registry.getAction('action.t1.herb_baicao_valley').base_duration_us) * 72n
@@ -139,6 +154,7 @@ describe('versioned config registry', () => {
     expect(registry.dungeons).toHaveLength(3);
     expect(registry.regions).toHaveLength(6);
     expect(registry.caveFacilities).toHaveLength(12);
+    expect(registry.temperings).toHaveLength(10);
   });
 
   it('rejects a release whose content hash no longer matches', () => {

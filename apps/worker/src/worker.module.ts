@@ -3,12 +3,13 @@ import { setTimeout as sleepWithAbort } from 'node:timers/promises';
 import type { Logger } from 'pino';
 
 import { type Environment } from '@dongtian/config-schema';
-import { createDatabasePool, createOutboxRepository, createSettlementRepository } from '@dongtian/database';
+import { createDatabasePool, createOutboxRepository, createSettlementRepository, createCaveRepository } from '@dongtian/database';
 
 import { OutboxWorker } from './outbox-worker.js';
 import { SettlementContinuationWorker } from './settlement-continuation-worker.js';
 import {
   DEFAULT_WORKER_RUNTIME_OPTIONS,
+  CAVE_REPOSITORY,
   OUTBOX_EVENT_DEDUPE,
   OUTBOX_REPOSITORY,
   SETTLEMENT_REPOSITORY,
@@ -18,6 +19,8 @@ import {
   WORKER_SLEEP,
   type WorkerRuntimeOptions,
   type WorkerSleep,
+  CaveRecoveryService,
+  CaveRecoveryWorker,
   SettlementContinuationService,
   WorkerRuntimeService,
   createOutboxDedupe,
@@ -70,7 +73,13 @@ export class WorkerModule {
         useFactory: (pool: ReturnType<typeof createDatabasePool>) => createSettlementRepository(pool),
         inject: [WORKER_DATABASE_POOL],
       },
+      {
+        provide: CAVE_REPOSITORY,
+        useFactory: (pool: ReturnType<typeof createDatabasePool>) => createCaveRepository(pool),
+        inject: [WORKER_DATABASE_POOL],
+      },
       SettlementContinuationService,
+      CaveRecoveryService,
       {
         provide: OUTBOX_EVENT_DEDUPE,
         useFactory: (repository: ReturnType<typeof createOutboxRepository>) => createOutboxDedupe(repository),
@@ -92,6 +101,14 @@ export class WorkerModule {
           service: SettlementContinuationService,
         ) => new SettlementContinuationWorker(repository, service.continueCharacter),
         inject: [SETTLEMENT_REPOSITORY, SettlementContinuationService],
+      },
+      {
+        provide: CaveRecoveryWorker,
+        useFactory: (
+          repository: ReturnType<typeof createCaveRepository>,
+          service: CaveRecoveryService,
+        ) => new CaveRecoveryWorker(repository, service),
+        inject: [CAVE_REPOSITORY, CaveRecoveryService],
       },
       WorkerRuntimeService,
     ];

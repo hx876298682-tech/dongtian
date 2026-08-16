@@ -88,6 +88,7 @@ const MaterialCostSchema = z.object({
   item_id: StableIdSchema,
   quantity: PositiveIntegerStringSchema,
 });
+const ProbabilityStringSchema = z.string().regex(/^(?:0(?:\.\d+)?|1(?:\.0+)?)$/);
 
 export const ManifestSchema = z.object({
   config_version: z.string().regex(/^\d{4}\.\d{2}\.\d+\.\d+$/),
@@ -235,6 +236,21 @@ export const CaveFacilityConfigSchema = z.object({
   scope: ScopeSchema,
 });
 
+export const TemperingConfigSchema = z.object({
+  ...CommonContentShape,
+  target_level: z.number().int().positive(),
+  success_probability: ProbabilityStringSchema,
+  attribute_increase: NonNegativeDecimalStringSchema,
+  tempering_stone_cost: NonNegativeDecimalStringSchema,
+  spirit_stone_cost: NonNegativeDecimalStringSchema,
+  same_equipment_cost: NonNegativeDecimalStringSchema,
+  protection_material_cost: NonNegativeDecimalStringSchema,
+  tempering_stone_item_id: StableIdSchema,
+  protection_material_item_id: StableIdSchema,
+  failure_result: z.literal('KEEP_LEVEL'),
+  scope: ScopeSchema,
+});
+
 export const ActionConfigSchema = z.object({
   ...CommonContentShape,
   skill_id: StableIdSchema.nullable(),
@@ -318,6 +334,7 @@ export type MonsterConfig = z.infer<typeof MonsterConfigSchema>;
 export type DungeonConfig = z.infer<typeof DungeonConfigSchema>;
 export type RegionConfig = z.infer<typeof RegionConfigSchema>;
 export type CaveFacilityConfig = z.infer<typeof CaveFacilityConfigSchema>;
+export type TemperingConfig = z.infer<typeof TemperingConfigSchema>;
 
 const configFiles = [
   'realms.json',
@@ -334,6 +351,7 @@ const configFiles = [
   'dungeons.json',
   'regions.json',
   'cave_facilities.json',
+  'tempering.json',
 ] as const;
 
 function readJson(filePath: string): unknown {
@@ -410,6 +428,7 @@ export type ConfigRelease = Readonly<{
   dungeons: readonly DungeonConfig[];
   regions: readonly RegionConfig[];
   caveFacilities: readonly CaveFacilityConfig[];
+  temperings: readonly TemperingConfig[];
 }>;
 
 export class ConfigRegistry {
@@ -428,6 +447,7 @@ export class ConfigRegistry {
   private readonly dungeonById: ReadonlyMap<string, DungeonConfig>;
   private readonly regionById: ReadonlyMap<string, RegionConfig>;
   private readonly caveFacilityById: ReadonlyMap<string, CaveFacilityConfig>;
+  private readonly temperingByTargetLevel: ReadonlyMap<number, TemperingConfig>;
 
   public constructor(private readonly release: ConfigRelease) {
     this.realmById = indexById(release.realms, 'realm');
@@ -445,6 +465,7 @@ export class ConfigRegistry {
     this.dungeonById = indexById(release.dungeons, 'dungeon');
     this.regionById = indexById(release.regions, 'region');
     this.caveFacilityById = indexById(release.caveFacilities, 'cave_facility');
+    this.temperingByTargetLevel = new Map(release.temperings.map((tempering) => [tempering.target_level, tempering] as const));
   }
 
   public get manifest(): Manifest {
@@ -568,6 +589,18 @@ export class ConfigRegistry {
     return this.release.caveFacilities;
   }
 
+  public getTempering(targetLevel: number): TemperingConfig {
+    const value = this.temperingByTargetLevel.get(targetLevel);
+    if (value === undefined) {
+      throw new Error(`CONFIG_NOT_FOUND:tempering:${targetLevel}`);
+    }
+    return value;
+  }
+
+  public get temperings(): readonly TemperingConfig[] {
+    return this.release.temperings;
+  }
+
   private getRequired<T>(values: ReadonlyMap<string, T>, id: string, label: string): T {
     const value = values.get(id);
 
@@ -603,6 +636,7 @@ export function loadConfigRegistry(options: LoadConfigRegistryOptions): ConfigRe
   const dungeons = z.array(DungeonConfigSchema).parse(readJson(join(releaseDir, 'dungeons.json')));
   const regions = z.array(RegionConfigSchema).parse(readJson(join(releaseDir, 'regions.json')));
   const caveFacilities = z.array(CaveFacilityConfigSchema).parse(readJson(join(releaseDir, 'cave_facilities.json')));
+  const temperings = z.array(TemperingConfigSchema).parse(readJson(join(releaseDir, 'tempering.json')));
 
   if (manifest.config_version !== options.version) {
     throw new Error(`CONFIG_VERSION_MISMATCH:${options.version}:${manifest.config_version}`);
@@ -855,6 +889,33 @@ export function loadConfigRegistry(options: LoadConfigRegistryOptions): ConfigRe
     }
   }
 
+  const temperingLevels = new Set<number>();
+  for (const tempering of temperings) {
+    assertReference(itemById, tempering.tempering_stone_item_id, 'tempering.tempering_stone_item_id');
+    assertReference(itemById, tempering.protection_material_item_id, 'tempering.protection_material_item_id');
+    if (tempering.failure_result !== 'KEEP_LEVEL') {
+      throw new Error(`CONFIG_TEMPERING_FAILURE_RESULT_UNSUPPORTED:${tempering.target_level}`);
+    }
+    if (tempering.scope !== 'MVP' && tempering.scope !== 'ANCHOR') {
+      throw new Error(`CONFIG_TEMPERING_SCOPE_INVALID:${tempering.target_level}`);
+    }
+    if (tempering.target_level >= 1 && tempering.target_level <= 6 && tempering.scope !== 'MVP') {
+      throw new Error(`CONFIG_TEMPERING_MVP_SCOPE_INVALID:${tempering.target_level}`);
+    }
+    if (tempering.target_level >= 7 && tempering.target_level <= 10 && tempering.scope !== 'ANCHOR') {
+      throw new Error(`CONFIG_TEMPERING_ANCHOR_SCOPE_INVALID:${tempering.target_level}`);
+    }
+    if (temperingLevels.has(tempering.target_level)) {
+      throw new Error(`CONFIG_DUPLICATE_ID:tempering:${tempering.target_level}`);
+    }
+    temperingLevels.add(tempering.target_level);
+  }
+  for (let level = 1; level <= 10; level += 1) {
+    if (!temperingLevels.has(level)) {
+      throw new Error(`CONFIG_TEMPERING_LEVEL_GAP:${level}`);
+    }
+  }
+
   return new ConfigRegistry({
     manifest,
     realms,
@@ -871,5 +932,6 @@ export function loadConfigRegistry(options: LoadConfigRegistryOptions): ConfigRe
     dungeons,
     regions,
     caveFacilities,
+    temperings,
   });
 }
