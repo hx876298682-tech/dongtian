@@ -32,6 +32,29 @@ const context = {
 };
 
 describe('asset repository', () => {
+  it('loads inventory sequentially when using a transaction client', async () => {
+    let inFlight = false;
+    const client = {
+      async query<T>(sql: string): Promise<{ readonly rows: T[] }> {
+        if (inFlight) {
+          throw new Error('CONCURRENT_TRANSACTION_QUERY');
+        }
+        inFlight = true;
+        await Promise.resolve();
+        inFlight = false;
+        if (sql.includes('SELECT id FROM characters')) {
+          return { rows: [{ id: 'character-1' }] as T[] };
+        }
+        return { rows: [] as T[] };
+      },
+    } as unknown as PoolClient;
+
+    await expect(
+      createAssetRepository({ query: vi.fn() } as unknown as DatabasePool)
+        .getInventoryOnTransaction(client, 'character-1', 'account-1'),
+    ).resolves.toMatchObject({ items: [], currencies: [], equipmentInstances: [] });
+  });
+
   it('rejects zero or fractional item mutations before opening a transaction', async () => {
     const pool = poolForQueries([]);
     const repository = createAssetRepository(pool);
@@ -247,6 +270,44 @@ describe('asset repository', () => {
       quantity: '3',
     });
     expect(pool.queries.some((query) => query.includes('quantity = quantity - $2::numeric'))).toBe(true);
+  });
+
+  it('returns the decimal remainder when partially consuming a currency reservation', async () => {
+    const pool = poolForQueries([
+      [],
+      [{ id: 'character-1' }],
+      [{ continuation_required: false }],
+      [{
+        id: 'reservation-1',
+        character_id: 'character-1',
+        business_type: 'BREAKTHROUGH_TRIAL',
+        business_id: 'run-1',
+        asset_type: 'CURRENCY',
+        asset_id: 'currency.spirit_stone',
+        quantity: '5.000000',
+        status: 'ACTIVE',
+        expires_at: null,
+      }],
+      [{ id: 'consume-transaction' }],
+      [{ quantity: '95.000000', reserved_quantity: '3.000000', available_quantity: '92.000000' }],
+      [],
+      [{ entry_id: 'consume-ledger' }],
+      [],
+    ]);
+
+    await expect(createAssetRepository(pool).consume({
+      ...context,
+      reservationId: 'reservation-1',
+      quantity: '2.000000',
+      reasonCode: 'BREAKTHROUGH_FINALIZE',
+    })).resolves.toMatchObject({
+      quantity: '95.000000',
+      reservation: {
+        reservationId: 'reservation-1',
+        status: 'ACTIVE',
+        quantity: '3.000000',
+      },
+    });
   });
 
   it('reports a ledger mismatch instead of hiding an unexplained balance', async () => {

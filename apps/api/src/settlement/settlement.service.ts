@@ -21,6 +21,7 @@ import {
   decimal,
   microseconds,
   isQueueInventoryConditionSatisfied,
+  formatBlockedMaterialReason,
   settleSingleAction,
   type SettlementBuffEffect,
   type SettlementActionSnapshot,
@@ -180,6 +181,14 @@ type QueueItemBalanceRow = {
   readonly available_quantity: string;
 };
 
+function integerAssetQuantity(value: string): bigint {
+  const normalized = decimal(value).toString();
+  if (!/^-?\d+$/.test(normalized)) {
+    throw new Error(`Expected an integer asset quantity, received ${value}.`);
+  }
+  return BigInt(normalized);
+}
+
 type QueueTransition = {
   readonly activeQueueEntryId: string | null;
   readonly activeCycleSnapshot: SettlementJson | null;
@@ -188,6 +197,9 @@ type QueueTransition = {
 type SettlementSummaryEnvelope = {
   readonly settlement: SettlementSummaryResponse | null;
 };
+
+const QUEUE_ENTRY_BUSINESS_TYPE = 'ACTION_QUEUE_ENTRY';
+const QUEUE_ENTRY_RELEASE_REASON = 'QUEUE_QUEUE_ENTRY_RELEASE';
 
 function isRecord(value: unknown): value is JsonRecord {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -603,7 +615,7 @@ export class SettlementService {
         WHERE character_id = $1`,
       [characterId],
     );
-    return new Map(result.rows.map((row) => [row.item_id, BigInt(row.available_quantity)]));
+    return new Map(result.rows.map((row) => [row.item_id, integerAssetQuantity(row.available_quantity)]));
   }
 
   private inventoryConditionSatisfied(
@@ -635,6 +647,7 @@ export class SettlementService {
     if (queue === null) {
       return { queue, transition: { activeQueueEntryId: state.activeQueueEntryId, activeCycleSnapshot: state.activeCycleSnapshot } };
     }
+    const inventory = await this.loadQueueInventory(client, characterId);
     if (state.activeQueueEntryId !== null) {
       const activeEntry = queue.entries.find((entry) => entry.id === state.activeQueueEntryId);
       if (activeEntry?.status === 'BLOCKED') {
@@ -650,14 +663,33 @@ export class SettlementService {
             },
           };
         }
+        if (activeEntry.onBlocked === 'SKIP') {
+          await this.releaseQueueEntryReservations(client, characterId, activeEntry.id);
+          queue = await this.queueRepository.setEntryStatus(client, {
+            characterId,
+            entryId: activeEntry.id,
+            status: 'DONE_INCOMPLETE',
+            blockedReason: null,
+          });
+          return this.activateNextQueueEntry(client, characterId, queue, await this.loadQueueInventory(client, characterId));
+        }
         return { queue, transition: { activeQueueEntryId: state.activeQueueEntryId, activeCycleSnapshot: null } };
       }
       if (state.activeCycleSnapshot !== null) {
+        if (activeEntry !== undefined && this.inventoryConditionSatisfied(activeEntry, inventory)) {
+          await this.releaseQueueEntryReservations(client, characterId, activeEntry.id);
+          queue = await this.queueRepository.setEntryStatus(client, {
+            characterId,
+            entryId: activeEntry.id,
+            status: 'DONE_CONDITION_MET',
+            blockedReason: null,
+          });
+          return this.activateNextQueueEntry(client, characterId, queue, await this.loadQueueInventory(client, characterId));
+        }
         return { queue, transition: { activeQueueEntryId: state.activeQueueEntryId, activeCycleSnapshot: state.activeCycleSnapshot } };
       }
     }
     if (state.activeCycleSnapshot !== null) {
-      const inventory = await this.loadQueueInventory(client, characterId);
       for (const entry of [...queue.entries].sort((left, right) => left.position - right.position)) {
         if (entry.status !== 'DONE_CONDITION_MET' || this.inventoryConditionSatisfied(entry, inventory)) {
           continue;
@@ -683,14 +715,14 @@ export class SettlementService {
       return { queue, transition: { activeQueueEntryId: state.activeQueueEntryId, activeCycleSnapshot: state.activeCycleSnapshot } };
     }
 
-    const inventory = await this.loadQueueInventory(client, characterId);
+    const queueInventory = inventory;
     let activeQueueEntryId: string | null = null;
     let activeCycleSnapshot: SettlementJson | null = null;
     for (const entry of [...queue.entries].sort((left, right) => left.position - right.position)) {
       if (entry.status !== 'QUEUED') {
         continue;
       }
-      if (this.inventoryConditionSatisfied(entry, inventory)) {
+      if (this.inventoryConditionSatisfied(entry, queueInventory)) {
         queue = await this.queueRepository.setEntryStatus(client, {
           characterId,
           entryId: entry.id,
@@ -723,6 +755,84 @@ export class SettlementService {
     return { queue, transition: { activeQueueEntryId, activeCycleSnapshot } };
   }
 
+  private async releaseQueueEntryReservations(
+    client: PoolClient,
+    characterId: string,
+    entryId: string,
+  ): Promise<void> {
+    if (this.queueRepository === undefined) {
+      return;
+    }
+    const reservations = await this.assetRepository.findActiveReservationsByBusiness(client, {
+      characterId,
+      businessType: QUEUE_ENTRY_BUSINESS_TYPE,
+      businessId: entryId,
+    });
+    for (const reservation of reservations) {
+      await this.assetRepository.releaseOnTransaction(client, {
+        characterId,
+        reasonCode: QUEUE_ENTRY_RELEASE_REASON,
+        referenceType: QUEUE_ENTRY_BUSINESS_TYPE,
+        referenceId: entryId,
+        configVersion: this.configRegistry.manifest.config_version,
+        reservationId: reservation.reservationId,
+      });
+    }
+  }
+
+  private async activateNextQueueEntry(
+    client: PoolClient,
+    characterId: string,
+    queue: Awaited<ReturnType<QueueRepository['lockQueue']>>,
+    inventory: ReadonlyMap<string, bigint>,
+  ): Promise<{ readonly queue: Awaited<ReturnType<QueueRepository['lockQueue']>>; readonly transition: QueueTransition }> {
+    if (queue === null || this.queueRepository === undefined) {
+      return { queue, transition: { activeQueueEntryId: null, activeCycleSnapshot: null } };
+    }
+    let currentQueue = queue;
+    for (const entry of [...currentQueue.entries].sort((left, right) => left.position - right.position)) {
+      if (entry.status !== 'QUEUED') {
+        continue;
+      }
+      if (this.inventoryConditionSatisfied(entry, inventory)) {
+        currentQueue = await this.queueRepository.setEntryStatus(client, {
+          characterId,
+          entryId: entry.id,
+          status: 'DONE_CONDITION_MET',
+          blockedReason: null,
+        });
+        continue;
+      }
+      const action = this.getActionConfig(entry.actionConfigId);
+      if (action === null) {
+        continue;
+      }
+      currentQueue = await this.queueRepository.setEntryStatus(client, {
+        characterId,
+        entryId: entry.id,
+        status: 'RUNNING',
+        blockedReason: null,
+      });
+      return {
+        queue: currentQueue,
+        transition: {
+          activeQueueEntryId: entry.id,
+          activeCycleSnapshot: snapshotFromAction(action, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version),
+        },
+      };
+    }
+    const fallback = this.getActionConfig(currentQueue.fallbackActionId);
+    return {
+      queue: currentQueue,
+      transition: {
+        activeQueueEntryId: null,
+        activeCycleSnapshot: fallback === null
+          ? null
+          : snapshotFromAction(fallback, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version),
+      },
+    };
+  }
+
   private async advanceQueueAfterCycle(
     client: PoolClient,
     characterId: string,
@@ -733,8 +843,11 @@ export class SettlementService {
     settlement: SingleActionSettlementResult,
     itemRewards: readonly { readonly itemId: string; readonly quantity: string }[],
   ): Promise<QueueTransition> {
-    if (this.queueRepository === undefined || queue === null || (settlement.completedCycles === 0n && settlement.effectiveTimeUs === 0n)) {
+    if (this.queueRepository === undefined || queue === null) {
       return { activeQueueEntryId, activeCycleSnapshot: currentSnapshot };
+    }
+    if (queue.pendingReplaceAfterCycle && settlement.completedCycles > 0n) {
+      await this.queueRepository.clearPendingReplaceAfterCycle?.(client, characterId);
     }
     const inventory = await this.loadQueueInventory(client, characterId);
     for (const reward of itemRewards) {
@@ -766,7 +879,7 @@ export class SettlementService {
     if (current === undefined || current === null) {
       return { activeQueueEntryId, activeCycleSnapshot: currentSnapshot };
     }
-    const completed = current.mode === 'UNTIL_INVENTORY'
+    const targetCompleted = current.mode === 'UNTIL_INVENTORY'
       ? this.inventoryConditionSatisfied(current, inventory)
       : current.mode === 'COUNT'
         ? current.targetValue !== null
@@ -775,6 +888,60 @@ export class SettlementService {
           ? current.targetValue !== null
             && current.progressTimeUs + settlement.effectiveTimeUs >= BigInt(decimal(current.targetValue).multiply('1000000').toString())
           : false;
+    const currentAction = this.getActionConfig(current.actionConfigId);
+    if (!targetCompleted && currentAction !== null) {
+      const reservations = await this.assetRepository.findActiveReservationsByBusiness(client, {
+        characterId,
+        businessType: QUEUE_ENTRY_BUSINESS_TYPE,
+        businessId: current.id,
+      });
+      const nextAvailable = new Map(inventory);
+      for (const reservation of reservations) {
+        if (reservation.assetType === 'ITEM') {
+          nextAvailable.set(
+            reservation.assetId,
+            (nextAvailable.get(reservation.assetId) ?? 0n) + integerAssetQuantity(reservation.quantity),
+          );
+        }
+      }
+      if (settlement.completedCycles > 0n) {
+        for (const input of currentAction.inputs) {
+          const required = integerAssetQuantity(input.quantity);
+          nextAvailable.set(input.item_id, (nextAvailable.get(input.item_id) ?? 0n) - required);
+        }
+      }
+      const blockedInput = currentAction.inputs.find((input) => {
+        const required = integerAssetQuantity(input.quantity);
+        return (nextAvailable.get(input.item_id) ?? 0n) < required;
+      });
+      if (blockedInput !== undefined) {
+        const required = integerAssetQuantity(blockedInput.quantity);
+        const available = nextAvailable.get(blockedInput.item_id) ?? 0n;
+        const blockedQueue = await this.queueRepository.setEntryStatus(client, {
+          characterId,
+          entryId: current.id,
+          status: 'BLOCKED',
+          blockedReason: formatBlockedMaterialReason({
+            itemId: blockedInput.item_id,
+            required: required.toString(),
+            available: available.toString(),
+            shortfall: (required - available).toString(),
+          }),
+          completedCycles: current.completedCycles + settlement.completedCycles,
+          progressTimeUs: settlement.progressTimeUs,
+        });
+        const fallback = current.onBlocked === 'FALLBACK'
+          ? this.getActionConfig(blockedQueue.fallbackActionId)
+          : null;
+        return {
+          activeQueueEntryId: current.onBlocked === 'FALLBACK' ? null : current.id,
+          activeCycleSnapshot: fallback === null
+            ? null
+            : snapshotFromAction(fallback, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version),
+        };
+      }
+    }
+    const completed = targetCompleted;
     if (!completed) {
       const action = this.getActionConfig(current.actionConfigId);
       await this.queueRepository.setEntryStatus(client, {
@@ -975,7 +1142,7 @@ export class SettlementService {
           if (remaining <= 0n) {
             break;
           }
-          const available = BigInt(reservation.quantity);
+          const available = integerAssetQuantity(reservation.quantity);
           const consumed = available < remaining ? available : remaining;
           await this.assetRepository.consumeOnTransaction(client, {
             characterId: plan.state.characterId,
@@ -1068,12 +1235,22 @@ export class SettlementService {
       const targetTimeUs = BigInt(decimal(activeQueueEntry.targetValue).multiply('1000000').toString()) - input.progressTimeUs;
       remainingUs = microseconds(remainingUs < targetTimeUs && targetTimeUs > 0n ? remainingUs : targetTimeUs > 0n ? targetTimeUs : 0n);
     }
-    const virtualInventory = activeQueueEntry?.mode === 'UNTIL_INVENTORY'
-      ? await this.loadQueueInventory(client, characterId)
-      : null;
+    const virtualInventory = activeQueueEntry === null
+      ? null
+      : await this.loadVirtualQueueInventory(client, characterId, activeQueueEntry.id);
+    const inputRequirements = currentAction.inputs.map((input) => ({
+      itemId: input.item_id,
+      quantity: integerAssetQuantity(input.quantity),
+    }));
     let effectiveUntilUs = addMicroseconds(input.lastSettledAtUs, remainingUs);
 
     while (remainingUs > 0n) {
+      if (virtualInventory !== null && inputRequirements.some((requirement) =>
+        (virtualInventory.get(requirement.itemId) ?? 0n) < requirement.quantity)) {
+        effectiveUntilUs = cycleStartUs;
+        remainingUs = microseconds(0n);
+        break;
+      }
       const currentSnapshot = await this.composeCycleSnapshot(
         client,
         characterId,
@@ -1110,19 +1287,13 @@ export class SettlementService {
       }
       progressTimeUs = microseconds('0');
       if (virtualInventory !== null && stepResult.completedCycles > 0n) {
-        for (const actionInput of currentAction.inputs) {
-          const current = virtualInventory.get(actionInput.item_id) ?? 0n;
-          virtualInventory.set(
-            actionInput.item_id,
-            current - BigInt(actionInput.quantity) * stepResult.completedCycles,
-          );
+        for (const requirement of inputRequirements) {
+          const current = virtualInventory.get(requirement.itemId) ?? 0n;
+          virtualInventory.set(requirement.itemId, current - requirement.quantity * stepResult.completedCycles);
         }
         for (const output of currentSnapshot.outputs) {
           const current = virtualInventory.get(output.itemId) ?? 0n;
-          virtualInventory.set(
-            output.itemId,
-            current + output.quantityPerCycle * stepResult.completedCycles,
-          );
+          virtualInventory.set(output.itemId, current + output.quantityPerCycle * stepResult.completedCycles);
         }
         if (activeQueueEntry !== null && this.inventoryConditionSatisfied(activeQueueEntry, virtualInventory)) {
           effectiveUntilUs = cycleStartUs;
@@ -1144,6 +1315,29 @@ export class SettlementService {
       segments,
       status: baseResult.status,
     };
+  }
+
+  private async loadVirtualQueueInventory(
+    client: PoolClient,
+    characterId: string,
+    entryId: string,
+  ): Promise<Map<string, bigint>> {
+    const inventory = await this.loadQueueInventory(client, characterId);
+    const reservations = await this.assetRepository.findActiveReservationsByBusiness(client, {
+      characterId,
+      businessType: QUEUE_ENTRY_BUSINESS_TYPE,
+      businessId: entryId,
+    });
+    for (const reservation of reservations) {
+      if (reservation.assetType !== 'ITEM') {
+        continue;
+      }
+      inventory.set(
+        reservation.assetId,
+        (inventory.get(reservation.assetId) ?? 0n) + integerAssetQuantity(reservation.quantity),
+      );
+    }
+    return inventory;
   }
 
   private async composeCycleSnapshot(

@@ -200,6 +200,7 @@ const foundationCharacter: CharacterProgressionRecord = {
 type ItemState = {
   quantity: bigint;
   reserved: bigint;
+  availableQuantityText?: string;
 };
 
 type ReservationState = {
@@ -262,7 +263,8 @@ function makeService(
         assetId: 'item.t1.qingling_herb',
         quantity: inventoryState.quantity.toString(),
         reservedQuantity: inventoryState.reserved.toString(),
-        availableQuantity: (inventoryState.quantity - inventoryState.reserved).toString(),
+        availableQuantity: inventoryState.availableQuantityText
+          ?? (inventoryState.quantity - inventoryState.reserved).toString(),
       }],
       currencies: [],
       equipmentInstances: [],
@@ -747,6 +749,29 @@ describe('QueueService', () => {
     expect(steps).toContain('asset.getInventoryOnTransaction');
   });
 
+  it('reserves one UNTIL_INVENTORY cycle and blocks when its inputs are short', async () => {
+    const { service, queueState, inventoryState, reservations } = makeService(2n, false, foundationCharacter);
+
+    await service.save(request('until-input-shortage'), foundationCharacter.characterId, {
+      expected_queue_version: 0,
+      entries: [{
+        client_entry_id: 'tmp-until-input-shortage',
+        action_id: materialAction.id,
+        mode: 'UNTIL_INVENTORY',
+        target_value: '5',
+        condition_item_id: inventoryConditionItem.id,
+        condition_operator: '>=',
+        on_blocked: 'FALLBACK',
+      }],
+      fallback: { action_id: freeAction.id, mode: 'INFINITE' },
+    });
+
+    expect(queueState.current?.entries[0]).toMatchObject({ status: 'BLOCKED' });
+    expect(reservations).toHaveLength(1);
+    expect(reservations[0]).toMatchObject({ quantity: '2', status: 'ACTIVE' });
+    expect(inventoryState.reserved).toBe(2n);
+  });
+
   it('locks UNTIL_INVENTORY before foundation and accepts it at three slots', async () => {
     const mortal = makeService(0n);
     await expect(mortal.service.save(request('mortal-until'), character.characterId, {
@@ -836,6 +861,27 @@ describe('QueueService', () => {
     });
     expect(queueState.current?.entries[0]).toMatchObject({ status: 'QUEUED' });
     expect(steps).toContain('asset.getInventoryOnTransaction');
+  });
+
+  it('accepts database decimal formatting for integer inventory condition quantities', async () => {
+    const { service, inventoryState } = makeService(5n, false, foundationCharacter);
+    inventoryState.availableQuantityText = '5.000000';
+
+    await expect(service.save(request('until-decimal-format'), foundationCharacter.characterId, {
+      expected_queue_version: 0,
+      entries: [{
+        client_entry_id: 'tmp-until-decimal-format',
+        action_id: freeAction.id,
+        mode: 'UNTIL_INVENTORY',
+        target_value: '5',
+        condition_item_id: inventoryConditionItem.id,
+        condition_operator: '>=',
+        on_blocked: 'FALLBACK',
+      }],
+      fallback: { action_id: freeAction.id, mode: 'INFINITE' },
+    })).resolves.toMatchObject({
+      queue: { entries: [expect.objectContaining({ status: 'DONE_CONDITION_MET' })] },
+    });
   });
 
   it('rejects inventory conditions on non-UNTIL_INVENTORY entries', async () => {

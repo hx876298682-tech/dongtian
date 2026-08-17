@@ -91,6 +91,7 @@ function makeService(
   currentState: SettlementStateRecord | null = state,
   ownershipError: Error | null = null,
   queueRepository?: QueueRepository,
+  inventoryAvailableQuantity = '0',
 ) {
   const queries: string[] = [];
   const client = {
@@ -100,7 +101,7 @@ function makeService(
         return { rows: [{ xp: '0.5' }] as T[] };
       }
       if (sql.includes('FROM inventories')) {
-        return { rows: [{ item_id: 'item.t1.qingling_herb', available_quantity: '0' }] as T[] };
+        return { rows: [{ item_id: 'item.t1.qingling_herb', available_quantity: inventoryAvailableQuantity }] as T[] };
       }
       return { rows: [] as T[] };
     },
@@ -478,7 +479,7 @@ describe('SettlementService', () => {
       },
     };
 
-    const { service, getLastPersist } = makeService(state, null, queueRepository);
+    const { service, getLastPersist } = makeService(state, null, queueRepository, '0.000000');
     await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
 
     expect(queue.entries).toEqual([
@@ -591,6 +592,126 @@ describe('SettlementService', () => {
     });
   });
 
+  it('marks an active SKIP blocked entry incomplete and starts the next queued entry', async () => {
+    const blockedEntry: QueueEntryRecord = {
+      id: 'entry-blocked-skip',
+      characterId: 'character-1',
+      clientEntryId: 'blocked-skip',
+      position: 0,
+      actionConfigId: 'action.t1.qi_gathering_pill',
+      mode: 'COUNT',
+      targetValue: '1',
+      conditionItemId: null,
+      conditionOperator: null,
+      onBlocked: 'SKIP',
+      status: 'BLOCKED',
+      completedCycles: 0n,
+      progressTimeUs: 0n,
+      snapshot: null,
+      snapshotConfigVersion: version,
+      startedAt: null,
+      completedAt: null,
+      blockedReason: 'blocked_material:item.t1.qingling_herb',
+    };
+    const nextEntry: QueueEntryRecord = {
+      ...blockedEntry,
+      id: 'entry-after-skip',
+      clientEntryId: 'after-skip',
+      position: 1,
+      actionConfigId: 'action.t1.herb_baicao_valley',
+      status: 'QUEUED',
+      onBlocked: 'FALLBACK',
+      blockedReason: null,
+    };
+    let queue: QueueRecord = {
+      characterId: 'character-1',
+      queueVersion: 1n,
+      pendingReplaceAfterCycle: false,
+      paused: false,
+      fallbackActionId: 'action.cultivation.qi',
+      entries: [blockedEntry, nextEntry],
+    };
+    const queueRepository: QueueRepository = {
+      async getQueue() { return queue; },
+      async lockQueue() { return queue; },
+      async replaceQueue() { return queue; },
+      async setPaused() { return queue; },
+      async setEntryStatus(_client, input) {
+        queue = {
+          ...queue,
+          entries: queue.entries.map((entry) => entry.id === input.entryId
+            ? { ...entry, status: input.status, blockedReason: input.blockedReason ?? null }
+            : entry),
+        };
+        return queue;
+      },
+    };
+    const blockedState = { ...state, activeQueueEntryId: blockedEntry.id, activeCycleSnapshot: snapshot };
+    const { service, getLastPersist } = makeService(blockedState, null, queueRepository);
+
+    await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
+
+    expect(queue.entries).toEqual([
+      expect.objectContaining({ id: blockedEntry.id, status: 'DONE_INCOMPLETE' }),
+      expect.objectContaining({ id: nextEntry.id, status: 'RUNNING' }),
+    ]);
+    expect(getLastPersist()?.nextState).toMatchObject({ activeQueueEntryId: nextEntry.id });
+  });
+
+  it('marks an already satisfied active UNTIL_INVENTORY entry done before settlement', async () => {
+    const currentEntry: QueueEntryRecord = {
+      id: 'entry-already-satisfied',
+      characterId: 'character-1',
+      clientEntryId: 'already-satisfied',
+      position: 0,
+      actionConfigId: 'action.t1.herb_baicao_valley',
+      mode: 'UNTIL_INVENTORY',
+      targetValue: '1',
+      conditionItemId: 'item.t1.qingling_herb',
+      conditionOperator: '>=',
+      onBlocked: 'FALLBACK',
+      status: 'RUNNING',
+      completedCycles: 0n,
+      progressTimeUs: 0n,
+      snapshot: null,
+      snapshotConfigVersion: version,
+      startedAt: null,
+      completedAt: null,
+      blockedReason: null,
+    };
+    let queue: QueueRecord = {
+      characterId: 'character-1',
+      queueVersion: 1n,
+      pendingReplaceAfterCycle: false,
+      paused: false,
+      fallbackActionId: 'action.cultivation.qi',
+      entries: [currentEntry],
+    };
+    const queueRepository: QueueRepository = {
+      async getQueue() { return queue; },
+      async lockQueue() { return queue; },
+      async replaceQueue() { return queue; },
+      async setPaused() { return queue; },
+      async setEntryStatus(_client, input) {
+        queue = {
+          ...queue,
+          entries: queue.entries.map((entry) => entry.id === input.entryId
+            ? { ...entry, status: input.status, blockedReason: input.blockedReason ?? null }
+            : entry),
+        };
+        return queue;
+      },
+    };
+    const satisfiedState = { ...state, activeQueueEntryId: currentEntry.id, activeCycleSnapshot: snapshot };
+    const { service, getLastPersist } = makeService(satisfiedState, null, queueRepository, '1');
+
+    const result = await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
+
+    expect(result.completed_cycles).toBe('0');
+    expect(queue.entries[0]).toMatchObject({ status: 'DONE_CONDITION_MET' });
+    expect(getLastPersist()?.nextState.activeQueueEntryId).toBeUndefined();
+  });
+
   it('keeps a blocked queued entry on fallback until queue reconciliation unblocks it', async () => {
     const blockedEntry: QueueEntryRecord = {
       id: 'entry-blocked-fallback',
@@ -645,10 +766,10 @@ describe('SettlementService', () => {
       characterId: 'character-1',
       clientEntryId: 'refine-again',
       position: 0,
-      actionConfigId: 'action.t1.qi_gathering_pill',
+      actionConfigId: 'action.t1.herb_baicao_valley',
       mode: 'UNTIL_INVENTORY',
       targetValue: '5',
-      conditionItemId: 'item.t1.qi_gathering_pill',
+      conditionItemId: 'item.t1.qingling_herb',
       conditionOperator: '>=',
       onBlocked: 'FALLBACK',
       status: 'DONE_CONDITION_MET',
@@ -689,11 +810,11 @@ describe('SettlementService', () => {
     vi.setSystemTime(new Date('2026-08-16T00:05:00.000Z'));
     const result = await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
 
-    expect(result.completed_cycles).toBe('1');
+    expect(result.completed_cycles).toBe('3');
     expect(queue.entries[0]).toMatchObject({ status: 'RUNNING' });
     expect(getLastPersist()?.nextState).toMatchObject({
       activeQueueEntryId: 'entry-reenter',
-      activeCycleSnapshot: expect.objectContaining({ action_config_id: 'action.t1.qi_gathering_pill' }),
+      activeCycleSnapshot: expect.objectContaining({ action_config_id: 'action.t1.herb_baicao_valley' }),
     });
   });
 

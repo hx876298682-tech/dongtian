@@ -27,6 +27,10 @@ const equipmentMigration = readFileSync(
   new URL('../../packages/database/prisma/migrations/0007_equipment_v1/migration.sql', import.meta.url),
   'utf8',
 );
+const breakthroughMigration = readFileSync(
+  new URL('../../packages/database/prisma/migrations/0013_breakthrough_v1/migration.sql', import.meta.url),
+  'utf8',
+);
 
 describe('database migrations', () => {
   it('contains the approved persistence boundary without market storage', () => {
@@ -96,5 +100,13 @@ describe('database migrations', () => {
     expect(equipmentMigration).toContain('active_loadout_preset_id');
     expect(equipmentMigration).toContain('loadout_presets_weapon_instance_id_fkey');
     expect(equipmentMigration).toContain('loadout_presets_version_non_negative_check');
+  });
+
+  it('creates the breakthrough status enum before the breakthrough runs table', () => {
+    const enumPosition = breakthroughMigration.indexOf('CREATE TYPE "BreakthroughStatus"');
+    const tablePosition = breakthroughMigration.indexOf('CREATE TABLE "breakthrough_runs"');
+
+    expect(enumPosition).toBeGreaterThanOrEqual(0);
+    expect(tablePosition).toBeGreaterThan(enumPosition);
   });
 });

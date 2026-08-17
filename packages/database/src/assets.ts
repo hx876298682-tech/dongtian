@@ -202,6 +202,21 @@ function mutationQuantity(assetType: AssetType, quantity: string): string {
   return assetType === 'ITEM' ? quantity.replace(/\.0+$/, '') : quantity;
 }
 
+function subtractQuantity(left: string, right: string): string {
+  const [leftInteger, leftFraction = ''] = left.split('.');
+  const [rightInteger, rightFraction = ''] = right.split('.');
+  const scale = Math.max(leftFraction.length, rightFraction.length);
+  const leftScaled = BigInt(`${leftInteger}${leftFraction.padEnd(scale, '0')}`);
+  const rightScaled = BigInt(`${rightInteger}${rightFraction.padEnd(scale, '0')}`);
+  const result = (leftScaled - rightScaled).toString().padStart(scale + 1, '0');
+
+  if (scale === 0) {
+    return result;
+  }
+
+  return `${result.slice(0, -scale)}.${result.slice(-scale)}`;
+}
+
 function balanceFromRow(assetType: AssetType, assetId: string, row: BalanceRow): AssetBalance {
   return {
     assetType,
@@ -558,7 +573,13 @@ async function consumeOnTransaction(
     ledgerEntryId,
     reservation: fullyConsumed
       ? { ...reservation, status: 'CONSUMED' as const }
-      : { ...reservation, quantity: (BigInt(reservation.quantity) - BigInt(consumeQuantity)).toString() },
+      : {
+          ...reservation,
+          quantity: mutationQuantity(
+            reservation.assetType,
+            subtractQuantity(reservation.quantity, consumeQuantity),
+          ),
+        },
   };
 }
 
@@ -575,25 +596,23 @@ async function loadInventory(
     return null;
   }
 
-  const [items, currencies, equipmentInstances] = await Promise.all([
-    pool.query<BalanceRow & { item_id: string }>(
-      `SELECT item_id, quantity::text, reserved_quantity::text,
-              (quantity - reserved_quantity)::text AS available_quantity
-         FROM inventories WHERE character_id = $1 ORDER BY item_id`,
-      [characterId],
-    ),
-    pool.query<BalanceRow & { currency_id: string }>(
-      `SELECT currency_id, quantity::text, reserved_quantity::text,
-              (quantity - reserved_quantity)::text AS available_quantity
-         FROM currency_balances WHERE character_id = $1 ORDER BY currency_id`,
-      [characterId],
-    ),
-    pool.query<EquipmentInstanceRow>(
-      `SELECT id, item_id, temper_level, bound, created_config_version
-         FROM equipment_instances WHERE character_id = $1 ORDER BY created_at, id`,
-      [characterId],
-    ),
-  ]);
+  const items = await pool.query<BalanceRow & { item_id: string }>(
+    `SELECT item_id, quantity::text, reserved_quantity::text,
+            (quantity - reserved_quantity)::text AS available_quantity
+       FROM inventories WHERE character_id = $1 ORDER BY item_id`,
+    [characterId],
+  );
+  const currencies = await pool.query<BalanceRow & { currency_id: string }>(
+    `SELECT currency_id, quantity::text, reserved_quantity::text,
+            (quantity - reserved_quantity)::text AS available_quantity
+       FROM currency_balances WHERE character_id = $1 ORDER BY currency_id`,
+    [characterId],
+  );
+  const equipmentInstances = await pool.query<EquipmentInstanceRow>(
+    `SELECT id, item_id, temper_level, bound, created_config_version
+       FROM equipment_instances WHERE character_id = $1 ORDER BY created_at, id`,
+    [characterId],
+  );
 
   return {
     items: items.rows.map((row) => balanceFromRow('ITEM', row.item_id, row)),

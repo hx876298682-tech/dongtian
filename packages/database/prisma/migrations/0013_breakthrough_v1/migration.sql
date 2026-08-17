@@ -1,3 +1,12 @@
+CREATE TYPE "BreakthroughStatus" AS ENUM (
+  'READY',
+  'TRIAL_ACTIVE',
+  'TRIAL_WAITING_CHOICE',
+  'COMPLETED',
+  'FAILED_RECOVERABLE',
+  'ABANDONED'
+);
+
 CREATE TABLE "breakthrough_runs" (
   "id" UUID NOT NULL DEFAULT uuidv7(),
   "character_id" UUID NOT NULL,

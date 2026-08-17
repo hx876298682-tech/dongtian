@@ -301,6 +301,14 @@ function finiteDecimal(value: string): string {
   return decimal(value).toString();
 }
 
+function integerQuantity(value: string): bigint {
+  const normalized = decimal(value).toString();
+  if (!/^-?\d+$/.test(normalized)) {
+    throw new Error(`Expected an integer asset quantity, received ${value}.`);
+  }
+  return BigInt(normalized);
+}
+
 function countCycles(entry: QueueEntryLike, action: ActionConfig): bigint | null {
   if (entry.mode === 'INFINITE') {
     return null;
@@ -322,7 +330,7 @@ function requiredInputs(
   readonly cycles: bigint | null;
   readonly requirements: readonly { readonly itemId: string; readonly quantity: bigint }[];
 } {
-  const cycles = countCycles(entry, action);
+  const cycles = entry.mode === 'UNTIL_INVENTORY' ? 1n : countCycles(entry, action);
   if (cycles === null) {
     return { cycles, requirements: [] };
   }
@@ -338,7 +346,7 @@ function requiredInputs(
 function inventoryAvailableByItem(inventory: InventorySnapshot): Map<string, bigint> {
   const result = new Map<string, bigint>();
   for (const item of inventory.items) {
-    result.set(item.assetId, BigInt(item.availableQuantity));
+    result.set(item.assetId, integerQuantity(item.availableQuantity));
   }
   return result;
 }
@@ -349,7 +357,7 @@ function activeReservationsByItem(
   const result = new Map<string, bigint>();
   for (const reservation of reservations) {
     const current = result.get(reservation.assetId) ?? 0n;
-    result.set(reservation.assetId, current + BigInt(reservation.quantity));
+    result.set(reservation.assetId, current + integerQuantity(reservation.quantity));
   }
   return result;
 }
@@ -404,7 +412,7 @@ function durationEstimate(entry: ParsedQueueEntry, action: ActionConfig): {
 
 function itemAvailable(inventory: InventorySnapshot, itemId: string): bigint {
   const balance = inventory.items.find((item) => item.assetId === itemId);
-  return balance === undefined ? 0n : BigInt(balance.availableQuantity);
+  return balance === undefined ? 0n : integerQuantity(balance.availableQuantity);
 }
 
 function estimateEntry(
@@ -735,7 +743,7 @@ export class QueueService {
         });
         if (availableByItem !== undefined) {
           const current = availableByItem.get(reservation.assetId) ?? 0n;
-          availableByItem.set(reservation.assetId, current + BigInt(reservation.quantity));
+          availableByItem.set(reservation.assetId, current + integerQuantity(reservation.quantity));
         }
       }
     }

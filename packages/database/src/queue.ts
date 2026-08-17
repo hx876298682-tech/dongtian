@@ -125,6 +125,17 @@ function clientEntryId(snapshot: QueueJson | null): string | null {
   return typeof value === 'string' ? value : null;
 }
 
+function normalizeDecimalText(value: string | null): string | null {
+  if (value === null || !value.includes('.')) {
+    return value;
+  }
+  const separator = value.indexOf('.');
+  const integerPart = value.slice(0, separator);
+  const fractionPart = value.slice(separator + 1);
+  const trimmedFraction = fractionPart.replace(/0+$/, '');
+  return trimmedFraction.length === 0 ? integerPart : `${integerPart}.${trimmedFraction}`;
+}
+
 function toEntry(row: EntryRow): QueueEntryRecord {
   return {
     id: row.id,
@@ -133,7 +144,7 @@ function toEntry(row: EntryRow): QueueEntryRecord {
     position: row.position,
     actionConfigId: row.action_config_id,
     mode: row.mode,
-    targetValue: row.target_value,
+    targetValue: normalizeDecimalText(row.target_value),
     conditionItemId: row.condition_item_id,
     conditionOperator: row.condition_operator,
     onBlocked: row.on_blocked,
@@ -167,6 +178,7 @@ export type QueueRepository = {
       readonly progressTimeUs?: bigint;
     },
   ) => Promise<QueueRecord>;
+  readonly clearPendingReplaceAfterCycle?: (client: PoolClient, characterId: string) => Promise<void>;
 };
 
 async function lockWriteDependencies(client: PoolClient, characterId: string): Promise<void> {
@@ -307,6 +319,16 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
     return (await lockQueue(client, input.characterId)) ?? failQueueRead();
   }
 
+  async function clearPendingReplaceAfterCycle(client: PoolClient, characterId: string): Promise<void> {
+    await client.query(
+      `UPDATE action_queues
+          SET pending_replace_after_cycle = FALSE,
+              updated_at = CURRENT_TIMESTAMP
+        WHERE character_id = $1`,
+      [characterId],
+    );
+  }
+
   async function setEntryStatus(
     client: PoolClient,
     input: {
@@ -327,11 +349,11 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
     }
     await client.query(
       `UPDATE action_queue_entries
-          SET status = $3,
+          SET status = $3::"QueueEntryStatus",
               blocked_reason = $4,
               completed_cycles = COALESCE($5, completed_cycles),
               progress_time_us = COALESCE($6, progress_time_us),
-              completed_at = CASE WHEN $3 IN ('DONE', 'DONE_INCOMPLETE', 'DONE_CONDITION_MET', 'CANCELLED')
+              completed_at = CASE WHEN $3::"QueueEntryStatus" IN ('DONE', 'DONE_INCOMPLETE', 'DONE_CONDITION_MET', 'CANCELLED')
                                   THEN CURRENT_TIMESTAMP ELSE completed_at END,
               updated_at = CURRENT_TIMESTAMP
         WHERE character_id = $1 AND id = $2`,
@@ -346,6 +368,7 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
     replaceQueue,
     setPaused,
     setEntryStatus,
+    clearPendingReplaceAfterCycle,
   };
 }
 

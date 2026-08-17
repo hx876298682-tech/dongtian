@@ -60,6 +60,7 @@ type RunData = {
     readonly selected_choice_id: string | null;
     readonly reservation_snapshot: ReadonlyArray<{
       readonly asset_id: string;
+      readonly asset_type: 'ITEM' | 'CURRENCY';
       readonly quantity: string;
     }>;
     readonly preview_snapshot: { readonly config_version: string; readonly all_satisfied: boolean };
@@ -320,10 +321,10 @@ test('DT-M5-008 golden role graduates across disconnect and saves three conditio
   expect(started.json.data.run.status).toBe('TRIAL_ACTIVE');
   expect(started.json.data.run.reservation_snapshot).toEqual(
     expect.arrayContaining([
-      { asset_id: 'item.t1.foundation_pill', quantity: '1' },
-      { asset_id: 'item.t2.lingsui', quantity: '3' },
-      { asset_id: 'item.t1.meridian_pill', quantity: '2' },
-      { asset_id: 'currency.spirit_stone', quantity: '2500' },
+      { asset_id: 'item.t1.foundation_pill', asset_type: 'ITEM', quantity: '1' },
+      { asset_id: 'item.t2.lingsui', asset_type: 'ITEM', quantity: '3' },
+      { asset_id: 'item.t1.meridian_pill', asset_type: 'ITEM', quantity: '2' },
+      { asset_id: 'currency.spirit_stone', asset_type: 'CURRENCY', quantity: '2500' },
     ]),
   );
   const runId = started.json.data.run.breakthrough_run_id;
@@ -337,7 +338,7 @@ test('DT-M5-008 golden role graduates across disconnect and saves three conditio
     inventoryDuringTrial.json.data.currencies.find(
       (item) => item.asset_id === 'currency.spirit_stone',
     )?.reserved_quantity,
-  ).toBe('2500');
+  ).toBe('2500.000000');
 
   const storageState = await context.storageState();
   await context.close();
@@ -442,7 +443,7 @@ test('DT-M5-008 golden role graduates across disconnect and saves three conditio
     },
     'POST',
   );
-  expect(medicineUse.status).toBe(200);
+  expect(medicineUse.status).toBe(201);
   expect(medicineUse.json.data.target_slot_index).toBe(3);
   expect(medicineUse.json.data.buff_instance.slot_index).toBe(3);
   const databaseAfterMedicineUse = await readBreakthroughDatabaseState(
@@ -536,7 +537,7 @@ test('DT-M5-008 accelerated new account completes all dependencies and unlocks t
     },
     'POST',
   );
-  expect(medicineUse.status).toBe(200);
+  expect(medicineUse.status).toBe(201);
   expect(medicineUse.json.data.target_slot_index).toBe(3);
   expect(medicineUse.json.data.buff_instance.slot_index).toBe(3);
   const stateAfterMedicineUse = await readBreakthroughDatabaseState(session.character_id, runId);
@@ -592,7 +593,7 @@ test('DT-M5-008 expired trial releases every reservation without consumption', a
     recoveredInventory.json.data.currencies.find(
       (item) => item.asset_id === 'currency.spirit_stone',
     )?.reserved_quantity,
-  ).toBe('0');
+  ).toBe('0.000000');
 
   const recoveredDatabaseState = await readBreakthroughDatabaseState(session.character_id, runId);
   expect(recoveredDatabaseState.run?.status).toBe('FAILED_RECOVERABLE');

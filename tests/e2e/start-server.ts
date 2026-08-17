@@ -166,7 +166,7 @@ async function main(): Promise<void> {
   const web = trackChild(
     spawnService(
       'pnpm',
-      ['--filter', '@dongtian/web', 'dev', '--', '--host', environment.apiHost, '--port', String(environment.webPort), '--strictPort'],
+      ['--filter', '@dongtian/web', 'dev', '--host', environment.apiHost, '--port', String(environment.webPort), '--strictPort'],
       baseEnv,
       'Web',
     ),
