@@ -1479,6 +1479,56 @@ select {
   font-size: 12px;
 }
 
+.dashboard-panel,
+.content-panel,
+.cave-panel,
+.breakthrough-panel,
+.equipment-panel,
+.expedition-panel {
+  border-radius: 4px;
+  background: rgba(25, 26, 40, 0.94);
+  box-shadow: none;
+}
+
+.content-tabs,
+.equipment-filterbar,
+.expedition-actions,
+.dashboard-editor__toolbar {
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  background: rgba(14, 15, 25, 0.82);
+}
+
+.content-list,
+.equipment-list,
+.cave-facility-list,
+.breakthrough-choice-list,
+.expedition-choice-list {
+  gap: 4px;
+}
+
+.content-card__title-row,
+.equipment-instance__title-row,
+.expedition-choice__row,
+.cave-detail,
+.breakthrough-group {
+  border-radius: 4px;
+}
+
+.dialog-panel,
+.cave-dialog__content {
+  border-radius: 6px;
+  background: #20212f;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.dialog-overlay,
+.cave-dialog__overlay {
+  backdrop-filter: blur(3px);
+  background: rgba(4, 5, 10, 0.72);
+}
+
 .quick-task-card em {
   margin-top: auto;
   color: var(--accent);

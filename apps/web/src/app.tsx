@@ -172,25 +172,19 @@ function AppFrame({
 
         <div className="topbar-metrics" aria-label="角色摘要">
           <div className="metric-chip">
-            <span className="metric-chip__label">当前页</span>
+            <span className="metric-chip__label">所在区域</span>
             <strong className="metric-chip__value" title={currentRoute.label}>
               {currentRoute.label}
             </strong>
           </div>
           <div className="metric-chip">
-            <span className="metric-chip__label">连接</span>
-            <strong className="metric-chip__value" title="CSRF 已就绪">
-              CSRF 已就绪
-            </strong>
-          </div>
-          <div className="metric-chip">
-            <span className="metric-chip__label">状态版本</span>
-            <strong className="metric-chip__value" title="受保护">
-              受保护
+            <span className="metric-chip__label">角色</span>
+            <strong className="metric-chip__value" title="洞天散修">
+              洞天散修
             </strong>
           </div>
           <button className="ghost-button" type="button" onClick={onLogout}>
-            退出匿名会话
+            切换角色
           </button>
         </div>
       </header>
