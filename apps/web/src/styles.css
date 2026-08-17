@@ -3089,6 +3089,28 @@ html[data-reduce-motion='true'] *::after {
 }
 
 @media (max-width: 920px) {
+  .reference-task-list,
+  .reference-guide-list {
+    grid-template-columns: 1fr;
+  }
+
+  .reference-page__header,
+  .settings-page__header {
+    display: grid;
+    align-items: start;
+  }
+
+  .reference-page__tabs,
+  .settings-page__tabs {
+    overflow-x: auto;
+  }
+
+  .reference-page__tab,
+  .settings-page__tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
   .content-layout,
   .breakthrough-layout {
     grid-template-columns: 1fr;
@@ -3334,7 +3356,9 @@ html[data-reduce-motion='true'] *::after {
 
   .shell-mobile-nav {
     display: grid;
-    grid-template-columns: repeat(6, minmax(64px, 1fr));
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(64px, 1fr);
     min-width: 0;
     overflow-x: auto;
     overscroll-behavior-x: contain;
