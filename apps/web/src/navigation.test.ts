@@ -4,8 +4,8 @@ import { SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from '
 import { useUiDraftStore } from './state/ui-draft-store.js';
 
 describe('web shell scaffolding', () => {
-  it('keeps the required six navigation entries and no market route', () => {
-    expect(SHELL_ROUTES).toHaveLength(6);
+  it('keeps the core navigation plus local settings and no market route', () => {
+    expect(SHELL_ROUTES).toHaveLength(7);
     expect(SHELL_ROUTES.map((route) => route.id)).toEqual([
       'dashboard',
       'cultivation',
@@ -13,6 +13,7 @@ describe('web shell scaffolding', () => {
       'expedition',
       'character',
       'inventory',
+      'settings',
     ]);
     expect(SHELL_ROUTES.some((route) => route.id === 'market')).toBe(false);
     expect(SHELL_PANELS.map((panel) => panel.id)).toEqual(['current-action', 'settlement-summary', 'goal-tracker']);
