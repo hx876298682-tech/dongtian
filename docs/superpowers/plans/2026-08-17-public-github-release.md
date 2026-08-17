@@ -76,20 +76,20 @@ Actual: OpenAPI is compatible; development asset validation passes with warnings
 
 - Stage: all intended source, tests, assets, migrations, and release documentation
 
-- [ ] **Step 1: Review staged contents and create one release-preparation commit**
+- [x] **Step 1: Review staged contents and create one release-preparation commit**
 
 Run: `git add -A && git diff --cached --check && git status --short && git commit -m "feat: add breakthrough flow and release readiness"`
 
 Expected: one commit containing the existing pending feature set plus release documentation, with no ignored build outputs.
 
-- [ ] **Step 2: Create the public GitHub repository and push `main`**
+- [x] **Step 2: Create the public GitHub repository and push `main`**
 
 Run: `gh repo create dongtian --public --source=. --remote=origin --push --description "洞天：修仙 Idle MMO Web Monorepo"`
 
-Expected: GitHub reports a public repository URL and `main` tracks `origin/main`.
+Actual: <https://github.com/hx876298682-tech/dongtian> is public and `main` tracks `origin/main`.
 
-- [ ] **Step 3: Verify the remote repository**
+- [x] **Step 3: Verify the remote repository**
 
 Run: `gh repo view --json nameWithOwner,url,visibility,defaultBranchRef && git status --short --branch && git ls-remote --heads origin main`
 
-Expected: repository visibility is `PUBLIC`, default branch is `main`, remote HEAD matches local HEAD, and the working tree is clean.
+Actual: visibility is `PUBLIC`, default branch is `main`, remote HEAD is `6b5bc80f0efca7b09f1c948ba5e929c96e421ea9`, and the working tree was clean after push.
