@@ -22,7 +22,7 @@ import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
 import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
-import type { AuthActiveSession, Queue } from '@dongtian/contracts';
+import type { AuthActiveSession, InventoryAsset, InventorySnapshot, Queue } from '@dongtian/contracts';
 import { apiClient } from './lib/api.js';
 import { buildIdleProgressView } from './features/dashboard/dashboard-adapter.js';
 
@@ -91,6 +91,36 @@ function GlobalIdleProgress({ characterId }: { readonly characterId: string }): 
       </div>
       <span className="global-idle-progress__cycles">已完成 {view.completedCycles} 轮</span>
     </div>
+  );
+}
+
+function inventoryLabel(asset: InventoryAsset): string {
+  const parts = asset.asset_id.split('.');
+  const raw = parts.at(-1) ?? asset.asset_id;
+  return raw.replaceAll('_', ' ');
+}
+
+function GlobalInventorySummary({ characterId }: { readonly characterId: string }): ReactElement {
+  const inventoryQuery = useQuery<InventorySnapshot>({
+    queryKey: ['global-inventory', characterId],
+    queryFn: () => apiClient.getInventory(characterId),
+    staleTime: 20_000,
+    refetchInterval: 45_000,
+  });
+  const assets = inventoryQuery.data === undefined ? [] : [...inventoryQuery.data.currencies, ...inventoryQuery.data.items].slice(0, 12);
+
+  return (
+    <section className="rail-inventory" aria-label="角色背包摘要">
+      <div className="rail-inventory__header"><strong>背包</strong><span>{inventoryQuery.data?.total_count ?? 0} 件</span></div>
+      <div className="rail-inventory__grid">
+        {assets.map((asset) => (
+          <div className="rail-inventory__item" key={`${asset.asset_type}-${asset.asset_id}`} title={asset.asset_id}>
+            <span>{inventoryLabel(asset)}</span>
+            <strong>{asset.available_quantity}</strong>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -248,6 +278,8 @@ function AppFrame({
               </p>
             </section>
           ))}
+
+          <GlobalInventorySummary characterId={session.character_id} />
 
           <section className="rail-card rail-card--draft">
             <div className="rail-card__header">

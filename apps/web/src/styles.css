@@ -1429,6 +1429,56 @@ select {
   gap: 6px;
 }
 
+.rail-inventory {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: rgba(7, 12, 24, 0.48);
+}
+
+.rail-inventory__header {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rail-inventory__header strong {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.rail-inventory__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.rail-inventory__item {
+  min-height: 52px;
+  display: grid;
+  align-content: space-between;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  background: rgba(30, 31, 53, 0.9);
+  color: var(--muted);
+  font-size: 10px;
+  overflow: hidden;
+}
+
+.rail-inventory__item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rail-inventory__item strong {
+  color: var(--accent-strong);
+  font-size: 12px;
+}
+
 .quick-task-card em {
   margin-top: auto;
   color: var(--accent);
