@@ -15,6 +15,8 @@ const ID_LABELS: Readonly<Record<string, string>> = {
   'skill.herbalism': '采药',
   'skill.mining': '挖矿',
   'skill.smithing': '炼器',
+  'skill.forging': '锻造',
+  'skill.tempering': '淬炼',
   'action.cultivation.qi': '修炼灵气',
   'action.t1.herb_baicao_valley': '采药',
   'action.t1.qi_gathering_powder': '炼制聚气散',
@@ -67,6 +69,12 @@ export function describeRecipeDescription(id: string | null | undefined): string
     default:
       return '准备材料后即可加入挂机计划。';
   }
+}
+
+export function describeUnlockReason(reason: string | null | undefined): string {
+  if (reason === 'feature.locked.tutorial' || reason === 'TUT-001') return '完成新手引导后解锁';
+  if (reason === null || reason === undefined || reason.length === 0) return '暂未解锁';
+  return reason;
 }
 
 function toFiniteNumber(value: string | number | null | undefined): number | null {

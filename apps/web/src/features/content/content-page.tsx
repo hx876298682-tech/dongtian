@@ -31,6 +31,7 @@ import {
   describeItemId,
   describeRecipeId,
   describeRecipeDescription,
+  describeUnlockReason,
   describeSkillId,
   formatActionRate,
   formatCount,
@@ -222,7 +223,7 @@ function ActionCard({
         <span>修为 XP {formatCount(entry.cultivation_xp)}</span>
         <span>每小时 {formatActionRate(entry)}</span>
       </div>
-      {!entry.unlocked ? <div className="content-card__copy">{entry.unlock_state.reason}</div> : null}
+      {!entry.unlocked ? <div className="content-card__copy">{describeUnlockReason(entry.unlock_state.reason)}</div> : null}
       <div className="content-card__actions">
         <button className="ghost-button ghost-button--compact" type="button" onClick={onOpen}>
           查看详情
@@ -265,7 +266,7 @@ function RecipeCard({
         <span>结果 {formatCount(entry.result_quantity)}</span>
         <span>每小时 {formatRecipeRate(entry)}</span>
       </div>
-      {!entry.unlocked ? <div className="content-card__copy">{entry.unlock_state.reason}</div> : null}
+      {!entry.unlocked ? <div className="content-card__copy">{describeUnlockReason(entry.unlock_state.reason)}</div> : null}
       <div className="content-card__actions">
         <button className="ghost-button ghost-button--compact" type="button" onClick={onOpen}>
           查看详情
@@ -327,7 +328,7 @@ function ActionDetail({
       <div className="content-detail__header">
         <div>
           <p className="page-card__eyebrow">行动详情</p>
-          <h3 className="content-detail__title">{action.name_key}</h3>
+          <h3 className="content-detail__title">{describeActionId(action.action_id)}</h3>
           <p className="content-detail__copy">{describeActionDescription(action.action_id)}</p>
         </div>
         <div className="content-detail__badges">
@@ -338,7 +339,7 @@ function ActionDetail({
       <div className="content-detail__metrics">
         <NormalStateScreen
           title={describeActionId(action.action_id)}
-          description={action.unlock_state.reason}
+          description={describeUnlockReason(action.unlock_state.reason)}
           highlight={action.can_add_to_queue ? '可加入队列' : '不可加入队列'}
           footnote={`每轮 ${formatDurationUs(action.base_duration_us)} · 修为 ${formatCount(action.cultivation_xp)}`}
         />
@@ -415,8 +416,8 @@ function RecipeDetail({
         </div>
       </div>
       <NormalStateScreen
-        title={recipe.name_key}
-        description={recipe.unlock_state.reason}
+        title={describeRecipeId(recipe.recipe_id)}
+        description={describeUnlockReason(recipe.unlock_state.reason)}
         highlight={recipe.can_add_to_queue ? '可加入队列' : '不可加入队列'}
         footnote={`每轮 ${formatDurationUs(recipe.base_duration_us)} · 熟练度 ${formatCount(recipe.skill_xp)} · 产出 ${formatCount(recipe.result_quantity)}`}
       />
@@ -723,7 +724,7 @@ export function CraftPage(): ReactElement {
                 onSelectRoute={handleSelectRoute}
               />
             ) : (
-              <LockedStateScreen title={selectedAction.name_key} description={selectedAction.unlock_state.reason} footnote={selectedAction.unlock_state.reason_key ?? undefined} />
+              <LockedStateScreen title={describeActionId(selectedAction.action_id)} description={describeUnlockReason(selectedAction.unlock_state.reason)} />
             )
           ) : (
             <EmptyStateScreen title="未选中行动" description="从左侧选择一个行动查看输入、输出和加入队列入口。" />
@@ -738,7 +739,7 @@ export function CraftPage(): ReactElement {
               onSelectRoute={handleSelectRoute}
             />
           ) : (
-            <LockedStateScreen title={selectedRecipe.name_key} description={selectedRecipe.unlock_state.reason} footnote={selectedRecipe.unlock_state.reason_key ?? undefined} />
+              <LockedStateScreen title={describeRecipeId(selectedRecipe.recipe_id)} description={describeUnlockReason(selectedRecipe.unlock_state.reason)} />
           )
         ) : (
           <EmptyStateScreen title="未选中配方" description="从左侧选择一个配方查看材料、产物和加入队列入口。" />
