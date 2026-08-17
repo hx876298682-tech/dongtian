@@ -4,6 +4,7 @@ import { Link, useOutletContext } from 'react-router';
 import type { AuthActiveSession, Queue } from '@dongtian/contracts';
 import { LockedStateScreen, NormalStateScreen } from '@dongtian/ui';
 import { apiClient } from '../../lib/api.js';
+import { GameDialog } from '../../components/game-dialog.js';
 
 type ReferencePageKind = 'tasks' | 'maze' | 'shops' | 'achievements' | 'leaderboard' | 'guild' | 'social' | 'guide' | 'rules' | 'news';
 
@@ -57,18 +58,25 @@ function GuidePanel({ kind }: { readonly kind: ReferencePageKind }): ReactElemen
 export function ReferencePage({ kind }: { readonly kind: ReferencePageKind }): ReactElement {
   const session = useOutletContext<AuthActiveSession>();
   const config = CONFIG[kind];
-  const [activeTab, setActiveTab] = useState(config.tabs[0]);
+  const [activeTab, setActiveTab] = useState(config.tabs[0] ?? '总览');
+  const [detailOpen, setDetailOpen] = useState(false);
   const isGuide = kind === 'guide' || kind === 'rules' || kind === 'news';
   return (
     <section className="reference-page">
       <header className="reference-page__header"><div><p className="page-card__eyebrow">{config.eyebrow}</p><h3>{config.title}</h3></div><p>{config.copy}</p></header>
       <nav className="reference-page__tabs" aria-label={`${config.title}分类`}>
         {config.tabs.map((tab) => <button key={tab} className={tab === activeTab ? 'reference-page__tab reference-page__tab--active' : 'reference-page__tab'} type="button" onClick={() => setActiveTab(tab)}>{tab}</button>)}
+        <button className="reference-page__detail-button" type="button" onClick={() => setDetailOpen(true)}>查看详情</button>
       </nav>
       {config.locked ? <LockedStateScreen title={`${activeTab}暂未开放`} description={config.locked} /> : null}
       {!config.locked && kind === 'tasks' ? <TasksPanel characterId={session.character_id} /> : null}
       {!config.locked && kind === 'maze' ? <NormalStateScreen title="青蛇洞秘境" description="装备、路线和探险结果已经接入秘境页面。" highlight="前往秘境" footnote="进入后会保留当前挂机状态。" actions={[{ label: '打开秘境', onClick: () => window.location.assign('/expedition') }]} /> : null}
       {!config.locked && isGuide ? <GuidePanel kind={kind} /> : null}
+      <GameDialog open={detailOpen} onOpenChange={setDetailOpen} eyebrow={config.eyebrow} title={activeTab}>
+        <p className="game-dialog__copy">{config.locked ?? config.copy}</p>
+        <div className="game-dialog__facts"><span>当前分类</span><strong>{activeTab}</strong></div>
+        <div className="game-dialog__facts"><span>角色数据</span><strong>{config.locked ? '等待对应系统开放' : '使用洞天角色当前进度'}</strong></div>
+      </GameDialog>
     </section>
   );
 }
