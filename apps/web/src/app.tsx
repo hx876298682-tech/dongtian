@@ -1,5 +1,5 @@
 import { startTransition, useEffect, useMemo, useState, type ReactElement, type ReactNode } from 'react';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import {
   Navigate,
   NavLink,
@@ -57,6 +57,10 @@ function formatDateTime(value: string | undefined): string {
   }).format(date);
 }
 
+function createIdempotencyKey(): string {
+  return typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `web-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function GlobalIdleProgress({ characterId }: { readonly characterId: string }): ReactElement | null {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const queueQuery = useQuery<Queue>({
@@ -64,6 +68,17 @@ function GlobalIdleProgress({ characterId }: { readonly characterId: string }): 
     queryFn: () => apiClient.getQueue(characterId),
     staleTime: 10_000,
     refetchInterval: 30_000,
+  });
+  const pauseMutation = useMutation({
+    mutationFn: () => apiClient.pauseQueue(
+      characterId,
+      { expected_queue_version: queueQuery.data?.queue_version ?? 0 },
+      createIdempotencyKey(),
+    ),
+    onSuccess: async () => {
+      await queueQuery.refetch();
+      await queryClient.invalidateQueries({ queryKey: ['dashboard', characterId] });
+    },
   });
 
   useEffect(() => {
@@ -90,6 +105,9 @@ function GlobalIdleProgress({ characterId }: { readonly characterId: string }): 
         </div>
       </div>
       <span className="global-idle-progress__cycles">已完成 {view.completedCycles} 轮</span>
+      <button className="global-idle-progress__stop" type="button" onClick={() => pauseMutation.mutate()} disabled={view.paused || pauseMutation.isPending}>
+        {view.paused ? '已暂停' : pauseMutation.isPending ? '停止中' : '停止'}
+      </button>
     </div>
   );
 }
@@ -145,6 +163,7 @@ function AppFrame({
   const setLeftRailCollapsed = useUiDraftStore((state) => state.setLeftRailCollapsed);
   const setRightRailPinned = useUiDraftStore((state) => state.setRightRailPinned);
   const setActiveRailSection = useUiDraftStore((state) => state.setActiveRailSection);
+  const [logCollapsed, setLogCollapsed] = useState(false);
 
   const currentRoute = useMemo(
     () => SHELL_ROUTES.find((route) => location.pathname === route.path || location.pathname.startsWith(`${route.path}/`)) ?? DEFAULT_SHELL_ROUTE,
@@ -244,6 +263,19 @@ function AppFrame({
           </div>
 
           <div className="shell-main__content">{children}</div>
+          <section className={`game-log ${logCollapsed ? 'game-log--collapsed' : ''}`} aria-label="修行日志">
+            <div className="game-log__header">
+              <div className="game-log__tabs"><strong>修行日志</strong><span>收获</span><span>战斗</span><span>系统</span></div>
+              <button className="ghost-button ghost-button--compact" type="button" onClick={() => setLogCollapsed(!logCollapsed)}>{logCollapsed ? '展开' : '收起'}</button>
+            </div>
+            {logCollapsed ? null : (
+              <div className="game-log__messages">
+                <p><time>当前</time><span>{currentActionSummary}</span></p>
+                <p><time>最近</time><span>{settlementSummary}</span></p>
+                <p><time>目标</time><span>{goalTrackerSummary}</span></p>
+              </div>
+            )}
+          </section>
         </main>
 
         <aside className={`shell-rail ${rightRailPinned ? 'shell-rail--pinned' : ''}`}>

@@ -259,6 +259,22 @@ select {
   transition: width 900ms linear;
 }
 
+.global-idle-progress__stop {
+  min-width: 54px;
+  height: 32px;
+  border: 1px solid rgba(239, 109, 112, 0.55);
+  border-radius: 4px;
+  background: rgba(110, 38, 47, 0.45);
+  color: #ffd8d8;
+  font: inherit;
+  cursor: pointer;
+}
+
+.global-idle-progress__stop:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
 .metric-chip,
 .ghost-button,
 .chip-button,
@@ -1419,6 +1435,7 @@ select {
 
 .shell-main {
   gap: 4px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
 .shell-main__hero {
@@ -1477,6 +1494,61 @@ select {
 .rail-inventory__item strong {
   color: var(--accent-strong);
   font-size: 12px;
+}
+
+.game-log {
+  min-height: 112px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border: 1px solid var(--line);
+  background: rgba(15, 16, 26, 0.96);
+  overflow: hidden;
+}
+
+.game-log--collapsed {
+  min-height: 38px;
+}
+
+.game-log__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.game-log__tabs {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.game-log__tabs strong {
+  color: var(--accent-strong);
+}
+
+.game-log__messages {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 7px 9px;
+  overflow: auto;
+}
+
+.game-log__messages p {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.game-log__messages time {
+  color: var(--accent-strong);
 }
 
 .dashboard-panel,
