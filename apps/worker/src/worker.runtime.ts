@@ -6,11 +6,15 @@ import type { Logger } from 'pino';
 import { type Environment } from '@dongtian/config-schema';
 import {
   createDatabasePool,
+  createAssetRepository,
   createCaveRepository,
+  createBreakthroughRepository,
   createOutboxRepository,
   createSettlementRepository,
   type DatabasePool,
+  type AssetRepository,
   type CaveRepository,
+  type BreakthroughRepository,
   type OutboxEvent,
   type OutboxRepository,
   type SettlementRepository,
@@ -30,6 +34,8 @@ export const OUTBOX_EVENT_DEDUPE = Symbol('OUTBOX_EVENT_DEDUPE');
 export const OUTBOX_REPOSITORY = Symbol('OUTBOX_REPOSITORY');
 export const SETTLEMENT_REPOSITORY = Symbol('SETTLEMENT_REPOSITORY');
 export const CAVE_REPOSITORY = Symbol('CAVE_REPOSITORY');
+export const BREAKTHROUGH_REPOSITORY = Symbol('BREAKTHROUGH_REPOSITORY');
+export const ASSET_REPOSITORY = Symbol('ASSET_REPOSITORY');
 
 export type WorkerSleep = (ms: number, signal: AbortSignal) => Promise<void>;
 
@@ -362,6 +368,67 @@ export class CaveRecoveryService {
 }
 
 @Injectable()
+export class BreakthroughRecoveryService {
+  public constructor(
+    @Inject(BREAKTHROUGH_REPOSITORY) private readonly repository: BreakthroughRepository,
+    @Inject(ASSET_REPOSITORY) private readonly assetRepository: AssetRepository,
+  ) {}
+
+  public readonly continueCharacter = async (client: PoolClient, characterId: string, breakthroughRunId: string): Promise<void> => {
+    const run = await this.repository.lockActiveRun(client, characterId);
+    if (!run || run.breakthroughRunId !== breakthroughRunId) {
+      return;
+    }
+
+    const reservations = await this.assetRepository.findActiveReservationsByBusiness(client, {
+      characterId,
+      businessType: 'BREAKTHROUGH_TRIAL',
+      businessId: breakthroughRunId,
+    });
+
+    for (const reservation of reservations) {
+      await this.assetRepository.releaseOnTransaction(client, {
+        characterId,
+        reservationId: reservation.reservationId,
+        reasonCode: 'BREAKTHROUGH_RECOVER',
+        referenceType: 'BREAKTHROUGH_RUN',
+        referenceId: breakthroughRunId,
+        configVersion: run.configVersion,
+      });
+    }
+
+    const updated = await this.repository.markRecoveredOnTransaction(client, {
+      breakthroughRunId,
+      characterId,
+      recoveredAt: new Date(),
+    });
+    if (!updated) {
+      return;
+    }
+
+    const state = await client.query<{ state_version: string }>(
+      `SELECT state_version::text AS state_version
+         FROM characters
+        WHERE id = $1
+        FOR UPDATE`,
+      [characterId],
+    );
+    const row = state.rows[0];
+    if (!row) {
+      throw new Error('BREAKTHROUGH_CHARACTER_NOT_FOUND');
+    }
+    await client.query(
+      `UPDATE characters
+          SET state_version = state_version + 1,
+              updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+          AND state_version::text = $2`,
+      [characterId, row.state_version],
+    );
+  };
+}
+
+@Injectable()
 export class CaveRecoveryWorker {
   public constructor(
     private readonly repository: CaveRepository,
@@ -370,6 +437,18 @@ export class CaveRecoveryWorker {
 
   public runOnce(limit = 10): Promise<number> {
     return this.repository.runRecoveryBatch(limit, this.handler.continueCharacter);
+  }
+}
+
+@Injectable()
+export class BreakthroughRecoveryWorker {
+  public constructor(
+    private readonly repository: BreakthroughRepository,
+    private readonly service: BreakthroughRecoveryService,
+  ) {}
+
+  public runOnce(limit = 10): Promise<number> {
+    return this.repository.runRecoveryBatch(limit, this.service.continueCharacter);
   }
 }
 
@@ -387,6 +466,7 @@ export class WorkerRuntimeService implements OnApplicationBootstrap, BeforeAppli
     private readonly outboxWorker: OutboxWorker,
     private readonly settlementWorker: SettlementContinuationWorker,
     private readonly caveWorker: CaveRecoveryWorker,
+    private readonly breakthroughWorker: BreakthroughRecoveryWorker,
   ) {}
 
   public onApplicationBootstrap(): void {
@@ -424,9 +504,13 @@ export class WorkerRuntimeService implements OnApplicationBootstrap, BeforeAppli
       const claimed = await this.caveWorker.runOnce(this.options.settlementBatchLimit);
       return claimed > 0;
     });
-    this.loops = [outboxLoop, settlementLoop, caveLoop];
+    const breakthroughLoop = makeLoop('breakthrough', async () => {
+      const claimed = await this.breakthroughWorker.runOnce(this.options.settlementBatchLimit);
+      return claimed > 0;
+    });
+    this.loops = [outboxLoop, settlementLoop, caveLoop, breakthroughLoop];
 
-    this.runningPromise = Promise.all([outboxLoop.start(), settlementLoop.start(), caveLoop.start()])
+    this.runningPromise = Promise.all([outboxLoop.start(), settlementLoop.start(), caveLoop.start(), breakthroughLoop.start()])
       .then(() => undefined)
       .catch((error: unknown) => {
         this.logger.error({ error: errorMessage(error) }, 'Worker runtime loop failed.');
@@ -458,11 +542,15 @@ export function createWorkerRepositories(pool: DatabasePool): Readonly<{
   readonly outboxRepository: OutboxRepository;
   readonly settlementRepository: SettlementRepository;
   readonly caveRepository: CaveRepository;
+  readonly breakthroughRepository: BreakthroughRepository;
+  readonly assetRepository: AssetRepository;
 }> {
   return {
     outboxRepository: createOutboxRepository(pool),
     settlementRepository: createSettlementRepository(pool),
     caveRepository: createCaveRepository(pool),
+    breakthroughRepository: createBreakthroughRepository(pool),
+    assetRepository: createAssetRepository(pool),
   };
 }
 

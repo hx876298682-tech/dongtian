@@ -587,6 +587,204 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
           meta: { $ref: '#/components/schemas/ApiMeta' },
         },
       },
+      BreakthroughCharacter: {
+        type: 'object',
+        required: ['character_id', 'state_version', 'active_config_version'],
+        properties: {
+          character_id: { type: 'string', format: 'uuid' },
+          state_version: { type: 'integer' },
+          active_config_version: { type: 'string' },
+        },
+      },
+      BreakthroughRequirementPreview: {
+        type: 'object',
+        required: [
+          'asset_type',
+          'asset_id',
+          'current',
+          'total',
+          'reserved',
+          'available',
+          'required',
+          'status',
+          'shortfall',
+          'source_route_id',
+          'estimated_time_seconds',
+        ],
+        properties: {
+          asset_type: { type: 'string', enum: ['CULTIVATION_XP', 'ITEM', 'CURRENCY'] },
+          asset_id: { type: 'string' },
+          current: { type: 'string' },
+          total: { type: 'string' },
+          reserved: { type: 'string' },
+          available: { type: 'string' },
+          required: { type: 'string' },
+          status: { type: 'string', enum: ['SATISFIED', 'MISSING'] },
+          shortfall: { type: 'string' },
+          source_route_id: { type: 'string' },
+          estimated_time_seconds: { oneOf: [{ type: 'string' }, { type: 'null' }] },
+        },
+      },
+      BreakthroughPreview: {
+        type: 'object',
+        required: [
+          'breakthrough_config_id',
+          'target_realm_id',
+          'config_version',
+          'formula_version',
+          'success_rate',
+          'all_satisfied',
+          'requirements',
+          'unlock_bundle_id',
+        ],
+        properties: {
+          breakthrough_config_id: { type: 'string' },
+          target_realm_id: { type: 'string' },
+          config_version: { type: 'string' },
+          formula_version: { type: 'integer' },
+          success_rate: { type: 'string' },
+          all_satisfied: { type: 'boolean' },
+          requirements: { type: 'array', items: { $ref: '#/components/schemas/BreakthroughRequirementPreview' } },
+          unlock_bundle_id: { type: 'string' },
+        },
+      },
+      BreakthroughPreviewResponse: {
+        type: 'object',
+        required: ['character', 'breakthrough', 'config_version'],
+        properties: {
+          character: { $ref: '#/components/schemas/BreakthroughCharacter' },
+          breakthrough: { $ref: '#/components/schemas/BreakthroughPreview' },
+          config_version: { type: 'string' },
+        },
+      },
+      BreakthroughStartRequest: {
+        type: 'object',
+        required: ['expected_state_version', 'config_version'],
+        properties: {
+          expected_state_version: { oneOf: [{ type: 'integer', minimum: 0 }, { type: 'string', pattern: '^(?:0|[1-9]\\d*)$' }] },
+          config_version: { type: 'string' },
+        },
+      },
+      BreakthroughChoiceRequest: {
+        type: 'object',
+        required: ['choice_id', 'expected_run_version'],
+        properties: {
+          choice_id: { type: 'string' },
+          expected_run_version: { oneOf: [{ type: 'integer', minimum: 0 }, { type: 'string', pattern: '^(?:0|[1-9]\\d*)$' }] },
+        },
+      },
+      BreakthroughReservedAsset: {
+        type: 'object',
+        required: ['asset_type', 'asset_id', 'quantity'],
+        properties: {
+          asset_type: { type: 'string', enum: ['ITEM', 'CURRENCY'] },
+          asset_id: { type: 'string' },
+          quantity: { type: 'string' },
+        },
+      },
+      BreakthroughFinalizeResult: {
+        type: 'object',
+        required: [
+          'breakthrough_run_id',
+          'breakthrough_config_id',
+          'success_rate',
+          'unlocked_realm_id',
+          'unlock_bundle_id',
+          'queue_slots',
+          'medicine_slots',
+          'reserved_assets',
+        ],
+        properties: {
+          breakthrough_run_id: { type: 'string', format: 'uuid' },
+          breakthrough_config_id: { type: 'string' },
+          success_rate: { type: 'string' },
+          unlocked_realm_id: { type: 'string' },
+          unlock_bundle_id: { type: 'string' },
+          queue_slots: { type: 'integer' },
+          medicine_slots: { type: 'integer' },
+          reserved_assets: { type: 'array', items: { $ref: '#/components/schemas/BreakthroughReservedAsset' } },
+        },
+      },
+      BreakthroughRun: {
+        type: 'object',
+        required: [
+          'breakthrough_run_id',
+          'breakthrough_config_id',
+          'config_version',
+          'formula_version',
+          'status',
+          'run_version',
+          'current_node_id',
+          'created_at',
+          'trial_deadline_at',
+          'expires_at',
+          'selected_choice_id',
+          'selected_route_id',
+          'selected_route_risk',
+          'selected_at',
+          'finalized_at',
+          'abandoned_at',
+          'released_at',
+          'reservation_snapshot',
+          'preview_snapshot',
+          'result',
+        ],
+        properties: {
+          breakthrough_run_id: { type: 'string', format: 'uuid' },
+          breakthrough_config_id: { type: 'string' },
+          config_version: { type: 'string' },
+          formula_version: { type: 'integer' },
+          status: { type: 'string', enum: ['READY', 'TRIAL_ACTIVE', 'TRIAL_WAITING_CHOICE', 'COMPLETED', 'FAILED_RECOVERABLE', 'ABANDONED'] },
+          run_version: { type: 'integer' },
+          current_node_id: { type: 'string' },
+          created_at: { type: 'string', format: 'date-time' },
+          trial_deadline_at: { type: 'string', format: 'date-time' },
+          expires_at: { type: 'string', format: 'date-time' },
+          selected_choice_id: { oneOf: [{ type: 'string' }, { type: 'null' }] },
+          selected_route_id: { oneOf: [{ type: 'string' }, { type: 'null' }] },
+          selected_route_risk: { oneOf: [{ type: 'string', enum: ['SAFE', 'HIGH_RISK'] }, { type: 'null' }] },
+          selected_at: { oneOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }] },
+          finalized_at: { oneOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }] },
+          abandoned_at: { oneOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }] },
+          released_at: { oneOf: [{ type: 'string', format: 'date-time' }, { type: 'null' }] },
+          reservation_snapshot: { type: 'array', items: { $ref: '#/components/schemas/BreakthroughReservedAsset' } },
+          preview_snapshot: { $ref: '#/components/schemas/BreakthroughPreview' },
+          result: { oneOf: [{ $ref: '#/components/schemas/BreakthroughFinalizeResult' }, { type: 'null' }] },
+        },
+      },
+      BreakthroughRunResponse: {
+        type: 'object',
+        required: ['character', 'config_version', 'run'],
+        properties: {
+          character: { $ref: '#/components/schemas/BreakthroughCharacter' },
+          config_version: { type: 'string' },
+          run: { $ref: '#/components/schemas/BreakthroughRun' },
+        },
+      },
+      SuccessEnvelopeBreakthroughNext: {
+        type: 'object',
+        required: ['data', 'meta'],
+        properties: {
+          data: { $ref: '#/components/schemas/BreakthroughPreviewResponse' },
+          meta: { $ref: '#/components/schemas/ApiMeta' },
+        },
+      },
+      SuccessEnvelopeBreakthroughPreview: {
+        type: 'object',
+        required: ['data', 'meta'],
+        properties: {
+          data: { $ref: '#/components/schemas/BreakthroughPreviewResponse' },
+          meta: { $ref: '#/components/schemas/ApiMeta' },
+        },
+      },
+      SuccessEnvelopeBreakthroughRun: {
+        type: 'object',
+        required: ['data', 'meta'],
+        properties: {
+          data: { $ref: '#/components/schemas/BreakthroughRunResponse' },
+          meta: { $ref: '#/components/schemas/ApiMeta' },
+        },
+      },
       LoadoutPresetSaveRequest: {
         type: 'object',
         required: ['expected_state_version', 'name', 'strategy_id'],
@@ -1569,6 +1767,165 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/SuccessEnvelopeCave' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/characters/{character_id}/breakthroughs/next': {
+      get: {
+        tags: ['breakthrough'],
+        summary: '读取筑基条件与来源',
+        parameters: [{ name: 'character_id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: {
+            description: '筑基条件与来源。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SuccessEnvelopeBreakthroughNext' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/characters/{character_id}/breakthroughs/preview': {
+      post: {
+        tags: ['breakthrough'],
+        summary: '预览筑基条件与消耗',
+        parameters: [{ name: 'character_id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', additionalProperties: false },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: '筑基条件与消耗预览。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SuccessEnvelopeBreakthroughPreview' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/characters/{character_id}/breakthroughs': {
+      post: {
+        tags: ['breakthrough'],
+        summary: '创建筑基试炼',
+        parameters: [{ name: 'character_id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/BreakthroughStartRequest' },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: '筑基试炼状态。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SuccessEnvelopeBreakthroughRun' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/breakthrough-runs/{run_id}': {
+      get: {
+        tags: ['breakthrough'],
+        summary: '读取筑基试炼状态',
+        parameters: [{ name: 'run_id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: {
+            description: '筑基试炼状态。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SuccessEnvelopeBreakthroughRun' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/breakthrough-runs/{run_id}/choices': {
+      post: {
+        tags: ['breakthrough'],
+        summary: '选择筑基试炼路线',
+        parameters: [{ name: 'run_id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/BreakthroughChoiceRequest' },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: '选择后的筑基试炼状态。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SuccessEnvelopeBreakthroughRun' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/breakthrough-runs/{run_id}/finalize': {
+      post: {
+        tags: ['breakthrough'],
+        summary: '完成筑基试炼',
+        parameters: [{ name: 'run_id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', additionalProperties: false },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: '完成后的筑基试炼状态。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SuccessEnvelopeBreakthroughRun' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/v1/breakthrough-runs/{run_id}/abandon': {
+      post: {
+        tags: ['breakthrough'],
+        summary: '放弃筑基试炼',
+        parameters: [{ name: 'run_id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', additionalProperties: false },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: '放弃后的筑基试炼状态。',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/SuccessEnvelopeBreakthroughRun' },
               },
             },
           },

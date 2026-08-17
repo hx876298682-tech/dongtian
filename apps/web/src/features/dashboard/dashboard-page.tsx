@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocation, useNavigate, useOutletContext } from 'react-router';
+import { Link, useLocation, useNavigate, useOutletContext } from 'react-router';
 import * as Dialog from '@radix-ui/react-dialog';
 
 import {
@@ -621,6 +621,12 @@ export function DashboardPage(): ReactElement {
                 {authoritySnapshot.inventoryLabel}
               </strong>
             </div>
+          </div>
+
+          <div className="dashboard-hero__actions">
+            <Link className="ghost-button" to="/dashboard/cave">
+              管理设施
+            </Link>
           </div>
         </div>
       </div>

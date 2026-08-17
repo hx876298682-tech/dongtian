@@ -3,7 +3,7 @@ import { setTimeout as sleepWithAbort } from 'node:timers/promises';
 import type { Logger } from 'pino';
 
 import { type Environment } from '@dongtian/config-schema';
-import { createDatabasePool, createOutboxRepository, createSettlementRepository, createCaveRepository } from '@dongtian/database';
+import { createAssetRepository, createDatabasePool, createOutboxRepository, createSettlementRepository, createCaveRepository, createBreakthroughRepository } from '@dongtian/database';
 
 import { OutboxWorker } from './outbox-worker.js';
 import { SettlementContinuationWorker } from './settlement-continuation-worker.js';
@@ -11,6 +11,8 @@ import {
   DEFAULT_WORKER_RUNTIME_OPTIONS,
   CAVE_REPOSITORY,
   OUTBOX_EVENT_DEDUPE,
+  ASSET_REPOSITORY,
+  BREAKTHROUGH_REPOSITORY,
   OUTBOX_REPOSITORY,
   SETTLEMENT_REPOSITORY,
   WORKER_DATABASE_POOL,
@@ -21,6 +23,8 @@ import {
   type WorkerSleep,
   CaveRecoveryService,
   CaveRecoveryWorker,
+  BreakthroughRecoveryService,
+  BreakthroughRecoveryWorker,
   SettlementContinuationService,
   WorkerRuntimeService,
   createOutboxDedupe,
@@ -69,6 +73,11 @@ export class WorkerModule {
         inject: [WORKER_DATABASE_POOL],
       },
       {
+        provide: ASSET_REPOSITORY,
+        useFactory: (pool: ReturnType<typeof createDatabasePool>) => createAssetRepository(pool),
+        inject: [WORKER_DATABASE_POOL],
+      },
+      {
         provide: SETTLEMENT_REPOSITORY,
         useFactory: (pool: ReturnType<typeof createDatabasePool>) => createSettlementRepository(pool),
         inject: [WORKER_DATABASE_POOL],
@@ -78,8 +87,14 @@ export class WorkerModule {
         useFactory: (pool: ReturnType<typeof createDatabasePool>) => createCaveRepository(pool),
         inject: [WORKER_DATABASE_POOL],
       },
+      {
+        provide: BREAKTHROUGH_REPOSITORY,
+        useFactory: (pool: ReturnType<typeof createDatabasePool>) => createBreakthroughRepository(pool),
+        inject: [WORKER_DATABASE_POOL],
+      },
       SettlementContinuationService,
       CaveRecoveryService,
+      BreakthroughRecoveryService,
       {
         provide: OUTBOX_EVENT_DEDUPE,
         useFactory: (repository: ReturnType<typeof createOutboxRepository>) => createOutboxDedupe(repository),
@@ -109,6 +124,14 @@ export class WorkerModule {
           service: CaveRecoveryService,
         ) => new CaveRecoveryWorker(repository, service),
         inject: [CAVE_REPOSITORY, CaveRecoveryService],
+      },
+      {
+        provide: BreakthroughRecoveryWorker,
+        useFactory: (
+          repository: ReturnType<typeof createBreakthroughRepository>,
+          service: BreakthroughRecoveryService,
+        ) => new BreakthroughRecoveryWorker(repository, service),
+        inject: [BREAKTHROUGH_REPOSITORY, BreakthroughRecoveryService],
       },
       WorkerRuntimeService,
     ];

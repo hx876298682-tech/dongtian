@@ -123,6 +123,9 @@ describe('WorkerRuntimeService', () => {
     const caveWorker = {
       runOnce: vi.fn(async () => 0),
     };
+    const breakthroughWorker = {
+      runOnce: vi.fn(async () => 0),
+    };
     const service = new WorkerRuntimeService(
       pool,
       logger,
@@ -131,6 +134,7 @@ describe('WorkerRuntimeService', () => {
       outboxWorker as never,
       settlementWorker as never,
       caveWorker as never,
+      breakthroughWorker as never,
     );
     const startSpy = vi.spyOn(service, 'start').mockResolvedValue(undefined);
     const stopSpy = vi.spyOn(service, 'stop').mockResolvedValue(undefined);
@@ -169,6 +173,9 @@ describe('WorkerRuntimeService', () => {
     const caveWorker = {
       runOnce: vi.fn(async () => 0),
     };
+    const breakthroughWorker = {
+      runOnce: vi.fn(async () => 0),
+    };
     const pool = {
       end: vi.fn(async () => undefined),
     } as unknown as DatabasePool;
@@ -193,10 +200,11 @@ describe('WorkerRuntimeService', () => {
       outboxWorker as never,
       settlementWorker as never,
       caveWorker as never,
+      breakthroughWorker as never,
     );
 
     const started = service.start();
-    await waitFor(() => outboxWorker.runOnce.mock.calls.length === 1 && settlementWorker.runOnce.mock.calls.length === 1);
+    await waitFor(() => outboxWorker.runOnce.mock.calls.length === 1 && settlementWorker.runOnce.mock.calls.length === 1 && breakthroughWorker.runOnce.mock.calls.length === 1);
 
     const stopping = service.stop();
     sleeps.forEach((deferred) => deferred.resolve());
@@ -209,6 +217,7 @@ describe('WorkerRuntimeService', () => {
     });
     expect(settlementWorker.runOnce).toHaveBeenCalledWith(options.settlementBatchLimit);
     expect(caveWorker.runOnce).toHaveBeenCalledWith(options.settlementBatchLimit);
+    expect(breakthroughWorker.runOnce).toHaveBeenCalledWith(options.settlementBatchLimit);
     expect(pool.end).toHaveBeenCalledTimes(1);
   });
 });

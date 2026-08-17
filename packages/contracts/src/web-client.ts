@@ -294,6 +294,91 @@ export interface TemperingAttemptResponse {
   readonly config_version: string;
 }
 
+export interface CaveCostItem {
+  readonly itemId: string;
+  readonly quantity: string;
+}
+
+export interface CaveModifierSnapshot {
+  readonly stat: string;
+  readonly operation: 'ADD' | 'MULTIPLY';
+  readonly value: string;
+}
+
+export interface CaveLevelRule {
+  readonly level: number;
+  readonly required_realm_group: 'MORTAL' | 'QI' | 'FOUNDATION';
+  readonly spirit_stone_cost: string;
+  readonly material_costs: ReadonlyArray<CaveCostItem>;
+  readonly build_duration_us: string;
+  readonly modifier: CaveModifierSnapshot;
+  readonly scope: 'MVP' | 'MVP_ENDGAME';
+}
+
+export interface CaveBuildTaskCostSnapshot {
+  readonly facility_config_id: string;
+  readonly facility_kind: 'JULING_ROOM' | 'ALCHEMY_ROOM' | 'FORGING_ROOM';
+  readonly name_key: string;
+  readonly description_key: string;
+  readonly level: number;
+  readonly required_realm_group: 'MORTAL' | 'QI' | 'FOUNDATION';
+  readonly spirit_stone_cost: string;
+  readonly material_costs: ReadonlyArray<CaveCostItem>;
+  readonly build_duration_us: string;
+  readonly modifier: CaveModifierSnapshot;
+  readonly scope: 'MVP' | 'MVP_ENDGAME';
+}
+
+export interface CaveBuildTask {
+  readonly build_task_id: string;
+  readonly facility_config_id: string;
+  readonly from_level: number;
+  readonly target_level: number;
+  readonly started_at: string;
+  readonly projected_completion_at: string;
+  readonly completed_at: string | null;
+  readonly status: 'RUNNING' | 'COMPLETED' | string;
+  readonly cost_snapshot: CaveBuildTaskCostSnapshot;
+  readonly completion_reached: boolean;
+  readonly completion_boundary: {
+    readonly currentCycleApplies: boolean;
+    readonly nextCycleApplies: boolean;
+  };
+}
+
+export interface CaveFacility {
+  readonly facility_config_id: string;
+  readonly facility_kind: 'JULING_ROOM' | 'ALCHEMY_ROOM' | 'FORGING_ROOM';
+  readonly name_key: string;
+  readonly description_key: string;
+  readonly level: number;
+  readonly current_modifier: CaveModifierSnapshot | null;
+  readonly next_level_rule: CaveLevelRule | null;
+  readonly build_task: CaveBuildTask | null;
+}
+
+export interface CaveCharacter {
+  readonly character_id: string;
+  readonly state_version: number;
+  readonly active_config_version: string;
+}
+
+export interface CaveResponse {
+  readonly character: CaveCharacter;
+  readonly cave: {
+    readonly as_of: string;
+    readonly config_version: string;
+    readonly facilities: ReadonlyArray<CaveFacility>;
+  };
+}
+
+export interface CaveBuildRequest {
+  readonly facility_id: string;
+  readonly target_level: number;
+  readonly expected_state_version: number | string;
+  readonly config_version: string;
+}
+
 export interface InventoryAsset {
   readonly asset_type: 'ITEM' | 'CURRENCY';
   readonly asset_id: string;
@@ -665,6 +750,8 @@ export interface ApiClient {
     idempotencyKey: string,
   ) => Promise<SkillToolAssignmentsResponse>;
   readonly getLatestSettlement: (characterId: string) => Promise<LatestSettlementResponse>;
+  readonly getCave: (characterId: string) => Promise<CaveResponse>;
+  readonly buildCaveFacility: (characterId: string, request: CaveBuildRequest, idempotencyKey: string) => Promise<CaveResponse>;
   readonly getDungeonOpportunities: (characterId: string) => Promise<DungeonOpportunityResponse>;
   readonly claimDungeonTeachingGrant: (characterId: string, idempotencyKey: string) => Promise<DungeonOpportunityResponse>;
   readonly previewDungeon: (dungeonId: string, request: DungeonPreviewRequest) => Promise<DungeonPreviewResponse>;
@@ -993,6 +1080,26 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
         csrfToken,
         `/api/v1/characters/${characterId}/settlements/latest`,
         { method: 'GET' },
+      );
+      return response.data;
+    },
+    async getCave(characterId: string): Promise<CaveResponse> {
+      const response = await requestJson<ApiEnvelope<CaveResponse>>(baseUrl, fetchImpl, csrfToken, `/api/v1/characters/${characterId}/cave`, {
+        method: 'GET',
+      });
+      return response.data;
+    },
+    async buildCaveFacility(characterId: string, request: CaveBuildRequest, idempotencyKey: string): Promise<CaveResponse> {
+      const response = await requestJson<ApiEnvelope<CaveResponse>>(
+        baseUrl,
+        fetchImpl,
+        csrfToken,
+        `/api/v1/characters/${characterId}/cave/builds`,
+        {
+          method: 'POST',
+          headers: { 'idempotency-key': idempotencyKey },
+          body: JSON.stringify(request),
+        },
       );
       return response.data;
     },

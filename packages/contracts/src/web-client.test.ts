@@ -319,6 +319,117 @@ describe('createApiClient', () => {
     });
   });
 
+  it('reads and writes cave builds with the real wire contract', async () => {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      const headers = new Headers(init?.headers);
+
+      if (url.endsWith('/api/v1/characters/character-1/cave/builds')) {
+        expect(headers.get('idempotency-key')).toBe('cave-key-1');
+        expect(headers.get('x-csrf-token')).toBe('csrf-token');
+        expect(JSON.parse(String(init?.body))).toMatchObject({
+          facility_id: 'cave_facility.juling_room',
+          target_level: 2,
+          expected_state_version: 12,
+          config_version: '2026.08.16.1',
+        });
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        async json() {
+          return {
+            data: {
+              character: {
+                character_id: 'character-1',
+                state_version: 13,
+                active_config_version: '2026.08.16.1',
+              },
+              cave: {
+                as_of: '2026-08-16T00:00:00.000Z',
+                config_version: '2026.08.16.1',
+                facilities: [
+                  {
+                    facility_config_id: 'cave_facility.juling_room',
+                    facility_kind: 'JULING_ROOM',
+                    name_key: 'cave.facility.juling_room.name',
+                    description_key: 'cave.facility.juling_room.description',
+                    level: 1,
+                    current_modifier: null,
+                    next_level_rule: {
+                      level: 2,
+                      required_realm_group: 'QI',
+                      spirit_stone_cost: '200',
+                      material_costs: [{ itemId: 'item.t1.cave_stone', quantity: '3' }],
+                      build_duration_us: '3600000000',
+                      modifier: { stat: 'cultivation_xp', operation: 'MULTIPLY', value: '1.05' },
+                      scope: 'MVP',
+                    },
+                    build_task: {
+                      build_task_id: 'task-1',
+                      facility_config_id: 'cave_facility.juling_room',
+                      from_level: 1,
+                      target_level: 2,
+                      started_at: '2026-08-16T00:00:00.000Z',
+                      projected_completion_at: '2026-08-16T01:00:00.000Z',
+                      completed_at: null,
+                      status: 'RUNNING',
+                      cost_snapshot: {
+                        facility_config_id: 'cave_facility.juling_room',
+                        facility_kind: 'JULING_ROOM',
+                        name_key: 'cave.facility.juling_room.name',
+                        description_key: 'cave.facility.juling_room.description',
+                        level: 2,
+                        required_realm_group: 'QI',
+                        spirit_stone_cost: '200',
+                        material_costs: [{ itemId: 'item.t1.cave_stone', quantity: '3' }],
+                        build_duration_us: '3600000000',
+                        modifier: { stat: 'cultivation_xp', operation: 'MULTIPLY', value: '1.05' },
+                        scope: 'MVP',
+                      },
+                      completion_reached: false,
+                      completion_boundary: { currentCycleApplies: true, nextCycleApplies: false },
+                    },
+                  },
+                ],
+              },
+            },
+            meta: { request_id: 'req-cave', server_time: '2026-08-16T00:00:00.000Z' },
+          };
+        },
+        async text() {
+          return '';
+        },
+      } as Response;
+    });
+
+    const client = createApiClient({ baseUrl: 'https://example.test', fetchImpl: fetchImpl as typeof fetch });
+    client.setCsrfToken('csrf-token');
+
+    await expect(client.getCave('character-1')).resolves.toMatchObject({
+      character: { character_id: 'character-1', state_version: 13 },
+      cave: { facilities: [expect.objectContaining({ facility_config_id: 'cave_facility.juling_room' })] },
+    });
+
+    await expect(
+      client.buildCaveFacility(
+        'character-1',
+        {
+          facility_id: 'cave_facility.juling_room',
+          target_level: 2,
+          expected_state_version: 12,
+          config_version: '2026.08.16.1',
+        },
+        'cave-key-1',
+      ),
+    ).resolves.toMatchObject({
+      character: { state_version: 13 },
+      cave: { as_of: '2026-08-16T00:00:00.000Z' },
+    });
+  });
+
   it('reads and writes loadout presets with idempotency and csrf headers', async () => {
     const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       const headers = new Headers(init?.headers);

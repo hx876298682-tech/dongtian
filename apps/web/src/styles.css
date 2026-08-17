@@ -1186,6 +1186,12 @@ select {
   gap: 10px;
 }
 
+.dashboard-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .dashboard-editor__status {
   display: grid;
   gap: 4px;
@@ -1451,6 +1457,205 @@ select {
   border: 1px solid var(--line);
 }
 
+.cave-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.cave-panel {
+  padding: 20px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.92));
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 14px;
+}
+
+.cave-panel--hero {
+  grid-column: span 2;
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 30%),
+    radial-gradient(circle at left bottom, rgba(59, 130, 246, 0.08), transparent 24%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.94));
+}
+
+.cave-hero {
+  display: grid;
+  gap: 16px;
+}
+
+.cave-hero__header {
+  display: grid;
+  gap: 8px;
+}
+
+.cave-hero__eyebrow {
+  margin: 0;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cave-hero__title,
+.cave-panel__title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.cave-hero__copy,
+.cave-panel__meta,
+.cave-detail__lines,
+.cave-gap p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.cave-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cave-panel__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.cave-panel__meta {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.cave-facility-list {
+  display: grid;
+  gap: 12px;
+}
+
+.cave-facility {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: rgba(15, 23, 42, 0.84);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.cave-facility:hover {
+  transform: translateY(-1px);
+}
+
+.cave-facility--active {
+  border-color: rgba(47, 111, 95, 0.3);
+  box-shadow: 0 18px 48px rgba(47, 111, 95, 0.12);
+}
+
+.cave-facility__title {
+  font-size: 16px;
+}
+
+.cave-facility__copy {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cave-detail {
+  display: grid;
+  gap: 14px;
+}
+
+.cave-detail__lines {
+  display: grid;
+  gap: 4px;
+}
+
+.cave-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cave-gap-list {
+  display: grid;
+  gap: 10px;
+}
+
+.cave-gap {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(15, 23, 42, 0.82);
+}
+
+.cave-gap strong {
+  font-size: 14px;
+}
+
+.cave-dialog__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.58);
+  backdrop-filter: blur(6px);
+}
+
+.cave-dialog__content {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: min(560px, calc(100vw - 32px));
+  transform: translate(-50%, -50%);
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 30%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.94));
+  box-shadow: var(--shadow);
+}
+
+.cave-dialog__title {
+  margin: 0;
+  font-size: 22px;
+}
+
+.cave-dialog__description,
+.cave-dialog__facts {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.cave-dialog__facts {
+  display: grid;
+  gap: 4px;
+}
+
+.cave-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .dashboard-preview__muted {
   color: var(--muted);
   font-size: 13px;
@@ -1550,6 +1755,14 @@ select {
     grid-column: span 2;
   }
 
+  .cave-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cave-panel--hero {
+    grid-column: span 2;
+  }
+
   .expedition-layout {
     grid-template-columns: 1fr;
   }
@@ -1621,6 +1834,14 @@ select {
   }
 
   .equipment-panel--hero {
+    grid-column: auto;
+  }
+
+  .cave-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cave-panel--hero {
     grid-column: auto;
   }
 

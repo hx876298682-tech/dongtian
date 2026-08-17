@@ -44,6 +44,7 @@ export * from './equipment.js';
 export * from './tempering.js';
 export * from './skill-tool-assignments.js';
 export * from './dungeon.js';
+export * from './breakthrough.js';
 export * from './idempotency.js';
 export * from './outbox.js';
 export * from './queue.js';

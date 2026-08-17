@@ -465,7 +465,7 @@ export function renderPlan(plan: OpsPlan): string {
   plan.steps.forEach((step, index) => {
     lines.push(`${index + 1}. [${step.risk}] ${step.title}`);
     lines.push(`   ${step.purpose}`);
-    lines.push(`   ${step.command}`);
+    lines.push(`   ${step.command.replace(/\b(postgres(?:ql)?:\/\/)([^@\s'"]+)@/gu, '$1***@')}`);
   });
   return `${lines.join('\n')}\n`;
 }

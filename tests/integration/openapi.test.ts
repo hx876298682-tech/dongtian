@@ -22,6 +22,13 @@ describe('generated OpenAPI contract', () => {
     expect(openApiDocument.paths['/api/v1/characters/{character_id}/queue/preview']).toBeDefined();
     expect(openApiDocument.paths['/api/v1/characters/{character_id}/queue/pause']).toBeDefined();
     expect(openApiDocument.paths['/api/v1/characters/{character_id}/queue/resume']).toBeDefined();
+    expect(openApiDocument.paths['/api/v1/characters/{character_id}/breakthroughs/next']).toBeDefined();
+    expect(openApiDocument.paths['/api/v1/characters/{character_id}/breakthroughs/preview']).toBeDefined();
+    expect(openApiDocument.paths['/api/v1/characters/{character_id}/breakthroughs']).toBeDefined();
+    expect(openApiDocument.paths['/api/v1/breakthrough-runs/{run_id}']).toBeDefined();
+    expect(openApiDocument.paths['/api/v1/breakthrough-runs/{run_id}/choices']).toBeDefined();
+    expect(openApiDocument.paths['/api/v1/breakthrough-runs/{run_id}/finalize']).toBeDefined();
+    expect(openApiDocument.paths['/api/v1/breakthrough-runs/{run_id}/abandon']).toBeDefined();
     const progressionPath = openApiDocument.paths['/api/v1/characters/{character_id}/progression'];
     expect(progressionPath).toBeDefined();
     expect(progressionPath?.get).toBeDefined();
@@ -32,6 +39,10 @@ describe('generated OpenAPI contract', () => {
     expect(openApiDocument.components?.schemas?.LatestSettlementSummary).toBeDefined();
     expect(openApiDocument.components?.schemas?.LatestSettlementResponse).toBeDefined();
     expect(openApiDocument.components?.schemas?.SuccessEnvelopeSettlementSummary).toBeDefined();
+    expect(openApiDocument.components?.schemas?.BreakthroughPreview).toBeDefined();
+    expect(openApiDocument.components?.schemas?.BreakthroughRun).toBeDefined();
+    expect(openApiDocument.components?.schemas?.BreakthroughRunResponse).toBeDefined();
+    expect(openApiDocument.components?.schemas?.SuccessEnvelopeBreakthroughRun).toBeDefined();
     expect(openApiDocument.components?.schemas?.SuccessEnvelopeActions).toBeDefined();
     expect(openApiDocument.components?.schemas?.SuccessEnvelopeRecipes).toBeDefined();
     expect(openApiDocument.components?.schemas?.ApiMeta).toMatchObject({

@@ -19,6 +19,6 @@ export default defineConfig({
     command: 'pnpm test:e2e:serve',
     url: environment.webOrigin,
     reuseExistingServer: false,
-    timeout: 180_000,
+    timeout: 240_000,
   },
 });

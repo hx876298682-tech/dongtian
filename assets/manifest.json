@@ -1,0 +1,400 @@
+{
+  "manifest_version": "2026.08.16.1",
+  "config_version": "2026.08.16.1",
+  "locale": "zh-CN",
+  "localization_path": "localization/zh-CN.json",
+  "entries": [
+    {
+      "content_id": "region.t1.qingyun_foothill",
+      "kind": "region_background",
+      "scope": "P0",
+      "name_key": "region.qingyun_foothill.name",
+      "description_key": "region.qingyun_foothill.desc",
+      "resource": {
+        "relative_path": "p0/regions/region_t1_qingyun_foothill_bg_1920.svg",
+        "file_name": "region_t1_qingyun_foothill_bg_1920.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 1920,
+        "height": 1080,
+        "placeholder": true,
+        "placeholder_reason": "正式区域背景未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "region.t1.mist_slope",
+      "kind": "region_background",
+      "scope": "P0",
+      "name_key": "region.mist_slope.name",
+      "description_key": "region.mist_slope.desc",
+      "resource": {
+        "relative_path": "p0/regions/region_t1_mist_slope_bg_1920.svg",
+        "file_name": "region_t1_mist_slope_bg_1920.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 1920,
+        "height": 1080,
+        "placeholder": true,
+        "placeholder_reason": "正式区域背景未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "region.t1.spirit_spring",
+      "kind": "region_background",
+      "scope": "P0",
+      "name_key": "region.spirit_spring.name",
+      "description_key": "region.spirit_spring.desc",
+      "resource": {
+        "relative_path": "p0/regions/region_t1_spirit_spring_bg_1920.svg",
+        "file_name": "region_t1_spirit_spring_bg_1920.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 1920,
+        "height": 1080,
+        "placeholder": true,
+        "placeholder_reason": "正式区域背景未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "region.t1.blackstone_pass",
+      "kind": "region_background",
+      "scope": "P0",
+      "name_key": "region.blackstone_pass.name",
+      "description_key": "region.blackstone_pass.desc",
+      "resource": {
+        "relative_path": "p0/regions/region_t1_blackstone_pass_bg_1920.svg",
+        "file_name": "region_t1_blackstone_pass_bg_1920.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 1920,
+        "height": 1080,
+        "placeholder": true,
+        "placeholder_reason": "正式区域背景未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "region.t2.starfall_mine",
+      "kind": "region_background",
+      "scope": "P0",
+      "name_key": "region.starfall_mine.name",
+      "description_key": "region.starfall_mine.desc",
+      "resource": {
+        "relative_path": "p0/regions/region_t2_starfall_mine_bg_1920.svg",
+        "file_name": "region_t2_starfall_mine_bg_1920.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 1920,
+        "height": 1080,
+        "placeholder": true,
+        "placeholder_reason": "正式区域背景未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "region.t2.blackwind_valley",
+      "kind": "region_background",
+      "scope": "P0",
+      "name_key": "region.blackwind_valley.name",
+      "description_key": "region.blackwind_valley.desc",
+      "resource": {
+        "relative_path": "p0/regions/region_t2_blackwind_valley_bg_1920.svg",
+        "file_name": "region_t2_blackwind_valley_bg_1920.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 1920,
+        "height": 1080,
+        "placeholder": true,
+        "placeholder_reason": "正式区域背景未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "item.t1.mubing_yaochu",
+      "kind": "equipment_icon",
+      "scope": "P0",
+      "name_key": "item.mubing_yaochu.name",
+      "description_key": "item.mubing_yaochu.desc",
+      "resource": {
+        "relative_path": "p0/items/item_t1_mubing_yaochu_icon_128.svg",
+        "file_name": "item_t1_mubing_yaochu_icon_128.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 128,
+        "height": 128,
+        "placeholder": true,
+        "placeholder_reason": "正式工具图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "item.t1.qingtong_yaochu",
+      "kind": "equipment_icon",
+      "scope": "P0",
+      "name_key": "item.qingtong_yaochu.name",
+      "description_key": "item.qingtong_yaochu.desc",
+      "resource": {
+        "relative_path": "p0/items/item_t1_qingtong_yaochu_icon_128.svg",
+        "file_name": "item_t1_qingtong_yaochu_icon_128.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 128,
+        "height": 128,
+        "placeholder": true,
+        "placeholder_reason": "正式工具图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "item.t1.cuizhi_jian",
+      "kind": "equipment_icon",
+      "scope": "P0",
+      "name_key": "item.cuizhi_jian.name",
+      "description_key": "item.cuizhi_jian.desc",
+      "resource": {
+        "relative_path": "p0/items/item_t1_cuizhi_jian_icon_128.svg",
+        "file_name": "item_t1_cuizhi_jian_icon_128.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 128,
+        "height": 128,
+        "placeholder": true,
+        "placeholder_reason": "正式装备图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "item.t1.qingtong_jian",
+      "kind": "equipment_icon",
+      "scope": "P0",
+      "name_key": "item.qingtong_jian.name",
+      "description_key": "item.qingtong_jian.desc",
+      "resource": {
+        "relative_path": "p0/items/item_t1_qingtong_jian_icon_128.svg",
+        "file_name": "item_t1_qingtong_jian_icon_128.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 128,
+        "height": 128,
+        "placeholder": true,
+        "placeholder_reason": "正式装备图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "item.t1.qingling_herb",
+      "kind": "material_icon",
+      "scope": "P0",
+      "name_key": "item.qingling_herb.name",
+      "description_key": "item.qingling_herb.desc",
+      "resource": {
+        "relative_path": "p0/items/item_t1_qingling_herb_icon_128.svg",
+        "file_name": "item_t1_qingling_herb_icon_128.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 128,
+        "height": 128,
+        "placeholder": true,
+        "placeholder_reason": "正式材料图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "item.t1.xuantie_kuang",
+      "kind": "material_icon",
+      "scope": "P0",
+      "name_key": "item.xuantie_kuang.name",
+      "description_key": "item.xuantie_kuang.desc",
+      "resource": {
+        "relative_path": "p0/items/item_t1_xuantie_kuang_icon_128.svg",
+        "file_name": "item_t1_xuantie_kuang_icon_128.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 128,
+        "height": 128,
+        "placeholder": true,
+        "placeholder_reason": "正式材料图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "buff.t1.qi_gathering_powder",
+      "kind": "status_icon",
+      "scope": "P0",
+      "name_key": "buff.qi_gathering_powder.name",
+      "description_key": "buff.qi_gathering_powder.desc",
+      "resource": {
+        "relative_path": "p0/status/buff_t1_qi_gathering_powder_icon_64.svg",
+        "file_name": "buff_t1_qi_gathering_powder_icon_64.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 64,
+        "height": 64,
+        "placeholder": true,
+        "placeholder_reason": "正式状态图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "buff.t1.qi_gathering_pill",
+      "kind": "status_icon",
+      "scope": "P0",
+      "name_key": "buff.qi_gathering_pill.name",
+      "description_key": "buff.qi_gathering_pill.desc",
+      "resource": {
+        "relative_path": "p0/status/buff_t1_qi_gathering_pill_icon_64.svg",
+        "file_name": "buff_t1_qi_gathering_pill_icon_64.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 64,
+        "height": 64,
+        "placeholder": true,
+        "placeholder_reason": "正式状态图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "buff.t1.recovery_pill",
+      "kind": "status_icon",
+      "scope": "P0",
+      "name_key": "buff.recovery_pill.name",
+      "description_key": "buff.recovery_pill.desc",
+      "resource": {
+        "relative_path": "p0/status/buff_t1_recovery_pill_icon_64.svg",
+        "file_name": "buff_t1_recovery_pill_icon_64.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 64,
+        "height": 64,
+        "placeholder": true,
+        "placeholder_reason": "正式状态图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "buff.t1.mind_pill",
+      "kind": "status_icon",
+      "scope": "P0",
+      "name_key": "buff.mind_pill.name",
+      "description_key": "buff.mind_pill.desc",
+      "resource": {
+        "relative_path": "p0/status/buff_t1_mind_pill_icon_64.svg",
+        "file_name": "buff_t1_mind_pill_icon_64.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 64,
+        "height": 64,
+        "placeholder": true,
+        "placeholder_reason": "正式状态图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "buff.t1.gathering_pill",
+      "kind": "status_icon",
+      "scope": "P0",
+      "name_key": "buff.gathering_pill.name",
+      "description_key": "buff.gathering_pill.desc",
+      "resource": {
+        "relative_path": "p0/status/buff_t1_gathering_pill_icon_64.svg",
+        "file_name": "buff_t1_gathering_pill_icon_64.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 64,
+        "height": 64,
+        "placeholder": true,
+        "placeholder_reason": "正式状态图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "buff.t1.body_pill",
+      "kind": "status_icon",
+      "scope": "P0",
+      "name_key": "buff.body_pill.name",
+      "description_key": "buff.body_pill.desc",
+      "resource": {
+        "relative_path": "p0/status/buff_t1_body_pill_icon_64.svg",
+        "file_name": "buff_t1_body_pill_icon_64.svg",
+        "media_type": "image",
+        "format": "svg",
+        "width": 64,
+        "height": 64,
+        "placeholder": true,
+        "placeholder_reason": "正式状态图标未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "audio.base.home_loop",
+      "kind": "base_audio",
+      "scope": "P0",
+      "name_key": "audio.home_loop.name",
+      "description_key": "audio.home_loop.desc",
+      "resource": {
+        "relative_path": "p0/audio/music_home_loop_v01.wav",
+        "file_name": "music_home_loop_v01.wav",
+        "media_type": "audio",
+        "format": "wav",
+        "duration_ms": 90000,
+        "placeholder": true,
+        "placeholder_reason": "正式首页循环音乐未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "audio.base.dungeon_battle",
+      "kind": "base_audio",
+      "scope": "P0",
+      "name_key": "audio.dungeon_battle.name",
+      "description_key": "audio.dungeon_battle.desc",
+      "resource": {
+        "relative_path": "p0/audio/music_dungeon_battle_v01.wav",
+        "file_name": "music_dungeon_battle_v01.wav",
+        "media_type": "audio",
+        "format": "wav",
+        "duration_ms": 90000,
+        "placeholder": true,
+        "placeholder_reason": "正式秘境战斗音乐未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "audio.base.breakthrough_short",
+      "kind": "base_audio",
+      "scope": "P0",
+      "name_key": "audio.breakthrough_short.name",
+      "description_key": "audio.breakthrough_short.desc",
+      "resource": {
+        "relative_path": "p0/audio/sfx_breakthrough_short_v01.wav",
+        "file_name": "sfx_breakthrough_short_v01.wav",
+        "media_type": "audio",
+        "format": "wav",
+        "duration_ms": 12000,
+        "placeholder": true,
+        "placeholder_reason": "正式突破短音效未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    },
+    {
+      "content_id": "audio.base.ui_feedback_pack",
+      "kind": "base_audio",
+      "scope": "P0",
+      "name_key": "audio.ui_feedback_pack.name",
+      "description_key": "audio.ui_feedback_pack.desc",
+      "resource": {
+        "relative_path": "p0/audio/sfx_ui_feedback_pack_v01.wav",
+        "file_name": "sfx_ui_feedback_pack_v01.wav",
+        "media_type": "audio",
+        "format": "wav",
+        "duration_ms": 15000,
+        "placeholder": true,
+        "placeholder_reason": "正式 UI 音效包未接入，仅作开发降级样例。",
+        "copyright_source": "internal-placeholder"
+      }
+    }
+  ]
+}

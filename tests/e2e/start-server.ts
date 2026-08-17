@@ -1,7 +1,15 @@
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 
 import { loadE2EEnvironment } from './e2e-env.js';
+import {
+  applyPg16Uuidv7Shim,
+  buildE2EDatabaseResetMessage,
+  assertE2EDatabaseCompatibility,
+  inspectE2EDatabaseVersion,
+  resetE2EDatabase,
+  validateE2ETestDatabaseUrl,
+} from './e2e-database.js';
 
 function runStep(command: string, args: readonly string[], env: NodeJS.ProcessEnv): void {
   const result = spawnSync(command, args, {
@@ -50,19 +58,21 @@ function spawnService(command: string, args: readonly string[], env: NodeJS.Proc
     stdio: 'inherit',
   });
 
-  child.on('exit', (code, signal) => {
-    if (signal !== null) {
-      console.error(`${name} exited unexpectedly with signal ${signal}.`);
-      process.exit(1);
-    }
-
-    if (code !== null && code !== 0) {
-      console.error(`${name} exited unexpectedly with code ${code}.`);
-      process.exit(code);
-    }
-  });
-
   return child;
+}
+
+async function waitForProcessExit(child: ChildProcess, timeoutMs: number): Promise<void> {
+  await new Promise<void>((resolve) => {
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL');
+      resolve();
+    }, timeoutMs);
+    timeout.unref();
+    child.once('exit', () => {
+      clearTimeout(timeout);
+      resolve();
+    });
+  });
 }
 
 async function main(): Promise<void> {
@@ -82,35 +92,104 @@ async function main(): Promise<void> {
     WEB_ORIGIN: environment.webOrigin,
   };
 
-  assertDockerComposeAvailable();
-  runStep('pnpm', ['infra:up'], baseEnv);
+  if (environment.databaseMode === 'docker') {
+    assertDockerComposeAvailable();
+    runStep('pnpm', ['infra:up'], baseEnv);
+  }
+
+  const target = validateE2ETestDatabaseUrl(
+    environment.testDatabaseUrl,
+    environment.databaseMode,
+    environment.databaseWipeAllowlist,
+  );
+  const versionNum = await inspectE2EDatabaseVersion(environment.testDatabaseUrl);
+  const compatibility = assertE2EDatabaseCompatibility(
+    versionNum,
+    environment.allowPg16Uuidv7Shim,
+    target.hostname,
+  );
+
+  const database = await resetE2EDatabase(
+    environment.testDatabaseUrl,
+    environment.databaseMode,
+    environment.databaseWipeAllowlist,
+  );
+  console.log(buildE2EDatabaseResetMessage(database));
+
+  if (compatibility === 'postgres16-shim') {
+    await applyPg16Uuidv7Shim(environment.testDatabaseUrl);
+  }
+
+  console.log(`E2E database version ${versionNum} is ready.`);
+
   runStep('pnpm', ['db:migrate'], baseEnv);
   runStep('pnpm', ['db:seed'], baseEnv);
 
-  const api = spawnService('pnpm', ['--filter', '@dongtian/api', 'dev'], baseEnv, 'API');
-  await waitForUrl(`${environment.apiOrigin}/api/v1/health/live`, 'API health');
+  const children = new Set<ChildProcess>();
+  const trackChild = (child: ChildProcess): ChildProcess => {
+    children.add(child);
+    child.once('exit', () => {
+      children.delete(child);
+    });
+    return child;
+  };
 
-  const web = spawnService(
-    'pnpm',
-    ['--filter', '@dongtian/web', 'dev', '--', '--host', environment.apiHost, '--port', String(environment.webPort), '--strictPort'],
-    baseEnv,
-    'Web',
-  );
-  await waitForUrl(environment.webOrigin, 'web app');
+  const stopChildren = async (signal: NodeJS.Signals | 'SIGKILL' = 'SIGTERM'): Promise<void> => {
+    for (const child of children) {
+      child.kill(signal);
+    }
+
+    await Promise.all(Array.from(children, async (child) => {
+      await waitForProcessExit(child, 5_000);
+    }));
+  };
 
   let shuttingDown = false;
-  const shutdown = () => {
+  const shutdown = async (exitCode: number): Promise<void> => {
     if (shuttingDown) {
       return;
     }
     shuttingDown = true;
-    api.kill('SIGTERM');
-    web.kill('SIGTERM');
-    process.exit(0);
+    await stopChildren();
+    process.exit(exitCode);
   };
 
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
+  const api = trackChild(spawnService('pnpm', ['--filter', '@dongtian/api', 'dev'], baseEnv, 'API'));
+  api.once('exit', (code, signal) => {
+    if (!shuttingDown && (code !== 0 || signal !== null)) {
+      console.error(`API exited unexpectedly with code ${code ?? 'unknown'}${signal ? ` and signal ${signal}` : ''}.`);
+      void shutdown(1);
+    }
+  });
+  await waitForUrl(`${environment.apiOrigin}/api/v1/health/live`, 'API health');
+
+  const web = trackChild(
+    spawnService(
+      'pnpm',
+      ['--filter', '@dongtian/web', 'dev', '--', '--host', environment.apiHost, '--port', String(environment.webPort), '--strictPort'],
+      baseEnv,
+      'Web',
+    ),
+  );
+  web.once('exit', (code, signal) => {
+    if (!shuttingDown && (code !== 0 || signal !== null)) {
+      console.error(`Web exited unexpectedly with code ${code ?? 'unknown'}${signal ? ` and signal ${signal}` : ''}.`);
+      void shutdown(1);
+    }
+  });
+  await waitForUrl(environment.webOrigin, 'web app');
+
+  process.on('SIGINT', () => {
+    void shutdown(0);
+  });
+  process.on('SIGTERM', () => {
+    void shutdown(0);
+  });
+  process.on('exit', () => {
+    for (const child of children) {
+      child.kill('SIGTERM');
+    }
+  });
 
   await new Promise<void>(() => {
     // Keep the process alive until Playwright tears the webServer down.

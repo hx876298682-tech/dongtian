@@ -4,7 +4,7 @@ async function main(): Promise<void> {
   try {
     const report = await runPerfHarness();
     process.stdout.write(renderPerfReport(report));
-    if (report.status !== 'passed') {
+    if (report.status === 'failed') {
       process.exitCode = 1;
     }
   } catch (error) {

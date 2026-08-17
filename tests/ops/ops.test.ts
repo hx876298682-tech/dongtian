@@ -54,6 +54,8 @@ describe('ops backup and restore planning', () => {
     });
 
     expect(renderPlan(plan)).toContain('PostgreSQL 全量备份演练');
+    expect(renderPlan(plan)).toContain('postgres://***@localhost:5432/dongtian');
+    expect(renderPlan(plan)).not.toContain('user:pass');
     expect(plan.steps[0]?.command).toContain('mkdir');
     expect(plan.steps[1]?.command).toContain('pg_dump');
     expect(plan.steps[1]?.command).toContain('/Users/hx/backups/dongtian/postgres/dongtian/2026-08-16T100000000Z.dump');
@@ -76,6 +78,7 @@ describe('ops backup and restore planning', () => {
     expect(rendered).toContain('ACTIVE_CONFIG_VERSION');
     expect(rendered).toContain('pnpm db:audit');
     expect(rendered).toContain('ops:outbox-dedupe');
+    expect(rendered).not.toContain('user:pass');
   });
 
   it('builds read-only WAL and outbox checks', () => {

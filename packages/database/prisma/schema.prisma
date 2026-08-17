@@ -59,6 +59,15 @@ enum BuffStackRule {
   STACK
 }
 
+enum BreakthroughStatus {
+  READY
+  TRIAL_ACTIVE
+  TRIAL_WAITING_CHOICE
+  COMPLETED
+  FAILED_RECOVERABLE
+  ABANDONED
+}
+
 model Account {
   id                 String        @id @default(dbgenerated("uuidv7()")) @db.Uuid
   type               AccountType
@@ -130,6 +139,7 @@ model Character {
   dungeonOpportunityState  DungeonOpportunityState?
   dungeonOpportunityLedger DungeonOpportunityLedger[]
   dungeonRuns              DungeonRun[]
+  breakthroughRuns         BreakthroughRun[]
 
   @@map("characters")
 }
@@ -594,6 +604,38 @@ model DungeonRun {
 
   @@index([characterId, createdAt(sort: Desc)])
   @@map("dungeon_runs")
+}
+
+model BreakthroughRun {
+  id                 String               @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  characterId        String               @map("character_id") @db.Uuid
+  breakthroughConfigId String              @map("breakthrough_config_id")
+  configVersion      String               @map("config_version")
+  formulaVersion     Int                  @map("formula_version")
+  status             BreakthroughStatus
+  runVersion         BigInt               @default(0) @map("run_version")
+  currentNodeId      String               @map("current_node_id")
+  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  trialDeadlineAt    DateTime             @map("trial_deadline_at") @db.Timestamptz(3)
+  expiresAt          DateTime             @map("expires_at") @db.Timestamptz(3)
+  selectedChoiceId   String?              @map("selected_choice_id")
+  selectedRouteId    String?              @map("selected_route_id")
+  selectedRouteRisk  String?              @map("selected_route_risk")
+  selectedAt         DateTime?            @map("selected_at") @db.Timestamptz(3)
+  finalizedAt        DateTime?            @map("finalized_at") @db.Timestamptz(3)
+  abandonedAt        DateTime?            @map("abandoned_at") @db.Timestamptz(3)
+  releasedAt         DateTime?            @map("released_at") @db.Timestamptz(3)
+  reservationSnapshot Json                @map("reservation_snapshot")
+  previewSnapshot    Json                 @map("preview_snapshot")
+  result             Json?                @map("result")
+  updatedAt          DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([characterId, createdAt(sort: Desc)])
+  @@index([status, expiresAt])
+  @@index([characterId, status])
+  @@map("breakthrough_runs")
 }
 
 model IdempotencyRecord {

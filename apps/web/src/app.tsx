@@ -14,6 +14,7 @@ import { EmptyStateScreen, LockedStateScreen, LoadingStateScreen, LocalErrorStat
 
 import { useAuthBootstrap } from './auth/use-auth-bootstrap.js';
 import { DashboardPage } from './features/dashboard/dashboard-page.js';
+import { CavePage } from './features/cave/cave-page.js';
 import { CharacterEquipmentPage } from './features/character/equipment-page.js';
 import { CharacterToolAssignmentsPage } from './features/character/tool-assignments-page.js';
 import { CraftPage, InventoryPage } from './features/content/content-page.js';
@@ -335,6 +336,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard', element: <DashboardPage /> },
+      { path: 'dashboard/cave', element: <CavePage /> },
       { path: 'cultivation', element: <PagePlaceholder title="修炼页" description="境界、修为、突破与项目追踪" /> },
       { path: 'craft', element: <CraftPage /> },
       { path: 'expedition', element: <ExpeditionPage /> },

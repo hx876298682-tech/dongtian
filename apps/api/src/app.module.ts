@@ -13,6 +13,7 @@ import { TemperingModule } from './tempering/tempering.module.js';
 import { SkillToolAssignmentsModule } from './skill-tool-assignments/skill-tool-assignments.module.js';
 import { DungeonModule } from './dungeon/dungeon.module.js';
 import { CaveModule } from './cave/cave.module.js';
+import { BreakthroughModule } from './breakthrough/breakthrough.module.js';
 import { IdempotencyModule } from './idempotency/idempotency.module.js';
 import { HealthModule } from './health/health.module.js';
 import { QueueModule } from './queue/queue.module.js';
@@ -32,6 +33,7 @@ import { SuccessEnvelopeInterceptor } from './http/envelope.interceptor.js';
     SkillToolAssignmentsModule,
     DungeonModule,
     CaveModule,
+    BreakthroughModule,
     IdempotencyModule,
     ConfigModule,
     HealthModule,
