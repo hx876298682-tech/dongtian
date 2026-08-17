@@ -20,15 +20,15 @@ describe('tool assignments page states', () => {
       renderToStaticMarkup(createElement(ToolAssignmentsMaintenance, { reason: 'maintenance', onRetry: () => undefined })),
       renderToStaticMarkup(createElement(ToolAssignmentsLocked, { reason: 'locked', onRetry: () => undefined })),
       renderToStaticMarkup(createElement(ToolAssignmentsEmpty, { onOpenEquipment: () => undefined })),
-      renderToStaticMarkup(createElement(NormalStateScreen, { title: '正常', description: '可分配。', highlight: '权威响应' })),
+      renderToStaticMarkup(createElement(NormalStateScreen, { title: '正常', description: '可分配。', highlight: '状态已更新' })),
     ];
 
-    expect(screens[0]).toContain('正在读取工具权威快照');
-    expect(screens[1]).toContain('工具页读取失败');
+    expect(screens[0]).toContain('正在查看百艺工具');
+    expect(screens[1]).toContain('工具页暂时无法打开');
     expect(screens[2]).toContain('工具页维护中');
     expect(screens[3]).toContain('工具功能受限');
     expect(screens[4]).toContain('暂无工具分配');
-    expect(screens[5]).toContain('权威响应');
+    expect(screens[5]).toContain('状态已更新');
+    expect(screens[0]).not.toContain('权威');
   });
 });
-

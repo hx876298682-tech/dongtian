@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildDashboardAuthoritySnapshot, buildLatestSettlementView, describeAction, describeQueuePreviewEntry } from './dashboard-adapter.js';
+import { buildDashboardAuthoritySnapshot, buildLatestSettlementView, describeAction, describeQueuePreviewEntry, describeQueuePreviewSummary, describeQueuePreviewWarning } from './dashboard-adapter.js';
 
 describe('dashboard adapter', () => {
   it('maps a missing latest settlement into an explicit empty state', () => {
@@ -78,7 +78,7 @@ describe('dashboard adapter', () => {
 
     expect(view.kind).toBe('ready');
     expect(view.summaryLine).toContain('获得修为 2.5');
-    expect(view.facts).toContainEqual(expect.objectContaining({ label: '起点' }));
+    expect(view.facts).toHaveLength(0);
     expect(view.timeline).toHaveLength(2);
     expect(view.rewards.some((item) => item.title === '修为')).toBe(true);
     expect(view.consumptions).toHaveLength(1);
@@ -234,5 +234,12 @@ describe('dashboard adapter', () => {
     expect(describeQueuePreviewEntry({ action_id: 'action.t1.qi_gathering_pill', mode: 'INFINITE' })).toBe('炼制聚气丹');
     expect(describeQueuePreviewEntry({ action_id: 'action.t1.herb_baicao_valley', mode: 'COUNT', target_value: 3 })).toContain('百草谷采药');
     expect(describeQueuePreviewEntry({ action_id: 'action.t1.herb_baicao_valley', mode: 'COUNT', blocked_reason: 'BLOCKED_MATERIAL' })).toContain('暂时无法执行');
+  });
+
+  it('turns preview internals into readable duration and warning copy', () => {
+    expect(describeQueuePreviewSummary({ total_duration_us: '3600', entries: [{ action_id: 'action.cultivation.qi' }] } as never)).toBe('总时长 0.004 秒 · 1 段');
+    expect(describeQueuePreviewWarning({ message_key: 'error.queue_version_conflict' })).toContain('挂机计划刚刚发生变化');
+    expect(describeQueuePreviewWarning({ blocked_reason: 'BLOCKED_MATERIAL' })).toContain('材料不足');
+    expect(describeQueuePreviewWarning({ message: '材料不足' })).toBe('材料不足');
   });
 });

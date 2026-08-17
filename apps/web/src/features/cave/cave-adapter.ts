@@ -1,6 +1,6 @@
 import type { CaveBuildRequest, CaveBuildTaskCostSnapshot, CaveFacility, CaveResponse, InventorySnapshot } from '@dongtian/contracts';
 
-import { formatCount, formatDurationUs } from '../content/content-adapter.js';
+import { describeItemId, describeRealmId, formatCount, formatDurationUs } from '../content/content-adapter.js';
 
 export type CaveFacilityStatusKind = 'LOCKED' | 'READY' | 'BUILDING' | 'COMPLETED' | 'RESOURCE_INSUFFICIENT';
 
@@ -117,6 +117,19 @@ function realmGroupRank(group: string | null | undefined): number {
   }
 }
 
+function realmGroupLabel(group: string | null | undefined): string {
+  switch (group) {
+    case 'MORTAL':
+      return '凡人境';
+    case 'QI':
+      return '炼气境';
+    case 'FOUNDATION':
+      return '筑基境';
+    default:
+      return '未知境界';
+  }
+}
+
 function realmStageGroup(realmStageId: string | null | undefined): 'MORTAL' | 'QI' | 'FOUNDATION' | null {
   if (typeof realmStageId !== 'string' || realmStageId.length === 0) {
     return null;
@@ -142,7 +155,18 @@ function formatModifierLabel(modifier: CaveFacility['current_modifier']): string
     return '无当前加成';
   }
 
-  return `${modifier.stat} ${modifier.operation} ${modifier.value}`;
+  const statLabel = modifier.stat === 'cultivation_xp'
+    ? '修为效率'
+    : modifier.stat === 'alchemy_xp'
+      ? '炼丹效率'
+      : '炼器效率';
+  if (modifier.operation === 'MULTIPLY') {
+    const multiplier = Number(modifier.value);
+    if (Number.isFinite(multiplier)) {
+      return `${statLabel} +${Math.round((multiplier - 1) * 100)}%`;
+    }
+  }
+  return `${statLabel} +${modifier.value}`;
 }
 
 function summarizeRule(rule: CaveFacility['next_level_rule']): string {
@@ -150,13 +174,13 @@ function summarizeRule(rule: CaveFacility['next_level_rule']): string {
     return '已达上限';
   }
 
-  const materialCost = rule.material_costs.length === 0 ? '无材料' : rule.material_costs.map((cost) => `${cost.itemId} × ${formatCount(cost.quantity)}`).join(' · ');
+  const materialCost = rule.material_costs.length === 0 ? '无材料' : rule.material_costs.map((cost) => `${describeItemId(cost.itemId)} × ${formatCount(cost.quantity)}`).join(' · ');
   return `Lv${rule.level} · 灵石 ${formatCount(rule.spirit_stone_cost)} · ${materialCost} · ${formatDurationUs(rule.build_duration_us)}`;
 }
 
 function summarizeCostSnapshot(snapshot: CaveBuildTaskCostSnapshot): string {
-  const materialCost = snapshot.material_costs.length === 0 ? '无材料' : snapshot.material_costs.map((cost) => `${cost.itemId} × ${formatCount(cost.quantity)}`).join(' · ');
-  return `${snapshot.name_key} · Lv${snapshot.level} · 灵石 ${formatCount(snapshot.spirit_stone_cost)} · ${materialCost} · ${formatDurationUs(snapshot.build_duration_us)}`;
+  const materialCost = snapshot.material_costs.length === 0 ? '无材料' : snapshot.material_costs.map((cost) => `${describeItemId(cost.itemId)} × ${formatCount(cost.quantity)}`).join(' · ');
+  return `${facilityKindLabel(snapshot.facility_kind)} · Lv${snapshot.level} · 灵石 ${formatCount(snapshot.spirit_stone_cost)} · ${materialCost} · ${formatDurationUs(snapshot.build_duration_us)}`;
 }
 
 function buildMissingResources(
@@ -235,7 +259,7 @@ export function buildCaveFacilityView(
     facility.next_level_rule === null
       ? '当前已达到该设施上限'
       : currentRealmGroup !== null && realmGroupRank(currentRealmGroup) < realmGroupRank(facility.next_level_rule.required_realm_group)
-        ? `当前境界 ${currentRealmGroup} 低于需求 ${facility.next_level_rule.required_realm_group}`
+        ? `当前境界 ${realmGroupLabel(currentRealmGroup)} 低于需求 ${realmGroupLabel(facility.next_level_rule.required_realm_group)}`
         : null;
   const taskStateLabel =
     task === null
@@ -291,12 +315,11 @@ export function buildCavePageView(
   const activeFacility = selectedFacilityId === null ? facilities[0] ?? null : facilities.find((facility) => facility.facilityConfigId === selectedFacilityId) ?? facilities[0] ?? null;
 
   return {
-    title: `洞府设施 · 状态版本 ${response.character.state_version}`,
-    summary: `服务端快照 ${response.cave.as_of} · 配置 ${response.cave.config_version} · ${facilities.length} 个设施`,
+    title: '洞府设施',
+    summary: `洞府状态已更新 · ${facilities.length} 个设施`,
     facts: [
-      { label: '角色', value: response.character.character_id },
-      { label: '状态版本', value: String(response.character.state_version) },
-      { label: '配置版本', value: response.character.active_config_version },
+      { label: '设施数量', value: String(facilities.length) },
+      { label: '当前境界', value: describeRealmId(currentRealmStageId) },
     ],
     facilities,
     activeFacility,

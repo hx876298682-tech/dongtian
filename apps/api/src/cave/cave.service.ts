@@ -270,7 +270,12 @@ function buildRuleInput(facility: CaveFacilityConfig): CaveFacilityRuleInput {
 
 function buildCatalog(registry: ConfigRegistry): readonly CaveRuleSnapshot[] {
   return createCaveFacilityCatalog(registry.caveFacilities.map(buildRuleInput)).map((rule) => {
-    const config = registry.getCaveFacility(rule.facilityId);
+    const config = registry.caveFacilities.find((candidate) =>
+      candidate.facility_id === rule.facilityId && candidate.level === 1,
+    ) ?? registry.caveFacilities.find((candidate) => candidate.facility_id === rule.facilityId);
+    if (config === undefined) {
+      throw new Error(`CONFIG_NOT_FOUND:cave_facility:${rule.facilityId}`);
+    }
     return {
       ...rule,
       facilityKind: config.facility_kind,

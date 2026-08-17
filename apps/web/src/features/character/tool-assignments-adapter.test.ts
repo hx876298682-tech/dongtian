@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import type { SkillToolAssignmentsResponse } from '@dongtian/contracts';
 
 import {
+  describeToolItemName,
+  describeToolTag,
   summarizeToolAssignmentDetail,
   summarizeToolAssignmentSkill,
   summarizeToolAssignmentsHero,
@@ -59,6 +61,13 @@ const response: SkillToolAssignmentsResponse = {
 };
 
 describe('tool assignments adapter', () => {
+  it('translates technical item and tool keys for players', () => {
+    expect(describeToolItemName('item.cuizhi_danlu.name')).toBe('粗制丹炉');
+    expect(describeToolItemName('item.mubing_yaochu.name')).toBe('木柄药锄');
+    expect(describeToolTag('alchemy_tool')).toBe('炼丹炉');
+    expect(describeToolTag('herbalism_tool')).toBe('采药工具');
+  });
+
   it('summarizes hero, skill and detail views without price data', () => {
     const hero = summarizeToolAssignmentsHero(response, 'realm.qi.early');
     const skill = response.assignments[0];

@@ -6,6 +6,7 @@ import type {
   SettlementLedgerEntry,
   SettlementTimelineEntry,
   Queue,
+  QueuePreview,
 } from '@dongtian/contracts';
 
 const ACTION_LABELS: Record<string, string> = {
@@ -187,7 +188,7 @@ export function buildLatestSettlementView(response: LatestSettlementResponse | n
 
   const rewards: SettlementLineItem[] = [];
   rewards.push({ title: '修为', detail: `+${settlement.rewards.cultivation_xp}` });
-  rewards.push({ title: '百艺 XP', detail: `+${settlement.rewards.skill_xp}` });
+  rewards.push({ title: '百艺经验', detail: `+${settlement.rewards.skill_xp}` });
   for (const item of settlement.rewards.items) {
     rewards.push({ title: describeItem(item.item_id), detail: `+${item.quantity}` });
   }
@@ -201,7 +202,7 @@ export function buildLatestSettlementView(response: LatestSettlementResponse | n
     anomalies.push({ title: '续跑', detail: '当前摘要仍有 continuation_required=true，后续结算继续推进。' });
   }
   if (settlement.capped_time_us !== '0') {
-    anomalies.push({ title: '上限截断', detail: `另有 ${settlement.capped_time_us} 微秒被离线结算上限截断。` });
+    anomalies.push({ title: '上限截断', detail: `另有 ${formatDurationMicroseconds(settlement.capped_time_us)} 未计入本次收获。` });
   }
   if (settlement.status !== 'COMPLETED') {
     anomalies.push({ title: '状态', detail: `结算状态为 ${settlement.status}` });
@@ -212,22 +213,13 @@ export function buildLatestSettlementView(response: LatestSettlementResponse | n
     }
   }
 
-  const facts: SettlementFact[] = [
-    { label: '起点', value: settlement.from_at },
-    { label: '结算到', value: settlement.effective_until },
-    { label: '请求到', value: settlement.requested_until },
-    { label: '有效时长', value: settlement.effective_time_us },
-    { label: '离线上限', value: settlement.capped_time_us },
-    { label: '续跑', value: settlement.continuation_required ? '是' : '否' },
-  ];
-
   return {
     kind: 'ready',
     title: '离线收获',
     description: `这段时间共获得修为 ${settlement.rewards.cultivation_xp} 点，物品 ${settlement.rewards.items.length} 种。`,
     footnote: settlement.continuation_required ? '还有未完成的挂机计划，回来后会继续结算。' : '挂机收益已经结算到你的洞天。',
     summaryLine: `获得修为 ${settlement.rewards.cultivation_xp} · ${settlement.rewards.items.length} 种物品`,
-    facts,
+    facts: [],
     timeline: settlement.timeline.map(describeTimelineEntry),
     rewards,
     consumptions,
@@ -277,7 +269,15 @@ export function buildDashboardAuthoritySnapshot(
 
 export function describeQueuePreviewWarning(warning: Record<string, unknown>): string {
   if (typeof warning['message_key'] === 'string') {
-    return warning['message_key'];
+    return {
+      'error.queue_version_conflict': '挂机计划刚刚发生变化，请重新预览。',
+      'error.validation_error': '计划中有一项需要调整。',
+      'error.resource_not_found': '有一项任务或材料暂时不可用。',
+      'error.feature_locked': '该任务尚未解锁。',
+      'error.csrf_validation_failed': '操作已过期，请重新预览。',
+      'error.idempotency_key_reused': '操作已完成，请刷新后再试。',
+      'error.idempotency_in_progress': '操作正在处理中，请稍候。',
+    }[warning['message_key']] ?? '这项计划暂时无法安排。';
   }
 
   if (typeof warning['message'] === 'string') {
@@ -285,10 +285,23 @@ export function describeQueuePreviewWarning(warning: Record<string, unknown>): s
   }
 
   if (typeof warning['blocked_reason'] === 'string') {
-    return warning['blocked_reason'];
+    return warning['blocked_reason'] === 'BLOCKED_MATERIAL' ? '材料不足，暂时无法执行。' : '这项任务暂时无法执行。';
   }
 
-  return JSON.stringify(warning);
+  return '这项计划暂时无法安排。';
+}
+
+function formatDurationMicroseconds(value: unknown): string {
+  const microseconds = Number(value);
+  if (!Number.isFinite(microseconds)) return '未知时长';
+  const seconds = microseconds / 1_000_000;
+  if (seconds >= 3600) return `${Number((seconds / 3600).toFixed(1))} 小时`;
+  if (seconds >= 60) return `${Number((seconds / 60).toFixed(1))} 分钟`;
+  return `${Number(seconds.toFixed(seconds < 1 ? 3 : 1))} 秒`;
+}
+
+export function describeQueuePreviewSummary(preview: Pick<QueuePreview, 'total_duration_us' | 'entries'>): string {
+  return `总时长 ${formatDurationMicroseconds(preview.total_duration_us)} · ${preview.entries.length} 段`;
 }
 
 export function describeQueuePreviewEntry(entry: Record<string, unknown>): string {
@@ -298,10 +311,11 @@ export function describeQueuePreviewEntry(entry: Record<string, unknown>): strin
 
   const parts = [actionId];
   if (targetValue !== undefined && targetValue !== null && targetValue !== '') {
-    parts.push(`目标 ${String(targetValue)}`);
+    const mode = entry['mode'];
+    parts.push(mode === 'DURATION' ? `持续 ${String(targetValue)} 秒` : mode === 'COUNT' ? `目标 ${String(targetValue)} 次` : `目标 ${String(targetValue)}`);
   }
   if (blockedReason !== null) {
-    parts.push(`暂时无法执行：${blockedReason}`);
+    parts.push(`暂时无法执行：${blockedReason === 'BLOCKED_MATERIAL' ? '材料不足' : '当前条件不满足'}`);
   }
 
   return parts.join(' · ');

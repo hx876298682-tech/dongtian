@@ -25,12 +25,12 @@ import {
   buildDashboardAuthoritySnapshot,
   buildLatestSettlementView,
   describeQueuePreviewEntry,
+  describeQueuePreviewSummary,
   describeQueuePreviewWarning,
   describeAction,
 } from './dashboard-adapter.js';
 import {
   DEFAULT_QUEUE_ACTION_ID,
-  buildQueueEditorPreviewLabel,
   createInitialQueueEditorState,
   createOfficialInventoryQueueDraft,
   createQueueEditorDraft,
@@ -78,10 +78,35 @@ function summarizeDraft(draft: QueueEditorDraft): string {
 
 function summarizeQueueMutationConflict(conflict: QueueVersionConflict | null): string {
   if (conflict === null) {
-    return '暂无版本冲突';
+    return '挂机计划已更新，请重新载入后再继续。';
   }
 
-  return `服务器版本 ${conflict.actualQueueVersion} · 本地期望 ${conflict.expectedQueueVersion}`;
+  return '挂机计划已更新，请重新载入后再继续。';
+}
+
+const PLAYER_DASHBOARD_ERROR = '修行暂时无法继续，请稍后重试。';
+const PLAYER_QUEUE_CONFLICT_ERROR = '挂机计划刚刚发生变化，请重新载入后再继续。';
+
+export function formatPlayerDashboardError(error: unknown): string {
+  if (error instanceof ApiClientError && error.status === 409) {
+    return PLAYER_QUEUE_CONFLICT_ERROR;
+  }
+  const parts: string[] = [];
+  if (typeof error === 'string') {
+    parts.push(error);
+  } else if (error instanceof Error) {
+    parts.push(error.message);
+  } else if (typeof error === 'object' && error !== null) {
+    const record = error as Record<string, unknown>;
+    for (const key of ['code', 'message_key', 'message']) {
+      if (typeof record[key] === 'string') {
+        parts.push(record[key]);
+      }
+    }
+  }
+
+  const normalized = parts.join(' ').toLowerCase();
+  return /queue[_ .-]version[_ .-]conflict/.test(normalized) ? PLAYER_QUEUE_CONFLICT_ERROR : PLAYER_DASHBOARD_ERROR;
 }
 
 function createIdempotencyKey(): string {
@@ -143,34 +168,34 @@ export function DashboardLoading(): ReactElement {
   return (
     <section className="dashboard-layout">
       <div className="dashboard-panel dashboard-panel--hero">
-        <LoadingStateScreen title="正在读取权威快照" description="先拉取修为、库存与闭关队列，再渲染首页与编辑器。" />
+        <LoadingStateScreen title="正在读取角色状态" description="正在准备修为、库存与挂机任务。" />
       </div>
       <div className="dashboard-panel">
-        <LoadingStateScreen title="最新回流摘要" description="等待后端持久化结算记录。" />
+        <LoadingStateScreen title="最近离线收获" description="等待最近一次挂机收益。" />
       </div>
       <div className="dashboard-panel">
-        <LoadingStateScreen title="闭关队列编辑器" description="等待可编辑的权威队列。" />
+        <LoadingStateScreen title="挂机设置" description="正在准备可调整的挂机任务。" />
       </div>
     </section>
   );
 }
 
-export function DashboardError({ error, onRetry }: { readonly error: string; readonly onRetry: () => void }): ReactElement {
+export function DashboardError({ error, onRetry }: { readonly error: unknown; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="dashboard-layout">
       <div className="dashboard-panel dashboard-panel--hero">
         <LocalErrorStateScreen
           title="首页读取失败"
-          description="权威快照读取失败，草稿保持不变。"
+          description="角色状态读取失败，未保存的设置仍会保留。"
           actions={[{ label: '重试', onClick: onRetry }]}
-          footnote={error}
+          footnote={formatPlayerDashboardError(error)}
         />
       </div>
       <div className="dashboard-panel">
-        <EmptyStateScreen title="最新回流摘要" description="等待权威快照恢复后再显示。" />
+        <EmptyStateScreen title="最近离线收获" description="角色状态恢复后会显示最近收益。" />
       </div>
       <div className="dashboard-panel">
-        <EmptyStateScreen title="闭关队列编辑器" description="当前无法载入队列。" />
+        <EmptyStateScreen title="挂机设置" description="当前无法载入挂机任务。" />
       </div>
     </section>
   );
@@ -317,14 +342,14 @@ function QueuePreviewDetails({ preview }: { readonly preview: NonNullable<QueueE
 
 export function QueuePreviewCard({ preview }: { readonly preview: QueueEditorState['preview'] }): ReactElement {
   if (preview === null) {
-    return <EmptyStateScreen title="预览未生成" description="先点击预览，服务端会校验版本、材料和保底行动。" />;
+    return <EmptyStateScreen title="预览未生成" description="先点击预览，检查任务顺序、材料和保底行动。" />;
   }
 
   return (
     <div className="dashboard-preview">
       <div className="dashboard-preview__summary">
         <strong>预览结果</strong>
-        <span title={buildQueueEditorPreviewLabel(preview)}>{buildQueueEditorPreviewLabel(preview)}</span>
+        <span title={describeQueuePreviewSummary(preview)}>{describeQueuePreviewSummary(preview)}</span>
       </div>
       <QueuePreviewDetails preview={preview} />
     </div>
@@ -358,7 +383,7 @@ function QueuePreviewDialog({
             <div>
               <Dialog.Title className="dialog-panel__title">完整闭关预览</Dialog.Title>
               <Dialog.Description className="dialog-panel__description">
-                这里展示与卡片一致的服务端预览。关闭弹层后，焦点会返回到触发按钮。
+                这里展示任务顺序、执行时长和材料提醒。关闭弹层后，焦点会返回到触发按钮。
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
@@ -394,20 +419,11 @@ export function SettlementSummaryCard({
 
   return (
     <div className="settlement-summary">
-      <NormalStateScreen title={view.title} description={view.description} highlight="只读持久化摘要" footnote={view.footnote} />
-
-      <div className="settlement-summary__facts">
-        {view.facts.map((fact) => (
-          <div key={fact.label} className="settlement-summary__fact">
-            <span>{fact.label}</span>
-            <strong title={fact.value}>{fact.value}</strong>
-          </div>
-        ))}
-      </div>
+      <NormalStateScreen title={view.title} description={view.description} highlight="离线收益" footnote={view.footnote} />
 
       <div className="settlement-summary__sections">
         <section className="settlement-summary__section">
-          <h5>时间线</h5>
+          <h5>行动摘要</h5>
           <ul>
             {view.timeline.map((item, index) => (
               <li key={`${index}-${item.title}-${item.detail}`}>
@@ -419,7 +435,7 @@ export function SettlementSummaryCard({
         </section>
 
         <section className="settlement-summary__section">
-          <h5>XP 与物品</h5>
+          <h5>修为与物品</h5>
           <ul>
             {view.rewards.map((item, index) => (
               <li key={`${index}-${item.title}-${item.detail}`}>
@@ -443,18 +459,6 @@ export function SettlementSummaryCard({
           </ul>
         </section>
 
-        <section className="settlement-summary__section">
-          <h5>异常</h5>
-          {view.anomalies.length === 0 ? <p>没有额外异常。</p> : null}
-          <ul>
-            {view.anomalies.map((item, index) => (
-              <li key={`${index}-${item.title}-${item.detail}`}>
-                <strong>{item.title}</strong>
-                <span>{item.detail}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
     </div>
   );
@@ -545,7 +549,21 @@ export function DashboardPage(): ReactElement {
       ]);
 
       try {
-        const mutation = await apiClient.saveQueue(session.character_id, createQueuePlanRequest(draft), createIdempotencyKey());
+        let mutation;
+        try {
+          mutation = await apiClient.saveQueue(session.character_id, createQueuePlanRequest(draft), createIdempotencyKey());
+        } catch (error) {
+          if (!(error instanceof ApiClientError) || error.status !== 409) {
+            throw error;
+          }
+
+          const latestQueue = await apiClient.getQueue(session.character_id);
+
+          const retryDraft = createQueueEditorDraft(latestQueue.queue_version, [
+            createQueueEditorEntryDraft(`quick-${actionId}-${Date.now()}`, { actionId, mode: 'INFINITE', targetValue: '' }),
+          ]);
+          mutation = await apiClient.saveQueue(session.character_id, createQueuePlanRequest(retryDraft), createIdempotencyKey());
+        }
         dispatch({ type: 'mark-saved', queue: mutation.queue });
         if (mutation.queue.paused) {
           const resumed = await apiClient.resumeQueue(
@@ -561,7 +579,7 @@ export function DashboardPage(): ReactElement {
         setQuickStartState('running');
       } catch (error) {
         setQuickStartState('error');
-        setQuickStartError(error instanceof Error ? error.message : '任务暂时无法开始');
+        setQuickStartError(formatPlayerDashboardError(error));
       }
     },
     [queueQuery.data, quickStartState, queryClient, session.character_id],
@@ -630,8 +648,8 @@ export function DashboardPage(): ReactElement {
     setQueueDraftTitle(summarizeDraft(editorState.draft));
     setQueueDraftNote(
       editorState.preview === null
-        ? '先预览再保存；保存、暂停、恢复都需要幂等键。'
-        : `${editorState.preview.warnings.length} 条预览警告 · ${isPreviewFresh(editorState) ? '预览新鲜' : '预览已过期'}`,
+        ? '先预览计划，再保存；保存、暂停、恢复都会安全执行。'
+        : `${editorState.preview.warnings.length} 条提醒 · ${isPreviewFresh(editorState) ? '可直接保存' : '计划有变化，请重新预览'}`,
     );
   }, [editorState.draft, editorState.preview, setQueueDraftNote, setQueueDraftTitle]);
 
@@ -696,7 +714,7 @@ export function DashboardPage(): ReactElement {
 
   const firstError = progressionQuery.error ?? inventoryQuery.error ?? queueQuery.error ?? settlementQuery.error ?? dungeonRunQuery.error;
   if (firstError !== undefined && firstError !== null) {
-    return <DashboardError error={firstError.message} onRetry={async () => queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id] })} />;
+    return <DashboardError error={firstError} onRetry={async () => queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id] })} />;
   }
 
   const queue = queueQuery.data;
@@ -754,8 +772,8 @@ export function DashboardPage(): ReactElement {
           {queueEditingLocked && dungeonRunSummary !== null ? (
         <div className="dashboard-panel dashboard-panel--hero">
           <NormalStateScreen
-            title="秘境运行中，闭关队列只读显示"
-            description={`当前 run ${dungeonRun?.run_id ?? '未知'} 正在进行，编辑、保存、暂停和恢复都会保持禁用。`}
+            title="秘境进行中，挂机设置暂时锁定"
+            description="秘境正在进行，挂机设置暂时锁定；完成后即可继续调整。"
             highlight={dungeonRunSummary.headline}
             footnote={dungeonRunSummary.description}
           />
@@ -767,6 +785,9 @@ export function DashboardPage(): ReactElement {
         <button className="ghost-button" type="button" onClick={() => setRewardDialogOpen(true)} disabled={settlementView.kind === 'empty'}>查看奖励状态</button>
       </div>
 
+      <details className="dashboard-settings">
+        <summary>挂机设置</summary>
+        <div className="dashboard-settings__content">
       <div className="dashboard-panel" id="queue">
         <div className="dashboard-panel__header">
           <div>
@@ -835,7 +856,7 @@ export function DashboardPage(): ReactElement {
           {editorState.draft.entries.length === 0 ? (
             <li className="queue-editor__empty">
               {queueEditingLocked ? (
-                <EmptyStateScreen title="当前没有可编辑条目" description="秘境运行中，闭关队列保持只读。" />
+                <EmptyStateScreen title="当前没有可编辑条目" description="秘境进行中，完成后即可继续调整。" />
               ) : (
                 <EmptyStateScreen
                   title="当前没有可编辑条目"
@@ -883,10 +904,10 @@ export function DashboardPage(): ReactElement {
 
         {queueConflict !== null ? (
           <LocalErrorStateScreen
-            title="队列版本冲突"
-            description="服务器计划已经前进，但本地草稿保留不变。先比对再决定是否合并。"
+            title="挂机计划有变化"
+            description="计划刚刚更新，当前设置仍会保留。重新载入后再保存。"
             footnote={summarizeQueueMutationConflict(queueConflict)}
-            actions={[{ label: '重新拉取权威队列', onClick: async () => queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id, 'queue'] }) }]}
+            actions={[{ label: '重新载入挂机计划', onClick: async () => queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id, 'queue'] }) }]}
           />
         ) : null}
       </div>
@@ -895,11 +916,11 @@ export function DashboardPage(): ReactElement {
         <div className="dashboard-panel__header">
           <div>
             <p className="page-card__eyebrow">预览 / 反馈</p>
-            <h4 className="dashboard-panel__title">离线摘要适配器与闭关预览</h4>
+            <h4 className="dashboard-panel__title">挂机预览与反馈</h4>
           </div>
           <div className="dashboard-panel__meta">
             <span>{editorState.preview === null ? '未预览' : `预览 ${editorState.preview.entries.length} 段`}</span>
-            <span>{editorState.draft.entries.length} 个草稿条目</span>
+            <span>{editorState.draft.entries.length} 个任务</span>
           </div>
         </div>
 
@@ -910,20 +931,22 @@ export function DashboardPage(): ReactElement {
 
         <div className="dashboard-preview-shell">
             <NormalStateScreen
-              title="权威信息摘要"
+              title="当前修行摘要"
               description={
                 <div className="dashboard-facts">
                   <p>境界：{authoritySnapshot.realmLabel}</p>
                   <p>当前行动：{authoritySnapshot.currentActionDetail}</p>
                   <p title={authoritySnapshot.goalTrackerDetail}>目标：{authoritySnapshot.goalTrackerDetail}</p>
-                  <p>草稿：{summarizeDraft(editorState.draft)}</p>
+                  <p>计划：{summarizeDraft(editorState.draft)}</p>
                 </div>
               }
-            highlight="严格基于服务端"
-            footnote="保存、暂停、恢复都会走 CSRF + Idempotency-Key。"
+            highlight="当前状态"
+            footnote="保存、暂停、恢复会立即生效。"
           />
         </div>
       </div>
+        </div>
+      </details>
 
       <TaskStatusDialog open={isTaskDialogOpen} task={currentTask} onOpenChange={setTaskDialogOpen} />
       <RewardStatusDialog open={isRewardDialogOpen} rewards={settlementView.kind === 'empty' ? [] : settlementView.rewards} onOpenChange={setRewardDialogOpen} />

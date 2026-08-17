@@ -12,6 +12,30 @@ export interface GameDialogProps {
   readonly primaryDisabled?: boolean;
 }
 
+export function ImportantActionDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  confirmLabel,
+  onConfirm,
+  pending = false,
+}: {
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly title: string;
+  readonly description: string;
+  readonly confirmLabel: string;
+  readonly onConfirm: () => void;
+  readonly pending?: boolean;
+}): ReactElement {
+  return (
+    <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="重要操作" title={title} primaryLabel={pending ? '处理中…' : confirmLabel} onPrimary={onConfirm} primaryDisabled={pending}>
+      <p className="game-dialog__copy">{description}</p>
+    </GameDialog>
+  );
+}
+
 export function GameDialog({ open, onOpenChange, eyebrow, title, children, primaryLabel, onPrimary, primaryDisabled = false }: GameDialogProps): ReactElement {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

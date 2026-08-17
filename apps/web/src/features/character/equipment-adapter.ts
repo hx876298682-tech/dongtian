@@ -38,7 +38,7 @@ function buildInstanceSummary(instance: EquipmentInstance | null): string {
   }
 
   const boundLabel = instance.bound ? '已绑定' : '未绑定';
-  return `${instance.instance_id} · ${instance.item_id} · 强化 +${instance.temper_level} · ${boundLabel} · 配置 ${instance.created_config_version}`;
+  return `装备 · 强化 +${instance.temper_level} · ${boundLabel}`;
 }
 
 function buildInstanceDiff(currentInstance: EquipmentInstance | null, compareInstance: EquipmentInstance | null): string {
@@ -57,10 +57,6 @@ function buildInstanceDiff(currentInstance: EquipmentInstance | null, compareIns
       : `强化差 ${currentInstance.temper_level} / ${compareInstance.temper_level}`,
     currentInstance.bound === compareInstance.bound ? (currentInstance.bound ? '均已绑定' : '均未绑定') : '绑定状态不同',
   ];
-
-  if (currentInstance.created_config_version !== compareInstance.created_config_version) {
-    parts.push(`配置版本 ${currentInstance.created_config_version} / ${compareInstance.created_config_version}`);
-  }
 
   return parts.join(' · ');
 }
@@ -83,13 +79,13 @@ export function formatEquipmentSlotLabel(slot: EquipmentSlot): string {
 
 export function summarizeLoadoutPreset(preset: LoadoutPreset | null): string {
   if (preset === null) {
-    return '暂无权威预设';
+    return '暂无装备方案';
   }
 
   const completeness = preset.complete ? '完整' : '缺位';
   const effective = preset.effective_next_cycle ? '下周期生效' : '当前生效';
   const active = preset.active ? '已启用' : '未启用';
-  return `${preset.name} · ${completeness} · ${effective} · ${active} · v${preset.version}`;
+  return `${preset.name} · ${completeness} · ${effective} · ${active}`;
 }
 
 export function buildEquipmentSlotComparisonRows(
@@ -157,7 +153,7 @@ export function buildEquipmentSelectionView(
   };
 }
 
-export function summarizeEquipmentError(status: number, code: string | undefined, details: unknown): string {
+export function summarizeEquipmentError(status: number, _code: string | undefined, _details: unknown): string {
   if (status === 404) {
     return '预设或装备实例不存在，或不属于当前角色。';
   }
@@ -167,17 +163,16 @@ export function summarizeEquipmentError(status: number, code: string | undefined
   }
 
   if (status === 409) {
-    return '权威版本已变化，请刷新后重试。';
+    return '当前状态已变化，请刷新后重试。';
   }
 
   if (status === 422) {
-    return '服务端拒绝了当前装备选择。';
+    return '当前装备选择未能生效，请稍后重试。';
   }
 
   if (status === 400) {
     return '请求参数不合法。';
   }
 
-  const detailText = typeof details === 'object' && details !== null ? JSON.stringify(details) : '';
-  return code === undefined ? `HTTP ${status}` : `${code}${detailText.length > 0 ? ` · ${detailText}` : ''}`;
+  return status >= 500 ? '暂时无法读取装备状态，请稍后重试。' : '装备操作暂时未完成，请检查条件后重试。';
 }

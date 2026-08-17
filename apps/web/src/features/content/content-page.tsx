@@ -32,6 +32,7 @@ import {
   describeRecipeId,
   describeRecipeDescription,
   describeUnlockReason,
+  describeRealmId,
   describeSkillId,
   formatActionRate,
   formatCount,
@@ -123,7 +124,7 @@ function ContentLoading({ title, description }: { readonly title: string; readon
         <LoadingStateScreen title={title} description={description} />
       </div>
       <div className="content-panel">
-        <LoadingStateScreen title="权威列表" description="等待内容 API 响应。" />
+        <LoadingStateScreen title="内容列表" description="正在整理可用内容。" />
       </div>
       <div className="content-panel">
         <LoadingStateScreen title="详情" description="等待选中条目。" />
@@ -134,7 +135,6 @@ function ContentLoading({ title, description }: { readonly title: string; readon
 
 function ContentError({
   title,
-  error,
   onRetry,
 }: {
   readonly title: string;
@@ -148,11 +148,10 @@ function ContentError({
           title={title}
           description="内容页读取失败，已保留页面壳和导航。"
           actions={[{ label: '重试', onClick: onRetry }]}
-          footnote={error}
         />
       </div>
       <div className="content-panel">
-        <EmptyStateScreen title="列表空白" description="等待权威数据恢复。" />
+        <EmptyStateScreen title="列表空白" description="暂未发现可用内容。" />
       </div>
       <div className="content-panel">
         <EmptyStateScreen title="详情空白" description="等待选中条目。" />
@@ -161,15 +160,14 @@ function ContentError({
   );
 }
 
-function ContentMaintenance({ title, reason, onRetry }: { readonly title: string; readonly reason: string; readonly onRetry: () => void }): ReactElement {
+function ContentMaintenance({ title, onRetry }: { readonly title: string; readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="content-layout">
       <div className="content-panel content-panel--hero">
         <MaintenanceStateScreen
           title={title}
-          description="内容 API 或依赖当前不可用。"
+          description="内容暂时无法读取，请稍后重试。"
           actions={[{ label: '重试', onClick: onRetry }]}
-          footnote={reason}
         />
       </div>
       <div className="content-panel">
@@ -218,7 +216,7 @@ function ActionCard({
     <article className={`content-card ${isSelected ? 'content-card--selected' : ''}`}>
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={isSelected}>
         <span className="content-card__title-row">
-          <strong title={entry.action_id}>{describeActionId(entry.action_id)}</strong>
+          <strong title={describeActionId(entry.action_id)}>{describeActionId(entry.action_id)}</strong>
           {isRunning ? <span className="content-card__status">执行中</span> : null}
           {entry.unlocked ? <span className="content-card__status">可用</span> : <span className="content-card__status content-card__status--locked">锁定</span>}
         </span>
@@ -231,13 +229,13 @@ function ActionCard({
         <span>修为 XP {formatCount(entry.cultivation_xp)}</span>
         <span>每小时 {formatActionRate(entry)}</span>
       </div>
-      {!entry.unlocked ? <div className="content-card__copy">{describeUnlockReason(entry.unlock_state.reason)}</div> : null}
+      {!entry.unlocked ? <div className="content-card__copy">{describeUnlockReason(entry.unlock_state.reason, entry.unlock_state.blockers)}</div> : null}
       <div className="content-card__actions">
         <button className="ghost-button ghost-button--compact" type="button" onClick={onOpen}>
           查看详情
         </button>
         <button className="ghost-button ghost-button--compact" type="button" onClick={onJoinQueue} disabled={!entry.can_add_to_queue}>
-          加入队列
+          开始修行
         </button>
       </div>
     </article>
@@ -261,7 +259,7 @@ function RecipeCard({
     <article className={`content-card ${isSelected ? 'content-card--selected' : ''}`}>
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={isSelected}>
         <span className="content-card__title-row">
-          <strong title={entry.recipe_id}>{describeRecipeId(entry.recipe_id)}</strong>
+          <strong title={describeRecipeId(entry.recipe_id)}>{describeRecipeId(entry.recipe_id)}</strong>
           {isRunning ? <span className="content-card__status">执行中</span> : null}
           {entry.unlocked ? <span className="content-card__status">可用</span> : <span className="content-card__status content-card__status--locked">锁定</span>}
         </span>
@@ -274,13 +272,13 @@ function RecipeCard({
         <span>结果 {formatCount(entry.result_quantity)}</span>
         <span>每小时 {formatRecipeRate(entry)}</span>
       </div>
-      {!entry.unlocked ? <div className="content-card__copy">{describeUnlockReason(entry.unlock_state.reason)}</div> : null}
+      {!entry.unlocked ? <div className="content-card__copy">{describeUnlockReason(entry.unlock_state.reason, entry.unlock_state.blockers)}</div> : null}
       <div className="content-card__actions">
         <button className="ghost-button ghost-button--compact" type="button" onClick={onOpen}>
           查看详情
         </button>
         <button className="ghost-button ghost-button--compact" type="button" onClick={onJoinQueue} disabled={!entry.can_add_to_queue}>
-          加入队列
+          开始炼制
         </button>
       </div>
     </article>
@@ -301,7 +299,7 @@ function ItemCard({
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={selected}>
         <span className="inventory-item-card__icon" aria-hidden="true">{item.asset_type === 'CURRENCY' ? '灵' : '物'}</span>
         <span className="content-card__title-row">
-          <strong title={item.asset_id}>{describeItemId(item.asset_id)}</strong>
+          <strong title={describeItemId(item.asset_id)}>{describeItemId(item.asset_id)}</strong>
           <span className="content-card__status">{item.asset_type === 'CURRENCY' ? '灵石' : '材料'}</span>
         </span>
         <span className="content-card__subtitle">{item.category ?? '未分类'}</span>
@@ -347,7 +345,7 @@ function ActionDetail({
       <div className="content-detail__metrics">
         <NormalStateScreen
           title={describeActionId(action.action_id)}
-          description={describeUnlockReason(action.unlock_state.reason)}
+           description={describeUnlockReason(action.unlock_state.reason, action.unlock_state.blockers)}
           highlight={action.can_add_to_queue ? '可加入队列' : '不可加入队列'}
           footnote={`每轮 ${formatDurationUs(action.base_duration_us)} · 修为 ${formatCount(action.cultivation_xp)}`}
         />
@@ -357,7 +355,7 @@ function ActionDetail({
         {action.inputs.length === 0 ? <p className="content-detail__copy">无输入材料。</p> : null}
         {action.inputs.map((input) => (
           <article key={input.item_id} className="content-stack">
-            <strong title={input.item_id}>{describeItemId(input.item_id)}</strong>
+            <strong title={describeItemId(input.item_id)}>{describeItemId(input.item_id)}</strong>
             <p>{summarizeItemQuantity(input)}</p>
             {renderRouteButtons(input.source_routes, onSelectRoute)}
             {renderRouteButtons(input.usage_routes, onSelectRoute)}
@@ -374,7 +372,7 @@ function ActionDetail({
         {action.outputs.length === 0 ? <p className="content-detail__copy">无输出。</p> : null}
         {action.outputs.map((output) => (
           <article key={output.item_id} className="content-stack">
-            <strong title={output.item_id}>{describeItemId(output.item_id)}</strong>
+            <strong title={describeItemId(output.item_id)}>{describeItemId(output.item_id)}</strong>
             <p>{summarizeItemQuantity(output)}</p>
             {renderRouteButtons(output.source_routes, onSelectRoute)}
             {renderRouteButtons(output.usage_routes, onSelectRoute)}
@@ -388,7 +386,7 @@ function ActionDetail({
       </div>
       <div className="content-detail__actions">
         <button className="ghost-button" type="button" onClick={onJoinQueue} disabled={!action.can_add_to_queue}>
-          加入当前草稿
+           开始修行
         </button>
       </div>
     </section>
@@ -415,7 +413,7 @@ function RecipeDetail({
       <div className="content-detail__header">
         <div>
           <p className="page-card__eyebrow">配方详情</p>
-          <h3 className="content-detail__title" title={recipe.recipe_id}>{describeRecipeId(recipe.recipe_id)}</h3>
+         <h3 className="content-detail__title" title={describeRecipeId(recipe.recipe_id)}>{describeRecipeId(recipe.recipe_id)}</h3>
           <p className="content-detail__copy">{describeRecipeDescription(recipe.recipe_id)}</p>
         </div>
         <div className="content-detail__badges">
@@ -425,7 +423,7 @@ function RecipeDetail({
       </div>
       <NormalStateScreen
         title={describeRecipeId(recipe.recipe_id)}
-        description={describeUnlockReason(recipe.unlock_state.reason)}
+        description={describeUnlockReason(recipe.unlock_state.reason, recipe.unlock_state.blockers)}
         highlight={recipe.can_add_to_queue ? '可加入队列' : '不可加入队列'}
         footnote={`每轮 ${formatDurationUs(recipe.base_duration_us)} · 熟练度 ${formatCount(recipe.skill_xp)} · 产出 ${formatCount(recipe.result_quantity)}`}
       />
@@ -433,7 +431,7 @@ function RecipeDetail({
         <h4>材料</h4>
         {recipe.ingredients.map((ingredient) => (
           <article key={ingredient.item_id} className="content-stack">
-            <strong title={ingredient.item_id}>{describeItemId(ingredient.item_id)}</strong>
+            <strong title={describeItemId(ingredient.item_id)}>{describeItemId(ingredient.item_id)}</strong>
             <p>{summarizeItemQuantity(ingredient)}</p>
             {renderRouteButtons(ingredient.source_routes, onSelectRoute)}
             {renderRouteButtons(ingredient.usage_routes, onSelectRoute)}
@@ -451,7 +449,7 @@ function RecipeDetail({
       <div className="content-detail__section">
         <h4>产物</h4>
         <article className="content-stack">
-          <strong title={recipe.result_item.item_id}>{describeItemId(recipe.result_item.item_id)}</strong>
+          <strong title={describeItemId(recipe.result_item.item_id)}>{describeItemId(recipe.result_item.item_id)}</strong>
           <p>{summarizeItemQuantity(recipe.result_item)}</p>
           {renderRouteButtons(recipe.result_item.source_routes, onSelectRoute)}
           {renderRouteButtons(recipe.result_item.usage_routes, onSelectRoute)}
@@ -464,7 +462,7 @@ function RecipeDetail({
       </div>
       <div className="content-detail__actions">
         <button className="ghost-button" type="button" onClick={onJoinQueue} disabled={!recipe.can_add_to_queue}>
-          加入当前草稿
+          开始炼制
         </button>
       </div>
     </section>
@@ -486,7 +484,7 @@ function InventoryDetail({
       <div className="content-detail__header">
         <div>
           <p className="page-card__eyebrow">背包详情</p>
-          <h3 className="content-detail__title" title={item.asset_id}>{describeItemId(item.asset_id)}</h3>
+          <h3 className="content-detail__title" title={describeItemId(item.asset_id)}>{describeItemId(item.asset_id)}</h3>
           <p className="content-detail__copy">{describeInventoryCategory(item.category)}</p>
         </div>
       </div>
@@ -561,6 +559,14 @@ export function CraftPage(): ReactElement {
   const handleOpenInventoryItem = (itemId: string) => {
     syncSearch(navigate, '/inventory', '', { item_id: itemId, tab: null, action_id: null, recipe_id: null });
   };
+  const handleTabChange = (nextTab: ContentTab) => {
+    setActiveTab(nextTab);
+    syncSearch(navigate, location.pathname, location.search, {
+      tab: nextTab,
+      action_id: nextTab === 'actions' ? selectedAction?.action_id ?? null : null,
+      recipe_id: nextTab === 'recipes' ? selectedRecipe?.recipe_id ?? null : null,
+    });
+  };
   const handleTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
       return;
@@ -568,12 +574,7 @@ export function CraftPage(): ReactElement {
 
     event.preventDefault();
     const nextTab = nextContentTab(activeTab, event.key === 'ArrowRight' ? 1 : -1);
-    setActiveTab(nextTab);
-    syncSearch(navigate, location.pathname, location.search, {
-      tab: nextTab,
-      action_id: nextTab === 'actions' ? selectedAction?.action_id ?? null : null,
-      recipe_id: nextTab === 'recipes' ? selectedRecipe?.recipe_id ?? null : null,
-    });
+    handleTabChange(nextTab);
   };
 
   const retryAll = () => {
@@ -637,14 +638,14 @@ export function CraftPage(): ReactElement {
             <div className="metric-chip">
               <span className="metric-chip__label">当前境界</span>
               <strong className="metric-chip__value">
-                {progressionData.cultivation.realm_stage_id === 'realm.mortal.entry' ? '炼气入门' : progressionData.cultivation.realm_stage_id.replace('realm.', '')}
+                {describeRealmId(progressionData.cultivation.realm_stage_id)}
               </strong>
             </div>
           </div>
           <div className="content-hero__skills">
             {progressionData.skills.map((skill) => (
               <div key={skill.skill_id} className="content-hero__skill">
-                <strong title={skill.skill_id}>{describeSkillId(skill.skill_id)}</strong>
+                <strong title={describeSkillId(skill.skill_id)}>{describeSkillId(skill.skill_id)}</strong>
                 <span>
                   等级 {skill.level} · XP {formatCount(skill.xp)}
                 </span>
@@ -667,7 +668,7 @@ export function CraftPage(): ReactElement {
             aria-selected={activeTab === 'actions'}
             aria-controls="content-panel-actions"
             tabIndex={activeTab === 'actions' ? 0 : -1}
-            onClick={() => setActiveTab('actions')}
+            onClick={() => handleTabChange('actions')}
           >
             技能
           </button>
@@ -679,7 +680,7 @@ export function CraftPage(): ReactElement {
             aria-selected={activeTab === 'recipes'}
             aria-controls="content-panel-recipes"
             tabIndex={activeTab === 'recipes' ? 0 : -1}
-            onClick={() => setActiveTab('recipes')}
+            onClick={() => handleTabChange('recipes')}
           >
             炼丹
           </button>
@@ -731,7 +732,7 @@ export function CraftPage(): ReactElement {
                 onSelectRoute={handleSelectRoute}
               />
             ) : (
-              <LockedStateScreen title={describeActionId(selectedAction.action_id)} description={describeUnlockReason(selectedAction.unlock_state.reason)} />
+               <LockedStateScreen title={describeActionId(selectedAction.action_id)} description={describeUnlockReason(selectedAction.unlock_state.reason, selectedAction.unlock_state.blockers)} />
             )
           ) : (
             <EmptyStateScreen title="未选中行动" description="从左侧选择一个行动查看输入、输出和加入队列入口。" />
@@ -746,7 +747,7 @@ export function CraftPage(): ReactElement {
               onSelectRoute={handleSelectRoute}
             />
           ) : (
-              <LockedStateScreen title={describeRecipeId(selectedRecipe.recipe_id)} description={describeUnlockReason(selectedRecipe.unlock_state.reason)} />
+               <LockedStateScreen title={describeRecipeId(selectedRecipe.recipe_id)} description={describeUnlockReason(selectedRecipe.unlock_state.reason, selectedRecipe.unlock_state.blockers)} />
           )
         ) : (
           <EmptyStateScreen title="未选中配方" description="从左侧选择一个配方查看材料、产物和加入队列入口。" />

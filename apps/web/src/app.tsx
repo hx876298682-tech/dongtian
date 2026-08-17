@@ -25,10 +25,11 @@ import { SettingsPage } from './features/system/settings-page.js';
 import { ReferencePage } from './features/system/reference-pages.js';
 import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
-import type { AuthActiveSession, CharacterProgression, InventoryAsset, InventorySnapshot, Queue } from '@dongtian/contracts';
+import type { AuthActiveSession, CharacterProgression, InventorySnapshot, LoadoutPreset, Queue, CaveResponse, SkillToolAssignmentsResponse, DungeonOpportunityResponse } from '@dongtian/contracts';
 import { apiClient } from './lib/api.js';
 import { buildIdleProgressView } from './features/dashboard/dashboard-adapter.js';
 import { emitGameFeedback, subscribeGameFeedback, type GameFeedbackDetail } from './lib/game-feedback.js';
+import { buildCaveRailSummary, buildEquipmentRailSummary, buildInventoryRailSummary, buildLoadoutRailSummary, buildSkillsRailSummary } from './features/system/right-rail-adapter.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +68,18 @@ function GlobalIdleProgress({ characterId }: { readonly characterId: string }): 
       await queryClient.invalidateQueries({ queryKey: ['dashboard', characterId] });
     },
   });
+  const resumeMutation = useMutation({
+    mutationFn: () => apiClient.resumeQueue(
+      characterId,
+      { expected_queue_version: queueQuery.data?.queue_version ?? 0 },
+      createIdempotencyKey(),
+    ),
+    onSuccess: async () => {
+      emitGameFeedback('已恢复挂机。', 'success');
+      await queueQuery.refetch();
+      await queryClient.invalidateQueries({ queryKey: ['dashboard', characterId] });
+    },
+  });
 
   useEffect(() => {
     const timer = window.setInterval(() => setNowMs(Date.now()), 1000);
@@ -92,17 +105,11 @@ function GlobalIdleProgress({ characterId }: { readonly characterId: string }): 
         </div>
       </div>
       <span className="global-idle-progress__cycles">已完成 {view.completedCycles} 轮</span>
-      <button className="global-idle-progress__stop" type="button" onClick={() => pauseMutation.mutate()} disabled={view.paused || pauseMutation.isPending}>
-        {view.paused ? '已暂停' : pauseMutation.isPending ? '停止中' : '停止'}
+      <button className="global-idle-progress__stop" type="button" onClick={() => (view.paused ? resumeMutation.mutate() : pauseMutation.mutate())} disabled={pauseMutation.isPending || resumeMutation.isPending}>
+        {pauseMutation.isPending || resumeMutation.isPending ? '处理中…' : view.paused ? '恢复挂机' : '暂停挂机'}
       </button>
     </div>
   );
-}
-
-function inventoryLabel(asset: InventoryAsset): string {
-  const parts = asset.asset_id.split('.');
-  const raw = parts.at(-1) ?? asset.asset_id;
-  return raw.replaceAll('_', ' ');
 }
 
 function realmLabel(realmStageId: string | undefined): string {
@@ -125,16 +132,25 @@ function GlobalInventorySummary({ characterId }: { readonly characterId: string 
     staleTime: 20_000,
     refetchInterval: 45_000,
   });
-  const assets = inventoryQuery.data === undefined ? [] : [...inventoryQuery.data.currencies, ...inventoryQuery.data.items].slice(0, 12);
+  if (inventoryQuery.error !== null && inventoryQuery.error !== undefined) {
+    return <RailErrorState title="背包暂时无法读取" onRetry={() => queryClient.invalidateQueries({ queryKey: ['global-inventory', characterId] })} />;
+  }
+  if (inventoryQuery.isPending || inventoryQuery.data === undefined) {
+    return <RailLoadingState title="正在读取背包" />;
+  }
+  const summary = buildInventoryRailSummary(inventoryQuery.data);
+  if (summary.count === 0) {
+    return <RailEmptyState title="背包暂时为空" description="当前还没有可展示的修行物品。" />;
+  }
 
   return (
     <section className="rail-inventory" aria-label="角色背包摘要">
-      <div className="rail-inventory__header"><strong>背包</strong><span>{inventoryQuery.data?.total_count ?? 0} 件</span></div>
+      <div className="rail-inventory__header"><strong>背包</strong><span>{summary.count} 件</span></div>
       <div className="rail-inventory__grid">
-        {assets.map((asset) => (
-          <div className="rail-inventory__item" key={`${asset.asset_type}-${asset.asset_id}`} title={asset.asset_id}>
-            <span>{inventoryLabel(asset)}</span>
-            <strong>{asset.available_quantity}</strong>
+        {summary.items.map((asset) => (
+          <div className="rail-inventory__item" key={asset.key}>
+            <span>{asset.label}</span>
+            <strong>{asset.quantity}</strong>
           </div>
         ))}
       </div>
@@ -150,7 +166,7 @@ function GlobalResourceSummary({ characterId }: { readonly characterId: string }
     refetchInterval: 45_000,
   });
   const inventoryQuery = useQuery<InventorySnapshot>({
-    queryKey: ['global-resources', characterId],
+    queryKey: ['global-inventory', characterId],
     queryFn: () => apiClient.getInventory(characterId),
     staleTime: 20_000,
     refetchInterval: 45_000,
@@ -166,6 +182,18 @@ function GlobalResourceSummary({ characterId }: { readonly characterId: string }
   );
 }
 
+function RailLoadingState({ title }: { readonly title: string }): ReactElement {
+  return <section className="rail-card rail-card--state" aria-live="polite"><strong className="rail-card__title">{title}</strong><p className="rail-card__copy">正在读取真实数据。</p></section>;
+}
+
+function RailErrorState({ title, onRetry }: { readonly title: string; readonly onRetry: () => void | Promise<unknown> }): ReactElement {
+  return <section className="rail-card rail-card--state" role="alert"><strong className="rail-card__title">{title}</strong><p className="rail-card__copy">暂时无法读取，稍后可以重试。</p><button className="ghost-button" type="button" onClick={() => { void onRetry(); }}>重试</button></section>;
+}
+
+function RailEmptyState({ title, description }: { readonly title: string; readonly description: string }): ReactElement {
+  return <section className="rail-card rail-card--state"><strong className="rail-card__title">{title}</strong><p className="rail-card__copy">{description}</p></section>;
+}
+
 function AppFrame({
   children,
   onLogout,
@@ -177,7 +205,6 @@ function AppFrame({
 }): ReactElement {
   const location = useLocation();
   const leftRailCollapsed = useUiDraftStore((state) => state.leftRailCollapsed);
-  const rightRailPinned = useUiDraftStore((state) => state.rightRailPinned);
   const activeRailSection = useUiDraftStore((state) => state.activeRailSection);
   const currentActionSummary = useUiDraftStore((state) => state.currentActionSummary);
   const settlementSummary = useUiDraftStore((state) => state.settlementSummary);
@@ -185,11 +212,17 @@ function AppFrame({
   const queueDraftTitle = useUiDraftStore((state) => state.queueDraftTitle);
   const queueDraftNote = useUiDraftStore((state) => state.queueDraftNote);
   const setLeftRailCollapsed = useUiDraftStore((state) => state.setLeftRailCollapsed);
-  const setRightRailPinned = useUiDraftStore((state) => state.setRightRailPinned);
   const setActiveRailSection = useUiDraftStore((state) => state.setActiveRailSection);
   const [logCollapsed, setLogCollapsed] = useState(false);
   const [logChannel, setLogChannel] = useState<'收获' | '战斗' | '活动'>('收获');
   const [rightRailTab, setRightRailTab] = useState<'inventory' | 'equipment' | 'skills' | 'cave' | 'loadout'>('inventory');
+  const railInventoryQuery = useQuery<InventorySnapshot>({ queryKey: ['global-inventory', session.character_id], queryFn: () => apiClient.getInventory(session.character_id), staleTime: 20_000, refetchInterval: 45_000 });
+  const railProgressionQuery = useQuery<CharacterProgression>({ queryKey: ['global-progression', session.character_id], queryFn: () => apiClient.getProgression(session.character_id), staleTime: 20_000, refetchInterval: 45_000 });
+  const railAssignmentsQuery = useQuery<SkillToolAssignmentsResponse>({ queryKey: ['global-tool-assignments', session.character_id], queryFn: () => apiClient.getSkillToolAssignments(session.character_id), staleTime: 20_000, refetchInterval: 45_000 });
+  const railCaveQuery = useQuery<CaveResponse>({ queryKey: ['global-cave', session.character_id], queryFn: () => apiClient.getCave(session.character_id), staleTime: 20_000, refetchInterval: 45_000 });
+  const railOpportunityQuery = useQuery<DungeonOpportunityResponse>({ queryKey: ['global-dungeon-opportunities', session.character_id], queryFn: () => apiClient.getDungeonOpportunities(session.character_id), staleTime: 20_000, refetchInterval: 45_000 });
+  const activePresetId = railOpportunityQuery.data?.character.active_loadout_preset_id ?? '';
+  const railPresetQuery = useQuery<LoadoutPreset>({ queryKey: ['global-loadout', session.character_id, activePresetId], queryFn: () => apiClient.getLoadoutPreset(session.character_id, activePresetId), enabled: activePresetId.length > 0, staleTime: 20_000, refetchInterval: 45_000 });
   const shellQueueQuery = useQuery<Queue>({
     queryKey: ['global-idle-progress', session.character_id],
     queryFn: () => apiClient.getQueue(session.character_id),
@@ -205,6 +238,29 @@ function AppFrame({
     () => SHELL_ROUTES.find((route) => location.pathname === route.path || location.pathname.startsWith(`${route.path}/`)) ?? DEFAULT_SHELL_ROUTE,
     [location.pathname],
   );
+  const retryEquipment = async (): Promise<void> => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['global-dungeon-opportunities', session.character_id] }),
+      queryClient.invalidateQueries({ queryKey: ['global-inventory', session.character_id] }),
+      queryClient.invalidateQueries({ queryKey: ['global-loadout', session.character_id, activePresetId] }),
+    ]);
+  };
+  const retryCave = (): Promise<void> => queryClient.invalidateQueries({ queryKey: ['global-cave', session.character_id] }).then(() => undefined);
+  const retryLoadout = async (): Promise<void> => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['global-dungeon-opportunities', session.character_id] }),
+      queryClient.invalidateQueries({ queryKey: ['global-loadout', session.character_id, activePresetId] }),
+    ]);
+  };
+  const retrySkills = async (): Promise<void> => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['global-progression', session.character_id] }),
+      queryClient.invalidateQueries({ queryKey: ['global-tool-assignments', session.character_id] }),
+    ]);
+  };
+  const railSkillsSummary = railProgressionQuery.data !== undefined && railAssignmentsQuery.data !== undefined
+    ? buildSkillsRailSummary(railProgressionQuery.data, railAssignmentsQuery.data)
+    : null;
 
   return (
     <div className="app-shell">
@@ -239,19 +295,19 @@ function AppFrame({
         <aside className={`shell-nav ${leftRailCollapsed ? 'shell-nav--collapsed' : ''}`}>
           <div className="shell-nav__header">
             <span>导航</span>
-            <button className="ghost-button ghost-button--compact" type="button" onClick={() => setLeftRailCollapsed(!leftRailCollapsed)}>
+            <button className="ghost-button ghost-button--compact" type="button" aria-expanded={!leftRailCollapsed} aria-controls="shell-nav-groups" onClick={() => setLeftRailCollapsed(!leftRailCollapsed)}>
               {leftRailCollapsed ? '展开' : '收起'}
             </button>
           </div>
 
-          <div className="shell-nav__groups">
+          <div className="shell-nav__groups" id="shell-nav-groups">
             <section className="shell-nav__group">
               <h2 className="shell-nav__group-title">修行</h2>
               <nav className="shell-nav__list" aria-label="主导航：修行">
                 {SHELL_ROUTES.filter((route) => ['dashboard', 'cultivation', 'craft'].includes(route.id)).map((route) => (
                   <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-mark" aria-hidden="true" />
                     <span className="shell-nav__link-label">{route.label}</span>
-                    <span className="shell-nav__link-desc">{route.description}</span>
                   </NavLink>
                 ))}
               </nav>
@@ -261,8 +317,8 @@ function AppFrame({
               <nav className="shell-nav__list" aria-label="主导航：冒险">
                 {SHELL_ROUTES.filter((route) => ['expedition', 'maze', 'shops', 'tasks'].includes(route.id)).map((route) => (
                   <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-mark" aria-hidden="true" />
                     <span className="shell-nav__link-label">{route.label}</span>
-                    <span className="shell-nav__link-desc">{route.description}</span>
                   </NavLink>
                 ))}
               </nav>
@@ -272,8 +328,8 @@ function AppFrame({
               <nav className="shell-nav__list" aria-label="主导航：角色">
                 {SHELL_ROUTES.filter((route) => ['character', 'inventory', 'achievements', 'leaderboard'].includes(route.id)).map((route) => (
                   <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-mark" aria-hidden="true" />
                     <span className="shell-nav__link-label">{route.label}</span>
-                    <span className="shell-nav__link-desc">{route.description}</span>
                   </NavLink>
                 ))}
               </nav>
@@ -283,8 +339,8 @@ function AppFrame({
               <nav className="shell-nav__list" aria-label="主导航：社交">
                 {SHELL_ROUTES.filter((route) => ['guild', 'social'].includes(route.id)).map((route) => (
                   <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-mark" aria-hidden="true" />
                     <span className="shell-nav__link-label">{route.label}</span>
-                    <span className="shell-nav__link-desc">{route.description}</span>
                   </NavLink>
                 ))}
               </nav>
@@ -294,8 +350,8 @@ function AppFrame({
               <nav className="shell-nav__list" aria-label="主导航：其他">
                 {SHELL_ROUTES.filter((route) => ['settings', 'guide', 'rules', 'news'].includes(route.id)).map((route) => (
                   <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-mark" aria-hidden="true" />
                     <span className="shell-nav__link-label">{route.label}</span>
-                    <span className="shell-nav__link-desc">{route.description}</span>
                   </NavLink>
                 ))}
               </nav>
@@ -319,7 +375,7 @@ function AppFrame({
           <div className="shell-main__content">{children}</div>
           <section className={`game-log ${logCollapsed ? 'game-log--collapsed' : ''}`} aria-label="活动日志">
             <div className="game-log__header">
-              <div className="game-log__tabs"><strong>修行记录</strong>{(['收获', '战斗', '活动'] as const).map((channel) => <button key={channel} className={logChannel === channel ? 'game-log__tab game-log__tab--active' : 'game-log__tab'} type="button" onClick={() => setLogChannel(channel)}>{channel}</button>)}</div>
+              <div className="game-log__tabs"><strong>修行记录</strong>{(['收获', '战斗', '活动'] as const).map((channel) => <button key={channel} className={logChannel === channel ? 'game-log__tab game-log__tab--active' : 'game-log__tab'} type="button" aria-pressed={logChannel === channel} onClick={() => setLogChannel(channel)}>{channel}</button>)}</div>
               <button className="ghost-button ghost-button--compact" type="button" onClick={() => setLogCollapsed(!logCollapsed)}>{logCollapsed ? '展开' : '收起'}</button>
             </div>
             {logCollapsed ? null : (
@@ -332,18 +388,15 @@ function AppFrame({
           </section>
         </main>
 
-        <aside className={`shell-rail ${rightRailPinned ? 'shell-rail--pinned' : ''}`}>
+        <aside className="shell-rail">
           <div className="shell-rail__header">
             <div>
               <p className="shell-rail__eyebrow">角色信息</p>
               <h3 className="shell-rail__title">角色与背包</h3>
             </div>
-            <button className="ghost-button ghost-button--compact" type="button" onClick={() => setRightRailPinned(!rightRailPinned)}>
-              {rightRailPinned ? '取消固定' : '固定'}
-            </button>
           </div>
 
-          <nav className="rail-tabs" aria-label="角色面板">
+          <nav className="rail-tabs" role="tablist" aria-label="角色面板">
             {([
               ['inventory', '战利品'],
               ['equipment', '装备'],
@@ -351,15 +404,53 @@ function AppFrame({
               ['cave', '洞府'],
               ['loadout', '配装'],
             ] as const).map(([tab, label]) => (
-              <button key={tab} className={rightRailTab === tab ? 'rail-tab rail-tab--active' : 'rail-tab'} type="button" onClick={() => setRightRailTab(tab)}>{label}</button>
+              <button key={tab} id={`rail-tab-${tab}`} className={rightRailTab === tab ? 'rail-tab rail-tab--active' : 'rail-tab'} type="button" role="tab" aria-selected={rightRailTab === tab} aria-controls={rightRailTab === tab ? `rail-panel-${tab}` : undefined} tabIndex={rightRailTab === tab ? 0 : -1} onClick={() => setRightRailTab(tab)}>{label}</button>
             ))}
           </nav>
 
-          {rightRailTab === 'inventory' ? <GlobalInventorySummary characterId={session.character_id} /> : null}
-          {rightRailTab === 'equipment' ? <section className="rail-card"><strong className="rail-card__title">角色装备</strong><p className="rail-card__copy">查看装备槽位、比较属性并进行淬炼。</p><Link className="ghost-button" to="/character">打开装备</Link></section> : null}
-          {rightRailTab === 'skills' ? <section className="rail-card"><strong className="rail-card__title">修行技能</strong><p className="rail-card__copy">修炼、采集、炼丹和炼器会持续影响挂机收益。</p><Link className="ghost-button" to="/craft">打开百艺</Link></section> : null}
-          {rightRailTab === 'cave' ? <section className="rail-card"><strong className="rail-card__title">洞天设施</strong><p className="rail-card__copy">聚灵室、炼丹房和炼器房提供长期修行加成。</p><Link className="ghost-button" to="/dashboard/cave">查看设施</Link></section> : null}
-          {rightRailTab === 'loadout' ? <section className="rail-card"><strong className="rail-card__title">出战配装</strong><p className="rail-card__copy">秘境探险会使用角色页保存的装备方案。</p><Link className="ghost-button" to="/character">管理配装</Link></section> : null}
+          <div className="rail-tabs__panel" role="tabpanel" id={`rail-panel-${rightRailTab}`} aria-labelledby={`rail-tab-${rightRailTab}`}>
+            {rightRailTab === 'inventory' ? <GlobalInventorySummary characterId={session.character_id} /> : null}
+            {rightRailTab === 'equipment' ? (
+              railOpportunityQuery.isPending || railInventoryQuery.isPending || (activePresetId.length > 0 && railPresetQuery.isPending)
+                ? <RailLoadingState title="正在读取角色装备" />
+                : (railOpportunityQuery.error !== null && railOpportunityQuery.error !== undefined) || (railInventoryQuery.error !== null && railInventoryQuery.error !== undefined) || (activePresetId.length > 0 && railPresetQuery.error !== null && railPresetQuery.error !== undefined)
+                  ? <RailErrorState title="角色装备暂时无法读取" onRetry={retryEquipment} />
+                  : activePresetId.length === 0
+                    ? <RailEmptyState title="尚未设置装备方案" description="先在角色页设置一套装备方案，右栏才会显示槽位。" />
+                    : railPresetQuery.data === undefined || railInventoryQuery.data === undefined
+                      ? <RailLoadingState title="正在读取角色装备" />
+                      : <section className="rail-card"><strong className="rail-card__title">角色装备</strong><div className="rail-summary-list">{buildEquipmentRailSummary(railPresetQuery.data, railInventoryQuery.data).slots.map((slot) => <p key={slot.label}><span>{slot.label}</span><strong>{slot.value}</strong></p>)}</div><Link className="ghost-button" to="/character">打开装备</Link></section>
+            ) : null}
+            {rightRailTab === 'skills' ? (
+              railProgressionQuery.error !== null && railProgressionQuery.error !== undefined || railAssignmentsQuery.error !== null && railAssignmentsQuery.error !== undefined
+                ? <RailErrorState title="修行技能暂时无法读取" onRetry={retrySkills} />
+                : railProgressionQuery.isPending || railAssignmentsQuery.isPending || railSkillsSummary === null
+                  ? <RailLoadingState title="正在读取修行技能" />
+                  : railSkillsSummary.skills.length === 0
+                    ? <RailEmptyState title="暂无修行技能" description="当前角色还没有可展示的修行技能。" />
+                    : <section className="rail-card"><strong className="rail-card__title">修行技能</strong><p className="rail-card__copy">{railSkillsSummary.cultivation}</p><div className="rail-summary-list">{railSkillsSummary.skills.map((skill) => <p key={skill.label}><span>{skill.label}</span><strong>{skill.value}</strong></p>)}</div><Link className="ghost-button" to="/craft">打开百艺</Link></section>
+            ) : null}
+            {rightRailTab === 'cave' ? (
+              railCaveQuery.isPending
+                ? <RailLoadingState title="正在读取洞府设施" />
+                : railCaveQuery.error !== null && railCaveQuery.error !== undefined
+                  ? <RailErrorState title="洞府设施暂时无法读取" onRetry={retryCave} />
+                  : railCaveQuery.data === undefined
+                    ? <RailLoadingState title="正在读取洞府设施" />
+                    : railCaveQuery.data.cave.facilities.length === 0
+                      ? <RailEmptyState title="暂无洞府设施" description="当前角色还没有可展示的洞府设施。" />
+                      : <section className="rail-card"><strong className="rail-card__title">洞天设施</strong><div className="rail-summary-list">{buildCaveRailSummary(railCaveQuery.data).facilities.map((facility) => <p key={facility.label}><span>{facility.label}</span><strong>{facility.value}</strong></p>)}</div><Link className="ghost-button" to="/dashboard/cave">查看设施</Link></section>
+            ) : null}
+            {rightRailTab === 'loadout' ? (
+              railOpportunityQuery.isPending || (activePresetId.length > 0 && railPresetQuery.isPending)
+                ? <RailLoadingState title="正在读取出战配装" />
+                : railOpportunityQuery.error !== null && railOpportunityQuery.error !== undefined || (activePresetId.length > 0 && railPresetQuery.error !== null && railPresetQuery.error !== undefined)
+                  ? <RailErrorState title="出战配装暂时无法读取" onRetry={retryLoadout} />
+                  : activePresetId.length === 0 || railPresetQuery.data === undefined
+                    ? <RailEmptyState title="尚未设置出战配装" description="在角色页启用一套配装后，秘境才会采用它。" />
+                    : <section className="rail-card"><strong className="rail-card__title">{buildLoadoutRailSummary(railPresetQuery.data).name}</strong><p className="rail-card__copy">{buildLoadoutRailSummary(railPresetQuery.data).status}</p><p className="rail-card__note">{buildLoadoutRailSummary(railPresetQuery.data).consumables}</p><Link className="ghost-button" to="/character">管理配装</Link></section>
+            ) : null}
+          </div>
 
           <section className="rail-card rail-card--status">
             <div className="rail-card__header"><span className="rail-card__slot">当前</span><strong className="rail-card__title">{liveActionSummary}</strong></div>
@@ -397,9 +488,6 @@ function AppFrame({
         ))}
       </nav>
 
-      <footer className="app-shell__footer" role="contentinfo">
-        洞天活动日志
-      </footer>
     </div>
   );
 }
@@ -422,8 +510,8 @@ function AppRoutes(): ReactElement {
       <div className="app-boot">
         <LoadingStateScreen
           title="正在初始化匿名会话"
-          description="先获取受保护首页所需的最小权威数据，再进入骨架主页。"
-          footnote="网络错误可重试，503 会切换到维护态。"
+          description="先获取首页所需的基础状态，再进入洞天主页。"
+          footnote="网络不稳时可以重试，维护期间会暂时关闭入口。"
         />
       </div>
     );
@@ -447,7 +535,7 @@ function AppRoutes(): ReactElement {
       <div className="app-boot">
         <LocalErrorStateScreen
           title="网络错误"
-          description="会话读取失败，保留本地草稿并允许重试。"
+          description="会话读取失败，保留当前进度并允许重试。"
           actions={[
             { label: '重试', onClick: auth.retry },
             { label: '匿名重建', onClick: auth.createAnonymousSession },

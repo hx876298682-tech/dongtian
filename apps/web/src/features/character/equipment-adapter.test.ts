@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { InventorySnapshot, LoadoutPreset } from '@dongtian/contracts';
 
-import { buildEquipmentSelectionView, buildEquipmentSlotComparisonRows, summarizeLoadoutPreset } from './equipment-adapter.js';
+import { buildEquipmentSelectionView, buildEquipmentSlotComparisonRows, summarizeEquipmentError, summarizeLoadoutPreset } from './equipment-adapter.js';
 
 const inventory: InventorySnapshot = {
   items: [],
@@ -47,6 +47,11 @@ const comparePreset: LoadoutPreset = {
 };
 
 describe('equipment adapter', () => {
+  it('uses player-facing copy without exposing configuration versions', () => {
+    expect(summarizeLoadoutPreset(null)).toBe('暂无装备方案');
+    expect(summarizeEquipmentError(409, undefined, null)).toBe('当前状态已变化，请刷新后重试。');
+    expect(summarizeEquipmentError(422, undefined, null)).toBe('当前装备选择未能生效，请稍后重试。');
+  });
   it('summarizes presets and slot diffs without market data', () => {
     expect(summarizeLoadoutPreset({ ...currentPreset, effective_next_cycle: true })).toContain('下周期生效');
     const rows = buildEquipmentSlotComparisonRows(currentPreset, comparePreset, inventory);

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-// The Web package intentionally excludes Node types; Vitest runs this test in Node.
-// @ts-expect-error Node runtime API used to inspect the shell source contract.
+// Vitest runs this source-contract test in Node.
 import { readFileSync } from 'node:fs';
 
 import appSource from './app.tsx?raw';
@@ -25,8 +24,9 @@ describe('one-screen app shell', () => {
     expect(appSource).toMatch(/className="app-shell__workspace"/);
     expect(appSource).toMatch(/<aside className=\{`shell-nav/);
     expect(appSource).toMatch(/<main className="shell-main"[^>]*id="main-content"/);
-    expect(appSource).toMatch(/<aside className=\{`shell-rail/);
-    expect(appSource).toMatch(/className="app-shell__footer"/);
+    expect(appSource).toMatch(/<aside className="shell-rail"/);
+    expect(appSource).toMatch(/aria-label="活动日志"/);
+    expect(appSource).not.toMatch(/className="app-shell__footer"/);
   });
 
   it('keeps the desktop viewport fixed while allowing the main surface to scroll internally', () => {
@@ -47,6 +47,10 @@ describe('one-screen app shell', () => {
     expect(appSource).toMatch(/className="shell-mobile-nav"/);
     expect(appSource).toMatch(/aria-label="移动端主导航"/);
     expect(stylesSource).toMatch(/@media \(max-width: 920px\)[\s\S]*\.shell-mobile-nav \{[\s\S]*?display:\s*grid/);
+    expect(stylesSource).toMatch(/@media \(max-width: 920px\)[\s\S]*?\.app-shell__topbar\s*\{[\s\S]*?flex-wrap:\s*wrap/);
+    expect(stylesSource).toMatch(/@media \(max-width: 920px\)[\s\S]*?\.app-shell__topbar\s*\{[\s\S]*?min-width:\s*0/);
+    expect(stylesSource).toMatch(/@media \(max-width: 920px\)[\s\S]*?\.global-idle-progress\s*\{[\s\S]*?min-width:\s*0/);
+    expect(stylesSource).toMatch(/@media \(max-width: 920px\)[\s\S]*?\.topbar-metrics\s*\{[\s\S]*?min-width:\s*0/);
   });
 
   it('uses a compact player-facing navigation with grouped destinations', () => {
@@ -59,6 +63,17 @@ describe('one-screen app shell', () => {
     expect(appSource).toMatch(/\['character', 'inventory', 'achievements', 'leaderboard'\]/);
     expect(appSource).toMatch(/\['guild', 'social'\]/);
     expect(appSource).toMatch(/\['settings', 'guide', 'rules', 'news'\]/);
+    expect(appSource).not.toMatch(/shell-nav__link-desc/);
+    expect(appSource).toMatch(/shell-nav__link-label/);
+  });
+
+  it('keeps the right rail summary without a pin control', () => {
+    expect(appSource).toMatch(/aria-label="角色面板"/);
+    expect(appSource).toMatch(/\['inventory', '战利品'\]/);
+    expect(appSource).toMatch(/\['loadout', '配装'\]/);
+    expect(appSource).not.toMatch(/rightRailPinned/);
+    expect(appSource).not.toMatch(/setRightRailPinned/);
+    expect(appSource).not.toMatch(/固定|取消固定/);
   });
 
   it('keeps the top bar focused on player resources instead of engineering metadata', () => {
@@ -73,6 +88,12 @@ describe('one-screen app shell', () => {
     expect(appSource).toMatch(/formatPlayerNumber\(progressionQuery\.data\?\.cultivation\.xp\)/);
   });
 
+  it('lets players resume a paused idle action from the global top bar', () => {
+    expect(appSource).toMatch(/apiClient\.resumeQueue\(/);
+    expect(appSource).toMatch(/恢复挂机/);
+    expect(appSource).toMatch(/暂停挂机/);
+  });
+
   it('exposes player-facing right rail tabs, activity log channels, and feedback landmark', () => {
     expect(appSource).toMatch(/aria-label="角色面板"/);
     expect(appSource).toMatch(/战利品/);
@@ -81,5 +102,38 @@ describe('one-screen app shell', () => {
     expect(appSource).toMatch(/aria-label="活动日志"/);
     expect(appSource).toMatch(/aria-label="操作反馈"/);
     expect(appSource).toMatch(/logChannel === '活动'/);
+    expect(appSource).toMatch(/role="tablist"/);
+    expect(appSource).toMatch(/role="tab"/);
+    expect(appSource).toMatch(/aria-selected=\{rightRailTab === tab\}/);
+    expect(appSource).toMatch(/aria-controls=\{rightRailTab === tab \? `rail-panel-\$\{tab\}` : undefined\}/);
+    expect(appSource).not.toMatch(/aria-controls=\{`rail-panel-\$\{tab\}`\}/);
+    expect(appSource).toMatch(/aria-pressed=\{logChannel === channel\}/);
+  });
+
+  it('keeps shell controls labelled and right rail states player-facing', () => {
+    expect(appSource).toMatch(/aria-expanded=\{!leftRailCollapsed\}/);
+    expect(appSource).toMatch(/aria-controls="shell-nav-groups"/);
+    expect(appSource).toMatch(/railCaveQuery\.isPending/);
+    expect(appSource).toMatch(/railCaveQuery\.error/);
+    expect(appSource).toMatch(/railPresetQuery\.isPending/);
+    expect(appSource).toMatch(/railPresetQuery\.error/);
+    expect(appSource).toMatch(/railOpportunityQuery\.isPending/);
+    expect(appSource).toMatch(/railOpportunityQuery\.error/);
+    expect(appSource).toMatch(/inventoryQuery\.isPending/);
+    expect(appSource).toMatch(/inventoryQuery\.error/);
+    expect(appSource).toMatch(/正在读取背包/);
+    expect(appSource).toMatch(/背包暂时无法读取/);
+    expect(appSource).toMatch(/背包暂时为空/);
+    expect(appSource).toMatch(/railAssignmentsQuery\.isPending/);
+    expect(appSource).toMatch(/railAssignmentsQuery\.error/);
+    expect(appSource).toMatch(/修行技能暂时无法读取/);
+    expect(appSource).toMatch(/queryKey: \['global-cave'/);
+    expect(appSource).toMatch(/queryKey: \['global-loadout'/);
+    expect(appSource).toMatch(/重试/);
+    expect(appSource).not.toMatch(/summary\?\.count \?\? 0/);
+    expect(appSource).toMatch(/尚未设置装备方案/);
+    expect(appSource).toMatch(/尚未设置出战配装/);
+    expect(appSource).not.toMatch(/buildEquipmentRailSummary\(railPresetQuery\.data \?\? null/);
+    expect(appSource).not.toMatch(/buildLoadoutRailSummary\(railPresetQuery\.data \?\? null/);
   });
 });

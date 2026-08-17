@@ -84,7 +84,7 @@ const registry = {
   manifest: { config_version: '2026.08.16.1' } as unknown as ConfigRegistry['manifest'],
   caveFacilities,
   getCaveFacility(id: string) {
-    const facility = caveFacilities.find((entry) => entry.facility_id === id);
+    const facility = caveFacilities.find((entry) => entry.id === id);
     if (!facility) {
       throw new Error(`CONFIG_NOT_FOUND:cave_facility:${id}`);
     }

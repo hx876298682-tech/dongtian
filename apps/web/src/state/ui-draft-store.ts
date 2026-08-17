@@ -24,11 +24,11 @@ const initialState = {
   leftRailCollapsed: false,
   rightRailPinned: true,
   activeRailSection: 'current-action' as RailSection,
-  currentActionSummary: '当前无权威行动快照。',
+  currentActionSummary: '当前没有行动状态。',
   settlementSummary: '最新离线摘要尚未加载。',
   goalTrackerSummary: '加载目标追踪后显示筑基缺口。',
   queueDraftTitle: '采药 2 小时 → 炼丹 100 次 → 无限修炼',
-  queueDraftNote: '仅保存本机计划备注，不承载权威队列或收益。',
+  queueDraftNote: '这是快捷参考方案，不会改变当前挂机安排。',
 };
 
 export const useUiDraftStore = create<UiDraftState>((set) => ({

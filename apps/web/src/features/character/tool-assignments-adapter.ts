@@ -5,7 +5,7 @@ import type {
   SkillToolAssignmentsResponse,
 } from '@dongtian/contracts';
 
-import { describeRoute, joinRoutePath, routeKey } from '../content/content-adapter.js';
+import { describeItemId, describeRealmId, describeRoute, describeSkillId, joinRoutePath, routeKey } from '../content/content-adapter.js';
 
 function toFiniteNumber(value: string | number | null | undefined): number | null {
   if (value === null || value === undefined || value === '') {
@@ -35,19 +35,27 @@ function formatPercent(value: string | number | null | undefined): string {
 }
 
 function skillLabel(skillId: string): string {
-  switch (skillId) {
-    case 'skill.herbalism':
-      return '采药';
-    case 'skill.mining':
-      return '采矿';
-    case 'skill.alchemy':
-      return '炼丹';
-    case 'skill.smithing':
-      return '炼器';
-    case 'skill.cultivation':
-      return '炼气';
+  return skillId === 'skill.mining' ? '采矿' : describeSkillId(skillId);
+}
+
+export function describeToolItemName(nameKey: string | null | undefined): string {
+  if (nameKey === null || nameKey === undefined || nameKey.length === 0) return '未知工具';
+  if (!/^[a-z0-9_.-]+$/.test(nameKey)) return nameKey;
+  const itemId = nameKey.replace(/\.name$/, '').replace(/^item\.(?!t\d+\.)/, 'item.t1.');
+  const label = describeItemId(itemId);
+  return label === '未鉴定物品' ? '未知工具' : label;
+}
+
+export function describeToolTag(tag: string | null | undefined): string {
+  switch (tag) {
+    case 'alchemy_tool':
+      return '炼丹炉';
+    case 'herbalism_tool':
+      return '采药工具';
+    case 'mining_tool':
+      return '采矿工具';
     default:
-      return skillId.replace(/^skill\./, '');
+      return '修行工具';
   }
 }
 
@@ -122,7 +130,7 @@ export function summarizeToolAssignmentsHero(
       { label: '技能数', value: String(response.assignments.length) },
       { label: '当前分配', value: String(currentCount) },
       { label: '候选工具', value: String(optionCount) },
-      { label: '状态版本', value: String(response.state_version) },
+      { label: '状态', value: '已同步' },
     ],
     simplifiedMode,
   };
@@ -136,15 +144,15 @@ export function summarizeToolAssignmentSkill(
   return {
     skillId: assignment.skill_id,
     label: skillLabel(assignment.skill_id),
-    assignmentLabel: assignment.current === null ? '未分配' : assignment.current.item_name_key,
+    assignmentLabel: assignment.current === null ? '未分配' : describeToolItemName(assignment.current.item_name_key),
     currentLine: assignment.current === null
       ? '当前没有装备工具'
-      : `${assignment.current.item_name_key} · ${assignment.current.tool_tag} · ${assignment.current.effective_throughput_per_hour}/小时`,
+      : `${describeToolItemName(assignment.current.item_name_key)} · ${describeToolTag(assignment.current.tool_tag)} · ${assignment.current.effective_throughput_per_hour}/小时`,
     optionCount: assignment.options.length,
     lockedCount,
     bestLine: selectedOption === null
       ? '暂无选中候选'
-      : `${selectedOption.item_name_key} · ${selectedOption.effective_throughput_per_hour}/小时`,
+      : `${describeToolItemName(selectedOption.item_name_key)} · ${selectedOption.effective_throughput_per_hour}/小时`,
   };
 }
 
@@ -155,11 +163,11 @@ export function summarizeToolAssignmentDetail(
 ): ToolAssignmentsDetailView {
   const currentSummary = assignment.current === null
     ? '当前分配为空'
-    : `${assignment.current.item_name_key} · ${assignment.current.tool_tag} · ${assignment.current.effective_throughput_per_hour}/小时`;
+    : `${describeToolItemName(assignment.current.item_name_key)} · ${describeToolTag(assignment.current.tool_tag)} · ${assignment.current.effective_throughput_per_hour}/小时`;
   const currentStats = assignment.current === null
     ? []
     : [
-        { label: '工具标签', value: assignment.current.tool_tag },
+        { label: '工具类型', value: describeToolTag(assignment.current.tool_tag) },
         { label: '速度倍率', value: formatPercent(assignment.current.speed_multiplier) },
         { label: '效率倍率', value: formatPercent(assignment.current.efficiency_multiplier) },
         { label: '每小时周期', value: `${formatDecimal(assignment.current.cycles_per_hour)} 次` },
@@ -168,12 +176,12 @@ export function summarizeToolAssignmentDetail(
 
   const options = assignment.options.map((option) => ({
     option,
-    label: option.item_name_key,
-    summary: `${option.tool_tag} · ${option.effective_throughput_per_hour}/小时 · ${option.source_note}`,
+    label: describeToolItemName(option.item_name_key),
+    summary: `${describeToolTag(option.tool_tag)} · ${option.effective_throughput_per_hour}/小时 · ${option.source_note}`,
     comparisonLine:
       option.comparison === null
         ? '当前选项为基准或缺少比较值'
-        : `相对首选 ${option.comparison.preferred_equipment_instance_id} · 产能差 ${option.comparison.throughput_delta_per_hour}/小时 · 周期差 ${option.comparison.cycles_delta_per_hour}/小时`,
+        : `相对首选工具 · 产能差 ${option.comparison.throughput_delta_per_hour}/小时 · 周期差 ${option.comparison.cycles_delta_per_hour}/小时`,
     sourceRoutes: summarizeRouteList(option.source_routes),
     usageRoutes: summarizeRouteList(option.usage_routes),
   }));
@@ -181,10 +189,10 @@ export function summarizeToolAssignmentDetail(
   const routeHints = options.flatMap((option) => option.option.source_routes.map(describeRoute).concat(option.option.usage_routes.map(describeRoute)));
 
   return {
-    header: selectedOption === null ? assignment.skill_id : `${skillLabel(assignment.skill_id)} · ${selectedOption.item_name_key}`,
+    header: selectedOption === null ? skillLabel(assignment.skill_id) : `${skillLabel(assignment.skill_id)} · ${describeToolItemName(selectedOption.item_name_key)}`,
     summary: selectedOption === null
       ? '从左侧选择工具，或者使用键盘在候选项之间切换。'
-      : `${selectedOption.required_realm} · ${selectedOption.source_note} · ${selectedOption.effective_throughput_per_hour}/小时`,
+      : `${describeRealmId(selectedOption.required_realm)} · ${selectedOption.source_note} · ${selectedOption.effective_throughput_per_hour}/小时`,
     currentSummary,
     currentStats,
     options,
@@ -193,7 +201,7 @@ export function summarizeToolAssignmentDetail(
   };
 }
 
-export function summarizeToolAssignmentsError(status: number, code: string | undefined, details: unknown): string {
+export function summarizeToolAssignmentsError(status: number, _code: string | undefined, _details: unknown): string {
   if (status === 404) {
     return '当前角色没有可读取的工具分配，或者角色不存在。';
   }
@@ -203,19 +211,18 @@ export function summarizeToolAssignmentsError(status: number, code: string | und
   }
 
   if (status === 409) {
-    return '权威状态已变化，请刷新后重试。';
+    return '当前状态已变化，请刷新后重试。';
   }
 
   if (status === 422) {
-    return '服务端拒绝了当前工具分配请求。';
+    return '当前工具分配未能生效，请稍后重试。';
   }
 
   if (status === 400) {
     return '请求参数不合法。';
   }
 
-  const detailText = typeof details === 'object' && details !== null ? JSON.stringify(details) : '';
-  return code === undefined ? `HTTP ${status}` : `${code}${detailText.length > 0 ? ` · ${detailText}` : ''}`;
+  return status >= 500 ? '暂时无法读取工具状态，请稍后重试。' : '工具分配暂时未完成，请检查条件后重试。';
 }
 
 export function buildToolAssignmentRouteHref(route: ContentRoute): string {
@@ -225,4 +232,3 @@ export function buildToolAssignmentRouteHref(route: ContentRoute): string {
 export function buildToolAssignmentRouteLabel(route: ContentRoute): string {
   return routeKey(route);
 }
-

@@ -54,7 +54,9 @@ describe('tempering page surfaces', () => {
     );
 
     expect(ladder).toContain('+7 以上锁定');
-    expect(result).toContain('audit-1');
-    expect(result).toContain('相同 attempt_id 重试');
+    expect(result).toContain('本次结果已记录');
+    expect(result).toContain('沿用本次操作重试');
+    expect(result).not.toContain('audit-1');
+    expect(result).not.toContain('attempt_id');
   });
 });

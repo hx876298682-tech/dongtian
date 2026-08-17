@@ -14,15 +14,16 @@ describe('equipment page states', () => {
       renderToStaticMarkup(createElement(EquipmentMaintenance, { reason: 'maintenance', onRetry: () => undefined })),
       renderToStaticMarkup(createElement(EquipmentLocked, { reason: 'locked', onRetry: () => undefined })),
       renderToStaticMarkup(createElement(EquipmentMissingPreset, { onOpenInventory: () => undefined })),
-      renderToStaticMarkup(createElement(NormalStateScreen, { title: '正常', description: '可编辑。', highlight: '权威响应' })),
+      renderToStaticMarkup(createElement(NormalStateScreen, { title: '正常', description: '可编辑。', highlight: '状态已更新' })),
     ];
 
     expect(screens[0]).toContain('正在整理角色装备');
-    expect(screens[1]).toContain('装备页读取失败');
+    expect(screens[1]).toContain('装备页暂时无法打开');
+    expect(screens[1]).not.toContain('boom');
     expect(screens[2]).toContain('装备页维护中');
     expect(screens[3]).toContain('装备功能受限');
     expect(screens[4]).toContain('请选择装备方案');
-    expect(screens[5]).toContain('权威响应');
+    expect(screens[5]).toContain('状态已更新');
   });
 });
 
@@ -45,7 +46,8 @@ describe('equipment instance detail', () => {
     );
 
     expect(markup).toContain('装备详情');
-    expect(markup).toContain('cuizhi_jian');
+    expect(markup).toContain('粗制剑');
+    expect(markup).not.toContain('cuizhi_jian');
     expect(markup).toContain('当前预设中是武器');
     expect(markup).toContain('强化差 3 / 5');
     expect(markup).toContain('进入淬炼');

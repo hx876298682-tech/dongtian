@@ -20,5 +20,6 @@ describe('breakthrough page states', () => {
     expect(
       renderToStaticMarkup(<BreakthroughError error="boom" onRetry={() => undefined} />),
     ).toContain('筑基暂时无法打开');
+    expect(renderToStaticMarkup(<BreakthroughError error="boom" onRetry={() => undefined} />)).toContain('试炼状态读取失败');
   });
 });

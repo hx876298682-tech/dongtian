@@ -21,7 +21,9 @@ import {
 
 import { apiClient } from '../../lib/api.js';
 import { emitGameFeedback } from '../../lib/game-feedback.js';
+import { shouldConfirmImportantActions } from '../../lib/game-settings.js';
 import { buildCaveBuildRequest, buildCavePageView, summarizeCaveFacilitySubtitle, type CaveFacilityView } from './cave-adapter.js';
+import { describeItemId } from '../content/content-adapter.js';
 import {
   cavePageReducer,
   createCaveIdempotencyKey,
@@ -107,11 +109,11 @@ export function CaveError({ onRetry }: { readonly error: string; readonly onRetr
   );
 }
 
-export function CaveMaintenance({ reason, onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
+export function CaveMaintenance({ onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="cave-layout">
       <div className="cave-panel cave-panel--hero">
-        <MaintenanceStateScreen title="洞府服务维护中" description="洞府 API 或依赖当前不可用。" actions={[{ label: '重试', onClick: onRetry }]} footnote={reason} />
+        <MaintenanceStateScreen title="洞府服务维护中" description="洞府暂时无法读取，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="cave-panel">
         <EmptyStateScreen title="设施列表" description="维护期间不展示伪造设施。" />
@@ -123,11 +125,11 @@ export function CaveMaintenance({ reason, onRetry }: { readonly reason: string; 
   );
 }
 
-export function CaveLocked({ reason, onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
+export function CaveLocked({ onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="cave-layout">
       <div className="cave-panel cave-panel--hero">
-        <LockedStateScreen title="洞府功能受限" description="当前账号已认证，但洞府页没有解锁或没有权限。" actions={[{ label: '重试', onClick: onRetry }]} footnote={reason} />
+        <LockedStateScreen title="洞府功能受限" description="当前账号暂时无法进入洞府，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="cave-panel">
         <EmptyStateScreen title="设施列表" description="当前无法读取洞府设施。" />
@@ -139,17 +141,17 @@ export function CaveLocked({ reason, onRetry }: { readonly reason: string; reado
   );
 }
 
-export function CaveEmpty({ reason, onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
+export function CaveEmpty({ onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="cave-layout">
       <div className="cave-panel cave-panel--hero">
-        <EmptyStateScreen title="洞府暂无设施" description="当前洞府没有可展示的设施快照。" actions={[{ label: '重试', onClick: onRetry }]} footnote={reason} />
+        <EmptyStateScreen title="洞府暂未发现设施" description="当前洞府还没有可展示的设施。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="cave-panel">
-        <EmptyStateScreen title="设施列表" description="等待服务端返回设施配置。" />
+        <EmptyStateScreen title="设施列表" description="暂未发现可用设施。" />
       </div>
       <div className="cave-panel">
-        <EmptyStateScreen title="设施详情" description="等待服务端返回设施配置。" />
+        <EmptyStateScreen title="设施详情" description="选择设施后查看详情。" />
       </div>
     </section>
   );
@@ -248,7 +250,7 @@ function CaveDetailPanel({
         footnote={view.buildTaskCostSummary ?? undefined}
         actions={[
           { label: '刷新洞府', onClick: onRefresh },
-          ...(canRetry ? [{ label: '沿用同一幂等键重试', onClick: onRetry }] : []),
+          ...(canRetry ? [{ label: '沿用本次操作重试', onClick: onRetry }] : []),
         ]}
       />
     );
@@ -260,7 +262,7 @@ function CaveDetailPanel({
         title={`${view.facilityLabel} · 资源不足`}
         description={renderDetailDescription([
           ...detailLines,
-          ...view.missingResources.map((gap) => `${gap.itemId} 缺 ${gap.missing} · 持有 ${gap.owned} / ${gap.required}`),
+          ...view.missingResources.map((gap) => `${gap.itemId === 'currency.spirit_stone' ? '灵石' : describeItemId(gap.itemId)} 缺 ${gap.missing} · 持有 ${gap.owned} / ${gap.required}`),
         ])}
         highlight="先补齐缺口"
         footnote={view.nextLevelRuleLabel}
@@ -285,7 +287,7 @@ function CaveDetailPanel({
         <div className="cave-gap-list" aria-label="库存缺口">
           {view.missingResources.map((gap) => (
             <article key={gap.itemId} className="cave-gap">
-              <strong>{gap.itemId}</strong>
+                    <strong>{gap.itemId === 'currency.spirit_stone' ? '灵石' : describeItemId(gap.itemId)}</strong>
               <p>
                 需要 {gap.required}，持有 {gap.owned}，缺口 {gap.missing}
               </p>
@@ -299,7 +301,7 @@ function CaveDetailPanel({
         </button>
         {canRetry ? (
           <button className="ghost-button" type="button" onClick={onRetry}>
-            沿用同一幂等键重试
+            沿用本次操作重试
           </button>
         ) : null}
       </div>
@@ -308,12 +310,9 @@ function CaveDetailPanel({
 }
 
 function buildMutationErrorMessage(error: unknown): string {
-  if (error instanceof ApiClientError) {
-    const detailText = error.details === undefined ? '' : ` · ${JSON.stringify(error.details)}`;
-    return `${error.code ?? `HTTP ${error.status}`}${detailText.length > 0 ? detailText : ''}`;
-  }
-
-  return error instanceof Error ? error.message : '未知错误';
+  return error instanceof ApiClientError || error instanceof Error
+    ? '暂时无法完成开建，请稍后重试。'
+    : '暂时无法完成开建，请稍后重试。';
 }
 
 export function CavePage(): ReactElement {
@@ -372,15 +371,15 @@ export function CavePage(): ReactElement {
 
   if (firstError !== undefined && firstError !== null) {
     if (firstError instanceof ApiClientError && firstError.status === 503) {
-      return <CaveMaintenance reason={firstError.message} onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
+      return <CaveMaintenance reason="" onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
     }
     if (firstError instanceof ApiClientError && firstError.status === 403) {
-      return <CaveLocked reason={firstError.message} onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
+      return <CaveLocked reason="" onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
     }
     if (firstError instanceof ApiClientError && firstError.status === 404) {
-      return <CaveEmpty reason={firstError.message} onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
+      return <CaveEmpty reason="" onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
     }
-    return <CaveError error={firstError.message} onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
+    return <CaveError error="" onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
   }
 
   if (caveQuery.data === undefined) {
@@ -395,7 +394,7 @@ export function CavePage(): ReactElement {
     now,
   );
   if (caveView.facilities.length === 0) {
-    return <CaveEmpty reason="服务端没有返回任何设施。" onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
+    return <CaveEmpty reason="" onRetry={async () => queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] })} />;
   }
 
   const activeFacility = caveView.activeFacility;
@@ -406,7 +405,8 @@ export function CavePage(): ReactElement {
     if (activeFacility?.canBuild !== true) {
       return;
     }
-    dispatch({ type: 'open-confirmation' });
+    if (shouldConfirmImportantActions()) dispatch({ type: 'open-confirmation' });
+    else handleSubmitBuild();
   };
 
   const handleSubmitBuild = (): void => {
@@ -458,7 +458,7 @@ export function CavePage(): ReactElement {
           </div>
           <div className="cave-panel__meta">
             <span>{caveView.activeFacilityState}</span>
-            <span>服务端 as_of {caveQuery.data.cave.as_of}</span>
+            <span>洞府状态已更新</span>
           </div>
         </div>
         <div className="cave-facility-list">
@@ -494,7 +494,7 @@ export function CavePage(): ReactElement {
         />
 
         {state.lastErrorMessage !== null ? (
-          <LocalErrorStateScreen title="开建失败" description="本次提交未完成，幂等键保留，可直接重试。" footnote={state.lastErrorMessage} actions={[{ label: '沿用同一幂等键重试', onClick: handleRetryBuild }]} />
+          <LocalErrorStateScreen title="开建失败" description="本次提交未完成，可以沿用本次操作重试。" actions={[{ label: '沿用本次操作重试', onClick: handleRetryBuild }]} />
         ) : null}
       </div>
 

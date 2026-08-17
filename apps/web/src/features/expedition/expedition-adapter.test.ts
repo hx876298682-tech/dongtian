@@ -99,9 +99,14 @@ describe('expedition adapter', () => {
     const runView = summarizeDungeonRun(runResponse);
 
     expect(opportunityView.title).toContain('机会 5/6');
+    expect(opportunityView.grantLine).toContain('秘境入门教学');
+    expect(opportunityView.grantLine).not.toContain('TUT-007');
     expect(previewView.choices).toHaveLength(2);
+    expect(previewView.entryItems.join(' ')).not.toContain('item.');
     expect(runView.headline).toContain('等待结算');
-    expect(runView.rewardLines.join(' ')).toContain('item.t2.lingsui');
+    expect(runView.rewardLines.join(' ')).toContain('灵髓');
+    expect(runView.rewardLines.join(' ')).not.toContain('route.');
+    expect(runView.combatLines.join(' ')).not.toContain('µs');
     expect(isDungeonRunTimedOut(runResponse.run, new Date('2026-08-16T00:00:30.000Z'))).toBe(false);
   });
 });

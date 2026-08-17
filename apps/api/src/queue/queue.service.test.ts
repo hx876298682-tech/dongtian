@@ -240,10 +240,12 @@ function makeService(
   readonly inventoryState: ItemState;
   readonly reservations: ReservationState[];
   readonly steps: string[];
+  readonly settlementSegmentLimits: number[];
 } {
   const inventoryState: ItemState = { quantity: initialInventory, reserved: 0n };
   const reservations: ReservationState[] = [];
   const steps: string[] = [];
+  const settlementSegmentLimits: number[] = [];
   let nextEntryId = 1;
   let nextTransactionId = 1;
   let nextLedgerEntryId = 1;
@@ -458,6 +460,7 @@ function makeService(
       input: {
         readonly operationType: 'QUEUE_SAVE' | 'QUEUE_PAUSE' | 'QUEUE_RESUME';
         readonly request: unknown;
+        readonly segmentLimit?: number;
         readonly execute: (context: {
           readonly client: unknown;
           readonly settlement: { readonly continuationRequired: boolean };
@@ -484,6 +487,9 @@ function makeService(
 
       const client = { settlementClientId: `tx-${steps.length + 1}` };
       currentTxClient = client;
+      if (input.segmentLimit !== undefined) {
+        settlementSegmentLimits.push(input.segmentLimit);
+      }
       steps.push(`settlement:${input.operationType}`);
       const result = await input.execute({
         client,
@@ -509,6 +515,7 @@ function makeService(
     inventoryState,
     reservations,
     steps,
+    settlementSegmentLimits,
   };
 }
 
@@ -714,6 +721,17 @@ describe('QueueService', () => {
     expect(steps).toContain('asset.getInventoryOnTransaction');
     expect(inventoryState.reserved).toBe(6n);
     expect(reservations).toHaveLength(1);
+  });
+
+  it('uses a large settlement window when changing the queue', async () => {
+    const { service, settlementSegmentLimits } = makeService();
+
+    await service.save(request('segment-limit-save'), character.characterId, materialPlan);
+    await service.pause(request('segment-limit-pause'), character.characterId, {
+      expected_queue_version: 1,
+    });
+
+    expect(settlementSegmentLimits).toEqual([10_000, 10_000]);
   });
 
   it('blocks on shortage and clears the block after inventory is replenished', async () => {

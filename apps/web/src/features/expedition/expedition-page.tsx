@@ -17,7 +17,8 @@ import { EmptyStateScreen, LoadingStateScreen, LockedStateScreen, LocalErrorStat
 
 import { apiClient } from '../../lib/api.js';
 import { emitGameFeedback } from '../../lib/game-feedback.js';
-import { GameDialog } from '../../components/game-dialog.js';
+import { GameDialog, ImportantActionDialog } from '../../components/game-dialog.js';
+import { shouldConfirmImportantActions } from '../../lib/game-settings.js';
 import { readActiveDungeonRunId, writeActiveDungeonRunId } from './dungeon-session.js';
 import {
   dungeonRouteHint,
@@ -218,11 +219,11 @@ export function ExpeditionLoading(): ReactElement {
   );
 }
 
-export function ExpeditionError({ error, onRetry }: { readonly error: string; readonly onRetry: () => void }): ReactElement {
+export function ExpeditionError({ onRetry }: { readonly error: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="expedition-layout">
       <div className="expedition-panel expedition-panel--hero">
-        <LocalErrorStateScreen title="秘境暂时无法打开" description="探险数据读取失败，已保留你的准备内容。" actions={[{ label: '重试', onClick: onRetry }]} footnote={error} />
+        <LocalErrorStateScreen title="秘境暂时无法打开" description="探险状态暂时无法读取，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="expedition-panel">
         <EmptyStateScreen title="准备页" description="读取失败时不展示伪造的秘境数据。" />
@@ -234,11 +235,11 @@ export function ExpeditionError({ error, onRetry }: { readonly error: string; re
   );
 }
 
-export function ExpeditionMaintenance({ reason, onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
+export function ExpeditionMaintenance({ onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="expedition-layout">
       <div className="expedition-panel expedition-panel--hero">
-        <MaintenanceStateScreen title="秘境服务维护中" description="秘境 API 或依赖当前不可用。" actions={[{ label: '重试', onClick: onRetry }]} footnote={reason} />
+        <MaintenanceStateScreen title="秘境服务维护中" description="秘境暂时无法读取，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="expedition-panel">
         <EmptyStateScreen title="准备页" description="维护期间不展示伪造数据。" />
@@ -250,11 +251,11 @@ export function ExpeditionMaintenance({ reason, onRetry }: { readonly reason: st
   );
 }
 
-export function ExpeditionLocked({ reason, onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
+export function ExpeditionLocked({ onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="expedition-layout">
       <div className="expedition-panel expedition-panel--hero">
-        <LockedStateScreen title="秘境功能受限" description="当前账号已认证，但秘境页没有解锁或没有权限。" actions={[{ label: '重试', onClick: onRetry }]} footnote={reason} />
+        <LockedStateScreen title="秘境功能受限" description="当前暂时无法进入秘境，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="expedition-panel">
         <EmptyStateScreen title="准备页" description="当前无法读取秘境机会。" />
@@ -581,12 +582,10 @@ function ExpeditionRuntimeCard({
 }
 
 function ExpeditionReadOnlyLinks({
-  session,
   loadoutPresetId,
   runResponse,
   queue,
 }: {
-  readonly session: AuthActiveSession;
   readonly loadoutPresetId: string;
   readonly runResponse: DungeonRunResponse | null;
   readonly queue: Queue | null;
@@ -614,7 +613,7 @@ function ExpeditionReadOnlyLinks({
         </Link>
       </div>
       <div className="expedition-inline-note">
-        <strong>角色 {session.character_id.slice(0, 8)}</strong>
+        <strong>当前修士</strong>
         <span>{queue === null ? '挂机计划尚未加载。' : `${queue.entries.length} 个任务 · ${queue.paused ? '已暂停' : '正在运行'}`}</span>
       </div>
     </div>
@@ -661,6 +660,7 @@ export function ExpeditionPage(): ReactElement {
   );
   const [roomDialogOpen, setRoomDialogOpen] = useState(false);
   const [automationDialogOpen, setAutomationDialogOpen] = useState(false);
+  const [finalizeConfirmationOpen, setFinalizeConfirmationOpen] = useState(false);
   const activePresetHydratedRef = useRef(false);
 
   useEffect(() => {
@@ -797,12 +797,12 @@ export function ExpeditionPage(): ReactElement {
   if (firstError !== undefined && firstError !== null) {
     const error = firstError instanceof ApiClientError ? firstError : null;
     if (error?.status === 503) {
-      return <ExpeditionMaintenance reason={error.message} onRetry={async () => queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] })} />;
+      return <ExpeditionMaintenance reason="" onRetry={async () => queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] })} />;
     }
     if (error?.status === 401 || error?.status === 403) {
-      return <ExpeditionLocked reason={error.message} onRetry={async () => queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] })} />;
+      return <ExpeditionLocked reason="" onRetry={async () => queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] })} />;
     }
-    return <ExpeditionError error={firstError.message} onRetry={async () => queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] })} />;
+    return <ExpeditionError error="" onRetry={async () => queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] })} />;
   }
 
   const opportunityView = summarizeDungeonOpportunity(opportunityQuery.data as DungeonOpportunityResponse, '青蛇洞');
@@ -841,7 +841,7 @@ export function ExpeditionPage(): ReactElement {
           onPreview={() => previewMutation.mutate()}
           onEnter={() => enterMutation.mutate()}
           previewPending={previewMutation.isPending}
-          previewError={previewMutation.error instanceof Error ? previewMutation.error.message : null}
+          previewError={previewMutation.error === null ? null : '预览暂时无法完成，请稍后重试。'}
           enterPending={enterMutation.isPending}
           canPreview={canPreview}
           canEnter={canEnter}
@@ -854,7 +854,10 @@ export function ExpeditionPage(): ReactElement {
           runView={runView}
           onRefresh={async () => queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] })}
           onChoose={(choiceId) => chooseMutation.mutate(choiceId)}
-          onFinalize={() => finalizeMutation.mutate()}
+          onFinalize={() => {
+            if (shouldConfirmImportantActions()) setFinalizeConfirmationOpen(true);
+            else finalizeMutation.mutate();
+          }}
           choosePending={chooseMutation.isPending}
           finalizePending={finalizeMutation.isPending}
           onOpenRoom={() => setRoomDialogOpen(true)}
@@ -863,10 +866,22 @@ export function ExpeditionPage(): ReactElement {
       </div>
 
       <div className="expedition-panel">
-        <ExpeditionReadOnlyLinks session={session} loadoutPresetId={draft.loadoutPresetId} runResponse={runResponse} queue={queue} />
+        <ExpeditionReadOnlyLinks loadoutPresetId={draft.loadoutPresetId} runResponse={runResponse} queue={queue} />
       </div>
       <DungeonRoomDialog open={roomDialogOpen} roomId={runResponse?.run.current_node_id ?? '暂无运行'} routeId={runResponse?.run.selected_route_id ?? null} onOpenChange={setRoomDialogOpen} />
       <AutomationDialog open={automationDialogOpen} strategyId={runResponse?.run.strategy_preset_id ?? draft.strategyPresetId} onOpenChange={setAutomationDialogOpen} />
+      <ImportantActionDialog
+        open={finalizeConfirmationOpen}
+        onOpenChange={setFinalizeConfirmationOpen}
+        title="确认结算秘境"
+        description="结算会把本次探险结果写入角色账本，完成后不能重复结算。"
+        confirmLabel="确认结算"
+        pending={finalizeMutation.isPending}
+        onConfirm={() => {
+          setFinalizeConfirmationOpen(false);
+          finalizeMutation.mutate();
+        }}
+      />
     </section>
   );
 }

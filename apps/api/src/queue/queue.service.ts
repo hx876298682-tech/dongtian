@@ -87,6 +87,9 @@ type QueueEntryInventoryConditionLike = {
 const QUEUE_ENTRY_BUSINESS_TYPE = 'ACTION_QUEUE_ENTRY';
 const QUEUE_ENTRY_RESERVE_REASON = 'QUEUE_QUEUE_ENTRY_RESERVE';
 const QUEUE_ENTRY_RELEASE_REASON = 'QUEUE_QUEUE_ENTRY_RELEASE';
+// Queue changes settle the current offline window in the same transaction. The
+// shipped action durations keep the offline-cap segment count well below this.
+const QUEUE_WRITE_SETTLEMENT_SEGMENT_LIMIT = 10_000;
 
 function isRecord(value: unknown): value is JsonRecord {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -684,6 +687,7 @@ export class QueueService {
     return this.settlementService.executeSettledWrite<T>(request, characterId, {
       operationType,
       request: body,
+      segmentLimit: QUEUE_WRITE_SETTLEMENT_SEGMENT_LIMIT,
       execute: async (context) => {
         if (context.settlementState.continuationRequired) {
           throw new QueueWriteConflictError('SETTLEMENT_CONTINUATION_IN_PROGRESS');

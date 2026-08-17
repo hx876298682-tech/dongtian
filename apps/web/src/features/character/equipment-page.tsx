@@ -22,7 +22,8 @@ import {
 
 import { apiClient } from '../../lib/api.js';
 import { emitGameFeedback } from '../../lib/game-feedback.js';
-import { GameDialog } from '../../components/game-dialog.js';
+import { GameDialog, ImportantActionDialog } from '../../components/game-dialog.js';
+import { shouldConfirmImportantActions } from '../../lib/game-settings.js';
 import { describeItemId } from '../content/content-adapter.js';
 import {
   buildEquipmentSelectionView,
@@ -124,7 +125,7 @@ export function EquipmentLoading(): ReactElement {
         <LoadingStateScreen title="正在整理角色装备" description="正在读取背包、装备方案和属性。" />
       </div>
       <div className="equipment-panel">
-        <LoadingStateScreen title="装备实例" description="等待库存中的装备实例。" />
+        <LoadingStateScreen title="装备条目" description="等待库存中的装备。" />
       </div>
       <div className="equipment-panel">
         <LoadingStateScreen title="预设编辑" description="等待当前装备预设。" />
@@ -136,14 +137,14 @@ export function EquipmentLoading(): ReactElement {
   );
 }
 
-export function EquipmentError({ error, onRetry }: { readonly error: string; readonly onRetry: () => void }): ReactElement {
+export function EquipmentError({ onRetry }: { readonly error: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="equipment-layout">
       <div className="equipment-panel equipment-panel--hero">
-        <LocalErrorStateScreen title="装备页读取失败" description="装备页读取失败，草稿与比较状态保持不变。" actions={[{ label: '重试', onClick: onRetry }]} footnote={error} />
+        <LocalErrorStateScreen title="装备页暂时无法打开" description="装备状态暂时无法读取，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="equipment-panel">
-        <EmptyStateScreen title="装备实例" description="读取失败时不展示伪造内容。" />
+        <EmptyStateScreen title="装备条目" description="读取失败时不展示虚构内容。" />
       </div>
       <div className="equipment-panel">
         <EmptyStateScreen title="预设编辑" description="读取失败时不展示伪造内容。" />
@@ -155,14 +156,14 @@ export function EquipmentError({ error, onRetry }: { readonly error: string; rea
   );
 }
 
-export function EquipmentMaintenance({ reason, onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
+export function EquipmentMaintenance({ onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="equipment-layout">
       <div className="equipment-panel equipment-panel--hero">
-        <MaintenanceStateScreen title="装备页维护中" description="装备 API 或依赖当前不可用。" actions={[{ label: '重试', onClick: onRetry }]} footnote={reason} />
+        <MaintenanceStateScreen title="装备页维护中" description="装备暂时无法读取，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="equipment-panel">
-        <EmptyStateScreen title="装备实例" description="维护期间不展示伪造内容。" />
+        <EmptyStateScreen title="装备条目" description="维护期间不展示虚构内容。" />
       </div>
       <div className="equipment-panel">
         <EmptyStateScreen title="预设编辑" description="维护期间不展示伪造内容。" />
@@ -174,14 +175,14 @@ export function EquipmentMaintenance({ reason, onRetry }: { readonly reason: str
   );
 }
 
-export function EquipmentLocked({ reason, onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
+export function EquipmentLocked({ onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="equipment-layout">
       <div className="equipment-panel equipment-panel--hero">
-        <LockedStateScreen title="装备功能受限" description="当前账号已认证，但装备页没有解锁或没有权限。" actions={[{ label: '重试', onClick: onRetry }]} footnote={reason} />
+        <LockedStateScreen title="装备功能受限" description="当前暂时无法进入装备页，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="equipment-panel">
-        <EmptyStateScreen title="装备实例" description="当前无法读取装备实例。" />
+        <EmptyStateScreen title="装备条目" description="当前无法读取装备。" />
       </div>
       <div className="equipment-panel">
         <EmptyStateScreen title="预设编辑" description="当前无法读取预设。" />
@@ -326,14 +327,14 @@ function EquipmentInstanceCard({
     <article className={`equipment-instance ${selected ? 'equipment-instance--selected' : ''}`}>
       <button className="equipment-instance__title-button" type="button" onClick={onOpen} aria-pressed={selected}>
         <span className="equipment-instance__title-row">
-          <strong>{instance.instance_id}</strong>
+          <strong>{describeItemId(instance.item_id)}</strong>
           <span className="equipment-chip">{instance.bound ? '已绑定' : '未绑定'}</span>
         </span>
-        <span className="equipment-instance__subtitle">{instance.item_id}</span>
+        <span className="equipment-instance__subtitle">装备详情</span>
       </button>
-      <p className="equipment-instance__copy">强化 +{instance.temper_level} · 配置 {instance.created_config_version}</p>
+      <p className="equipment-instance__copy">强化 +{instance.temper_level} · 状态已更新</p>
       <div className="equipment-instance__meta">
-        <span className="equipment-chip">实例比较</span>
+        <span className="equipment-chip">装备对比</span>
         <span className="equipment-chip">{assignedSlot ?? '未上阵'}</span>
         <span className="equipment-chip">{kept ? '已保留' : '待整理'}</span>
         <span className="equipment-chip">同类 ×{duplicateCount}</span>
@@ -397,7 +398,7 @@ function EquipmentSlotCard({
           <span>当前</span>
           <strong>{row.currentInstanceId ?? '未装备'}</strong>
           <button className="ghost-button ghost-button--compact" type="button" onClick={() => row.currentInstanceId && onInspectInstance(row.currentInstanceId)}>
-            查看实例
+            查看装备
           </button>
         </div>
         <div className="equipment-slot__compare">
@@ -423,7 +424,7 @@ function EquipmentNoticeCard({ notice }: { readonly notice: EquipmentNotice | nu
   }
 
   if (notice.kind === 'success') {
-    return <NormalStateScreen title={notice.title} description={notice.description} footnote={notice.footnote} highlight="权威响应已返回" />;
+    return <NormalStateScreen title={notice.title} description={notice.description} footnote={notice.footnote} highlight="状态已更新" />;
   }
 
   return <NormalStateScreen title={notice.title} description={notice.description} footnote={notice.footnote} highlight="提示" />;
@@ -433,16 +434,15 @@ function buildTemperingNotice(error: unknown): EquipmentNotice {
   if (error instanceof ApiClientError) {
     return {
       kind: 'error',
-      title: `淬炼失败 · HTTP ${error.status}`,
+      title: '淬炼暂未完成',
       description: summarizeEquipmentError(error.status, error.code, error.details),
-      footnote: error.message,
     };
   }
 
   return {
     kind: 'error',
     title: '淬炼失败',
-    description: error instanceof Error ? error.message : '未知错误',
+    description: '暂时无法完成淬炼，请稍后重试。',
   };
 }
 
@@ -454,19 +454,16 @@ export function TemperingOutcomeCard({
   readonly onRetry: () => void;
 }): ReactElement {
   if (response === null) {
-    return <EmptyStateScreen title="淬炼结果" description="提交后这里会显示成功、失败、审计和资产事务信息。" />;
+    return <EmptyStateScreen title="淬炼结果" description="提交后这里会显示本次淬炼的结果。" />;
   }
 
   const title = response.success ? `+${response.target_level} 淬炼成功` : response.outcome === 'REJECTED' ? `+${response.target_level} 被拒绝` : `+${response.target_level} 淬炼失败`;
   const description = [
-    `装备 ${response.equipment.instance_id} · ${response.equipment.item_id}`,
-    `结果 ${response.level_before} → ${response.level_after}`,
-    `审计 ${response.temper_audit_id}`,
-    `资产事务 ${response.asset_transaction_id}`,
+    `目标装备 · ${describeItemId(response.equipment.item_id)}`,
+    `强化 ${response.level_before} → ${response.level_after}`,
+    '淬炼结果已由洞天规则结算',
   ].join(' · ');
-  const footnote = response.random_audit === null
-    ? '当前结果未产生随机审计，通常意味着目标阶段被锁定。'
-    : `命名空间 ${response.random_audit.namespace} · seed ${response.random_audit.seed_hex}`;
+  const footnote = response.random_audit === null ? '当前阶段有固定规则。' : '本次结果已记录。';
 
   return (
     <NormalStateScreen
@@ -474,7 +471,7 @@ export function TemperingOutcomeCard({
       description={description}
       footnote={footnote}
       highlight={response.success ? '成功' : response.outcome}
-      actions={[{ label: '相同 attempt_id 重试', onClick: onRetry }]}
+      actions={[{ label: '沿用本次操作重试', onClick: onRetry }]}
     />
   );
 }
@@ -485,7 +482,7 @@ export function TemperingLadderTable({
   readonly selectedTargetLevel: number;
 }): ReactElement {
   return (
-    <div className="tempering-ladder" role="table" aria-label="淬炼概率与材料快照">
+    <div className="tempering-ladder" role="table" aria-label="淬炼概率与材料">
       {TEMPERING_LADDER.map((row) => (
         <article key={row.targetLevel} className={`tempering-ladder__row ${row.targetLevel === selectedTargetLevel ? 'tempering-ladder__row--selected' : ''}`}>
           <div className="tempering-ladder__header">
@@ -522,7 +519,7 @@ function EquipmentFilterBar({
     <div className="equipment-filterbar">
       <label className="equipment-form__field">
         <span className="equipment-form__label">筛选</span>
-        <input className="equipment-form__input" value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder="实例、装备 ID、强化、绑定" />
+        <input className="equipment-form__input" value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder="装备名称、强化、绑定" />
       </label>
       <label className="equipment-form__field">
         <span className="equipment-form__label">状态</span>
@@ -538,7 +535,7 @@ function EquipmentFilterBar({
         <span className="equipment-form__label">排序</span>
         <select className="equipment-form__input" value={sortMode} onChange={(event) => onSortModeChange(event.target.value as EquipmentSortMode)}>
           <option value="recent">最近</option>
-          <option value="item">装备 ID</option>
+          <option value="item">装备名称</option>
           <option value="temper-level">强化等级</option>
           <option value="duplicates">同类数量</option>
         </select>
@@ -559,16 +556,15 @@ function buildMutationNotice(error: unknown): EquipmentNotice {
   if (error instanceof ApiClientError) {
     return {
       kind: 'error',
-      title: `写入失败 · HTTP ${error.status}`,
+      title: '装备操作暂未完成',
       description: summarizeEquipmentError(error.status, error.code, error.details),
-      footnote: error.message,
     };
   }
 
   return {
     kind: 'error',
     title: '写入失败',
-    description: error instanceof Error ? error.message : '未知错误',
+    description: '暂时无法保存装备状态，请稍后重试。',
   };
 }
 
@@ -602,6 +598,7 @@ export function CharacterEquipmentPage(): ReactElement {
   const [temperingState, temperingDispatch] = useReducer(temperingPageReducer, createInitialTemperingPageState());
   const [notice, setNotice] = useState<EquipmentNotice | null>(null);
   const [temperingNotice, setTemperingNotice] = useState<EquipmentNotice | null>(null);
+  const [temperingConfirmationOpen, setTemperingConfirmationOpen] = useState(false);
   const [instanceDialogOpen, setInstanceDialogOpen] = useState(false);
   const [presetInput, setPresetInput] = useState(params.get('preset_id') ?? '');
   const [comparePresetInput, setComparePresetInput] = useState(params.get('compare_preset_id') ?? '');
@@ -700,7 +697,7 @@ export function CharacterEquipmentPage(): ReactElement {
         kind: 'success',
         title: '预设已保存',
         description: summarizeLoadoutPreset(data),
-        footnote: '仅修改预设，不会立刻改动当前周期中的战斗快照。',
+        footnote: '仅修改预设，不会立刻改变当前战斗。',
       });
       void queryClient.invalidateQueries({ queryKey: [EQUIPMENT_QUERY_PREFIX, session.character_id] });
     },
@@ -732,7 +729,7 @@ export function CharacterEquipmentPage(): ReactElement {
         kind: 'success',
         title: '预设已启用',
         description: summarizeLoadoutPreset(data),
-        footnote: data.effective_next_cycle ? '下周期生效，当前战斗和资产不被本地修改。' : '已生效。',
+        footnote: data.effective_next_cycle ? '下周期生效，当前战斗和资源不会立刻改变。' : '已生效。',
       });
       void queryClient.invalidateQueries({ queryKey: [EQUIPMENT_QUERY_PREFIX, session.character_id] });
     },
@@ -888,7 +885,7 @@ export function CharacterEquipmentPage(): ReactElement {
                 打开预设
               </button>
               <button className="ghost-button" type="button" onClick={refreshAll}>
-                刷新权威
+                刷新状态
               </button>
               <button className="ghost-button" type="button" onClick={goToInventory}>
                 去背包比较
@@ -945,8 +942,8 @@ export function CharacterEquipmentPage(): ReactElement {
                   setNotice({
                     kind: 'info',
                     title: `已选中 ${formatEquipmentSlotLabel(slot)}`,
-                    description: instance.item_id,
-                    footnote: '还需要点击保存，才会提交到服务端。',
+                    description: describeItemId(instance.item_id),
+                    footnote: '还需要点击保存，才会提交本次更改。',
                   });
                 }}
               />
@@ -968,9 +965,9 @@ export function CharacterEquipmentPage(): ReactElement {
         {presetMissingInput ? (
           <EquipmentMissingPreset onOpenInventory={goToInventory} />
         ) : presetMaintenance ? (
-          <MaintenanceStateScreen title="预设维护中" description="当前预设读取失败，服务端或依赖暂不可用。" footnote={presetQuery.error?.message ?? '维护中'} />
+          <MaintenanceStateScreen title="预设维护中" description="当前预设暂时无法读取，请稍后重试。" />
         ) : presetLocked ? (
-          <LockedStateScreen title="预设被锁定" description={presetQuery.error?.message ?? '没有权限读取当前预设。'} footnote={presetQuery.error?.message ?? undefined} />
+          <LockedStateScreen title="预设被锁定" description="当前暂时无法读取这套预设，请稍后重试。" />
         ) : presetMissing ? (
           <EmptyStateScreen title="没有找到装备方案" description="输入一个已保存的方案编号，或者回到角色页创建方案。" actions={[{ label: '刷新', onClick: refreshAll }]} />
         ) : presetQuery.isPending ? (
@@ -987,10 +984,6 @@ export function CharacterEquipmentPage(): ReactElement {
               <label className="equipment-form__field">
                 <span className="equipment-form__label">策略</span>
                 <input className="equipment-form__input" value={currentDraft.strategyId} onChange={(event) => dispatch({ type: 'set-strategy', strategyId: event.target.value })} />
-              </label>
-              <label className="equipment-form__field">
-                <span className="equipment-form__label">状态版本</span>
-                <input className="equipment-form__input" value={currentDraft.expectedStateVersion} readOnly />
               </label>
               <label className="equipment-form__field">
                 <span className="equipment-form__label">战斗补给</span>
@@ -1021,11 +1014,11 @@ export function CharacterEquipmentPage(): ReactElement {
                 启用预设
               </button>
               <button className="ghost-button" type="button" onClick={() => currentPreset !== null && dispatch({ type: 'hydrate', preset: currentPreset })} disabled={currentPreset === null}>
-                还原权威
+                恢复已保存状态
               </button>
             </div>
             <p className="equipment-editor__note">
-              启用后会返回 `effective_next_cycle=true`，当前周期仍显示“下周期生效”，不本地修改战斗或资产。
+              启用后若显示“下周期生效”，当前周期仍按原装备方案运行。
             </p>
           </div>
         )}
@@ -1034,12 +1027,12 @@ export function CharacterEquipmentPage(): ReactElement {
       <div className="equipment-panel" id="tempering-panel">
         <EquipmentPanelHeader title="淬炼台" copy="选择一件装备进行淬炼，提升它的基础属性。" />
         {selectedTemperingInstance === null ? (
-          <EmptyStateScreen title="未选中淬炼目标" description="从左侧装备列表选择一个实例，或用下方下拉框指定要淬炼的装备。" />
+          <EmptyStateScreen title="未选中淬炼目标" description="从左侧装备列表选择一件装备，或用下方下拉框指定要淬炼的装备。" />
         ) : (
           <NormalStateScreen
-            title={selectedTemperingInstance.instance_id}
+            title={describeItemId(selectedTemperingInstance.item_id)}
             description={[
-              selectedTemperingInstance.item_id,
+              describeItemId(selectedTemperingInstance.item_id),
               `强化 +${selectedTemperingInstance.temper_level}`,
               selectedTemperingSummary?.materialSummary ?? '暂无同类材料',
             ].join(' · ')}
@@ -1049,7 +1042,7 @@ export function CharacterEquipmentPage(): ReactElement {
         )}
         <div className="equipment-form">
           <label className="equipment-form__field">
-            <span className="equipment-form__label">装备实例</span>
+            <span className="equipment-form__label">选择装备</span>
             <select
               className="equipment-form__input"
               value={temperingState.draft.selectedInstanceId ?? ''}
@@ -1059,10 +1052,10 @@ export function CharacterEquipmentPage(): ReactElement {
                 syncSearch(navigate, location.pathname, location.search, { instance_id: nextInstanceId });
               }}
             >
-              <option value="">请选择装备实例</option>
+              <option value="">请选择装备</option>
               {inventory.equipment_instances.map((instance) => (
                 <option key={instance.instance_id} value={instance.instance_id}>
-                  {instance.instance_id} · {instance.item_id} · +{instance.temper_level}
+                  {describeItemId(instance.item_id)} · 强化 +{instance.temper_level}
                 </option>
               ))}
             </select>
@@ -1082,7 +1075,7 @@ export function CharacterEquipmentPage(): ReactElement {
             </select>
           </label>
           <label className="equipment-form__field">
-            <span className="equipment-form__label">保护字段</span>
+            <span className="equipment-form__label">保护材料</span>
             <select
               className="equipment-form__input"
               value={temperingState.draft.useProtectionMaterial ? 'true' : 'false'}
@@ -1092,24 +1085,15 @@ export function CharacterEquipmentPage(): ReactElement {
               <option value="true">使用保护材料</option>
             </select>
           </label>
-          <label className="equipment-form__field">
-            <span className="equipment-form__label">状态版本</span>
-            <input className="equipment-form__input" value={progression.character.state_version} readOnly />
-          </label>
-          <label className="equipment-form__field">
-            <span className="equipment-form__label">配置版本</span>
-            <input className="equipment-form__input" value={progression.config_version} readOnly />
-          </label>
-          <label className="equipment-form__field">
-            <span className="equipment-form__label">attempt_id</span>
-            <input className="equipment-form__input" value={temperingState.draft.attemptId ?? '提交时生成'} readOnly />
-          </label>
         </div>
         <div className="equipment-editor__actions">
           <button
             className="ghost-button"
             type="button"
-            onClick={() => temperMutation.mutate()}
+            onClick={() => {
+              if (shouldConfirmImportantActions()) setTemperingConfirmationOpen(true);
+              else temperMutation.mutate();
+            }}
             disabled={
               temperMutation.isPending ||
               selectedTemperingInstance === null ||
@@ -1130,16 +1114,16 @@ export function CharacterEquipmentPage(): ReactElement {
               }
               setTemperingNotice({
                 kind: 'info',
-                title: '尚未生成 attempt_id',
-                description: '请先提交一次淬炼，或在同一草稿上再次点击提交。',
+                title: '淬炼尚未提交',
+                description: '请先提交一次淬炼，或在同一方案上再次点击提交。',
               });
             }}
             disabled={selectedTemperingInstance === null}
           >
-            相同 attempt_id 重试
+            沿用本次操作重试
           </button>
           <button className="ghost-button" type="button" onClick={() => temperingDispatch({ type: 'clear-attempt' })}>
-            重置 attempt
+            重置本次操作
           </button>
         </div>
         <TemperingLadderTable selectedTargetLevel={selectedTemperingTargetLevel} />
@@ -1163,13 +1147,13 @@ export function CharacterEquipmentPage(): ReactElement {
           ))}
           {selectedInstanceView !== null ? (
             <NormalStateScreen
-              title={selectedInstanceView.instance?.instance_id ?? '未选中实例'}
+              title={selectedInstanceView.instance === null ? '未选中装备' : describeItemId(selectedInstanceView.instance.item_id)}
               description={selectedInstanceView.summary}
               highlight={selectedInstanceView.slotHint}
               footnote={selectedInstanceView.compareSummary}
             />
           ) : (
-            <EmptyStateScreen title="未选中实例" description="点击背包中的装备实例，或在地址栏设置 instance_id。" />
+            <EmptyStateScreen title="未选中装备" description="点击背包中的装备，查看当前对比。" />
           )}
           <EquipmentNoticeCard notice={notice} />
         </div>
@@ -1193,6 +1177,18 @@ export function CharacterEquipmentPage(): ReactElement {
           }}
         />
       ) : null}
+      <ImportantActionDialog
+        open={temperingConfirmationOpen}
+        onOpenChange={setTemperingConfirmationOpen}
+        title="确认淬炼"
+        description="淬炼会消耗灵石、淬炼石和同类装备材料，结果由洞天规则结算。"
+        confirmLabel="确认淬炼"
+        pending={temperMutation.isPending}
+        onConfirm={() => {
+          setTemperingConfirmationOpen(false);
+          temperMutation.mutate();
+        }}
+      />
     </section>
   );
 }

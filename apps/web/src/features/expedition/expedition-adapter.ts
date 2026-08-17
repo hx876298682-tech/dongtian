@@ -1,6 +1,7 @@
 import type { DungeonPreviewChoice, DungeonPreviewResponse, DungeonRunDetails, DungeonRunResponse, DungeonOpportunityResponse } from '@dongtian/contracts';
 
 import { QINGSHE_HIGH_RISK_CHOICE_ID, QINGSHE_HIGH_RISK_ROUTE_ID, QINGSHE_SAFE_CHOICE_ID, QINGSHE_SAFE_ROUTE_ID } from './expedition-reducer.js';
+import { describeItemId } from '../content/content-adapter.js';
 
 export interface ExpeditionChoiceView {
   readonly choiceId: string;
@@ -54,12 +55,38 @@ function formatRiskLabel(risk: string | undefined): string {
   }
 }
 
+function describeTutorialId(id: string | null | undefined): string {
+  return id === 'TUT-007' ? '秘境入门教学' : '入门教学';
+}
+
+function describeRouteId(id: string | null | undefined): string {
+  switch (id) {
+    case QINGSHE_SAFE_ROUTE_ID:
+      return '左侧矿脉';
+    case QINGSHE_HIGH_RISK_ROUTE_ID:
+      return '右侧妖巢';
+    default:
+      return '未知路线';
+  }
+}
+
+function describeOutcome(value: string | null | undefined): string {
+  switch (value) {
+    case 'SUCCESS':
+      return '成功';
+    case 'FAILURE':
+      return '失败';
+    default:
+      return '待结算';
+  }
+}
+
 function formatChoiceLabel(choice: DungeonPreviewChoice, fallbackIndex: number): string {
   if (typeof choice.label === 'string' && choice.label.length > 0) {
     return choice.label;
   }
   if (typeof choice.label_key === 'string' && choice.label_key.length > 0) {
-    return choice.label_key;
+    return choice.label_key === 'risk.route' ? '深入险地' : '路线选择';
   }
   return `路线 ${fallbackIndex + 1}`;
 }
@@ -83,15 +110,15 @@ export function summarizeDungeonOpportunity(
 
   return {
     title: `${dungeonLabel} · 机会 ${opportunity.current_opportunities}/${opportunity.opportunity_cap}`,
-    description: `下次恢复 ${opportunity.next_recovery_at ?? '已封顶'} · 恢复间隔 ${Math.round(opportunity.recovery_interval_seconds / 3600)} 小时`,
+    description: opportunity.next_recovery_at === null
+      ? '探险次数已达上限。'
+      : `探险次数将在稍后恢复 · 间隔 ${Math.round(opportunity.recovery_interval_seconds / 3600)} 小时`,
     facts: [
-      { label: '恢复锚点', value: opportunity.recovery_anchor_at },
-      { label: '计算时间', value: response.calculation_as_of },
-      { label: '配置版本', value: response.config_version },
+      { label: '恢复状态', value: opportunity.next_recovery_at === null ? '已封顶' : '等待恢复' },
     ],
     grantLine: teachingGrant.available
-      ? `教学赠送可领 ${teachingGrant.applied_quantity} 次 · 来源 ${teachingGrant.source_tutorial_id}`
-      : `教学赠送已领取 ${teachingGrant.applied_quantity} 次 · 领取于 ${teachingGrant.claimed_at ?? '未知'}`,
+      ? `可领取 ${teachingGrant.applied_quantity} 次 · ${describeTutorialId(teachingGrant.source_tutorial_id)}`
+      : `已领取 ${teachingGrant.applied_quantity} 次 · ${describeTutorialId(teachingGrant.source_tutorial_id)}`,
   };
 }
 
@@ -103,11 +130,11 @@ export function summarizeDungeonPreview(response: DungeonPreviewResponse): Exped
       { label: '机会消耗', value: String(response.dungeon.opportunity_cost) },
       { label: '路线超时', value: `${response.dungeon.choice_timeout_seconds} 秒` },
     ],
-    coreRewards: response.dungeon.core_rewards,
+      coreRewards: response.dungeon.core_rewards.map((itemId) => describeItemId(itemId)),
     entryItems: response.dungeon.entry_items.map((item) => {
       const itemId = readString(item['item_id'], '未知物品');
       const quantity = readString(item['quantity'], '1');
-      return `${itemId} × ${quantity}`;
+      return `${describeItemId(itemId)} × ${quantity}`;
     }),
     choices: response.dungeon.choices.map((choice, index) => ({
       choiceId: formatChoiceId(choice),
@@ -124,12 +151,12 @@ function summarizeRewardCandidate(runState: Record<string, unknown>): ReadonlyAr
     return [];
   }
 
-  const lines = [`路线 ${readString(candidate['routeId'])} · ${readString(candidate['outcome'])}`];
+  const lines = [`路线 ${describeRouteId(readString(candidate['routeId'], ''))} · ${describeOutcome(readString(candidate['outcome'], ''))}`];
   const items = Array.isArray(candidate['items']) ? candidate['items'] : [];
   for (const item of items) {
     const itemRecord = readRecord(item);
     if (itemRecord !== null) {
-      lines.push(`${readString(itemRecord['assetId'])} × ${readString(itemRecord['quantity'])}`);
+      lines.push(`${describeItemId(readString(itemRecord['assetId'], ''))} × ${readString(itemRecord['quantity'])}`);
     }
   }
 
@@ -151,12 +178,12 @@ function summarizeFinalization(runState: Record<string, unknown>): ReadonlyArray
     return ['奖励已结算'];
   }
 
-  const lines = [`结果 ${readString(reward['outcome'])} · 路线 ${readString(reward['routeId'])}`];
+  const lines = [`结果 ${describeOutcome(readString(reward['outcome'], ''))} · 路线 ${describeRouteId(readString(reward['routeId'], ''))}`];
   const items = Array.isArray(reward['items']) ? reward['items'] : [];
   for (const item of items) {
     const itemRecord = readRecord(item);
     if (itemRecord !== null) {
-      lines.push(`${readString(itemRecord['assetId'])} × ${readString(itemRecord['quantity'])}`);
+      lines.push(`${describeItemId(readString(itemRecord['assetId'], ''))} × ${readString(itemRecord['quantity'])}`);
     }
   }
 
@@ -174,11 +201,7 @@ function summarizeCombat(runState: Record<string, unknown>): ReadonlyArray<strin
     return [];
   }
 
-  return [
-    `终止原因 ${readString(combat['terminationReason'])}`,
-    `胜负 ${readString(combat['winner'])}`,
-    `耗时 ${readString(combat['elapsedUs'])}µs`,
-  ];
+  return [`战斗结束 · ${readString(combat['winner']) === 'PLAYER' ? '修士胜出' : '战斗结果已记录'}`];
 }
 
 export function isDungeonRunTimedOut(run: DungeonRunDetails, now: Date): boolean {
@@ -205,17 +228,14 @@ export function summarizeDungeonRun(response: DungeonRunResponse, now: Date = ne
             : '秘境运行中',
     description:
       run.phase === 'FINALIZED'
-        ? `结果 ${readString(run.outcome)} · 运行 ${run.run_id}`
+        ? `结果 ${describeOutcome(run.outcome)}`
         : run.selected_route_id === null
           ? '等待路线选择。'
-          : `已选 ${run.selected_route_id} · ${run.selected_route_risk ?? '未知风险'}`,
+          : `已选 ${describeRouteId(run.selected_route_id)} · ${formatRiskLabel(run.selected_route_risk ?? undefined)}`,
     facts: [
-      { label: '节点', value: run.current_node_id },
-      { label: '阶段', value: run.phase },
-      { label: '结果', value: run.outcome },
-      { label: '版本', value: String(run.revision) },
-      { label: '截止', value: run.choice_deadline_at },
-      { label: '配置', value: run.config_version },
+      { label: '探索状态', value: run.phase === 'REWARD_CANDIDATE' ? '等待结算' : '探索中' },
+      { label: '结果', value: describeOutcome(run.outcome) },
+      { label: '选择状态', value: isTimedOut ? '已到期' : '等待选择' },
     ],
     rewardLines:
       finalizationLines.length > 0
@@ -233,7 +253,7 @@ export function summarizeDungeonRun(response: DungeonRunResponse, now: Date = ne
 }
 
 export function describeDungeonChoice(choice: ExpeditionChoiceView): string {
-  return `${choice.label} · ${choice.riskLabel} · ${choice.choiceId}`;
+  return `${choice.label} · ${choice.riskLabel}`;
 }
 
 export function dungeonRouteHint(choiceId: string): string {

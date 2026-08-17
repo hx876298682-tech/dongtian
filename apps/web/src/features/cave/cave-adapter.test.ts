@@ -106,7 +106,8 @@ describe('cave adapter', () => {
   it('derives facility state, inventory gaps and build requests from the real wire contract', () => {
     const view = buildCavePageView(response, inventory, 'cave_facility.juling_room', 'realm.qi.early', new Date('2026-08-16T00:30:00.000Z'));
 
-    expect(view.title).toContain('状态版本 12');
+    expect(view.title).toBe('洞府设施');
+    expect(view.summary).not.toContain('状态版本');
     expect(view.activeFacility?.facilityLabel).toBe('聚灵室');
     expect(view.facilities[0]?.buildStatus).toBe('RESOURCE_INSUFFICIENT');
     expect(view.facilities[1]?.buildStatus).toBe('LOCKED');
@@ -114,6 +115,10 @@ describe('cave adapter', () => {
     expect(view.facilities[2]?.taskStateLabel).toBe('上次完成，可继续升级');
     expect(view.facilities[0]?.missingResources).toHaveLength(2);
     expect(view.facilities[0]?.nextLevelRuleLabel).toContain('灵石 200');
+    expect(view.facts[1]?.value).toBe('炼气初期');
+    expect(view.facilities[0]?.nextLevelRuleLabel).toContain('洞府石料');
+    expect(view.facilities[0]?.nextLevelRuleLabel).not.toContain('item.t1.');
+    expect(view.facilities[0]?.currentModifierLabel).not.toContain('MULTIPLY');
 
     const request = buildCaveBuildRequest(response, response.cave.facilities[0]!);
     expect(request).toEqual({

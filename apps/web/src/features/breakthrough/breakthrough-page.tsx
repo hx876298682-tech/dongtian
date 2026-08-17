@@ -2,6 +2,7 @@ import { useEffect, useMemo, useReducer, useRef, useState, type ReactElement } f
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router';
 import * as Dialog from '@radix-ui/react-dialog';
+import { ImportantActionDialog } from '../../components/game-dialog.js';
 
 import {
   ApiClientError,
@@ -20,6 +21,7 @@ import {
 } from '@dongtian/ui';
 
 import { apiClient } from '../../lib/api.js';
+import { shouldConfirmImportantActions } from '../../lib/game-settings.js';
 import {
   breakthroughRunStatusLabel,
   buildBreakthroughPageView,
@@ -65,9 +67,8 @@ function storeRunId(characterId: string, runId: string | null): void {
 }
 
 function formatMutationError(error: unknown): string {
-  if (error instanceof ApiClientError)
-    return `${error.code ?? `HTTP ${error.status}`} · ${error.message}`;
-  return error instanceof Error ? error.message : '未知错误';
+  if (error instanceof ApiClientError) return '暂时无法完成本次试炼，请稍后重试。';
+  return error instanceof Error ? '暂时无法完成本次试炼，请稍后重试。' : '暂时无法完成本次试炼，请稍后重试。';
 }
 
 function syncRunSearch(
@@ -113,7 +114,7 @@ export function BreakthroughError({
       <div className="breakthrough-panel breakthrough-panel--hero">
         <LocalErrorStateScreen
           title="筑基暂时无法打开"
-          description="突破状态读取失败，请稍后重试。"
+          description="试炼状态读取失败，请稍后重试。"
           actions={[{ label: '重试', onClick: onRetry }]}
         />
       </div>
@@ -122,7 +123,6 @@ export function BreakthroughError({
 }
 
 export function BreakthroughMaintenance({
-  reason,
   onRetry,
 }: {
   readonly reason: string;
@@ -134,7 +134,6 @@ export function BreakthroughMaintenance({
         <MaintenanceStateScreen
           title="筑基服务维护中"
           description="配置或试炼依赖暂时不可用。"
-          footnote={reason}
           actions={[{ label: '重试', onClick: onRetry }]}
         />
       </div>
@@ -143,7 +142,6 @@ export function BreakthroughMaintenance({
 }
 
 export function BreakthroughLocked({
-  reason,
   onRetry,
 }: {
   readonly reason: string;
@@ -155,7 +153,6 @@ export function BreakthroughLocked({
         <LockedStateScreen
           title="筑基功能受限"
           description="当前账号暂时不能读取筑基条件。"
-          footnote={reason}
           actions={[{ label: '重试', onClick: onRetry }]}
         />
       </div>
@@ -258,7 +255,7 @@ function UnlockResult({
         title="筑基完成"
         description="境界已提升，新的修行内容已经开放。"
         highlight="成功率 100% · 非随机失败"
-        footnote={`解锁包 ${result.unlock_bundle_id} · 配置 ${response.config_version}`}
+        footnote="筑基结果已由洞天规则结算。"
         actions={[{ label: '查看新境界', onClick: onRefresh }]}
       />
       <div className="breakthrough-unlock-grid">
@@ -480,7 +477,7 @@ function QueueTemplate({
           onClick={() => onSave(draft)}
           disabled={pending}
         >
-          {pending ? '保存中…' : saved ? '已保存当前草稿' : '保存当前队列'}
+          {pending ? '保存中…' : saved ? '已保存当前方案' : '保存当前队列'}
         </button>
       </div>
     </div>
@@ -508,6 +505,7 @@ export function BreakthroughPage(): ReactElement {
   const [operationError, setOperationError] = useState<BreakthroughOperationError | null>(null);
   const [lastChoiceId, setLastChoiceId] = useState<string | null>(null);
   const [lastQueueDraft, setLastQueueDraft] = useState<BreakthroughQueueDraft | null>(null);
+  const [importantOperation, setImportantOperation] = useState<'finalize' | 'abandon' | null>(null);
   const operationKeys = useRef(new Map<string, string>());
   const getOperationKey = (operation: string, runId: string): string => {
     const key = `${runId}:${operation}`;
@@ -745,9 +743,9 @@ export function BreakthroughPage(): ReactElement {
       <div className="breakthrough-panel breakthrough-panel--hero">
         <NormalStateScreen
           title={`筑基 · ${view.targetRealmLabel}`}
-          description="先核对四类门槛，再确认预留；试炼状态由服务端恢复。"
+          description="先核对四类门槛，再确认预留；试炼状态会自动恢复。"
           highlight={run === undefined ? view.successLabel : breakthroughRunStatusLabel(run.status)}
-          footnote={`配置 ${view.configVersion} · 当前 run_id ${run?.breakthrough_run_id ?? '无'}`}
+          footnote="门槛与结果均以洞天规则为准。"
           actions={run === undefined ? [{ label: '刷新条件', onClick: refreshAll }] : []}
         />
       </div>
@@ -767,17 +765,18 @@ export function BreakthroughPage(): ReactElement {
               dispatch({ type: open ? 'open-confirmation' : 'close-confirmation' })
             }
           >
-            <Dialog.Trigger asChild>
-              <button className="ghost-button" type="button" disabled={!view.allSatisfied}>
-                确认消耗并开始 15 分钟试炼
-              </button>
-            </Dialog.Trigger>
+            <button className="ghost-button" type="button" disabled={!view.allSatisfied} onClick={() => {
+              if (shouldConfirmImportantActions()) dispatch({ type: 'open-confirmation' });
+              else startMutation.mutate();
+            }}>
+              确认消耗并开始 15 分钟试炼
+            </button>
             <Dialog.Portal>
               <Dialog.Overlay className="cave-dialog__overlay" />
               <Dialog.Content className="cave-dialog__content">
                 <Dialog.Title className="cave-dialog__title">确认预留筑基材料</Dialog.Title>
                 <Dialog.Description className="cave-dialog__description">
-                  开始后服务端会原子预留全部材料，预留资产不会再次计入可用库存；24
+                  开始后洞天会预留全部材料，预留资产不会再次计入可用库存；24
                   小时内可恢复或放弃。
                 </Dialog.Description>
                 <ul className="breakthrough-commit-list">
@@ -871,7 +870,10 @@ export function BreakthroughPage(): ReactElement {
               className="ghost-button"
               type="button"
               disabled={!canFinalize || finalizeMutation.isPending}
-              onClick={() => finalizeMutation.mutate()}
+              onClick={() => {
+                if (shouldConfirmImportantActions()) setImportantOperation('finalize');
+                else finalizeMutation.mutate();
+              }}
             >
               {finalizeMutation.isPending
                 ? '完成中…'
@@ -884,7 +886,10 @@ export function BreakthroughPage(): ReactElement {
                 className="chip-button"
                 type="button"
                 disabled={abandonMutation.isPending}
-                onClick={() => abandonMutation.mutate()}
+                onClick={() => {
+                  if (shouldConfirmImportantActions()) setImportantOperation('abandon');
+                  else abandonMutation.mutate();
+                }}
               >
                 放弃并释放预留
               </button>
@@ -914,12 +919,27 @@ export function BreakthroughPage(): ReactElement {
         <div className="breakthrough-panel">
           <LocalErrorStateScreen
             title="筑基操作未完成"
-            description="服务端没有确认本次操作，幂等键已保留，可以用同一请求重试。"
-            footnote={operationError.message}
-            actions={[{ label: '沿用同一幂等键重试', onClick: retryOperation }]}
+            description="本次操作暂未完成，可以沿用本次操作重试。"
+            actions={[{ label: '沿用本次操作重试', onClick: retryOperation }]}
           />
         </div>
       ) : null}
+      <ImportantActionDialog
+        open={importantOperation !== null}
+        onOpenChange={(open) => {
+          if (!open) setImportantOperation(null);
+        }}
+        title={importantOperation === 'abandon' ? '确认放弃筑基试炼' : '确认完成筑基'}
+        description={importantOperation === 'abandon' ? '放弃会释放本次预留材料，试炼进度不会保留。' : '完成会提交筑基结果并推进角色境界，操作不可撤回。'}
+        confirmLabel={importantOperation === 'abandon' ? '确认放弃' : '确认完成'}
+        pending={finalizeMutation.isPending || abandonMutation.isPending}
+        onConfirm={() => {
+          const operation = importantOperation;
+          setImportantOperation(null);
+          if (operation === 'abandon') abandonMutation.mutate();
+          else if (operation === 'finalize') finalizeMutation.mutate();
+        }}
+      />
     </section>
   );
 }

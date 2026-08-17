@@ -14,10 +14,12 @@ import {
 import { EmptyStateScreen, LoadingStateScreen, LocalErrorStateScreen, LockedStateScreen, MaintenanceStateScreen, NormalStateScreen } from '@dongtian/ui';
 
 import { apiClient } from '../../lib/api.js';
-import { describeRoute, formatCount, joinRoutePath, routeKey } from '../content/content-adapter.js';
+import { describeRealmId, describeRoute, describeSkillId, formatCount, joinRoutePath, routeKey } from '../content/content-adapter.js';
 import {
   buildToolAssignmentRouteHref,
   buildToolAssignmentRouteLabel,
+  describeToolItemName,
+  describeToolTag,
   summarizeToolAssignmentDetail,
   summarizeToolAssignmentSkill,
   summarizeToolAssignmentsError,
@@ -39,24 +41,6 @@ function createIdempotencyKey(): string {
     : `tmp-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function formatDateTime(value: string | undefined): string {
-  if (!value) {
-    return '待同步';
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat('zh-CN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    hour12: false,
-    timeZone: 'Asia/Shanghai',
-  }).format(date);
-}
-
 type ToolNoticeKind = 'success' | 'error' | 'info';
 
 interface ToolNotice {
@@ -70,16 +54,15 @@ function buildMutationNotice(error: unknown): ToolNotice {
   if (error instanceof ApiClientError) {
     return {
       kind: 'error',
-      title: `写入失败 · HTTP ${error.status}`,
+      title: '工具分配暂未完成',
       description: summarizeToolAssignmentsError(error.status, error.code, error.details),
-      footnote: error.message,
     };
   }
 
   return {
     kind: 'error',
     title: '写入失败',
-    description: error instanceof Error ? error.message : '未知错误',
+    description: '暂时无法保存工具分配，请稍后重试。',
   };
 }
 
@@ -92,7 +75,7 @@ function ToolNoticeCard({ notice }: { readonly notice: ToolNotice | null }): Rea
     return <LocalErrorStateScreen title={notice.title} description={notice.description} footnote={notice.footnote} />;
   }
 
-  return <NormalStateScreen title={notice.title} description={notice.description} footnote={notice.footnote} highlight={notice.kind === 'success' ? '权威响应已返回' : '提示'} />;
+  return <NormalStateScreen title={notice.title} description={notice.description} footnote={notice.footnote} highlight={notice.kind === 'success' ? '状态已更新' : '提示'} />;
 }
 
 function useToolAssignmentsQueries(characterId: string) {
@@ -118,7 +101,7 @@ export function ToolAssignmentsLoading(): ReactElement {
   return (
     <section className="tool-layout">
       <div className="tool-panel tool-panel--hero">
-        <LoadingStateScreen title="正在读取工具权威快照" description="先拉取修为、库存和工具分配，再渲染采矿与炼器工具页。" />
+        <LoadingStateScreen title="正在查看百艺工具" description="正在整理修为、库存和工具分配。" />
       </div>
       <div className="tool-panel">
         <LoadingStateScreen title="技能列表" description="等待工具分配。" />
@@ -133,11 +116,11 @@ export function ToolAssignmentsLoading(): ReactElement {
   );
 }
 
-export function ToolAssignmentsError({ error, onRetry }: { readonly error: string; readonly onRetry: () => void }): ReactElement {
+export function ToolAssignmentsError({ onRetry }: { readonly error: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="tool-layout">
       <div className="tool-panel tool-panel--hero">
-        <LocalErrorStateScreen title="工具页读取失败" description="工具页读取失败，草稿和库存保持不变。" actions={[{ label: '重试', onClick: onRetry }]} footnote={error} />
+        <LocalErrorStateScreen title="工具页暂时无法打开" description="工具状态暂时无法读取，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="tool-panel">
         <EmptyStateScreen title="技能列表" description="读取失败时不展示伪造内容。" />
@@ -152,11 +135,11 @@ export function ToolAssignmentsError({ error, onRetry }: { readonly error: strin
   );
 }
 
-export function ToolAssignmentsMaintenance({ reason, onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
+export function ToolAssignmentsMaintenance({ onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="tool-layout">
       <div className="tool-panel tool-panel--hero">
-        <MaintenanceStateScreen title="工具页维护中" description="工具 API 或依赖当前不可用。" actions={[{ label: '重试', onClick: onRetry }]} footnote={reason} />
+        <MaintenanceStateScreen title="工具页维护中" description="工具暂时无法读取，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="tool-panel">
         <EmptyStateScreen title="技能列表" description="维护期间不展示伪造内容。" />
@@ -171,11 +154,11 @@ export function ToolAssignmentsMaintenance({ reason, onRetry }: { readonly reaso
   );
 }
 
-export function ToolAssignmentsLocked({ reason, onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
+export function ToolAssignmentsLocked({ onRetry }: { readonly reason: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="tool-layout">
       <div className="tool-panel tool-panel--hero">
-        <LockedStateScreen title="工具功能受限" description="当前账号已认证，但工具页没有解锁或没有权限。" actions={[{ label: '重试', onClick: onRetry }]} footnote={reason} />
+        <LockedStateScreen title="工具功能受限" description="当前暂时无法进入工具页，请稍后重试。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="tool-panel">
         <EmptyStateScreen title="技能列表" description="当前无法读取工具分配。" />
@@ -196,9 +179,9 @@ export function ToolAssignmentsEmpty({ onOpenEquipment }: { readonly onOpenEquip
       <div className="tool-panel tool-panel--hero">
         <EmptyStateScreen
           title="暂无工具分配"
-          description="服务端返回的分配列表为空，或者当前角色还没有工具候选。"
+          description="当前还没有工具候选，或尚未安排百艺工具。"
           actions={[{ label: '去装备页', onClick: onOpenEquipment }]}
-          footnote="工具页只展示权威分配，不伪造默认工具。"
+          footnote="暂未发现可用工具，不展示虚构分配。"
         />
       </div>
       <div className="tool-panel">
@@ -280,13 +263,13 @@ function ToolOptionCard({
     <article className={`tool-option ${selected ? 'tool-option--selected' : ''}`}>
       <button className="tool-option__button" type="button" onClick={onChoose} aria-pressed={selected}>
         <span className="tool-option__row">
-          <strong>{option.item_name_key}</strong>
-          <span className="content-card__status">{option.tool_tag}</span>
+          <strong>{describeToolItemName(option.item_name_key)}</strong>
+          <span className="content-card__status">{describeToolTag(option.tool_tag)}</span>
         </span>
         <span className="tool-option__copy">{option.source_note}</span>
       </button>
       <p className="tool-option__copy">
-        {option.required_realm} · {option.required_tags.join(' / ') || '无标签'}
+        {describeRealmId(option.required_realm)} · {option.required_tags.map((tag) => tag === 'tool' ? '工具' : '修行标签').join(' / ') || '无标签'}
       </p>
       <div className="tool-option__meta">
         <span>每小时产能 {option.effective_throughput_per_hour}</span>
@@ -327,11 +310,11 @@ function ToolAssignmentDetailCard({
         </div>
       </div>
 
-      <NormalStateScreen title={assignment.skill_id} description={detail.currentSummary} highlight={simplifiedMode ? '简化视图' : '完整视图'} footnote={assignment.current?.source_note ?? '当前没有装备工具。'} />
+      <NormalStateScreen title={describeSkillId(assignment.skill_id)} description={detail.currentSummary} highlight={simplifiedMode ? '简化视图' : '完整视图'} footnote={assignment.current?.source_note ?? '当前没有装备工具。'} />
 
       <div className="tool-detail__stats">
         {detail.currentStats.length === 0 ? (
-          <EmptyStateScreen title="当前工具为空" description="选择一个候选工具后，这里会显示权威产能、效率和周期。" />
+          <EmptyStateScreen title="当前工具为空" description="选择候选工具后，这里会显示产能、效率和周期。" />
         ) : (
           detail.currentStats.map((fact) => (
             <div key={fact.label} className="tool-fact">
@@ -362,9 +345,9 @@ function ToolAssignmentDetailCard({
           <EmptyStateScreen title="未选中候选" description="从候选列表里选择一个工具查看比较。可用键盘左右键切换。" />
         ) : (
           <NormalStateScreen
-            title={selectedOption.item_name_key}
+            title={describeToolItemName(selectedOption.item_name_key)}
             description={selectedOption.comparison === null ? '当前选项没有额外比较数据。' : `产能差 ${selectedOption.comparison.throughput_delta_per_hour}/小时 · 周期差 ${selectedOption.comparison.cycles_delta_per_hour}/小时`}
-            highlight={`${selectedOption.required_realm} · ${selectedOption.tool_tag}`}
+            highlight={`${describeRealmId(selectedOption.required_realm)} · ${describeToolTag(selectedOption.tool_tag)}`}
             footnote={`来源 ${selectedOption.source_note}`}
           />
         )}
@@ -489,7 +472,7 @@ export function CharacterToolAssignmentsPage(): ReactElement {
       setNotice({
         kind: 'success',
         title: '工具分配已保存',
-        description: `角色 ${data.character_id} · 状态版本 ${data.state_version}`,
+        description: data.effective_next_cycle ? '下周期生效。' : '已生效。',
         footnote: data.effective_next_cycle ? '下周期生效，不会伪改当前库存。' : '已生效。',
       });
       void queryClient.invalidateQueries({ queryKey: [TOOL_QUERY_PREFIX, session.character_id] });
@@ -624,10 +607,8 @@ export function CharacterToolAssignmentsPage(): ReactElement {
               </strong>
             </div>
             <div className="metric-chip">
-              <span className="metric-chip__label">计算时间</span>
-              <strong className="metric-chip__value" title={formatDateTime(response.as_of)}>
-                {formatDateTime(response.as_of)}
-              </strong>
+              <span className="metric-chip__label">状态</span>
+              <strong className="metric-chip__value">已同步</strong>
             </div>
             <div className="metric-chip">
               <span className="metric-chip__label">工具状态</span>
@@ -638,7 +619,7 @@ export function CharacterToolAssignmentsPage(): ReactElement {
           </div>
           <div className="tool-hero__actions">
             <button className="ghost-button" type="button" onClick={refreshAll}>
-              刷新权威
+              刷新状态
             </button>
             <button className="ghost-button" type="button" onClick={goToEquipment}>
               去装备页
@@ -648,13 +629,13 @@ export function CharacterToolAssignmentsPage(): ReactElement {
             </button>
           </div>
           <p className="tool-hero__note">
-            仅展示服务端计算的产能、效率、路线和比较，不引入价格或市场。键盘支持上下左右与回车。
+            仅展示洞天规则结算的产能、效率、路线和比较，不引入价格或市场。键盘支持上下左右与回车。
           </p>
         </div>
       </div>
 
       <div className="tool-panel">
-        <ToolPanelHeader title="技能列表" copy="采矿、炼器和其他技能按服务端返回顺序展示。选择一项后，中间面板会显示候选工具。" />
+        <ToolPanelHeader title="技能列表" copy="采矿、炼器和其他技能按洞天安排展示。选择一项后，中间面板会显示候选工具。" />
         <div className="tool-skill-list">
           {response.assignments.map((assignment) => (
             <ToolAssignmentSkillCard
@@ -673,7 +654,7 @@ export function CharacterToolAssignmentsPage(): ReactElement {
 
       <div className="tool-panel">
         <ToolPanelHeader
-          title={selectedSkill?.skill_id ?? '未选中技能'}
+          title={selectedSkill === null ? '未选中技能' : describeSkillId(selectedSkill.skill_id)}
           copy={hero.simplifiedMode ? '炼气简化视图，重点显示当前工具与可替代方案。' : '筑基展开视图，展示完整候选、比较和路线细节。'}
         />
         {selectedSkill === null ? (
@@ -697,18 +678,18 @@ export function CharacterToolAssignmentsPage(): ReactElement {
       </div>
 
       <div className="tool-panel">
-        <ToolPanelHeader title="路线与比较" copy="来源和用途都跳回百艺页面，方便核对材料链路。比较只使用服务端返回的产能差值。" />
+        <ToolPanelHeader title="路线与比较" copy="来源和用途都跳回百艺页面，方便核对材料链路。比较只使用洞天规则结算的产能差值。" />
         <div className="tool-inspector">
           <NormalStateScreen
             title="当前库存"
             description={`装备实例 ${formatCount(inventory.equipment_instances.length)} · 物品 ${formatCount(inventory.items.length)} · 货币 ${formatCount(inventory.currencies.length)}`}
             highlight={response.effective_next_cycle ? '下周期生效' : '当前生效'}
-            footnote={`状态版本 ${response.state_version} · 配置 ${response.config_version}`}
+            footnote="当前库存与工具安排已同步。"
           />
           <div className="tool-inspector__routes">
             {selectedSkill?.options.map((option) => (
               <article key={option.equipment_instance_id} className="tool-inspector__route-card">
-                <strong>{option.item_name_key}</strong>
+                <strong>{describeToolItemName(option.item_name_key)}</strong>
                 <p>{option.comparison === null ? '无比较信息' : `产能差 ${option.comparison.throughput_delta_per_hour}/小时`}</p>
                 <div className="tool-route-list">
                   {option.source_routes.map((route) => (
