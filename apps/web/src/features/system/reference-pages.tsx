@@ -1,10 +1,11 @@
 import { useState, type ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useOutletContext } from 'react-router';
-import type { AuthActiveSession, Queue } from '@dongtian/contracts';
-import { LockedStateScreen, NormalStateScreen } from '@dongtian/ui';
+import type { AuthActiveSession, DungeonOpportunityResponse, Queue } from '@dongtian/contracts';
+import { LockedStateScreen } from '@dongtian/ui';
 import { apiClient } from '../../lib/api.js';
 import { GameDialog } from '../../components/game-dialog.js';
+import { buildIdleProgressView } from '../dashboard/dashboard-adapter.js';
 
 type ReferencePageKind = 'tasks' | 'maze' | 'shops' | 'achievements' | 'leaderboard' | 'guild' | 'social' | 'guide' | 'rules' | 'news';
 
@@ -32,17 +33,31 @@ const CONFIG: Record<ReferencePageKind, ReferencePageConfig> = {
 function TasksPanel({ characterId }: { readonly characterId: string }): ReactElement {
   const queueQuery = useQuery<Queue>({ queryKey: ['reference-tasks', characterId], queryFn: () => apiClient.getQueue(characterId), staleTime: 10_000 });
   const current = queueQuery.data?.current ?? queueQuery.data?.entries[0];
+  const currentView = queueQuery.data === undefined ? null : buildIdleProgressView(queueQuery.data);
   return (
     <div className="reference-task-list">
       <article className="reference-task-card reference-task-card--active">
         <span className="reference-task-card__state">{current === undefined ? '等待安排' : '正在进行'}</span>
-        <h4>{current === undefined ? '还没有开始修行' : '当前挂机任务'}</h4>
+        <h4>{current === undefined ? '还没有开始修行' : currentView?.actionLabel ?? '当前挂机任务'}</h4>
         <p>{current === undefined ? '回到洞府选择一个任务，角色会立即开始挂机。' : '角色会持续完成当前任务，离线后回来领取收益。'}</p>
         <Link className="ghost-button" to="/dashboard">查看挂机</Link>
       </article>
       <article className="reference-task-card"><span className="reference-task-card__state">下一步</span><h4>筑基准备</h4><p>修为、材料和条件会随着挂机进度持续更新。</p><Link className="ghost-button" to="/cultivation">查看突破</Link></article>
     </div>
   );
+}
+
+function MazePanel({ characterId, activeTab }: { readonly characterId: string; readonly activeTab: string }): ReactElement {
+  const opportunityQuery = useQuery<DungeonOpportunityResponse>({ queryKey: ['reference-maze', characterId], queryFn: () => apiClient.getDungeonOpportunities(characterId), staleTime: 10_000 });
+  if (activeTab === '迷宫') {
+    const current = opportunityQuery.data?.opportunity.current_opportunities ?? 0;
+    const cap = opportunityQuery.data?.opportunity.opportunity_cap ?? 0;
+    return <div className="reference-task-list"><article className="reference-task-card reference-task-card--active"><span className="reference-task-card__state">今日机会 {current}/{cap}</span><h4>青蛇洞</h4><p>准备装备和路线，进入洞窟寻找修炼材料。</p><Link className="ghost-button" to="/expedition">进入迷宫</Link></article></div>;
+  }
+  if (activeTab === '房间') {
+    return <div className="reference-guide-list">{[['入口石径', '选择初始路线并确认装备。'], ['蛇窟岔路', '根据风险选择稳妥或深入路线。'], ['深潭石台', '完成战斗后整理秘境收获。']].map(([title, copy]) => <article key={title} className="reference-guide-card"><h4>{title}</h4><p>{copy}</p></article>)}</div>;
+  }
+  return <div className="reference-task-list"><article className="reference-task-card"><span className="reference-task-card__state">稳妥策略</span><h4>自动选择安全路线</h4><p>秘境页会使用角色当前保存的装备方案和战斗策略。</p><Link className="ghost-button" to="/expedition">编辑自动化</Link></article></div>;
 }
 
 function GuidePanel({ kind }: { readonly kind: ReferencePageKind }): ReactElement {
@@ -70,7 +85,7 @@ export function ReferencePage({ kind }: { readonly kind: ReferencePageKind }): R
       </nav>
       {config.locked ? <LockedStateScreen title={`${activeTab}暂未开放`} description={config.locked} /> : null}
       {!config.locked && kind === 'tasks' ? <TasksPanel characterId={session.character_id} /> : null}
-      {!config.locked && kind === 'maze' ? <NormalStateScreen title="青蛇洞秘境" description="装备、路线和探险结果已经接入秘境页面。" highlight="前往秘境" footnote="进入后会保留当前挂机状态。" actions={[{ label: '打开秘境', onClick: () => window.location.assign('/expedition') }]} /> : null}
+      {!config.locked && kind === 'maze' ? <MazePanel characterId={session.character_id} activeTab={activeTab} /> : null}
       {!config.locked && isGuide ? <GuidePanel kind={kind} /> : null}
       <GameDialog open={detailOpen} onOpenChange={setDetailOpen} eyebrow={config.eyebrow} title={activeTab}>
         <p className="game-dialog__copy">{config.locked ?? config.copy}</p>
