@@ -10,7 +10,7 @@ import {
 
 describe('breakthrough page states', () => {
   it('renders explicit loading, maintenance, locked and error surfaces', () => {
-    expect(renderToStaticMarkup(<BreakthroughLoading />)).toContain('正在读取筑基权威快照');
+    expect(renderToStaticMarkup(<BreakthroughLoading />)).toContain('正在准备筑基');
     expect(
       renderToStaticMarkup(<BreakthroughMaintenance reason="maint" onRetry={() => undefined} />),
     ).toContain('筑基服务维护中');
@@ -19,6 +19,6 @@ describe('breakthrough page states', () => {
     ).toContain('筑基功能受限');
     expect(
       renderToStaticMarkup(<BreakthroughError error="boom" onRetry={() => undefined} />),
-    ).toContain('筑基页读取失败');
+    ).toContain('筑基暂时无法打开');
   });
 });

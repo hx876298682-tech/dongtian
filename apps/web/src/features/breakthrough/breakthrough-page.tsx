@@ -88,12 +88,12 @@ export function BreakthroughLoading(): ReactElement {
     <section className="breakthrough-layout">
       <div className="breakthrough-panel breakthrough-panel--hero">
         <LoadingStateScreen
-          title="正在读取筑基权威快照"
-          description="读取四类门槛、预留和断线试炼状态。"
+          title="正在准备筑基"
+          description="正在检查境界、修为、材料和试炼状态。"
         />
       </div>
       <div className="breakthrough-panel">
-        <LoadingStateScreen title="筑基门槛" description="等待服务端配置。" />
+        <LoadingStateScreen title="筑基门槛" description="正在准备突破所需条件。" />
       </div>
       <div className="breakthrough-panel">
         <LoadingStateScreen title="试炼恢复" description="等待试炼状态。" />
@@ -103,7 +103,6 @@ export function BreakthroughLoading(): ReactElement {
 }
 
 export function BreakthroughError({
-  error,
   onRetry,
 }: {
   readonly error: string;
@@ -113,9 +112,8 @@ export function BreakthroughError({
     <section className="breakthrough-layout">
       <div className="breakthrough-panel breakthrough-panel--hero">
         <LocalErrorStateScreen
-          title="筑基页读取失败"
-          description="没有使用本地猜测覆盖权威状态。"
-          footnote={error}
+          title="筑基暂时无法打开"
+          description="突破状态读取失败，请稍后重试。"
           actions={[{ label: '重试', onClick: onRetry }]}
         />
       </div>
@@ -250,7 +248,7 @@ function UnlockResult({
     return (
       <EmptyStateScreen
         title="完成结果等待同步"
-        description="服务端已完成试炼，但结果仍在刷新。"
+        description="试炼已经完成，正在整理结果。"
         actions={[{ label: '刷新', onClick: onRefresh }]}
       />
     );
@@ -258,10 +256,10 @@ function UnlockResult({
     <div className="breakthrough-success">
       <NormalStateScreen
         title="筑基完成"
-        description="境界已由服务端原子更新，预留资产已永久消耗；二阶百艺、筑基秘境和三槽条件队列已开放。"
+        description="境界已提升，新的修行内容已经开放。"
         highlight="成功率 100% · 非随机失败"
         footnote={`解锁包 ${result.unlock_bundle_id} · 配置 ${response.config_version}`}
-        actions={[{ label: '刷新权威状态', onClick: onRefresh }]}
+        actions={[{ label: '查看新境界', onClick: onRefresh }]}
       />
       <div className="breakthrough-unlock-grid">
         <div>
@@ -757,7 +755,7 @@ export function BreakthroughPage(): ReactElement {
         <div className="breakthrough-panel__header">
           <div>
             <p className="page-card__eyebrow">目标与门槛</p>
-            <h3 className="breakthrough-panel__title">四类权威条件</h3>
+            <h3 className="breakthrough-panel__title">筑基条件</h3>
           </div>
           <span>{view.allSatisfied ? '已满足' : '仍有缺口'}</span>
         </div>
