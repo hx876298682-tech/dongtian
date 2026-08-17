@@ -36,7 +36,7 @@ describe('dashboard page components', () => {
     const markup = renderToStaticMarkup(<QueuePreviewCard preview={preview} />);
 
     expect(markup).toContain('title="总时长 3600 µs · 1 段"');
-    expect(markup).toContain('action.cultivation.qi · INFINITE');
+    expect(markup).toContain('采气修炼');
   });
 
   it('renders settlement empty and ready states without local settlement synthesis', () => {
@@ -70,7 +70,7 @@ describe('dashboard page components', () => {
     );
 
     expect(emptyMarkup).toContain('暂无最新离线摘要');
-    expect(readyMarkup).toContain('最新离线摘要 · COMPLETED');
+    expect(readyMarkup).toContain('离线收获');
     expect(readyMarkup).toContain('时间线');
     expect(readyMarkup).toContain('XP 与物品');
   });

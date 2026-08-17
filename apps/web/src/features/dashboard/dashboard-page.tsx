@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -24,12 +24,15 @@ import {
   buildLatestSettlementView,
   describeQueuePreviewEntry,
   describeQueuePreviewWarning,
+  describeAction,
 } from './dashboard-adapter.js';
 import {
   DEFAULT_QUEUE_ACTION_ID,
   buildQueueEditorPreviewLabel,
   createInitialQueueEditorState,
   createOfficialInventoryQueueDraft,
+  createQueueEditorDraft,
+  createQueueEditorEntryDraft,
   createQueuePlanRequest,
   fingerprintDraft,
   isPreviewFresh,
@@ -42,14 +45,6 @@ import {
 } from './queue-editor.js';
 
 const DASHBOARD_QUERY_PREFIX = 'dashboard';
-
-function toDisplayValue(value: number | string | null | undefined): string {
-  if (value === null || value === undefined || value === '') {
-    return '无';
-  }
-
-  return String(value);
-}
 
 function normalizeDraftTarget(mode: QueueEditorMode, value: string): string {
   if (mode === 'INFINITE') {
@@ -65,18 +60,18 @@ function normalizeDraftTarget(mode: QueueEditorMode, value: string): string {
 
 function summarizeDraft(draft: QueueEditorDraft): string {
   if (draft.entries.length === 0) {
-    return `保底 ${draft.fallbackActionId} · 暂无可编辑条目`;
+    return '还没有安排高级挂机任务';
   }
 
   const parts = draft.entries.map((entry) => {
     if (entry.mode === 'INFINITE') {
-      return `${entry.actionId} · 无限`;
+      return `${describeAction(entry.actionId)} · 一直进行`;
     }
 
-    return `${entry.actionId} · ${entry.mode === 'DURATION' ? `${entry.targetValue}s` : `${entry.targetValue} 次`}`;
+    return `${describeAction(entry.actionId)} · ${entry.mode === 'DURATION' ? `${entry.targetValue} 秒` : `${entry.targetValue} 次`}`;
   });
 
-  return `${parts.join(' → ')} · 保底 ${draft.fallbackActionId}`;
+  return parts.join(' → ');
 }
 
 function summarizeQueueMutationConflict(conflict: QueueVersionConflict | null): string {
@@ -198,7 +193,7 @@ function QueueEditorRow({
     <li className="queue-editor__row" tabIndex={0}>
       <div className="queue-editor__row-main">
         <label className="queue-editor__field">
-          <span className="queue-editor__label">行动 ID</span>
+          <span className="queue-editor__label">挂机任务</span>
           <input
             className="queue-editor__input"
             type="text"
@@ -208,7 +203,7 @@ function QueueEditorRow({
           />
         </label>
         <label className="queue-editor__field">
-          <span className="queue-editor__label">模式</span>
+          <span className="queue-editor__label">执行方式</span>
           <select
             className="queue-editor__input"
             value={entry.mode}
@@ -221,14 +216,14 @@ function QueueEditorRow({
               });
             }}
           >
-            <option value="COUNT">COUNT</option>
-            <option value="DURATION">DURATION</option>
-            <option value="UNTIL_INVENTORY">UNTIL_INVENTORY</option>
-            <option value="INFINITE">INFINITE</option>
+            <option value="COUNT">做几次</option>
+            <option value="DURATION">持续时间</option>
+            <option value="UNTIL_INVENTORY">攒够材料</option>
+            <option value="INFINITE">一直进行</option>
           </select>
         </label>
         <label className="queue-editor__field">
-          <span className="queue-editor__label">目标值</span>
+          <span className="queue-editor__label">目标</span>
           <input
             className="queue-editor__input"
             type="text"
@@ -241,18 +236,18 @@ function QueueEditorRow({
         {entry.mode === 'UNTIL_INVENTORY' ? (
           <>
             <label className="queue-editor__field">
-              <span className="queue-editor__label">条件物品 ID</span>
+                <span className="queue-editor__label">材料</span>
               <input
                 className="queue-editor__input"
                 type="text"
                 value={entry.conditionItemId}
                 disabled={disabled}
-                placeholder="item.example"
+                placeholder="例如：青灵草"
                 onChange={(event) => onUpdate({ conditionItemId: event.target.value })}
               />
             </label>
             <label className="queue-editor__field">
-              <span className="queue-editor__label">库存条件</span>
+                <span className="queue-editor__label">材料条件</span>
               <select
                 className="queue-editor__input"
                 value={entry.conditionOperator}
@@ -266,15 +261,15 @@ function QueueEditorRow({
           </>
         ) : null}
         <label className="queue-editor__field">
-          <span className="queue-editor__label">阻塞策略</span>
+            <span className="queue-editor__label">材料不足时</span>
           <select
             className="queue-editor__input"
             value={entry.onBlocked}
             disabled={disabled}
             onChange={(event) => onUpdate({ onBlocked: event.target.value as 'SKIP' | 'FALLBACK' })}
           >
-            <option value="FALLBACK">FALLBACK</option>
-            <option value="SKIP">SKIP</option>
+            <option value="FALLBACK">转去修炼</option>
+            <option value="SKIP">跳过任务</option>
           </select>
         </label>
       </div>
@@ -412,8 +407,8 @@ export function SettlementSummaryCard({
         <section className="settlement-summary__section">
           <h5>时间线</h5>
           <ul>
-            {view.timeline.map((item) => (
-              <li key={`${item.title}-${item.detail}`}>
+            {view.timeline.map((item, index) => (
+              <li key={`${index}-${item.title}-${item.detail}`}>
                 <strong>{item.title}</strong>
                 <span>{item.detail}</span>
               </li>
@@ -424,8 +419,8 @@ export function SettlementSummaryCard({
         <section className="settlement-summary__section">
           <h5>XP 与物品</h5>
           <ul>
-            {view.rewards.map((item) => (
-              <li key={`${item.title}-${item.detail}`}>
+            {view.rewards.map((item, index) => (
+              <li key={`${index}-${item.title}-${item.detail}`}>
                 <strong>{item.title}</strong>
                 <span>{item.detail}</span>
               </li>
@@ -437,8 +432,8 @@ export function SettlementSummaryCard({
           <h5>消耗</h5>
           {view.consumptions.length === 0 ? <p>无可见消耗账本。</p> : null}
           <ul>
-            {view.consumptions.map((item) => (
-              <li key={`${item.title}-${item.detail}`}>
+            {view.consumptions.map((item, index) => (
+              <li key={`${index}-${item.title}-${item.detail}`}>
                 <strong>{item.title}</strong>
                 <span>{item.detail}</span>
               </li>
@@ -450,8 +445,8 @@ export function SettlementSummaryCard({
           <h5>异常</h5>
           {view.anomalies.length === 0 ? <p>没有额外异常。</p> : null}
           <ul>
-            {view.anomalies.map((item) => (
-              <li key={`${item.title}-${item.detail}`}>
+            {view.anomalies.map((item, index) => (
+              <li key={`${index}-${item.title}-${item.detail}`}>
                 <strong>{item.title}</strong>
                 <span>{item.detail}</span>
               </li>
@@ -470,12 +465,47 @@ export function DashboardPage(): ReactElement {
   const queryClient = useQueryClient();
   const seededActionIdRef = useRef<string | null>(null);
   const [isPreviewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [quickStartState, setQuickStartState] = useState<'idle' | 'starting' | 'running' | 'error'>('idle');
+  const [quickStartError, setQuickStartError] = useState<string | null>(null);
   const setShellSummaries = useUiDraftStore((state) => state.setShellSummaries);
   const setQueueDraftTitle = useUiDraftStore((state) => state.setQueueDraftTitle);
   const setQueueDraftNote = useUiDraftStore((state) => state.setQueueDraftNote);
 
   const { progressionQuery, inventoryQuery, queueQuery, settlementQuery, breakthroughQuery, dungeonRunQuery } = useDashboardQueries(session.character_id);
   const [editorState, dispatch] = useReducer(queueEditorReducer, undefined, () => createInitialQueueEditorState());
+
+  const startQuickTask = useCallback(
+    async (actionId: string) => {
+      if (queueQuery.data === undefined || quickStartState === 'starting') {
+        return;
+      }
+
+      setQuickStartState('starting');
+      setQuickStartError(null);
+      const draft = createQueueEditorDraft(queueQuery.data.queue_version, [
+        createQueueEditorEntryDraft(`quick-${actionId}-${Date.now()}`, { actionId, mode: 'INFINITE', targetValue: '' }),
+      ]);
+
+      try {
+        const mutation = await apiClient.saveQueue(session.character_id, createQueuePlanRequest(draft), createIdempotencyKey());
+        dispatch({ type: 'mark-saved', queue: mutation.queue });
+        if (mutation.queue.paused) {
+          const resumed = await apiClient.resumeQueue(
+            session.character_id,
+            { expected_queue_version: mutation.queue.queue_version },
+            createIdempotencyKey(),
+          );
+          dispatch({ type: 'mark-saved', queue: resumed.queue });
+        }
+        await queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id] });
+        setQuickStartState('running');
+      } catch (error) {
+        setQuickStartState('error');
+        setQuickStartError(error instanceof Error ? error.message : '任务暂时无法开始');
+      }
+    },
+    [queueQuery.data, quickStartState, queryClient, session.character_id],
+  );
 
   useEffect(() => {
     if (queueQuery.data === undefined) {
@@ -503,9 +533,9 @@ export function DashboardPage(): ReactElement {
     }
 
     seededActionIdRef.current = actionId;
-    dispatch({ type: 'add-entry', clientEntryId: `tmp-${createIdempotencyKey()}`, actionId });
+    void startQuickTask(actionId);
     navigate({ pathname: location.pathname, search: '' }, { replace: true });
-  }, [location.pathname, location.search, navigate, queueQuery.data]);
+  }, [location.pathname, location.search, navigate, queueQuery.data, startQuickTask]);
 
   const authoritySnapshot = useMemo(() => {
     if (progressionQuery.data === undefined || inventoryQuery.data === undefined || queueQuery.data === undefined) {
@@ -625,12 +655,34 @@ export function DashboardPage(): ReactElement {
       <div className="dashboard-panel dashboard-panel--hero">
         <div className="dashboard-hero">
           <div className="dashboard-hero__header">
-            <p className="dashboard-hero__eyebrow">洞府首页</p>
-            <h3 className="dashboard-hero__title">受保护首页已接通权威快照</h3>
-            <p className="dashboard-hero__copy">
-              当前只读取服务端的修为、库存和闭关队列，不在前端推进时间、不本地发奖，也不伪造离线结算。
-            </p>
+            <p className="dashboard-hero__eyebrow">洞天 · 今日修行</p>
+            <h3 className="dashboard-hero__title">选一件事，马上开始挂机</h3>
+            <p className="dashboard-hero__copy">不用安排复杂计划。点下面的任务，角色会自动修行；回来时领取收益就好。</p>
           </div>
+
+          <div className="quick-task-grid" aria-label="开始挂机">
+            {[
+              { id: 'action.cultivation.qi', title: '灵气修炼', detail: '稳定获得修为，适合长时间挂机', reward: '修为' },
+              { id: 'action.t1.herb_baicao_valley', title: '采集青灵草', detail: '收集炼丹材料，自动切换到修炼', reward: '青灵草' },
+              { id: 'action.t1.qi_gathering_pill', title: '炼制聚气丹', detail: '有材料就炼丹，材料不足会继续修炼', reward: '聚气丹' },
+            ].map((task) => (
+              <button
+                key={task.id}
+                className="quick-task-card"
+                type="button"
+                onClick={() => void startQuickTask(task.id)}
+                disabled={quickStartState === 'starting' || queueEditingLocked}
+              >
+                <span className="quick-task-card__tag">{task.reward}</span>
+                <strong>{task.title}</strong>
+                <span>{task.detail}</span>
+                <em>{quickStartState === 'starting' ? '正在安排…' : `开始${task.title}`}</em>
+              </button>
+            ))}
+          </div>
+
+          {quickStartState === 'running' ? <p className="quick-task-feedback">已开始挂机：{authoritySnapshot.currentActionLabel}。离开一会儿再回来领取收益。</p> : null}
+          {quickStartState === 'error' ? <p className="quick-task-feedback quick-task-feedback--error">{quickStartError ?? '任务暂时无法开始，请稍后再试。'}</p> : null}
 
           <div className="dashboard-metrics" aria-label="权威摘要">
             <div className="metric-chip">
@@ -652,7 +704,7 @@ export function DashboardPage(): ReactElement {
               </strong>
             </div>
             <div className="metric-chip">
-              <span className="metric-chip__label">队列</span>
+              <span className="metric-chip__label">挂机状态</span>
               <strong className="metric-chip__value" title={`队列 ${authoritySnapshot.queueLabel}`}>
                 {authoritySnapshot.queueLabel}
               </strong>
@@ -665,11 +717,7 @@ export function DashboardPage(): ReactElement {
             </div>
           </div>
 
-          <div className="dashboard-hero__actions">
-            <Link className="ghost-button" to="/dashboard/cave">
-              管理设施
-            </Link>
-          </div>
+          <div className="dashboard-hero__actions"><Link className="ghost-button" to="/dashboard/cave">查看洞天</Link></div>
         </div>
       </div>
 
@@ -691,12 +739,11 @@ export function DashboardPage(): ReactElement {
       <div className="dashboard-panel" id="queue">
         <div className="dashboard-panel__header">
           <div>
-            <p className="page-card__eyebrow">闭关队列编辑器</p>
-            <h4 className="dashboard-panel__title">保存前先预览，冲突不覆盖草稿</h4>
+            <p className="page-card__eyebrow">高级设置</p>
+            <h4 className="dashboard-panel__title">挂机计划</h4>
           </div>
           <div className="dashboard-panel__meta">
-            <span>队列版本 {toDisplayValue(editorState.draft.expectedQueueVersion)}</span>
-            <span>{summarizeQueueMutationConflict(queueConflict)}</span>
+            <span>{hasEntries ? '可调整任务顺序和条件' : '暂无高级计划'}</span>
           </div>
         </div>
 
@@ -783,8 +830,8 @@ export function DashboardPage(): ReactElement {
 
         <div className="dashboard-editor__footer">
           <div className="dashboard-editor__status">
-            <span>草稿 {editorState.isDirty ? '已修改' : '与服务器一致'}</span>
-            <span>{previewFresh ? '预览新鲜' : '预览过期或未生成'}</span>
+              <span>{editorState.isDirty ? '计划已修改' : '计划已保存'}</span>
+            <span>{previewFresh ? '可以保存' : '需要重新预览'}</span>
           </div>
           <div className="dashboard-editor__actions">
             <button className="ghost-button" type="button" onClick={() => previewMutation.mutate(editorState.draft)} disabled={queueEditingLocked || previewMutation.isPending || hasEntries === false}>

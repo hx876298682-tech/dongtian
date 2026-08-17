@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildDashboardAuthoritySnapshot, buildLatestSettlementView } from './dashboard-adapter.js';
+import { buildDashboardAuthoritySnapshot, buildLatestSettlementView, describeAction, describeQueuePreviewEntry } from './dashboard-adapter.js';
 
 describe('dashboard adapter', () => {
   it('maps a missing latest settlement into an explicit empty state', () => {
@@ -8,7 +8,7 @@ describe('dashboard adapter', () => {
 
     expect(view.kind).toBe('empty');
     expect(view.title).toContain('暂无');
-    expect(view.description).toContain('权威空态');
+    expect(view.description).toContain('离线收益');
   });
 
   it('maps a persisted settlement into facts, timeline, rewards, consumptions, and anomalies', () => {
@@ -77,13 +77,13 @@ describe('dashboard adapter', () => {
     });
 
     expect(view.kind).toBe('ready');
-    expect(view.summaryLine).toContain('capped 1800000µs');
+    expect(view.summaryLine).toContain('获得修为 2.5');
     expect(view.facts).toContainEqual(expect.objectContaining({ label: '起点' }));
     expect(view.timeline).toHaveLength(2);
     expect(view.rewards.some((item) => item.title === '修为')).toBe(true);
     expect(view.consumptions).toHaveLength(1);
     expect(view.anomalies.some((item) => item.title === '续跑')).toBe(true);
-    expect(view.anomalies.some((item) => item.detail.includes('BLOCKED_MATERIAL'))).toBe(true);
+    expect(view.anomalies.some((item) => item.detail.includes('材料不足'))).toBe(true);
   });
 
   it('keeps the shell summary focused on authoritative dashboard fields', () => {
@@ -215,6 +215,14 @@ describe('dashboard adapter', () => {
     expect(snapshot.offlineSummary.rewards.some((item) => item.title === '修为')).toBe(true);
     expect(snapshot.offlineSummary.consumptions).toHaveLength(1);
     expect(snapshot.offlineSummary.timeline).toHaveLength(1);
-    expect(snapshot.offlineSummary.anomalies.some((item) => item.detail.includes('BLOCKED_MATERIAL'))).toBe(true);
+    expect(snapshot.offlineSummary.anomalies.some((item) => item.detail.includes('材料不足'))).toBe(true);
+  });
+
+  it('uses player-facing labels for dashboard actions and preview entries', () => {
+    expect(describeAction('action.cultivation.qi')).toBe('采气修炼');
+    expect(describeAction('action.t1.herb_baicao_valley')).toBe('百草谷采药');
+    expect(describeQueuePreviewEntry({ action_id: 'action.t1.qi_gathering_pill', mode: 'INFINITE' })).toBe('炼制聚气丹');
+    expect(describeQueuePreviewEntry({ action_id: 'action.t1.herb_baicao_valley', mode: 'COUNT', target_value: 3 })).toContain('百草谷采药');
+    expect(describeQueuePreviewEntry({ action_id: 'action.t1.herb_baicao_valley', mode: 'COUNT', blocked_reason: 'BLOCKED_MATERIAL' })).toContain('暂时无法执行');
   });
 });

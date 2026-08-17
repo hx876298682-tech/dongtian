@@ -158,12 +158,12 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
   expect(repeatSave.json.data.queue.queue_version).toBe(firstSave.json.data.queue.queue_version);
 
   await page.goto('/dashboard');
-  await expect(page.getByText('action.t1.herb_baicao_valley').last()).toBeVisible();
-  await expect(page.getByText('action.t1.qi_gathering_powder').last()).toBeVisible();
+  await expect(page.getByText('百草谷采药').last()).toBeVisible();
+  await expect(page.getByText('炼制聚气散').last()).toBeVisible();
 
   await shiftSettlementClock(session.character_id, 1.5);
   await page.reload();
-  await expect(page.getByText('最新离线摘要 · COMPLETED')).toBeVisible();
+  await expect(page.getByText('离线收获')).toBeVisible();
   await expect(page.getByText('XP 与物品')).toBeVisible();
 
   await page.goto(`/character?preset_id=${encodeURIComponent(fixture.mainPresetId)}&compare_preset_id=${encodeURIComponent(fixture.comparePresetId)}`);
@@ -241,7 +241,7 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
     method: 'PUT',
   });
   expect(secondQueueSave.status).toBe(200);
-  await expect(page.getByText('action.t1.qi_gathering_powder').last()).toBeVisible();
+  await expect(page.getByText('炼制聚气散').last()).toBeVisible();
 
   await assertLedgerBalanced();
 });

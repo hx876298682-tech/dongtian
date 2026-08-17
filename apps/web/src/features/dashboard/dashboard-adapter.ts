@@ -3,19 +3,50 @@ import type {
   CharacterProgression,
   InventorySnapshot,
   LatestSettlementResponse,
-  LatestSettlementSummary,
-  SettlementJson,
   SettlementLedgerEntry,
   SettlementTimelineEntry,
   Queue,
 } from '@dongtian/contracts';
 
-function formatStringValue(value: string | number | null | undefined): string {
-  if (value === null || value === undefined || value === '') {
-    return '未知';
+const ACTION_LABELS: Record<string, string> = {
+  'action.cultivation.qi': '采气修炼',
+  'action.t1.herb_baicao_valley': '百草谷采药',
+  'action.t1.herb_wuyin_slope': '雾隐坡采花',
+  'action.t1.qi_gathering_pill': '炼制聚气丹',
+  'action.t1.qi_gathering_powder': '炼制聚气散',
+  'action.t1.ore_chitong_kuang': '赤铜矿采矿',
+};
+
+const ITEM_LABELS: Record<string, string> = {
+  'item.t1.qingling_herb': '青灵草',
+  'item.t1.ninglu_hua': '凝露花',
+};
+
+export function describeAction(actionId: string | null | undefined): string {
+  if (actionId === null || actionId === undefined || actionId === '') {
+    return '暂无行动';
   }
 
-  return String(value);
+  return ACTION_LABELS[actionId] ?? actionId.replace(/^action\.(?:t1\.)?/, '').replaceAll('_', ' ');
+}
+
+export function describeItem(itemId: string | null | undefined): string {
+  if (itemId === null || itemId === undefined || itemId === '') {
+    return '未知物品';
+  }
+
+  return ITEM_LABELS[itemId] ?? itemId.replace(/^item\.(?:t1\.)?/, '').replaceAll('_', ' ');
+}
+
+function describeTransitionReason(reason: string | null): string {
+  if (reason === null) {
+    return '任务完成';
+  }
+
+  return {
+    ACTION_SWITCH: '自动切换下一项',
+    BLOCKED_MATERIAL: '材料不足，已切换任务',
+  }[reason] ?? '任务状态发生变化';
 }
 
 export interface OfflineTimelineItem {
@@ -70,47 +101,25 @@ export interface LatestSettlementView {
   readonly anomalies: ReadonlyArray<SettlementLineItem>;
 }
 
-function compactJson(value: SettlementJson, limit = 120): string {
-  const raw = typeof value === 'string' ? value : JSON.stringify(value);
-  if (raw === undefined) {
-    return 'null';
-  }
-
-  return raw.length > limit ? `${raw.slice(0, limit - 1)}…` : raw;
-}
-
 function isNegativeDelta(value: string): boolean {
   return value.startsWith('-') && value !== '-0';
 }
 
 function describeTimelineEntry(entry: SettlementTimelineEntry): SettlementLineItem {
-  const window = `${entry.from_at} → ${entry.to_at}`;
-  const cycles = `周期 ${entry.completed_cycles}`;
-  const reason = entry.transition_reason === null ? '无切换原因' : entry.transition_reason;
-  const payload = `输入 ${compactJson(entry.inputs)} ｜ 输出 ${compactJson(entry.outputs)} ｜ XP ${compactJson(entry.xp_changes)}`;
+  const cycles = `${entry.completed_cycles} 轮`;
+  const reason = describeTransitionReason(entry.transition_reason);
 
   return {
-    title: `段 ${entry.segment_index}`,
-    detail: `${entry.action_config_id} · ${window} · ${cycles} · ${reason} · ${payload}`,
+    title: describeAction(entry.action_config_id),
+    detail: `完成 ${cycles} · ${reason}`,
   };
 }
 
 function describeLedgerEntry(entry: SettlementLedgerEntry): SettlementLineItem {
   return {
-    title: `${entry.asset_type} ${entry.asset_id}`,
-    detail: `${entry.delta} → ${entry.balance_after} · ${entry.reason_code} · ${entry.reference_type}:${entry.reference_id}`,
+    title: describeItem(entry.asset_id),
+    detail: `${entry.delta} · 当前拥有 ${entry.balance_after}`,
   };
-}
-
-function summarizeSettlementStatus(settlement: LatestSettlementSummary): string {
-  const parts = [
-    `from ${settlement.from_at}`,
-    `effective ${settlement.effective_until}`,
-    `capped ${settlement.capped_time_us}µs`,
-    settlement.continuation_required ? 'continuation required' : 'continuation complete',
-  ];
-
-  return parts.join(' · ');
 }
 
 export function buildLatestSettlementView(response: LatestSettlementResponse | null | undefined): LatestSettlementView {
@@ -119,8 +128,8 @@ export function buildLatestSettlementView(response: LatestSettlementResponse | n
     return {
       kind: 'empty',
       title: '暂无最新离线摘要',
-      description: '服务端尚未持久化最新结算；这里只显示权威空态，不本地推演，不本地发奖。',
-      footnote: '后端返回 settlement: null 时，页面仅提示空态与刷新入口。',
+      description: '完成一次挂机后，离线收益会在这里出现。',
+      footnote: '回来时记得领取你的修为和物品。',
       summaryLine: '最新离线摘要为空',
       facts: [],
       timeline: [],
@@ -134,7 +143,7 @@ export function buildLatestSettlementView(response: LatestSettlementResponse | n
   rewards.push({ title: '修为', detail: `+${settlement.rewards.cultivation_xp}` });
   rewards.push({ title: '百艺 XP', detail: `+${settlement.rewards.skill_xp}` });
   for (const item of settlement.rewards.items) {
-    rewards.push({ title: item.item_id, detail: `+${item.quantity}` });
+    rewards.push({ title: describeItem(item.item_id), detail: `+${item.quantity}` });
   }
 
   const consumptions = settlement.ledger_entries
@@ -153,7 +162,7 @@ export function buildLatestSettlementView(response: LatestSettlementResponse | n
   }
   for (const entry of settlement.timeline) {
     if (entry.transition_reason !== null && entry.transition_reason !== 'ACTION_SWITCH') {
-      anomalies.push({ title: `段 ${entry.segment_index}`, detail: entry.transition_reason });
+      anomalies.push({ title: describeAction(entry.action_config_id), detail: describeTransitionReason(entry.transition_reason) });
     }
   }
 
@@ -168,10 +177,10 @@ export function buildLatestSettlementView(response: LatestSettlementResponse | n
 
   return {
     kind: 'ready',
-    title: `最新离线摘要 · ${settlement.status}`,
-    description: `结算 ${settlement.settlement_id} 已持久化，不会再次触发发奖。${summarizeSettlementStatus(settlement)}`,
-    footnote: `as_of ${settlement.as_of} · XP ${settlement.rewards.cultivation_xp} / ${settlement.rewards.skill_xp} · items ${settlement.rewards.items.length}`,
-    summaryLine: `${settlement.from_at} → ${settlement.effective_until} · capped ${settlement.capped_time_us}µs · ${settlement.continuation_required ? 'continuation' : 'closed'}`,
+    title: '离线收获',
+    description: `这段时间共获得修为 ${settlement.rewards.cultivation_xp} 点，物品 ${settlement.rewards.items.length} 种。`,
+    footnote: settlement.continuation_required ? '还有未完成的挂机计划，回来后会继续结算。' : '挂机收益已经结算到你的洞天。',
+    summaryLine: `获得修为 ${settlement.rewards.cultivation_xp} · ${settlement.rewards.items.length} 种物品`,
     facts,
     timeline: settlement.timeline.map(describeTimelineEntry),
     rewards,
@@ -193,17 +202,17 @@ export function buildDashboardAuthoritySnapshot(
   return {
     realmLabel: progression.cultivation.realm_stage_id,
     cultivationLabel: `${progression.cultivation.stage_progress_xp} / ${progression.cultivation.stage_required_xp}`,
-    currentActionLabel: currentAction === null ? '当前无正在执行的行动' : currentAction.action_id,
+    currentActionLabel: currentAction === null ? '尚未开始挂机' : describeAction(currentAction.action_id),
     currentActionDetail:
       currentAction === null
-        ? `队列版本 ${formatStringValue(queue.queue_version)} · ${queue.entries.length} 段计划 · 保底 ${queue.fallback.action_id}`
-        : `${currentAction.action_id} · ${currentAction.status} · 队列版本 ${formatStringValue(queue.queue_version)}`,
-    queueLabel: `队列版本 ${formatStringValue(queue.queue_version)} · ${queue.entries.length} 段`,
-    queueDetail: `${queue.paused ? '已暂停' : '运行中'} · 保底 ${queue.fallback.action_id}`,
+        ? queue.entries.length === 0 ? '选择一项任务即可开始积累修为。' : `已安排 ${queue.entries.length} 项挂机任务。`
+        : `${queue.paused ? '挂机已暂停' : '正在挂机'} · ${describeAction(currentAction.action_id)}`,
+    queueLabel: queue.paused ? '挂机已暂停' : queue.entries.length > 0 ? '挂机进行中' : '等待开始',
+    queueDetail: `${queue.entries.length} 项任务 · 结束后自动继续下一项`,
     goalTrackerLabel: breakthrough === null ? '目标追踪暂不可用' : '筑基目标追踪',
     goalTrackerDetail:
       breakthrough?.breakthrough === undefined
-        ? `${progression.character.name} · 修为 ${progression.cultivation.xp} · 总库存 ${inventory.total_count}`
+        ? `${progression.character.name} · 当前修为 ${progression.cultivation.xp} · 洞天物资 ${inventory.total_count} 件`
         : `${breakthrough.breakthrough.requirements.filter((requirement) => requirement.status === 'SATISFIED').length}/${breakthrough.breakthrough.requirements.length} 项条件满足 · ${breakthrough.breakthrough.all_satisfied ? '可以开始筑基' : '仍有资源缺口'}`,
     inventoryLabel: `库存 ${inventory.total_count} 件`,
     offlineSummary: settlementView,
@@ -227,17 +236,16 @@ export function describeQueuePreviewWarning(warning: Record<string, unknown>): s
 }
 
 export function describeQueuePreviewEntry(entry: Record<string, unknown>): string {
-  const actionId = typeof entry['action_id'] === 'string' ? entry['action_id'] : '未知行动';
-  const mode = typeof entry['mode'] === 'string' ? entry['mode'] : 'UNKNOWN';
+  const actionId = describeAction(typeof entry['action_id'] === 'string' ? entry['action_id'] : null);
   const targetValue = entry['target_value'];
   const blockedReason = typeof entry['blocked_reason'] === 'string' ? entry['blocked_reason'] : null;
 
-  const parts = [actionId, mode];
+  const parts = [actionId];
   if (targetValue !== undefined && targetValue !== null && targetValue !== '') {
     parts.push(`目标 ${String(targetValue)}`);
   }
   if (blockedReason !== null) {
-    parts.push(blockedReason);
+    parts.push(`暂时无法执行：${blockedReason}`);
   }
 
   return parts.join(' · ');
