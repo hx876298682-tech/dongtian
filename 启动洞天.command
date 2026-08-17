@@ -30,7 +30,7 @@ is_project_process() {
   local command cwd
   command="$(ps -o command= -p "$pid" 2>/dev/null || true)"
   cwd="$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | head -1)"
-  [[ "$cwd" == "$PROJECT_DIR" || "$command" == *"$PROJECT_DIR"* ]]
+  [[ "$cwd" == "$PROJECT_DIR" || "$cwd" == "$PROJECT_DIR"/* || "$command" == *"$PROJECT_DIR"* ]]
 }
 
 stop_project_listener() {
@@ -86,7 +86,7 @@ stop_project_listener 5173
 say "启动 API 和 Web..."
 pnpm --filter @dongtian/api dev >"$PROJECT_DIR/.local-api.log" 2>&1 &
 API_PID=$!
-pnpm --filter @dongtian/web dev -- --host 127.0.0.1 --port 5173 --strictPort >"$PROJECT_DIR/.local-web.log" 2>&1 &
+pnpm --filter @dongtian/web exec vite --host 127.0.0.1 --port 5173 --strictPort >"$PROJECT_DIR/.local-web.log" 2>&1 &
 WEB_PID=$!
 
 cleanup() {
@@ -99,6 +99,12 @@ for _ in {1..60}; do
   sleep 1
 done
 curl -fsS http://127.0.0.1:3000/api/v1/health/live >/dev/null 2>&1 || fail "API 启动失败，请查看 .local-api.log。"
+
+for _ in {1..30}; do
+  curl -fsS http://127.0.0.1:5173/ >/dev/null 2>&1 && break
+  sleep 1
+done
+curl -fsS http://127.0.0.1:5173/ >/dev/null 2>&1 || fail "Web 启动失败，请查看 .local-web.log。"
 
 say "打开浏览器：http://127.0.0.1:5173/"
 open http://127.0.0.1:5173/
