@@ -11,8 +11,8 @@ describe('cave page states', () => {
     const lockedMarkup = renderToStaticMarkup(<CaveLocked reason="locked" onRetry={() => undefined} />);
     const emptyMarkup = renderToStaticMarkup(<CaveEmpty reason="empty" onRetry={() => undefined} />);
 
-    expect(loadingMarkup).toContain('正在读取洞府权威快照');
-    expect(errorMarkup).toContain('洞府页读取失败');
+    expect(loadingMarkup).toContain('正在查看洞天设施');
+    expect(errorMarkup).toContain('洞天设施暂时无法打开');
     expect(maintenanceMarkup).toContain('洞府服务维护中');
     expect(lockedMarkup).toContain('洞府功能受限');
     expect(emptyMarkup).toContain('洞府暂无设施');

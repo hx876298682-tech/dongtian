@@ -10,14 +10,14 @@ describe('expedition page components', () => {
     const maintenanceMarkup = renderToStaticMarkup(<ExpeditionMaintenance reason="maint" onRetry={() => undefined} />);
     const lockedMarkup = renderToStaticMarkup(<ExpeditionLocked reason="locked" onRetry={() => undefined} />);
 
-    expect(loadingMarkup).toContain('正在读取青蛇洞权威快照');
-    expect(errorMarkup).toContain('秘境页读取失败');
+    expect(loadingMarkup).toContain('正在查看青蛇洞');
+    expect(errorMarkup).toContain('秘境暂时无法打开');
     expect(maintenanceMarkup).toContain('秘境服务维护中');
     expect(lockedMarkup).toContain('秘境功能受限');
   });
 
   it('explains the preset shortcut when the API cannot list presets', () => {
     expect(EXPEDITION_PRESET_GUIDANCE).toContain('角色');
-    expect(EXPEDITION_PRESET_GUIDANCE).toContain('策略 safe');
+    expect(EXPEDITION_PRESET_GUIDANCE).toContain('稳妥探险');
   });
 });

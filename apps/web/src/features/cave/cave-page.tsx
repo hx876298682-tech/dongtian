@@ -78,7 +78,7 @@ export function CaveLoading(): ReactElement {
   return (
     <section className="cave-layout">
       <div className="cave-panel cave-panel--hero">
-        <LoadingStateScreen title="正在读取洞府权威快照" description="先拉取角色状态、洞府设施和库存，再渲染设施卡和建造确认。" />
+        <LoadingStateScreen title="正在查看洞天设施" description="正在读取聚灵室、炼丹房和炼器房。" />
       </div>
       <div className="cave-panel">
         <LoadingStateScreen title="设施列表" description="等待聚灵室、炼丹房和炼器房数据。" />
@@ -90,11 +90,11 @@ export function CaveLoading(): ReactElement {
   );
 }
 
-export function CaveError({ error, onRetry }: { readonly error: string; readonly onRetry: () => void }): ReactElement {
+export function CaveError({ onRetry }: { readonly error: string; readonly onRetry: () => void }): ReactElement {
   return (
     <section className="cave-layout">
       <div className="cave-panel cave-panel--hero">
-        <LocalErrorStateScreen title="洞府页读取失败" description="权威快照读取失败，已保留当前页面选择。" actions={[{ label: '重试', onClick: onRetry }]} footnote={error} />
+        <LocalErrorStateScreen title="洞天设施暂时无法打开" description="设施数据读取失败，已保留当前页面选择。" actions={[{ label: '重试', onClick: onRetry }]} />
       </div>
       <div className="cave-panel">
         <EmptyStateScreen title="设施列表" description="读取失败时不展示伪造设施。" />
@@ -199,7 +199,7 @@ function CaveDetailPanel({
   }
 
   const detailLines = [
-    `设施 ID ${view.facilityConfigId}`,
+    `设施等级 ${view.levelLabel}`,
     `当前 ${view.levelLabel} · ${view.currentModifierLabel}`,
     ...(view.taskStateLabel === null ? [] : [`任务 ${view.taskStateLabel}`]),
     `下级 ${view.nextLevelRuleLevel === null ? '已无下级' : `Lv${view.nextLevelRuleLevel}`} · ${view.nextBuildDuration}`,
@@ -507,9 +507,7 @@ export function CavePage(): ReactElement {
                 : `${activeFacility.facilityLabel} · ${activeFacility.levelLabel} · 下级 ${activeFacility.nextLevelRuleLabel}`}
             </Dialog.Description>
             <div className="cave-dialog__facts">
-              <p>状态版本 {caveQuery.data.character.state_version}</p>
-              <p>配置版本 {caveQuery.data.cave.config_version}</p>
-              <p>幂等键 {state.pendingIdempotencyKey ?? '待生成'}</p>
+              <p>建造后会立即获得对应的洞天加成</p>
             </div>
             <div className="cave-dialog__actions">
               <button className="ghost-button" type="button" onClick={handleSubmitBuild} disabled={buildMutation.isPending || activeFacility === null}>

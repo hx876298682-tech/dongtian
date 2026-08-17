@@ -571,7 +571,7 @@ function ExpeditionReadOnlyLinks({
       </div>
       <div className="expedition-inline-note">
         <strong>角色 {session.character_id.slice(0, 8)}</strong>
-        <span>{queue === null ? '队列尚未加载。' : `队列版本 ${queue.queue_version} · ${queue.entries.length} 段 · ${queue.paused ? '已暂停' : '运行中'}`}</span>
+        <span>{queue === null ? '挂机计划尚未加载。' : `${queue.entries.length} 个任务 · ${queue.paused ? '已暂停' : '正在运行'}`}</span>
       </div>
     </div>
   );
