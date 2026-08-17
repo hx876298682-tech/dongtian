@@ -1673,6 +1673,12 @@ select {
   font-size: 12px;
 }
 
+.settings-option__value {
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .settings-option input {
   width: 18px;
   height: 18px;
@@ -1903,6 +1909,10 @@ select {
 
 html[data-show-game-log='false'] .game-log {
   display: none;
+}
+
+html[data-show-timestamps='false'] .game-log__messages time {
+  visibility: hidden;
 }
 
 html[data-reduce-motion='true'] *,
