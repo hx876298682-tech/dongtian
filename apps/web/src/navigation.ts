@@ -25,6 +25,7 @@ export const SHELL_ROUTES: readonly ShellRouteItem[] = [
   { id: 'expedition', label: '历练', path: '/expedition', description: '青蛇洞机会、准备、运行与恢复。' },
   { id: 'character', label: '角色', path: '/character', description: '装备整理、比较、保留和淬炼。' },
   { id: 'inventory', label: '背包', path: '/inventory', description: '材料、丹药、装备和分页筛选。' },
+  { id: 'settings', label: '设置', path: '/settings', description: '界面密度、动效和修行日志。' },
 ];
 
 /** The smallest playable loop, kept as navigation metadata so it never invents authority. */

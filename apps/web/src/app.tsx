@@ -20,6 +20,7 @@ import { CharacterToolAssignmentsPage } from './features/character/tool-assignme
 import { CraftPage, InventoryPage } from './features/content/content-page.js';
 import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
+import { SettingsPage } from './features/system/settings-page.js';
 import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
 import type { AuthActiveSession, InventoryAsset, InventorySnapshot, Queue } from '@dongtian/contracts';
@@ -463,6 +464,7 @@ const router = createBrowserRouter([
       { path: 'character', element: <CharacterEquipmentPage /> },
       { path: 'character/tools', element: <CharacterToolAssignmentsPage /> },
       { path: 'inventory', element: <InventoryPage /> },
+      { path: 'settings', element: <SettingsPage /> },
     ],
   },
 ]);

@@ -1551,6 +1551,107 @@ select {
   color: var(--accent-strong);
 }
 
+.settings-page {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.settings-page__header,
+.settings-page__tabs,
+.settings-option {
+  border: 1px solid var(--line);
+  background: rgba(25, 26, 40, 0.94);
+}
+
+.settings-page__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+}
+
+.settings-page__header h3 {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 24px;
+}
+
+.settings-page__header > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.settings-page__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+}
+
+.settings-page__tab {
+  padding: 8px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.settings-page__tab--active {
+  background: rgba(72, 88, 176, 0.8);
+  color: #fff;
+}
+
+.settings-page__tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.settings-page__list {
+  display: grid;
+  gap: 4px;
+}
+
+.settings-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.settings-option span {
+  display: grid;
+  gap: 5px;
+}
+
+.settings-option small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.settings-option input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-strong);
+}
+
+html[data-show-game-log='false'] .game-log {
+  display: none;
+}
+
+html[data-reduce-motion='true'] *,
+html[data-reduce-motion='true'] *::before,
+html[data-reduce-motion='true'] *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
 .dashboard-panel,
 .content-panel,
 .cave-panel,
