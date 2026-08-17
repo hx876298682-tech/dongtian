@@ -148,7 +148,7 @@ export function canTransitionQueueEntryStatus(
     BLOCKED: ['RUNNING', 'DONE_INCOMPLETE', 'CANCELLED'],
     DONE: [],
     DONE_INCOMPLETE: [],
-    DONE_CONDITION_MET: [],
+    DONE_CONDITION_MET: ['RUNNING'],
     CANCELLED: [],
   };
   return transitions[from].includes(to);

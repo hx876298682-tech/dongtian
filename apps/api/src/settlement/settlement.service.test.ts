@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { computeReleaseContentHash, loadConfigRegistry, type ConfigRegistry } from '@dongtian/config-schema';
 import type {
   AssetRepository,
+  AssetReservationRequest,
   BuffRepository,
   DatabasePool,
   JsonValue,
@@ -17,6 +18,9 @@ import type {
   SettlementRepository,
   SettlementStateRecord,
   SettlementSummaryRecord,
+  QueueEntryRecord,
+  QueueRecord,
+  QueueRepository,
 } from '@dongtian/database';
 
 import type { AuthService } from '../auth/auth.service.js';
@@ -86,6 +90,7 @@ const state: SettlementStateRecord = {
 function makeService(
   currentState: SettlementStateRecord | null = state,
   ownershipError: Error | null = null,
+  queueRepository?: QueueRepository,
 ) {
   const queries: string[] = [];
   const client = {
@@ -93,6 +98,9 @@ function makeService(
       queries.push(sql);
       if (sql.includes('UPDATE skill_progression')) {
         return { rows: [{ xp: '0.5' }] as T[] };
+      }
+      if (sql.includes('FROM inventories')) {
+        return { rows: [{ item_id: 'item.t1.qingling_herb', available_quantity: '0' }] as T[] };
       }
       return { rows: [] as T[] };
     },
@@ -263,8 +271,27 @@ function makeService(
     async reserve() {
       throw new Error('not used');
     },
-    async reserveOnTransaction() {
-      throw new Error('not used');
+    async reserveOnTransaction(_client: PoolClient, input: AssetReservationRequest) {
+      return {
+        assetType: input.assetType,
+        assetId: input.assetId,
+        quantity: input.quantity,
+        reservedQuantity: input.quantity,
+        availableQuantity: '0',
+        transactionId: 'reserve-transaction-1',
+        ledgerEntryId: 'reserve-ledger-1',
+        reservation: {
+          reservationId: 'reservation-1',
+          characterId: input.characterId,
+          businessType: input.businessType,
+          businessId: input.businessId,
+          assetType: input.assetType,
+          assetId: input.assetId,
+          quantity: input.quantity,
+          status: 'ACTIVE' as const,
+          expiresAt: null,
+        },
+      };
     },
     async findActiveReservationsByBusiness() {
       return [];
@@ -278,8 +305,27 @@ function makeService(
     async consume() {
       throw new Error('not used');
     },
-    async consumeOnTransaction() {
-      throw new Error('not used');
+    async consumeOnTransaction(_client: PoolClient, input: { readonly reservationId: string }) {
+      return {
+        assetType: 'ITEM' as const,
+        assetId: 'item.t1.qingling_herb',
+        quantity: '0',
+        reservedQuantity: '0',
+        availableQuantity: '0',
+        transactionId: `consume-${input.reservationId}`,
+        ledgerEntryId: `consume-ledger-${input.reservationId}`,
+        reservation: {
+          reservationId: input.reservationId,
+          characterId: 'character-1',
+          businessType: 'ACTION_CYCLE',
+          businessId: 'settlement-1',
+          assetType: 'ITEM' as const,
+          assetId: 'item.t1.qingling_herb',
+          quantity: '0',
+          status: 'CONSUMED' as const,
+          expiresAt: null,
+        },
+      };
     },
     async audit() {
       return { ok: true, discrepancyCount: 0, discrepancies: [] };
@@ -347,6 +393,7 @@ function makeService(
     idempotencyService,
     registry,
     { ACTIVE_CONFIG_VERSION: '2026.08.16.1' } as never,
+    queueRepository,
   );
 
   return { service, settlementRepository, assetRepository, addedRewards, queries, getLastPersist: () => lastPersist };
@@ -375,6 +422,279 @@ describe('SettlementService', () => {
     expect(addedRewards).toHaveLength(1);
     expect(queries).toEqual(['BEGIN', 'COMMIT']);
     expect(assetRepository.addOnTransaction).toBeDefined();
+  });
+
+  it('re-evaluates inventory conditions after a completed cycle and enters the next queue action', async () => {
+    const currentEntry: QueueEntryRecord = {
+      id: 'entry-1',
+      characterId: 'character-1',
+      clientEntryId: 'harvest',
+      position: 0,
+      actionConfigId: 'action.t1.herb_baicao_valley',
+      mode: 'UNTIL_INVENTORY',
+      targetValue: '1',
+      conditionItemId: 'item.t1.qingling_herb',
+      conditionOperator: '>=',
+      onBlocked: 'FALLBACK',
+      status: 'RUNNING',
+      completedCycles: 0n,
+      progressTimeUs: 0n,
+      snapshot: null,
+      snapshotConfigVersion: version,
+      startedAt: null,
+      completedAt: null,
+      blockedReason: null,
+    };
+    const nextEntry: QueueEntryRecord = {
+      ...currentEntry,
+      id: 'entry-2',
+      clientEntryId: 'refine',
+      position: 1,
+      actionConfigId: 'action.t1.qi_gathering_pill',
+      conditionItemId: 'item.t1.qi_gathering_pill',
+      status: 'QUEUED',
+    };
+    let queue: QueueRecord = {
+      characterId: 'character-1',
+      queueVersion: 1n,
+      pendingReplaceAfterCycle: false,
+      paused: false,
+      fallbackActionId: 'action.cultivation.qi',
+      entries: [currentEntry, nextEntry],
+    };
+    const queueRepository: QueueRepository = {
+      async getQueue() { return queue; },
+      async lockQueue() { return queue; },
+      async replaceQueue() { return queue; },
+      async setPaused() { return queue; },
+      async setEntryStatus(_client, input) {
+        queue = {
+          ...queue,
+          entries: queue.entries.map((entry) => entry.id === input.entryId
+            ? { ...entry, status: input.status, blockedReason: input.blockedReason ?? null }
+            : entry),
+        };
+        return queue;
+      },
+    };
+
+    const { service, getLastPersist } = makeService(state, null, queueRepository);
+    await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
+
+    expect(queue.entries).toEqual([
+      expect.objectContaining({ id: 'entry-1', status: 'DONE_CONDITION_MET' }),
+      expect.objectContaining({ id: 'entry-2', status: 'RUNNING' }),
+    ]);
+    expect(getLastPersist()?.nextState).toMatchObject({
+      activeQueueEntryId: 'entry-2',
+      activeCycleSnapshot: expect.objectContaining({ action_config_id: 'action.t1.qi_gathering_pill' }),
+    });
+  });
+
+  it('caps an UNTIL_INVENTORY action at the first cycle that satisfies its target', async () => {
+    const currentEntry: QueueEntryRecord = {
+      id: 'entry-cap',
+      characterId: 'character-1',
+      clientEntryId: 'cap',
+      position: 0,
+      actionConfigId: 'action.t1.herb_baicao_valley',
+      mode: 'UNTIL_INVENTORY',
+      targetValue: '1',
+      conditionItemId: 'item.t1.qingling_herb',
+      conditionOperator: '>=',
+      onBlocked: 'FALLBACK',
+      status: 'RUNNING',
+      completedCycles: 0n,
+      progressTimeUs: 0n,
+      snapshot: null,
+      snapshotConfigVersion: version,
+      startedAt: null,
+      completedAt: null,
+      blockedReason: null,
+    };
+    let queue: QueueRecord = {
+      characterId: 'character-1',
+      queueVersion: 1n,
+      pendingReplaceAfterCycle: false,
+      paused: false,
+      fallbackActionId: 'action.cultivation.qi',
+      entries: [currentEntry],
+    };
+    const queueRepository: QueueRepository = {
+      async getQueue() { return queue; },
+      async lockQueue() { return queue; },
+      async replaceQueue() { return queue; },
+      async setPaused() { return queue; },
+      async setEntryStatus(_client, input) {
+        queue = {
+          ...queue,
+          entries: queue.entries.map((entry) => entry.id === input.entryId
+            ? { ...entry, status: input.status, blockedReason: input.blockedReason ?? null }
+            : entry),
+        };
+        return queue;
+      },
+    };
+    const cappedState = {
+      ...state,
+      activeQueueEntryId: currentEntry.id,
+      activeCycleSnapshot: { ...snapshot, duration_us: '1000000' },
+    };
+    const { service, getLastPersist } = makeService(cappedState, null, queueRepository);
+
+    vi.setSystemTime(new Date('2026-08-16T00:00:05.000Z'));
+    const result = await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
+
+    expect(result.completed_cycles).toBe('1');
+    expect(result.effective_time_us).toBe('1000000');
+    expect(result.applied_rewards.items).toEqual([{ item_id: 'item.t1.qingling_herb', quantity: '2' }]);
+    expect(queue.entries[0]).toMatchObject({ status: 'DONE_CONDITION_MET' });
+    expect(getLastPersist()?.nextState.activeQueueEntryId).toBeUndefined();
+  });
+
+  it('switches an active FALLBACK blocked entry to fallback action', async () => {
+    const blockedEntry: QueueEntryRecord = {
+      id: 'entry-blocked',
+      characterId: 'character-1',
+      clientEntryId: 'blocked',
+      position: 0,
+      actionConfigId: 'action.t1.qi_gathering_pill',
+      mode: 'UNTIL_INVENTORY',
+      targetValue: '5',
+      conditionItemId: 'item.t1.qi_gathering_pill',
+      conditionOperator: '>=',
+      onBlocked: 'FALLBACK',
+      status: 'BLOCKED',
+      completedCycles: 0n,
+      progressTimeUs: 0n,
+      snapshot: null,
+      snapshotConfigVersion: version,
+      startedAt: null,
+      completedAt: null,
+      blockedReason: 'blocked_material:item.t1.qingling_herb',
+    };
+    const queueRepository: QueueRepository = {
+      async getQueue() { return { characterId: 'character-1', queueVersion: 1n, pendingReplaceAfterCycle: false, paused: false, fallbackActionId: 'action.cultivation.qi', entries: [blockedEntry] }; },
+      async lockQueue() { return { characterId: 'character-1', queueVersion: 1n, pendingReplaceAfterCycle: false, paused: false, fallbackActionId: 'action.cultivation.qi', entries: [blockedEntry] }; },
+      async replaceQueue() { throw new Error('not used'); },
+      async setPaused() { throw new Error('not used'); },
+      async setEntryStatus() { throw new Error('blocked entry must remain blocked'); },
+    };
+    const blockedState = { ...state, activeQueueEntryId: 'entry-blocked', activeCycleSnapshot: snapshot };
+    const { service, getLastPersist } = makeService(blockedState, null, queueRepository);
+
+    const result = await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
+
+    expect(result.completed_cycles).toBe('0');
+    expect(getLastPersist()?.nextState).toMatchObject({
+      activeCycleSnapshot: expect.objectContaining({ action_config_id: 'action.cultivation.qi' }),
+    });
+  });
+
+  it('keeps a blocked queued entry on fallback until queue reconciliation unblocks it', async () => {
+    const blockedEntry: QueueEntryRecord = {
+      id: 'entry-blocked-fallback',
+      characterId: 'character-1',
+      clientEntryId: 'blocked-fallback',
+      position: 0,
+      actionConfigId: 'action.t1.qi_gathering_pill',
+      mode: 'UNTIL_INVENTORY',
+      targetValue: '5',
+      conditionItemId: 'item.t1.qi_gathering_pill',
+      conditionOperator: '>=',
+      onBlocked: 'FALLBACK',
+      status: 'BLOCKED',
+      completedCycles: 0n,
+      progressTimeUs: 0n,
+      snapshot: null,
+      snapshotConfigVersion: version,
+      startedAt: null,
+      completedAt: null,
+      blockedReason: 'blocked_material:item.t1.qingling_herb',
+    };
+    const fallbackQueue: QueueRecord = {
+      characterId: 'character-1',
+      queueVersion: 1n,
+      pendingReplaceAfterCycle: false,
+      paused: false,
+      fallbackActionId: 'action.cultivation.qi',
+      entries: [blockedEntry],
+    };
+    const queueRepository: QueueRepository = {
+      async getQueue() { return fallbackQueue; },
+      async lockQueue() { return fallbackQueue; },
+      async replaceQueue() { throw new Error('not used'); },
+      async setPaused() { throw new Error('not used'); },
+      async setEntryStatus() { throw new Error('blocked entry must remain blocked'); },
+    };
+    const fallbackState = { ...state, activeQueueEntryId: null, activeCycleSnapshot: snapshot };
+    const { service, getLastPersist } = makeService(fallbackState, null, queueRepository);
+
+    const result = await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
+
+    expect(result.completed_cycles).toBe('1');
+    expect(getLastPersist()?.nextState).not.toHaveProperty('activeQueueEntryId');
+    expect(getLastPersist()?.nextState.activeCycleSnapshot).toEqual(
+      expect.objectContaining({ action_config_id: 'action.t1.herb_baicao_valley' }),
+    );
+  });
+
+  it('re-enters a completed inventory condition after its target item is consumed', async () => {
+    const completedEntry: QueueEntryRecord = {
+      id: 'entry-reenter',
+      characterId: 'character-1',
+      clientEntryId: 'refine-again',
+      position: 0,
+      actionConfigId: 'action.t1.qi_gathering_pill',
+      mode: 'UNTIL_INVENTORY',
+      targetValue: '5',
+      conditionItemId: 'item.t1.qi_gathering_pill',
+      conditionOperator: '>=',
+      onBlocked: 'FALLBACK',
+      status: 'DONE_CONDITION_MET',
+      completedCycles: 1n,
+      progressTimeUs: 0n,
+      snapshot: null,
+      snapshotConfigVersion: version,
+      startedAt: null,
+      completedAt: new Date('2026-08-16T00:00:01.000Z'),
+      blockedReason: null,
+    };
+    let queue: QueueRecord = {
+      characterId: 'character-1',
+      queueVersion: 2n,
+      pendingReplaceAfterCycle: false,
+      paused: false,
+      fallbackActionId: 'action.cultivation.qi',
+      entries: [completedEntry],
+    };
+    const queueRepository: QueueRepository = {
+      async getQueue() { return queue; },
+      async lockQueue() { return queue; },
+      async replaceQueue() { return queue; },
+      async setPaused() { return queue; },
+      async setEntryStatus(_client, input) {
+        queue = {
+          ...queue,
+          entries: queue.entries.map((entry) => entry.id === input.entryId
+            ? { ...entry, status: input.status, blockedReason: input.blockedReason ?? null }
+            : entry),
+        };
+        return queue;
+      },
+    };
+    const fallbackState = { ...state, activeQueueEntryId: null, activeCycleSnapshot: snapshot };
+    const { service, getLastPersist } = makeService(fallbackState, null, queueRepository);
+
+    vi.setSystemTime(new Date('2026-08-16T00:05:00.000Z'));
+    const result = await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
+
+    expect(result.completed_cycles).toBe('1');
+    expect(queue.entries[0]).toMatchObject({ status: 'RUNNING' });
+    expect(getLastPersist()?.nextState).toMatchObject({
+      activeQueueEntryId: 'entry-reenter',
+      activeCycleSnapshot: expect.objectContaining({ action_config_id: 'action.t1.qi_gathering_pill' }),
+    });
   });
 
   it('wraps an idempotent settlement write and forwards the settled state to the handler', async () => {

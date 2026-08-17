@@ -19,6 +19,7 @@ import { CharacterEquipmentPage } from './features/character/equipment-page.js';
 import { CharacterToolAssignmentsPage } from './features/character/tool-assignments-page.js';
 import { CraftPage, InventoryPage } from './features/content/content-page.js';
 import { ExpeditionPage } from './features/expedition/expedition-page.js';
+import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
 import { DEFAULT_SHELL_ROUTE, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
 import type { AuthActiveSession } from '@dongtian/contracts';
@@ -214,27 +215,6 @@ function AppFrame({
   );
 }
 
-function PagePlaceholder({ title, description }: { readonly title: string; readonly description: string }): ReactElement {
-  return (
-    <section className="page-grid">
-      <article className="page-card page-card--hero">
-        <p className="page-card__eyebrow">{title}</p>
-        <h3 className="page-card__title">{description}</h3>
-        <p className="page-card__copy">当前只提供壳和插槽。实际内容会在后续垂直切片填充。</p>
-      </article>
-      <article className="page-card">
-        <LoadingStateScreen title="加载态" description="该区域保留加载骨架与渐进填充。" />
-      </article>
-      <article className="page-card">
-        <EmptyStateScreen title="空态" description="没有真实数据时，保留明确的空状态而不是假内容。" />
-      </article>
-      <article className="page-card">
-        <MaintenanceStateScreen title="维护态" description="配置或依赖不可用时，保留明确退路。" />
-      </article>
-    </section>
-  );
-}
-
 function AppRoutes(): ReactElement {
   const auth = useAuthBootstrap();
   const location = useLocation();
@@ -337,7 +317,7 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'dashboard/cave', element: <CavePage /> },
-      { path: 'cultivation', element: <PagePlaceholder title="修炼页" description="境界、修为、突破与项目追踪" /> },
+      { path: 'cultivation', element: <BreakthroughPage /> },
       { path: 'craft', element: <CraftPage /> },
       { path: 'expedition', element: <ExpeditionPage /> },
       { path: 'character', element: <CharacterEquipmentPage /> },

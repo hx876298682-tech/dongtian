@@ -655,6 +655,7 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
           character: { $ref: '#/components/schemas/BreakthroughCharacter' },
           breakthrough: { $ref: '#/components/schemas/BreakthroughPreview' },
           config_version: { type: 'string' },
+          active_run: { oneOf: [{ $ref: '#/components/schemas/BreakthroughRun' }, { type: 'null' }] },
         },
       },
       BreakthroughStartRequest: {

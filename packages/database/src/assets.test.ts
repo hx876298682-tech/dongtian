@@ -211,6 +211,44 @@ describe('asset repository', () => {
     });
   });
 
+  it('consumes only the requested portion of an aggregate reservation', async () => {
+    const pool = poolForQueries([
+      [],
+      [{ id: 'character-1' }],
+      [{ continuation_required: false }],
+      [{
+        id: 'reservation-1',
+        character_id: 'character-1',
+        business_type: 'ACTION_QUEUE_ENTRY',
+        business_id: 'entry-1',
+        asset_type: 'ITEM',
+        asset_id: 'item.t1.qingling_herb',
+        quantity: '5',
+        status: 'ACTIVE',
+        expires_at: null,
+      }],
+      [{ id: 'consume-transaction' }],
+      [{ quantity: '8', reserved_quantity: '3', available_quantity: '5' }],
+      [],
+      [{ entry_id: 'consume-ledger' }],
+      [],
+    ]);
+    const repository = createAssetRepository(pool);
+    const consumed = await repository.consume({
+      ...context,
+      reservationId: 'reservation-1',
+      quantity: '2',
+      reasonCode: 'SETTLEMENT_INPUT',
+    });
+
+    expect(consumed.reservation).toMatchObject({
+      reservationId: 'reservation-1',
+      status: 'ACTIVE',
+      quantity: '3',
+    });
+    expect(pool.queries.some((query) => query.includes('quantity = quantity - $2::numeric'))).toBe(true);
+  });
+
   it('reports a ledger mismatch instead of hiding an unexplained balance', async () => {
     let queryCount = 0;
     const pool = {

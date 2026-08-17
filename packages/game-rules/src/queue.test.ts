@@ -225,6 +225,7 @@ describe('queue rules', () => {
   it('restricts lifecycle transitions and defers replacement while a cycle is active', () => {
     expect(canTransitionQueueEntryStatus('QUEUED', 'RUNNING')).toBe(true);
     expect(canTransitionQueueEntryStatus('DONE', 'RUNNING')).toBe(false);
+    expect(canTransitionQueueEntryStatus('DONE_CONDITION_MET', 'RUNNING')).toBe(true);
     expect(queueReplacementBoundary({
       activeQueueEntryId: 'entry-1',
       requestedPlan: { fallbackActionId: 'action.cultivation.qi', entries: [] },

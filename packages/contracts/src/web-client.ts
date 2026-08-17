@@ -208,6 +208,20 @@ export interface CharacterProgression {
   readonly config_version: string;
 }
 
+export type BreakthroughAssetType = 'CULTIVATION_XP' | 'ITEM' | 'CURRENCY';
+export type BreakthroughRequirementStatus = 'SATISFIED' | 'MISSING';
+export type BreakthroughRunStatus = 'READY' | 'TRIAL_ACTIVE' | 'TRIAL_WAITING_CHOICE' | 'COMPLETED' | 'FAILED_RECOVERABLE' | 'ABANDONED';
+export type BreakthroughRouteRisk = 'SAFE' | 'HIGH_RISK';
+export interface BreakthroughRequirementPreview { readonly asset_type: BreakthroughAssetType; readonly asset_id: string; readonly current: string; readonly total: string; readonly reserved: string; readonly available: string; readonly required: string; readonly status: BreakthroughRequirementStatus; readonly shortfall: string; readonly source_route_id: string; readonly estimated_time_seconds: string | null; }
+export interface BreakthroughPreview { readonly breakthrough_config_id: string; readonly target_realm_id: string; readonly config_version: string; readonly formula_version: number; readonly success_rate: string; readonly all_satisfied: boolean; readonly requirements: ReadonlyArray<BreakthroughRequirementPreview>; readonly unlock_bundle_id: string; }
+export interface BreakthroughPreviewResponse { readonly character: { readonly character_id: string; readonly state_version: number; readonly active_config_version: string }; readonly breakthrough: BreakthroughPreview; readonly config_version: string; readonly active_run?: BreakthroughRun | null; }
+export interface BreakthroughStartRequest { readonly expected_state_version: number | string; readonly config_version: string; }
+export interface BreakthroughChoiceRequest { readonly choice_id: string; readonly expected_run_version: number | string; }
+export interface BreakthroughReservedAsset { readonly asset_type: 'ITEM' | 'CURRENCY'; readonly asset_id: string; readonly quantity: string; }
+export interface BreakthroughFinalizeResult { readonly breakthrough_run_id: string; readonly breakthrough_config_id: string; readonly success_rate: string; readonly unlocked_realm_id: string; readonly unlock_bundle_id: string; readonly queue_slots: number; readonly medicine_slots: number; readonly reserved_assets: ReadonlyArray<BreakthroughReservedAsset>; }
+export interface BreakthroughRun { readonly breakthrough_run_id: string; readonly breakthrough_config_id: string; readonly config_version: string; readonly formula_version: number; readonly status: BreakthroughRunStatus; readonly run_version: number; readonly current_node_id: string; readonly created_at: string; readonly trial_deadline_at: string; readonly expires_at: string; readonly selected_choice_id: string | null; readonly selected_route_id: string | null; readonly selected_route_risk: BreakthroughRouteRisk | null; readonly selected_at: string | null; readonly finalized_at: string | null; readonly abandoned_at: string | null; readonly released_at: string | null; readonly reservation_snapshot: ReadonlyArray<BreakthroughReservedAsset>; readonly preview_snapshot: BreakthroughPreview; readonly result: BreakthroughFinalizeResult | null; }
+export interface BreakthroughRunResponse { readonly character: { readonly character_id: string; readonly state_version: number; readonly active_config_version: string }; readonly config_version: string; readonly run: BreakthroughRun; }
+
 export interface SkillProgression {
   readonly skill_id: string;
   readonly level: number;
@@ -722,6 +736,13 @@ export interface ApiClient {
   readonly logout: () => Promise<AuthLogout>;
   readonly getManifest: () => Promise<Manifest>;
   readonly getProgression: (characterId: string) => Promise<CharacterProgression>;
+  readonly getNextBreakthrough: (characterId: string) => Promise<BreakthroughPreviewResponse>;
+  readonly previewBreakthrough: (characterId: string) => Promise<BreakthroughPreviewResponse>;
+  readonly startBreakthrough: (characterId: string, request: BreakthroughStartRequest, idempotencyKey: string) => Promise<BreakthroughRunResponse>;
+  readonly getBreakthroughRun: (runId: string) => Promise<BreakthroughRunResponse>;
+  readonly chooseBreakthroughRoute: (runId: string, request: BreakthroughChoiceRequest, idempotencyKey: string) => Promise<BreakthroughRunResponse>;
+  readonly finalizeBreakthroughRun: (runId: string, idempotencyKey: string) => Promise<BreakthroughRunResponse>;
+  readonly abandonBreakthroughRun: (runId: string, idempotencyKey: string) => Promise<BreakthroughRunResponse>;
   readonly getInventory: (characterId: string, category?: string) => Promise<InventorySnapshot>;
   readonly getLoadoutPreset: (characterId: string, presetId: string) => Promise<LoadoutPreset>;
   readonly saveLoadoutPreset: (
@@ -954,6 +975,34 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
       const response = await requestJson<ApiEnvelope<CharacterProgression>>(baseUrl, fetchImpl, csrfToken, `/api/v1/characters/${characterId}/progression`, {
         method: 'GET',
       });
+      return response.data;
+    },
+    async getNextBreakthrough(characterId: string): Promise<BreakthroughPreviewResponse> {
+      const response = await requestJson<ApiEnvelope<BreakthroughPreviewResponse>>(baseUrl, fetchImpl, csrfToken, `/api/v1/characters/${characterId}/breakthroughs/next`, { method: 'GET' });
+      return response.data;
+    },
+    async previewBreakthrough(characterId: string): Promise<BreakthroughPreviewResponse> {
+      const response = await requestJson<ApiEnvelope<BreakthroughPreviewResponse>>(baseUrl, fetchImpl, csrfToken, `/api/v1/characters/${characterId}/breakthroughs/preview`, { method: 'POST', body: '{}' });
+      return response.data;
+    },
+    async startBreakthrough(characterId: string, request: BreakthroughStartRequest, idempotencyKey: string): Promise<BreakthroughRunResponse> {
+      const response = await requestJson<ApiEnvelope<BreakthroughRunResponse>>(baseUrl, fetchImpl, csrfToken, `/api/v1/characters/${characterId}/breakthroughs`, { method: 'POST', headers: { 'idempotency-key': idempotencyKey }, body: JSON.stringify(request) });
+      return response.data;
+    },
+    async getBreakthroughRun(runId: string): Promise<BreakthroughRunResponse> {
+      const response = await requestJson<ApiEnvelope<BreakthroughRunResponse>>(baseUrl, fetchImpl, csrfToken, `/api/v1/breakthrough-runs/${runId}`, { method: 'GET' });
+      return response.data;
+    },
+    async chooseBreakthroughRoute(runId: string, request: BreakthroughChoiceRequest, idempotencyKey: string): Promise<BreakthroughRunResponse> {
+      const response = await requestJson<ApiEnvelope<BreakthroughRunResponse>>(baseUrl, fetchImpl, csrfToken, `/api/v1/breakthrough-runs/${runId}/choices`, { method: 'POST', headers: { 'idempotency-key': idempotencyKey }, body: JSON.stringify(request) });
+      return response.data;
+    },
+    async finalizeBreakthroughRun(runId: string, idempotencyKey: string): Promise<BreakthroughRunResponse> {
+      const response = await requestJson<ApiEnvelope<BreakthroughRunResponse>>(baseUrl, fetchImpl, csrfToken, `/api/v1/breakthrough-runs/${runId}/finalize`, { method: 'POST', headers: { 'idempotency-key': idempotencyKey }, body: '{}' });
+      return response.data;
+    },
+    async abandonBreakthroughRun(runId: string, idempotencyKey: string): Promise<BreakthroughRunResponse> {
+      const response = await requestJson<ApiEnvelope<BreakthroughRunResponse>>(baseUrl, fetchImpl, csrfToken, `/api/v1/breakthrough-runs/${runId}/abandon`, { method: 'POST', headers: { 'idempotency-key': idempotencyKey }, body: '{}' });
       return response.data;
     },
     async getInventory(characterId: string, category?: string): Promise<InventorySnapshot> {

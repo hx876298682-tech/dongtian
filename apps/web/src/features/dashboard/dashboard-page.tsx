@@ -28,6 +28,7 @@ import {
   DEFAULT_QUEUE_ACTION_ID,
   buildQueueEditorPreviewLabel,
   createInitialQueueEditorState,
+  createOfficialInventoryQueueDraft,
   createQueuePlanRequest,
   fingerprintDraft,
   isPreviewFresh,
@@ -184,7 +185,7 @@ function QueueEditorRow({
   readonly onMoveDown: () => void;
   readonly onMoveUp: () => void;
   readonly onRemove: () => void;
-  readonly onUpdate: (patch: Partial<Pick<QueueEditorEntryDraft, 'actionId' | 'mode' | 'targetValue' | 'onBlocked'>>) => void;
+  readonly onUpdate: (patch: Partial<Pick<QueueEditorEntryDraft, 'actionId' | 'mode' | 'targetValue' | 'conditionItemId' | 'conditionOperator' | 'onBlocked'>>) => void;
 }): ReactElement {
   return (
     <li className="queue-editor__row" tabIndex={0}>
@@ -215,6 +216,7 @@ function QueueEditorRow({
           >
             <option value="COUNT">COUNT</option>
             <option value="DURATION">DURATION</option>
+            <option value="UNTIL_INVENTORY">UNTIL_INVENTORY</option>
             <option value="INFINITE">INFINITE</option>
           </select>
         </label>
@@ -224,11 +226,38 @@ function QueueEditorRow({
             className="queue-editor__input"
             type="text"
             value={entry.mode === 'INFINITE' ? '' : entry.targetValue}
-            placeholder={entry.mode === 'DURATION' ? '秒' : '次数'}
+            placeholder={entry.mode === 'DURATION' ? '秒' : entry.mode === 'UNTIL_INVENTORY' ? '库存数量' : '次数'}
             disabled={disabled || entry.mode === 'INFINITE'}
             onChange={(event) => onUpdate({ targetValue: event.target.value })}
           />
         </label>
+        {entry.mode === 'UNTIL_INVENTORY' ? (
+          <>
+            <label className="queue-editor__field">
+              <span className="queue-editor__label">条件物品 ID</span>
+              <input
+                className="queue-editor__input"
+                type="text"
+                value={entry.conditionItemId}
+                disabled={disabled}
+                placeholder="item.example"
+                onChange={(event) => onUpdate({ conditionItemId: event.target.value })}
+              />
+            </label>
+            <label className="queue-editor__field">
+              <span className="queue-editor__label">库存条件</span>
+              <select
+                className="queue-editor__input"
+                value={entry.conditionOperator}
+                disabled={disabled}
+                onChange={(event) => onUpdate({ conditionOperator: event.target.value as '<' | '>=' })}
+              >
+                <option value=">=">库存达到目标时跳过</option>
+                <option value="&lt;">库存低于目标时执行</option>
+              </select>
+            </label>
+          </>
+        ) : null}
         <label className="queue-editor__field">
           <span className="queue-editor__label">阻塞策略</span>
           <select
@@ -681,6 +710,14 @@ export function DashboardPage(): ReactElement {
         </div>
 
         <div className="dashboard-template-row" aria-label="快速模板">
+              <button
+                className="chip-button"
+                type="button"
+                onClick={() => dispatch({ type: 'apply-template', draft: createOfficialInventoryQueueDraft(editorState.draft.expectedQueueVersion) })}
+                disabled={queueEditingLocked}
+              >
+                采集→炼制→修炼
+              </button>
               <button
                 className="chip-button"
                 type="button"

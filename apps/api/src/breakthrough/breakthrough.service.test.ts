@@ -194,6 +194,9 @@ function makeService() {
     async getLatestRun() {
       return null;
     },
+    async getActiveRun() {
+      return null;
+    },
     async lockActiveRun() {
       return null;
     },
@@ -299,6 +302,16 @@ function makeService() {
 }
 
 describe('BreakthroughService', () => {
+  it('returns the authenticated character active run with the next preview for cross-device recovery', async () => {
+    const { service, breakthroughRepository } = makeService();
+    const activeRun = await breakthroughRepository.getRun('run-1');
+    vi.spyOn(breakthroughRepository, 'getActiveRun').mockResolvedValue(activeRun);
+
+    const response = await service.getNextBreakthrough({} as FastifyRequest, 'character-1');
+
+    expect(response.active_run).toMatchObject({ breakthrough_run_id: 'run-1', status: 'TRIAL_WAITING_CHOICE' });
+  });
+
   it('rejects a stale start request before touching the write path', async () => {
     const { service } = makeService();
     await expect(

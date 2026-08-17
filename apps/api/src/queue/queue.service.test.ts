@@ -857,6 +857,30 @@ describe('QueueService', () => {
     });
   });
 
+  it('warns when an inventory condition targets an item the action does not produce', async () => {
+    const { service } = makeService(0n, false, foundationCharacter);
+
+    await expect(service.preview(request('condition-warning'), foundationCharacter.characterId, {
+      expected_queue_version: 0,
+      entries: [{
+        client_entry_id: 'tmp-condition-warning',
+        action_id: freeAction.id,
+        mode: 'UNTIL_INVENTORY',
+        target_value: '5',
+        condition_item_id: inventoryConditionItem.id,
+        condition_operator: '>=',
+        on_blocked: 'FALLBACK',
+      }],
+      fallback: { action_id: freeAction.id, mode: 'INFINITE' },
+    })).resolves.toMatchObject({
+      warnings: expect.arrayContaining([{
+        client_entry_id: 'tmp-condition-warning',
+        code: 'CONDITION_TARGET_NOT_OUTPUT',
+        item_id: inventoryConditionItem.id,
+      }]),
+    });
+  });
+
   it('rejects a write while settlement continuation is still in progress and does not duplicate retries', async () => {
     const blocked = makeService(0n, true);
     await expect(blocked.service.save(request('blocked-key'), character.characterId, materialPlan))

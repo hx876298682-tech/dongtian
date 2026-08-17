@@ -9,13 +9,16 @@ import type {
   QueuePreview,
 } from '@dongtian/contracts';
 
-export type QueueEditorMode = Extract<QueueMode, 'COUNT' | 'DURATION' | 'INFINITE'>;
+export type QueueEditorMode = Extract<QueueMode, 'COUNT' | 'DURATION' | 'UNTIL_INVENTORY' | 'INFINITE'>;
+export type QueueEditorConditionOperator = '<' | '>=';
 
 export interface QueueEditorEntryDraft {
   readonly clientEntryId: string;
   readonly actionId: string;
   readonly mode: QueueEditorMode;
   readonly targetValue: string;
+  readonly conditionItemId: string;
+  readonly conditionOperator: QueueEditorConditionOperator;
   readonly onBlocked: QueueBlockedPolicy;
 }
 
@@ -44,10 +47,11 @@ export type QueueEditorAction =
   | { readonly type: 'hydrate'; readonly queue: Queue }
   | { readonly type: 'set-expected-version'; readonly expectedQueueVersion: string }
   | { readonly type: 'add-entry'; readonly clientEntryId?: string; readonly afterClientEntryId?: string; readonly actionId?: string }
-  | { readonly type: 'update-entry'; readonly clientEntryId: string; readonly patch: Partial<Pick<QueueEditorEntryDraft, 'actionId' | 'mode' | 'targetValue' | 'onBlocked'>> }
+  | { readonly type: 'update-entry'; readonly clientEntryId: string; readonly patch: Partial<Pick<QueueEditorEntryDraft, 'actionId' | 'mode' | 'targetValue' | 'conditionItemId' | 'conditionOperator' | 'onBlocked'>> }
   | { readonly type: 'remove-entry'; readonly clientEntryId: string }
   | { readonly type: 'move-entry'; readonly clientEntryId: string; readonly direction: -1 | 1 }
   | { readonly type: 'set-fallback-action'; readonly actionId: string }
+  | { readonly type: 'apply-template'; readonly draft: QueueEditorDraft }
   | { readonly type: 'apply-preview'; readonly preview: QueuePreview; readonly fingerprint: string }
   | { readonly type: 'clear-preview' }
   | { readonly type: 'mark-conflict'; readonly conflict: QueueVersionConflict }
@@ -58,12 +62,46 @@ export const DEFAULT_QUEUE_ACTION_ID = 'action.cultivation.qi';
 export const DEFAULT_QUEUE_TARGET_VALUE = '1';
 export const DEFAULT_FALLBACK_ACTION_ID = 'action.cultivation.qi';
 
+export function createOfficialInventoryQueueDraft(
+  queueVersion: number | string = '0',
+  harvestTargetValue = '20',
+  refineTargetValue = '10',
+): QueueEditorDraft {
+  return {
+    expectedQueueVersion: String(queueVersion),
+    fallbackActionId: DEFAULT_FALLBACK_ACTION_ID,
+    entries: [
+      createQueueEditorEntryDraft('official.harvest_to_n', {
+        actionId: 'action.t1.herb_baicao_valley',
+        mode: 'UNTIL_INVENTORY',
+        targetValue: harvestTargetValue,
+        conditionItemId: 'item.t1.qingling_herb',
+        conditionOperator: '>=',
+      }),
+      createQueueEditorEntryDraft('official.refine_to_n', {
+        actionId: 'action.t1.qi_gathering_pill',
+        mode: 'UNTIL_INVENTORY',
+        targetValue: refineTargetValue,
+        conditionItemId: 'item.t1.qi_gathering_pill',
+        conditionOperator: '>=',
+      }),
+      createQueueEditorEntryDraft('official.cultivate_infinite', {
+        actionId: DEFAULT_QUEUE_ACTION_ID,
+        mode: 'INFINITE',
+        targetValue: '',
+      }),
+    ],
+  };
+}
+
 export function createQueueEditorEntryDraft(clientEntryId: string, overrides: Partial<QueueEditorEntryDraft> = {}): QueueEditorEntryDraft {
   return {
     clientEntryId,
     actionId: overrides.actionId ?? DEFAULT_QUEUE_ACTION_ID,
     mode: overrides.mode ?? 'COUNT',
     targetValue: overrides.targetValue ?? DEFAULT_QUEUE_TARGET_VALUE,
+    conditionItemId: overrides.conditionItemId ?? '',
+    conditionOperator: overrides.conditionOperator ?? '>=',
     onBlocked: overrides.onBlocked ?? 'FALLBACK',
   };
 }
@@ -99,6 +137,8 @@ export function createQueuePlanRequest(draft: QueueEditorDraft): QueuePlanReques
         mode: entry.mode,
         on_blocked: entry.onBlocked,
         ...(entry.mode !== 'INFINITE' && entry.targetValue.length > 0 ? { target_value: entry.targetValue } : {}),
+        ...(entry.mode === 'UNTIL_INVENTORY' && entry.conditionItemId.length > 0 ? { condition_item_id: entry.conditionItemId } : {}),
+        ...(entry.mode === 'UNTIL_INVENTORY' ? { condition_operator: entry.conditionOperator } : {}),
       };
 
       return plannedEntry;
@@ -118,6 +158,8 @@ export function fingerprintDraft(draft: QueueEditorDraft): string {
       actionId: entry.actionId,
       mode: entry.mode,
       targetValue: entry.targetValue,
+      conditionItemId: entry.conditionItemId,
+      conditionOperator: entry.conditionOperator,
       onBlocked: entry.onBlocked,
     })),
     fallbackActionId: draft.fallbackActionId,
@@ -137,6 +179,10 @@ function normalizeMode(mode: QueueMode): QueueEditorMode {
     return 'DURATION';
   }
 
+  if (mode === 'UNTIL_INVENTORY') {
+    return 'UNTIL_INVENTORY';
+  }
+
   return 'COUNT';
 }
 
@@ -146,6 +192,8 @@ function queueEntryToDraft(entry: QueueEntry): QueueEditorEntryDraft {
     actionId: entry.action_id,
     mode: normalizeMode(entry.mode),
     targetValue: entry.target_value ?? DEFAULT_QUEUE_TARGET_VALUE,
+    conditionItemId: entry.condition_item_id ?? '',
+    conditionOperator: entry.condition_operator === '<' ? '<' : '>=',
     onBlocked: entry.on_blocked,
   };
 }
@@ -295,6 +343,16 @@ export function queueEditorReducer(state: QueueEditorState, action: QueueEditorA
         previewFingerprint: null,
         conflict: null,
         isDirty: true,
+      };
+    }
+    case 'apply-template': {
+      return {
+        ...state,
+        draft: action.draft,
+        preview: null,
+        previewFingerprint: null,
+        conflict: null,
+        isDirty: fingerprintDraft(action.draft) !== state.baselineFingerprint,
       };
     }
     case 'apply-preview':

@@ -3,6 +3,64 @@ import { describe, expect, it, vi } from 'vitest';
 import { createApiClient } from './web-client.js';
 
 describe('createApiClient', () => {
+  it('exposes breakthrough recovery endpoints with idempotency headers', async () => {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      const headers = new Headers(init?.headers);
+      if (url.endsWith('/breakthroughs/next')) {
+        return {
+          ok: true, status: 200, headers: new Headers({ 'content-type': 'application/json' }),
+          async json() { return { data: { character: { character_id: 'character-1', state_version: 4, active_config_version: 'v1' }, breakthrough: { requirements: [] }, active_run: null, config_version: 'v1' }, meta: {} }; },
+          async text() { return ''; },
+        } as Response;
+      }
+      expect(url).toContain('/breakthrough-runs/run-1/choices');
+      expect(headers.get('idempotency-key')).toBe('idem-1');
+      return {
+        ok: true, status: 200, headers: new Headers({ 'content-type': 'application/json' }),
+        async json() { return { data: { character: { character_id: 'character-1', state_version: 4, active_config_version: 'v1' }, config_version: 'v1', run: {} }, meta: {} }; },
+        async text() { return ''; },
+      } as Response;
+    });
+    const client = createApiClient({ baseUrl: 'https://example.test', fetchImpl: fetchImpl as typeof fetch });
+    await expect(client.getNextBreakthrough('character-1')).resolves.toMatchObject({ character: { character_id: 'character-1' }, active_run: null });
+    await expect(client.chooseBreakthroughRoute('run-1', { choice_id: 'choice-1', expected_run_version: 2 }, 'idem-1')).resolves.toMatchObject({ character: { character_id: 'character-1' } });
+  });
+
+  it('exposes breakthrough recovery endpoints with idempotency headers', async () => {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      const headers = new Headers(init?.headers);
+      if (url.endsWith('/breakthroughs/next')) {
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          async json() {
+            return { data: { character: { character_id: 'character-1', state_version: 4, active_config_version: 'v1' }, breakthrough: { requirements: [] }, config_version: 'v1' }, meta: {} };
+          },
+          async text() { return ''; },
+        } as Response;
+      }
+      expect(url).toContain('/breakthrough-runs/run-1/choices');
+      expect(headers.get('idempotency-key')).toBe('idem-1');
+      expect(init?.method).toBe('POST');
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        async json() {
+          return { data: { character: { character_id: 'character-1', state_version: 4, active_config_version: 'v1' }, config_version: 'v1', run: {} }, meta: {} };
+        },
+        async text() { return ''; },
+      } as Response;
+    });
+
+    const client = createApiClient({ baseUrl: 'https://example.test', fetchImpl: fetchImpl as typeof fetch });
+    await expect(client.getNextBreakthrough('character-1')).resolves.toMatchObject({ character: { character_id: 'character-1' } });
+    await expect(client.chooseBreakthroughRoute('run-1', { choice_id: 'choice-1', expected_run_version: 2 }, 'idem-1')).resolves.toMatchObject({ character: { character_id: 'character-1' } });
+  });
+
   it('sends credentials and csrf headers for mutating requests', async () => {
     const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       expect(init?.credentials).toBe('include');

@@ -1656,6 +1656,179 @@ select {
   gap: 10px;
 }
 
+.breakthrough-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.breakthrough-panel {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.92));
+  box-shadow: var(--shadow);
+}
+
+.breakthrough-panel--hero {
+  grid-column: span 2;
+}
+
+.breakthrough-panel__header,
+.breakthrough-requirement__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.breakthrough-panel__title,
+.breakthrough-group__title {
+  margin: 0;
+}
+
+.breakthrough-requirements,
+.breakthrough-group,
+.breakthrough-runtime,
+.breakthrough-success,
+.breakthrough-queue {
+  display: grid;
+  gap: 12px;
+}
+
+.breakthrough-requirement,
+.breakthrough-queue__list li {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.breakthrough-requirement p,
+.breakthrough-runtime p,
+.breakthrough-queue p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.breakthrough-requirement--satisfied {
+  border-color: rgba(47, 111, 95, 0.65);
+}
+
+.breakthrough-requirement--missing {
+  border-color: rgba(180, 83, 9, 0.6);
+}
+
+.breakthrough-choice-list,
+.breakthrough-unlock-grid,
+.breakthrough-success__links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.breakthrough-choice {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  color: inherit;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.breakthrough-choice span,
+.breakthrough-unlock-grid span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.breakthrough-choice--selected {
+  border-color: rgba(47, 111, 95, 0.75);
+  background: rgba(47, 111, 95, 0.18);
+}
+
+.breakthrough-unlock-grid > div {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.breakthrough-queue__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.breakthrough-queue__list li span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.breakthrough-queue__controls {
+  display: grid;
+  grid-template-columns: minmax(160px, 1.3fr) repeat(5, minmax(90px, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+
+.breakthrough-queue__controls label,
+.breakthrough-queue > label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.breakthrough-queue__controls input,
+.breakthrough-queue__controls select,
+.breakthrough-queue > label input {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.breakthrough-queue__row-actions,
+.breakthrough-queue__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.breakthrough-commit-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.breakthrough-commit-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.breakthrough-commit-list span {
+  color: var(--muted);
+}
+
 .dashboard-preview__muted {
   color: var(--muted);
   font-size: 13px;
@@ -1839,6 +2012,21 @@ select {
 
   .cave-layout {
     grid-template-columns: 1fr;
+  }
+
+  .breakthrough-layout,
+  .breakthrough-choice-list,
+  .breakthrough-unlock-grid,
+  .breakthrough-success__links {
+    grid-template-columns: 1fr;
+  }
+
+  .breakthrough-panel--hero {
+    grid-column: auto;
+  }
+
+  .breakthrough-queue__controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .cave-panel--hero {

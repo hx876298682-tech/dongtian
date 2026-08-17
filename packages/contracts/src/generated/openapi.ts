@@ -3055,6 +3055,16 @@ export const openApiDocument = {
           },
           "config_version": {
             "type": "string"
+          },
+          "active_run": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/BreakthroughRun"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       },

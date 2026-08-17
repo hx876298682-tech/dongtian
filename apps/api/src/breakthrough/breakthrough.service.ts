@@ -73,6 +73,7 @@ type BreakthroughEnvelope = {
 
 type BreakthroughNextResponse = BreakthroughEnvelope & {
   readonly breakthrough: ReturnType<typeof mapBreakthroughPreview>;
+  readonly active_run: BreakthroughRunResponse['run'] | null;
 };
 
 type BreakthroughRunResponse = BreakthroughEnvelope & {
@@ -500,6 +501,7 @@ export class BreakthroughService {
     if (!inventory) {
       throw notFound();
     }
+    const activeRun = await this.breakthroughRepository.getActiveRun(characterId);
     return {
       character: {
         character_id: state.character_id,
@@ -508,6 +510,7 @@ export class BreakthroughService {
       },
       breakthrough: mapBreakthroughPreview(previewBreakthrough(previewInput(state.cultivation_xp, inventory))),
       config_version: this.configRegistry.manifest.config_version,
+      active_run: activeRun === null ? null : fromRulesRun(toRulesRun(activeRun), activeRun.configVersion, activeRun.formulaVersion),
     };
   }
 

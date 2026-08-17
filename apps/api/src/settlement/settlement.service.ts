@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 
@@ -19,6 +20,7 @@ import {
   addMicroseconds,
   decimal,
   microseconds,
+  isQueueInventoryConditionSatisfied,
   settleSingleAction,
   type SettlementBuffEffect,
   type SettlementActionSnapshot,
@@ -40,6 +42,8 @@ import type {
   SettlementSegmentRecord,
   SettlementSkillProgressionAward,
   SettlementStateRecord,
+  QueueRepository,
+  QueueEntryRecord,
 } from '@dongtian/database';
 import { environmentToken } from '../environment.js';
 import { configRegistryToken } from '../config/config.tokens.js';
@@ -49,6 +53,7 @@ import { IdempotencyService } from '../idempotency/idempotency.service.js';
 import { assetRepositoryToken } from '../asset/asset.tokens.js';
 import { buffRepositoryToken } from '../buff/buff.tokens.js';
 import { settlementRepositoryToken } from './settlement.tokens.js';
+import { queueRepositoryToken } from '../queue/queue.tokens.js';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -168,6 +173,16 @@ type SettlementPlan = {
   readonly skillAwards: readonly SettlementSkillProgressionAward[];
   readonly persistence: SettlementPersistenceInput;
   readonly responseBase: Omit<SettlementRunResponse, 'settlement_id'>;
+};
+
+type QueueItemBalanceRow = {
+  readonly item_id: string;
+  readonly available_quantity: string;
+};
+
+type QueueTransition = {
+  readonly activeQueueEntryId: string | null;
+  readonly activeCycleSnapshot: SettlementJson | null;
 };
 
 type SettlementSummaryEnvelope = {
@@ -345,6 +360,18 @@ function snapshotFromJson(snapshot: SettlementJson | null): SettlementSnapshotRe
   };
 }
 
+function snapshotFromAction(action: ActionConfig, configVersion: string, formulaVersion: number): SettlementJson {
+  return {
+    action_config_id: action.id,
+    config_version: configVersion,
+    formula_version: formulaVersion,
+    duration_us: action.base_duration_us,
+    cultivation_xp_per_cycle: action.cultivation_xp,
+    skill_xp_per_cycle: action.skill_xp,
+    outputs: Object.fromEntries(action.outputs.map((output) => [output.item_id, output.quantity])),
+  };
+}
+
 function toRulesSnapshot(snapshot: SettlementSnapshotRecord): SettlementActionSnapshot {
   return {
     actionConfigId: snapshot.action_config_id,
@@ -386,6 +413,7 @@ function buildSkillAwards(actionConfig: ActionConfig | null, settlement: SingleA
 function buildSegments(
   result: SingleActionSettlementResult,
   queueEntryId: string | null,
+  getAction: (actionConfigId: string) => ActionConfig | null,
 ): readonly SettlementSegmentRecord[] {
   return result.segments.map((segment) => ({
     segmentIndex: segment.segmentIndex,
@@ -394,7 +422,12 @@ function buildSegments(
     fromAt: fromMicroseconds(segment.fromUs),
     toAt: fromMicroseconds(segment.toUs),
     completedCycles: segment.completedCycles,
-    inputs: {},
+    inputs: Object.fromEntries(
+      (getAction(segment.actionConfigId)?.inputs ?? []).map((input) => [
+        input.item_id,
+        (BigInt(input.quantity) * segment.completedCycles).toString(),
+      ]),
+    ),
     outputs: segment.outputs,
     xpChanges: {
       cultivation_xp: segment.xpChanges.cultivationXp,
@@ -493,6 +526,7 @@ export class SettlementService {
     @Inject(IdempotencyService) private readonly idempotencyService: IdempotencyService,
     @Inject(configRegistryToken) private readonly configRegistry: ConfigRegistry,
     @Inject(environmentToken) private readonly environment: Environment,
+    @Optional() @Inject(queueRepositoryToken) private readonly queueRepository?: QueueRepository,
   ) {}
 
   public async settleToNow(request: FastifyRequest, characterId: string): Promise<SettlementRunResponse> {
@@ -562,6 +596,246 @@ export class SettlementService {
     return this.settlementRepository.runContinuationBatch(limit, handler);
   }
 
+  private async loadQueueInventory(client: PoolClient, characterId: string): Promise<Map<string, bigint>> {
+    const result = await client.query<QueueItemBalanceRow>(
+      `SELECT item_id, (quantity - reserved_quantity)::text AS available_quantity
+         FROM inventories
+        WHERE character_id = $1`,
+      [characterId],
+    );
+    return new Map(result.rows.map((row) => [row.item_id, BigInt(row.available_quantity)]));
+  }
+
+  private inventoryConditionSatisfied(
+    entry: Pick<QueueEntryRecord, 'mode' | 'targetValue' | 'conditionItemId' | 'conditionOperator'>,
+    inventory: ReadonlyMap<string, bigint>,
+  ): boolean {
+    if (entry.mode !== 'UNTIL_INVENTORY' || entry.targetValue === null || entry.conditionItemId === null) {
+      return false;
+    }
+    if (entry.conditionOperator !== '<' && entry.conditionOperator !== '>=') {
+      return false;
+    }
+    return isQueueInventoryConditionSatisfied(inventory.get(entry.conditionItemId) ?? 0n, {
+      itemId: entry.conditionItemId,
+      operator: entry.conditionOperator,
+      targetValue: entry.targetValue,
+    });
+  }
+
+  private async prepareQueueEntry(
+    client: PoolClient,
+    characterId: string,
+    state: SettlementStateRecord,
+  ): Promise<{ readonly queue: Awaited<ReturnType<QueueRepository['lockQueue']>>; readonly transition: QueueTransition }> {
+    if (this.queueRepository === undefined) {
+      return { queue: null, transition: { activeQueueEntryId: state.activeQueueEntryId, activeCycleSnapshot: state.activeCycleSnapshot } };
+    }
+    let queue = await this.queueRepository.lockQueue(client, characterId);
+    if (queue === null) {
+      return { queue, transition: { activeQueueEntryId: state.activeQueueEntryId, activeCycleSnapshot: state.activeCycleSnapshot } };
+    }
+    if (state.activeQueueEntryId !== null) {
+      const activeEntry = queue.entries.find((entry) => entry.id === state.activeQueueEntryId);
+      if (activeEntry?.status === 'BLOCKED') {
+        if (activeEntry.onBlocked === 'FALLBACK') {
+          const fallback = this.getActionConfig(queue.fallbackActionId);
+          return {
+            queue,
+            transition: {
+              activeQueueEntryId: null,
+              activeCycleSnapshot: fallback === null
+                ? null
+                : snapshotFromAction(fallback, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version),
+            },
+          };
+        }
+        return { queue, transition: { activeQueueEntryId: state.activeQueueEntryId, activeCycleSnapshot: null } };
+      }
+      if (state.activeCycleSnapshot !== null) {
+        return { queue, transition: { activeQueueEntryId: state.activeQueueEntryId, activeCycleSnapshot: state.activeCycleSnapshot } };
+      }
+    }
+    if (state.activeCycleSnapshot !== null) {
+      const inventory = await this.loadQueueInventory(client, characterId);
+      for (const entry of [...queue.entries].sort((left, right) => left.position - right.position)) {
+        if (entry.status !== 'DONE_CONDITION_MET' || this.inventoryConditionSatisfied(entry, inventory)) {
+          continue;
+        }
+        const action = this.getActionConfig(entry.actionConfigId);
+        if (action === null) {
+          continue;
+        }
+        queue = await this.queueRepository.setEntryStatus(client, {
+          characterId,
+          entryId: entry.id,
+          status: 'RUNNING',
+          blockedReason: null,
+        });
+        return {
+          queue,
+          transition: {
+            activeQueueEntryId: entry.id,
+            activeCycleSnapshot: snapshotFromAction(action, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version),
+          },
+        };
+      }
+      return { queue, transition: { activeQueueEntryId: state.activeQueueEntryId, activeCycleSnapshot: state.activeCycleSnapshot } };
+    }
+
+    const inventory = await this.loadQueueInventory(client, characterId);
+    let activeQueueEntryId: string | null = null;
+    let activeCycleSnapshot: SettlementJson | null = null;
+    for (const entry of [...queue.entries].sort((left, right) => left.position - right.position)) {
+      if (entry.status !== 'QUEUED') {
+        continue;
+      }
+      if (this.inventoryConditionSatisfied(entry, inventory)) {
+        queue = await this.queueRepository.setEntryStatus(client, {
+          characterId,
+          entryId: entry.id,
+          status: 'DONE_CONDITION_MET',
+          blockedReason: null,
+        });
+        continue;
+      }
+      const action = this.getActionConfig(entry.actionConfigId);
+      if (action === null) {
+        continue;
+      }
+      queue = await this.queueRepository.setEntryStatus(client, {
+        characterId,
+        entryId: entry.id,
+        status: 'RUNNING',
+        blockedReason: null,
+      });
+      activeQueueEntryId = entry.id;
+      activeCycleSnapshot = snapshotFromAction(action, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version);
+      break;
+    }
+
+    if (activeCycleSnapshot === null) {
+      const fallback = this.getActionConfig(queue.fallbackActionId);
+      activeCycleSnapshot = fallback === null
+        ? null
+        : snapshotFromAction(fallback, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version);
+    }
+    return { queue, transition: { activeQueueEntryId, activeCycleSnapshot } };
+  }
+
+  private async advanceQueueAfterCycle(
+    client: PoolClient,
+    characterId: string,
+    queue: Awaited<ReturnType<QueueRepository['lockQueue']>>,
+    activeQueueEntryId: string | null,
+    currentSnapshot: SettlementJson | null,
+    activeQueueEntry: QueueEntryRecord | null,
+    settlement: SingleActionSettlementResult,
+    itemRewards: readonly { readonly itemId: string; readonly quantity: string }[],
+  ): Promise<QueueTransition> {
+    if (this.queueRepository === undefined || queue === null || (settlement.completedCycles === 0n && settlement.effectiveTimeUs === 0n)) {
+      return { activeQueueEntryId, activeCycleSnapshot: currentSnapshot };
+    }
+    const inventory = await this.loadQueueInventory(client, characterId);
+    for (const reward of itemRewards) {
+      inventory.set(reward.itemId, (inventory.get(reward.itemId) ?? 0n) + BigInt(reward.quantity));
+    }
+    if (activeQueueEntryId === null) {
+      for (const entry of [...queue.entries].sort((left, right) => left.position - right.position)) {
+        if (entry.status !== 'DONE_CONDITION_MET' || this.inventoryConditionSatisfied(entry, inventory)) {
+          continue;
+        }
+        const action = this.getActionConfig(entry.actionConfigId);
+        if (action === null) {
+          continue;
+        }
+        await this.queueRepository.setEntryStatus(client, {
+          characterId,
+          entryId: entry.id,
+          status: 'RUNNING',
+          blockedReason: null,
+        });
+        return {
+          activeQueueEntryId: entry.id,
+          activeCycleSnapshot: snapshotFromAction(action, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version),
+        };
+      }
+      return { activeQueueEntryId, activeCycleSnapshot: currentSnapshot };
+    }
+    const current = queue.entries.find((entry) => entry.id === activeQueueEntryId) ?? activeQueueEntry;
+    if (current === undefined || current === null) {
+      return { activeQueueEntryId, activeCycleSnapshot: currentSnapshot };
+    }
+    const completed = current.mode === 'UNTIL_INVENTORY'
+      ? this.inventoryConditionSatisfied(current, inventory)
+      : current.mode === 'COUNT'
+        ? current.targetValue !== null
+          && current.completedCycles + settlement.completedCycles >= BigInt(current.targetValue)
+        : current.mode === 'DURATION'
+          ? current.targetValue !== null
+            && current.progressTimeUs + settlement.effectiveTimeUs >= BigInt(decimal(current.targetValue).multiply('1000000').toString())
+          : false;
+    if (!completed) {
+      const action = this.getActionConfig(current.actionConfigId);
+      await this.queueRepository.setEntryStatus(client, {
+        characterId,
+        entryId: current.id,
+        status: current.status,
+        blockedReason: current.blockedReason,
+        completedCycles: current.completedCycles + settlement.completedCycles,
+        progressTimeUs: settlement.progressTimeUs,
+      });
+      return {
+        activeQueueEntryId,
+        activeCycleSnapshot: action === null ? null : snapshotFromAction(action, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version),
+      };
+    }
+
+    let nextQueue = await this.queueRepository.setEntryStatus(client, {
+      characterId,
+      entryId: current.id,
+      status: current.mode === 'UNTIL_INVENTORY' ? 'DONE_CONDITION_MET' : 'DONE',
+      blockedReason: null,
+      completedCycles: current.completedCycles + settlement.completedCycles,
+      progressTimeUs: settlement.progressTimeUs,
+    });
+    for (const entry of [...nextQueue.entries].sort((left, right) => left.position - right.position)) {
+      if (entry.status !== 'QUEUED') {
+        continue;
+      }
+      if (this.inventoryConditionSatisfied(entry, inventory)) {
+        nextQueue = await this.queueRepository.setEntryStatus(client, {
+          characterId,
+          entryId: entry.id,
+          status: 'DONE_CONDITION_MET',
+          blockedReason: null,
+        });
+        continue;
+      }
+      const action = this.getActionConfig(entry.actionConfigId);
+      if (action === null) {
+        continue;
+      }
+      await this.queueRepository.setEntryStatus(client, {
+        characterId,
+        entryId: entry.id,
+        status: 'RUNNING',
+        blockedReason: null,
+      });
+      return {
+        activeQueueEntryId: entry.id,
+        activeCycleSnapshot: snapshotFromAction(action, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version),
+      };
+    }
+    const fallback = this.getActionConfig(nextQueue.fallbackActionId);
+    return {
+      activeQueueEntryId: null,
+      activeCycleSnapshot: fallback === null
+        ? null
+        : snapshotFromAction(fallback, this.configRegistry.manifest.config_version, this.configRegistry.manifest.formula_version),
+    };
+  }
+
   private async buildPlan(
     client: PoolClient,
     characterId: string,
@@ -573,7 +847,8 @@ export class SettlementService {
       throw notFound();
     }
 
-    const snapshot = snapshotFromJson(state.activeCycleSnapshot);
+    const preparedQueue = await this.prepareQueueEntry(client, characterId, state);
+    const snapshot = snapshotFromJson(preparedQueue.transition.activeCycleSnapshot);
     const actionConfig = snapshot === null ? null : this.getActionConfig(snapshot.action_config_id);
     const settlementInput: SingleActionSettlementInput = {
       lastSettledAtUs: microseconds(toMicroseconds(state.lastSettledAt)),
@@ -588,6 +863,9 @@ export class SettlementService {
       state.characterId,
       settlementInput,
       snapshot,
+      preparedQueue.queue?.entries.find(
+        (entry) => entry.id === preparedQueue.transition.activeQueueEntryId,
+      ) ?? null,
     );
     const checkpoint = checkpointSegments(settlement.segments, segmentLimit ?? 100);
     const committedSettlement = {
@@ -596,16 +874,33 @@ export class SettlementService {
     };
     const itemRewards = aggregateItemRewards(committedSettlement);
     const skillAwards = buildSkillAwards(actionConfig, committedSettlement);
-    const segments = buildSegments(committedSettlement, state.activeQueueEntryId);
+    const activeQueueEntry = preparedQueue.queue?.entries.find(
+      (entry) => entry.id === preparedQueue.transition.activeQueueEntryId,
+    ) ?? null;
+    const segments = buildSegments(
+      committedSettlement,
+      preparedQueue.transition.activeQueueEntryId,
+      (actionConfigId) => this.getActionConfig(actionConfigId),
+    );
     const continuationRequired = checkpoint.continuationRequired;
     const actionConfigId = actionConfig?.id ?? snapshot?.action_config_id ?? null;
+    const queueTransition = await this.advanceQueueAfterCycle(
+      client,
+      characterId,
+      preparedQueue.queue,
+      preparedQueue.transition.activeQueueEntryId,
+      preparedQueue.transition.activeCycleSnapshot,
+      activeQueueEntry,
+      committedSettlement,
+      itemRewards,
+    );
     const nextState = {
       lastSettledAt: fromMicroseconds(committedSettlement.effectiveUntilUs),
       activeCycleIndex: state.activeCycleIndex + committedSettlement.completedCycles,
-      activeCycleSnapshot: state.activeCycleSnapshot,
       progressTimeUs: committedSettlement.progressTimeUs,
       continuationRequired,
-      ...(state.activeQueueEntryId === null ? {} : { activeQueueEntryId: state.activeQueueEntryId }),
+      ...(queueTransition.activeQueueEntryId === null ? {} : { activeQueueEntryId: queueTransition.activeQueueEntryId }),
+      activeCycleSnapshot: queueTransition.activeCycleSnapshot,
     };
 
     return {
@@ -626,7 +921,13 @@ export class SettlementService {
         randomSeed: randomSeed(state.characterId, state.lastSettledAt, now),
         formulaVersion: this.configRegistry.manifest.formula_version,
         configVersion: snapshot?.config_version ?? this.environment.ACTIVE_CONFIG_VERSION,
-        summary: buildSummary(committedSettlement, state, actionConfigId, itemRewards, continuationRequired),
+        summary: buildSummary(
+          committedSettlement,
+          { ...state, activeQueueEntryId: queueTransition.activeQueueEntryId },
+          actionConfigId,
+          itemRewards,
+          continuationRequired,
+        ),
         completedAt: now,
         segments,
         progressionAward: { cultivationXpDelta: committedSettlement.cultivationXp },
@@ -655,6 +956,63 @@ export class SettlementService {
 
   private async persistPlan(client: PoolClient, plan: SettlementPlan): Promise<SettlementRunResponse> {
     const settlementId = await this.settlementRepository.persist(client, plan.persistence);
+    for (const segment of plan.persistence.segments) {
+      const inputs = Object.entries(segment.inputs as Record<string, string>);
+      if (inputs.length === 0 || segment.completedCycles === 0n) {
+        continue;
+      }
+      const reservations = segment.queueEntryId === undefined
+        ? []
+        : await this.assetRepository.findActiveReservationsByBusiness(client, {
+            characterId: plan.state.characterId,
+            businessType: 'ACTION_QUEUE_ENTRY',
+            businessId: segment.queueEntryId,
+          });
+      const availableReservations = reservations.map((reservation) => ({ ...reservation }));
+      for (const [assetId, quantity] of inputs) {
+        let remaining = BigInt(quantity);
+        for (const reservation of availableReservations.filter((item) => item.assetId === assetId)) {
+          if (remaining <= 0n) {
+            break;
+          }
+          const available = BigInt(reservation.quantity);
+          const consumed = available < remaining ? available : remaining;
+          await this.assetRepository.consumeOnTransaction(client, {
+            characterId: plan.state.characterId,
+            reasonCode: 'SETTLEMENT_INPUT',
+            referenceType: 'SETTLEMENT_RUN',
+            referenceId: settlementId,
+            configVersion: plan.persistence.configVersion,
+            reservationId: reservation.reservationId,
+            quantity: consumed.toString(),
+          });
+          remaining -= consumed;
+          reservation.quantity = (available - consumed).toString();
+        }
+        if (remaining > 0n) {
+          const reserved = await this.assetRepository.reserveOnTransaction(client, {
+            characterId: plan.state.characterId,
+            assetType: 'ITEM',
+            assetId,
+            quantity: remaining.toString(),
+            businessType: 'ACTION_CYCLE',
+            businessId: settlementId,
+            reasonCode: 'SETTLEMENT_INPUT_RESERVE',
+            referenceType: 'SETTLEMENT_RUN',
+            referenceId: settlementId,
+            configVersion: plan.persistence.configVersion,
+          });
+          await this.assetRepository.consumeOnTransaction(client, {
+            characterId: plan.state.characterId,
+            reasonCode: 'SETTLEMENT_INPUT',
+            referenceType: 'SETTLEMENT_RUN',
+            referenceId: settlementId,
+            configVersion: plan.persistence.configVersion,
+            reservationId: reserved.reservation.reservationId,
+          });
+        }
+      }
+    }
     for (const reward of plan.itemRewards) {
       await this.assetRepository.addOnTransaction(client, {
         characterId: plan.state.characterId,
@@ -679,6 +1037,7 @@ export class SettlementService {
     characterId: string,
     input: SingleActionSettlementInput,
     snapshot: SettlementSnapshotRecord | null,
+    activeQueueEntry: QueueEntryRecord | null,
   ): Promise<SingleActionSettlementResult> {
     const baseResult = settleSingleAction(input);
     if (snapshot === null || baseResult.status === 'IDLE_NO_ACTION') {
@@ -699,6 +1058,20 @@ export class SettlementService {
     let completedCycles = 0n;
     let segmentIndex = 0;
     let remainingUs = baseResult.effectiveTimeUs;
+    if (activeQueueEntry?.mode === 'COUNT' && activeQueueEntry.targetValue !== null) {
+      const remainingCycles = BigInt(activeQueueEntry.targetValue) - activeQueueEntry.completedCycles;
+      const targetTimeUs = remainingCycles > 0n
+        ? remainingCycles * baseSnapshot.durationUs - input.progressTimeUs
+        : 0n;
+      remainingUs = microseconds(remainingUs < targetTimeUs && targetTimeUs > 0n ? remainingUs : targetTimeUs > 0n ? targetTimeUs : 0n);
+    } else if (activeQueueEntry?.mode === 'DURATION' && activeQueueEntry.targetValue !== null) {
+      const targetTimeUs = BigInt(decimal(activeQueueEntry.targetValue).multiply('1000000').toString()) - input.progressTimeUs;
+      remainingUs = microseconds(remainingUs < targetTimeUs && targetTimeUs > 0n ? remainingUs : targetTimeUs > 0n ? targetTimeUs : 0n);
+    }
+    const virtualInventory = activeQueueEntry?.mode === 'UNTIL_INVENTORY'
+      ? await this.loadQueueInventory(client, characterId)
+      : null;
+    let effectiveUntilUs = addMicroseconds(input.lastSettledAtUs, remainingUs);
 
     while (remainingUs > 0n) {
       const currentSnapshot = await this.composeCycleSnapshot(
@@ -736,13 +1109,34 @@ export class SettlementService {
         break;
       }
       progressTimeUs = microseconds('0');
+      if (virtualInventory !== null && stepResult.completedCycles > 0n) {
+        for (const actionInput of currentAction.inputs) {
+          const current = virtualInventory.get(actionInput.item_id) ?? 0n;
+          virtualInventory.set(
+            actionInput.item_id,
+            current - BigInt(actionInput.quantity) * stepResult.completedCycles,
+          );
+        }
+        for (const output of currentSnapshot.outputs) {
+          const current = virtualInventory.get(output.itemId) ?? 0n;
+          virtualInventory.set(
+            output.itemId,
+            current + output.quantityPerCycle * stepResult.completedCycles,
+          );
+        }
+        if (activeQueueEntry !== null && this.inventoryConditionSatisfied(activeQueueEntry, virtualInventory)) {
+          effectiveUntilUs = cycleStartUs;
+          remainingUs = microseconds(0n);
+          break;
+        }
+      }
     }
 
     return {
       requestedUntilUs: baseResult.requestedUntilUs,
-      effectiveUntilUs: baseResult.effectiveUntilUs,
-      effectiveTimeUs: baseResult.effectiveTimeUs,
-      cappedTimeUs: baseResult.cappedTimeUs,
+      effectiveUntilUs,
+      effectiveTimeUs: microseconds(effectiveUntilUs - input.lastSettledAtUs),
+      cappedTimeUs: microseconds(baseResult.requestedUntilUs - effectiveUntilUs),
       completedCycles,
       progressTimeUs,
       cultivationXp: cultivationXp.toString(),

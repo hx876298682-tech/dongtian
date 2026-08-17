@@ -448,6 +448,11 @@ function estimateEntry(
     estimated_duration_us: estimate.durationUs,
     estimated_outputs: outputs,
     input_shortages: shortages,
+    condition_warnings: entry.mode === 'UNTIL_INVENTORY'
+      && entry.conditionItemId !== undefined
+      && !action.outputs.some((output) => output.item_id === entry.conditionItemId)
+      ? [{ code: 'CONDITION_TARGET_NOT_OUTPUT', item_id: entry.conditionItemId }]
+      : [],
   };
 }
 
@@ -561,14 +566,26 @@ export class QueueService {
         fallback: { action_id: parsed.fallbackActionId, mode: 'INFINITE' },
         total_duration_us: totalDurationUs,
         warnings: estimates.flatMap((estimate) => {
-          if ((estimate['input_shortages'] as readonly unknown[]).length === 0) {
-            return [];
-          }
           const clientEntryId = estimate['client_entry_id'];
-          return [{
-            ...(typeof clientEntryId === 'string' ? { client_entry_id: clientEntryId } : {}),
-            code: 'INPUT_SHORTAGE',
-          }];
+          const conditionWarnings = estimate['condition_warnings'];
+          const warnings: JsonValue[] = Array.isArray(conditionWarnings)
+            ? conditionWarnings.flatMap((warning) => {
+              if (!isRecord(warning)) {
+                return [];
+              }
+              return [{
+                ...(typeof clientEntryId === 'string' ? { client_entry_id: clientEntryId } : {}),
+                ...warning,
+              } as JsonValue];
+            })
+            : [];
+          if ((estimate['input_shortages'] as readonly unknown[]).length > 0) {
+            warnings.push({
+              ...(typeof clientEntryId === 'string' ? { client_entry_id: clientEntryId } : {}),
+              code: 'INPUT_SHORTAGE',
+            });
+          }
+          return warnings;
         }),
         calculation_as_of: new Date().toISOString(),
         config_version: this.configRegistry.manifest.config_version,
@@ -792,7 +809,6 @@ export class QueueService {
         if (remaining <= 0n) {
           continue;
         }
-
         const available = availableByItem.get(requirement.itemId) ?? 0n;
         if (available > 0n) {
           const reserveQuantity = available < remaining ? available : remaining;

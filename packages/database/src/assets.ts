@@ -33,6 +33,7 @@ export type AssetReservationLookup = {
 
 export type ReservationLifecycleRequest = AssetMutationContext & {
   readonly reservationId: string;
+  readonly quantity?: string;
 };
 
 export type AssetBalance = {
@@ -517,33 +518,47 @@ async function consumeOnTransaction(
   assertContext(input);
   await lockWritableCharacter(client, input.characterId);
   const reservation = await findActiveReservation(client, input.reservationId, input.characterId);
+  const consumeQuantity = input.quantity ?? reservation.quantity;
+  if (!/^\d+(?:\.\d+)?$/.test(consumeQuantity) || Number(consumeQuantity) <= 0) {
+    throw assetError('RESERVATION_QUANTITY_INVALID');
+  }
+  if (Number(consumeQuantity) > Number(reservation.quantity)) {
+    throw assetError('RESERVATION_QUANTITY_EXCEEDS_AVAILABLE');
+  }
   const amount: AssetAmount = {
     ...input,
     assetType: reservation.assetType,
     assetId: reservation.assetId,
-    quantity: mutationQuantity(reservation.assetType, reservation.quantity),
+    quantity: mutationQuantity(reservation.assetType, consumeQuantity),
   };
   const transactionId = await createTransaction(client, { ...input, operationType: 'CONSUME' });
   const balance = await mutateBalance(client, amount, 'consume');
+  const fullyConsumed = consumeQuantity === reservation.quantity;
   await client.query(
-    `UPDATE asset_reservations
-        SET status = 'CONSUMED', consumed_transaction_id = $2, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $1`,
-    [reservation.reservationId, transactionId],
+    fullyConsumed
+      ? `UPDATE asset_reservations
+            SET status = 'CONSUMED', consumed_transaction_id = $2, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1`
+      : `UPDATE asset_reservations
+            SET quantity = quantity - $2::numeric, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1`,
+    fullyConsumed ? [reservation.reservationId, transactionId] : [reservation.reservationId, consumeQuantity],
   );
   const ledgerEntryId = await createLedgerEntry(client, {
     ...input,
     transactionId,
     assetType: reservation.assetType,
     assetId: reservation.assetId,
-    delta: `-${reservation.quantity}`,
+    delta: `-${consumeQuantity}`,
     balanceAfter: balance.quantity,
   });
   return {
     ...balance,
     transactionId,
     ledgerEntryId,
-    reservation: { ...reservation, status: 'CONSUMED' as const },
+    reservation: fullyConsumed
+      ? { ...reservation, status: 'CONSUMED' as const }
+      : { ...reservation, quantity: (BigInt(reservation.quantity) - BigInt(consumeQuantity)).toString() },
   };
 }
 

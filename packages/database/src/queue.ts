@@ -163,6 +163,8 @@ export type QueueRepository = {
       readonly entryId: string;
       readonly status: QueueEntryStatus;
       readonly blockedReason?: string | null;
+      readonly completedCycles?: bigint;
+      readonly progressTimeUs?: bigint;
     },
   ) => Promise<QueueRecord>;
 };
@@ -257,7 +259,8 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
     const active = current.entries.find((entry) => entry.status === 'RUNNING');
     await client.query(
       `DELETE FROM action_queue_entries
-        WHERE character_id = $1 AND status IN ('QUEUED', 'BLOCKED')`,
+        WHERE character_id = $1
+          AND status IN ('QUEUED', 'BLOCKED')`,
       [input.characterId],
     );
     await client.query(
@@ -269,7 +272,16 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
         WHERE character_id = $1`,
       [input.characterId, active !== undefined, input.fallbackActionId],
     );
-    await insertEntries(client, input, active === undefined ? 0 : active.position + 1);
+    const entries = active === undefined
+      ? input.entries
+      : input.entries.filter(
+          (entry) => entry.clientEntryId !== active.clientEntryId && entry.clientEntryId !== active.id,
+        );
+    await insertEntries(
+      client,
+      { ...input, entries },
+      active === undefined ? 0 : active.position + 1,
+    );
     return (await lockQueue(client, input.characterId)) ?? failQueueRead();
   }
 
@@ -302,6 +314,8 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
       readonly entryId: string;
       readonly status: QueueEntryStatus;
       readonly blockedReason?: string | null;
+      readonly completedCycles?: bigint;
+      readonly progressTimeUs?: bigint;
     },
   ): Promise<QueueRecord> {
     const current = await lockQueue(client, input.characterId);
@@ -315,11 +329,13 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
       `UPDATE action_queue_entries
           SET status = $3,
               blocked_reason = $4,
+              completed_cycles = COALESCE($5, completed_cycles),
+              progress_time_us = COALESCE($6, progress_time_us),
               completed_at = CASE WHEN $3 IN ('DONE', 'DONE_INCOMPLETE', 'DONE_CONDITION_MET', 'CANCELLED')
                                   THEN CURRENT_TIMESTAMP ELSE completed_at END,
               updated_at = CURRENT_TIMESTAMP
         WHERE character_id = $1 AND id = $2`,
-      [input.characterId, input.entryId, input.status, input.blockedReason ?? null],
+      [input.characterId, input.entryId, input.status, input.blockedReason ?? null, input.completedCycles?.toString() ?? null, input.progressTimeUs?.toString() ?? null],
     );
     return (await readQueue(client, input.characterId, true)) ?? failQueueRead();
   }

@@ -45,4 +45,111 @@ describe('queue repository', () => {
       entries: [{ completedCycles: 3n, progressTimeUs: 4n }],
     });
   });
+
+  it('preserves completed audit rows and does not duplicate a legacy running entry on replacement', async () => {
+    const deletes: string[] = [];
+    const inserts: ReadonlyArray<unknown>[] = [];
+    let queueVersion = '1';
+    const client = {
+      async query<T>(sql: string, params?: ReadonlyArray<unknown>): Promise<{ readonly rows: T[] }> {
+        if (sql.includes('SELECT id FROM characters')) {
+          return { rows: [{ id: 'character-1' }] as T[] };
+        }
+        if (sql.includes('SELECT continuation_required')) {
+          return { rows: [{ continuation_required: false }] as T[] };
+        }
+        if (sql.startsWith('DELETE FROM action_queue_entries')) {
+          deletes.push(sql);
+          return { rows: [] as T[] };
+        }
+        if (sql.startsWith('UPDATE action_queues')) {
+          queueVersion = '2';
+          return { rows: [] as T[] };
+        }
+        if (sql.startsWith('INSERT INTO action_queue_entries')) {
+          inserts.push(params ?? []);
+          return { rows: [] as T[] };
+        }
+        if (sql.includes('FROM action_queues')) {
+          return { rows: [{
+            character_id: 'character-1',
+            queue_version: queueVersion,
+            pending_replace_after_cycle: false,
+            paused: false,
+            fallback_action_id: 'action.cultivation.qi',
+          }] as T[] };
+        }
+        if (sql.includes('FROM action_queue_entries')) {
+          return { rows: [{
+            id: 'entry-running',
+            character_id: 'character-1',
+            position: 0,
+            action_config_id: 'action.t1.herb_baicao_valley',
+            mode: 'INFINITE',
+            target_value: null,
+            condition_item_id: null,
+            condition_operator: null,
+            on_blocked: 'FALLBACK',
+            status: 'RUNNING',
+            completed_cycles: '1',
+            progress_time_us: '0',
+            snapshot: null,
+            snapshot_config_version: null,
+            started_at: new Date(),
+            completed_at: null,
+            blocked_reason: null,
+          }, {
+            id: 'entry-done-condition',
+            character_id: 'character-1',
+            position: 0,
+            action_config_id: 'action.t1.herb_baicao_valley',
+            mode: 'UNTIL_INVENTORY',
+            target_value: '5',
+            condition_item_id: 'item.t1.qingling_herb',
+            condition_operator: '>=',
+            on_blocked: 'FALLBACK',
+            status: 'DONE_CONDITION_MET',
+            completed_cycles: '0',
+            progress_time_us: '0',
+            snapshot: null,
+            snapshot_config_version: null,
+            started_at: null,
+            completed_at: new Date(),
+            blocked_reason: null,
+          }] as T[] };
+        }
+        return { rows: [] as T[] };
+      },
+      release: vi.fn(),
+    } as unknown as PoolClient;
+
+    await createQueueRepository({ query: client.query.bind(client) } as unknown as DatabasePool).replaceQueue(client, {
+      characterId: 'character-1',
+      expectedQueueVersion: 1n,
+      fallbackActionId: 'action.cultivation.qi',
+      entries: [
+        {
+          clientEntryId: 'entry-running',
+          position: 0,
+          actionConfigId: 'action.t1.herb_baicao_valley',
+          mode: 'INFINITE',
+          onBlocked: 'FALLBACK',
+          configVersion: '2026.08.16.1',
+        },
+        {
+          clientEntryId: 'new-entry',
+          position: 1,
+          actionConfigId: 'action.cultivation.qi',
+          mode: 'INFINITE',
+          onBlocked: 'FALLBACK',
+          configVersion: '2026.08.16.1',
+        },
+      ],
+    });
+
+    expect(deletes).toHaveLength(1);
+    expect(deletes[0]).toContain("status IN ('QUEUED', 'BLOCKED')");
+    expect(inserts).toHaveLength(1);
+    expect(inserts[0]?.[8]).toContain('new-entry');
+  });
 });
