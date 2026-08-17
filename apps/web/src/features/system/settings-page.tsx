@@ -34,6 +34,15 @@ export function SettingsPage(): ReactElement {
   }, [settings]);
 
   const toggle = (key: keyof LocalGameSettings): void => setSettings((current) => ({ ...current, [key]: !current[key] }));
+  const toggleNotifications = async (): Promise<void> => {
+    if (settings.desktopNotifications) {
+      toggle('desktopNotifications');
+      return;
+    }
+    if (!('Notification' in window)) return;
+    const permission = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
+    if (permission === 'granted') setSettings((current) => ({ ...current, desktopNotifications: true }));
+  };
 
   return (
     <section className="settings-page">
@@ -58,7 +67,7 @@ export function SettingsPage(): ReactElement {
           <span><strong>显示修行日志</strong><small>在中央区域底部显示当前行动、最近收获和突破目标。</small></span>
           <input type="checkbox" checked={settings.showGameLog} onChange={() => toggle('showGameLog')} />
         </label><label className="settings-option"><span><strong>显示时间</strong><small>在日志消息前显示当前、最近和系统时间标签。</small></span><input type="checkbox" checked={settings.showTimestamps} onChange={() => toggle('showTimestamps')} /></label></> : null}
-        {activeTab === '通知' ? <label className="settings-option"><span><strong>桌面通知</strong><small>挂机完成或秘境结算后允许浏览器发送通知。</small></span><input type="checkbox" checked={settings.desktopNotifications} onChange={() => toggle('desktopNotifications')} /></label> : null}
+        {activeTab === '通知' ? <label className="settings-option"><span><strong>桌面通知</strong><small>挂机完成或秘境结算后允许浏览器发送通知。</small></span><input type="checkbox" checked={settings.desktopNotifications} onChange={() => void toggleNotifications()} /></label> : null}
         {activeTab === '账户' ? <label className="settings-option"><span><strong>重要操作确认</strong><small>突破、消耗保护材料和离开秘境前显示确认弹窗。</small></span><input type="checkbox" checked={settings.confirmImportantActions} onChange={() => toggle('confirmImportantActions')} /></label> : null}
       </div>
     </section>
