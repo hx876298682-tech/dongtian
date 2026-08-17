@@ -26,6 +26,16 @@ export const SHELL_ROUTES: readonly ShellRouteItem[] = [
   { id: 'character', label: '角色', path: '/character', description: '装备整理、比较、保留和淬炼。' },
   { id: 'inventory', label: '背包', path: '/inventory', description: '材料、丹药、装备和分页筛选。' },
   { id: 'settings', label: '设置', path: '/settings', description: '界面密度、动效和修行日志。' },
+  { id: 'tasks', label: '任务', path: '/tasks', description: '当前目标、完成记录和修行计划。' },
+  { id: 'maze', label: '迷宫', path: '/maze', description: '房间、路线和自动化探险。' },
+  { id: 'shops', label: '商店', path: '/shops', description: '资源兑换与秘境补给。' },
+  { id: 'achievements', label: '成就', path: '/achievements', description: '修行里程碑和妖兽图鉴。' },
+  { id: 'leaderboard', label: '修行榜', path: '/leaderboard', description: '查看修行方向的成长记录。' },
+  { id: 'guild', label: '宗门', path: '/guild', description: '宗门与多人协作入口。' },
+  { id: 'social', label: '仙友', path: '/social', description: '仙友、私信和组队。' },
+  { id: 'guide', label: '指南', path: '/guide', description: '从第一次挂机开始了解洞天。' },
+  { id: 'rules', label: '规则', path: '/rules', description: '挂机、资源、突破和秘境规则。' },
+  { id: 'news', label: '更新', path: '/news', description: '洞天近期开放内容。' },
 ];
 
 /** The smallest playable loop, kept as navigation metadata so it never invents authority. */

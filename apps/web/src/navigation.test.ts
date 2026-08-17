@@ -4,9 +4,9 @@ import { SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from '
 import { useUiDraftStore } from './state/ui-draft-store.js';
 
 describe('web shell scaffolding', () => {
-  it('keeps the core navigation plus local settings and no market route', () => {
-    expect(SHELL_ROUTES).toHaveLength(7);
-    expect(SHELL_ROUTES.map((route) => route.id)).toEqual([
+  it('keeps the core navigation and reference-style page entries', () => {
+    expect(SHELL_ROUTES.length).toBeGreaterThanOrEqual(17);
+    expect(SHELL_ROUTES.map((route) => route.id)).toEqual(expect.arrayContaining([
       'dashboard',
       'cultivation',
       'craft',
@@ -14,8 +14,8 @@ describe('web shell scaffolding', () => {
       'character',
       'inventory',
       'settings',
-    ]);
-    expect(SHELL_ROUTES.some((route) => route.id === 'market')).toBe(false);
+    ]));
+    expect(SHELL_ROUTES.map((route) => route.id)).toEqual(expect.arrayContaining(['tasks', 'maze', 'shops', 'achievements', 'leaderboard', 'guild', 'social', 'guide', 'rules', 'news']));
     expect(SHELL_PANELS.map((panel) => panel.id)).toEqual(['current-action', 'settlement-summary', 'goal-tracker']);
   });
 

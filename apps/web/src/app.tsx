@@ -21,6 +21,7 @@ import { CraftPage, InventoryPage } from './features/content/content-page.js';
 import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
 import { SettingsPage } from './features/system/settings-page.js';
+import { ReferencePage } from './features/system/reference-pages.js';
 import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
 import type { AuthActiveSession, InventoryAsset, InventorySnapshot, Queue } from '@dongtian/contracts';
@@ -467,6 +468,16 @@ const router = createBrowserRouter([
       { path: 'character/tools', element: <CharacterToolAssignmentsPage /> },
       { path: 'inventory', element: <InventoryPage /> },
       { path: 'settings', element: <SettingsPage /> },
+      { path: 'tasks', element: <ReferencePage kind="tasks" /> },
+      { path: 'maze', element: <ReferencePage kind="maze" /> },
+      { path: 'shops', element: <ReferencePage kind="shops" /> },
+      { path: 'achievements', element: <ReferencePage kind="achievements" /> },
+      { path: 'leaderboard', element: <ReferencePage kind="leaderboard" /> },
+      { path: 'guild', element: <ReferencePage kind="guild" /> },
+      { path: 'social', element: <ReferencePage kind="social" /> },
+      { path: 'guide', element: <ReferencePage kind="guide" /> },
+      { path: 'rules', element: <ReferencePage kind="rules" /> },
+      { path: 'news', element: <ReferencePage kind="news" /> },
     ],
   },
 ]);
