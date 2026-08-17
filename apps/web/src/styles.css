@@ -202,6 +202,63 @@ select {
   justify-content: flex-end;
 }
 
+.global-idle-progress {
+  min-width: 260px;
+  flex: 1 1 520px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 18px;
+  border: 1px solid rgba(79, 185, 130, 0.28);
+  border-radius: 14px;
+  background: rgba(10, 25, 35, 0.56);
+}
+
+.global-idle-progress__copy {
+  display: grid;
+  min-width: 110px;
+  gap: 2px;
+}
+
+.global-idle-progress__copy span,
+.global-idle-progress__meta,
+.global-idle-progress__cycles {
+  color: #9eb5b1;
+  font-size: 12px;
+}
+
+.global-idle-progress__copy strong {
+  color: #f4fbf4;
+  font-size: 15px;
+}
+
+.global-idle-progress__bar-wrap {
+  min-width: 120px;
+  flex: 1;
+}
+
+.global-idle-progress__meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.global-idle-progress__track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(161, 202, 171, 0.18);
+}
+
+.global-idle-progress__fill {
+  display: block;
+  height: 100%;
+  min-width: 2%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #53b982, #c1d66e);
+  transition: width 900ms linear;
+}
+
 .metric-chip,
 .ghost-button,
 .chip-button,
@@ -2138,6 +2195,12 @@ select {
 }
 
 @media (max-width: 920px) {
+  .global-idle-progress {
+    order: 3;
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
   .quick-task-grid {
     grid-template-columns: 1fr;
   }

@@ -504,6 +504,7 @@ export function DashboardPage(): ReactElement {
           dispatch({ type: 'mark-saved', queue: resumed.queue });
         }
         await queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id] });
+        await queryClient.invalidateQueries({ queryKey: ['global-idle-progress', session.character_id] });
         setQuickStartState('running');
       } catch (error) {
         setQuickStartState('error');

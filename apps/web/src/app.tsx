@@ -1,5 +1,5 @@
-import { startTransition, useEffect, useMemo, type ReactElement, type ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { startTransition, useEffect, useMemo, useState, type ReactElement, type ReactNode } from 'react';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import {
   Navigate,
   NavLink,
@@ -22,7 +22,9 @@ import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
 import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
-import type { AuthActiveSession } from '@dongtian/contracts';
+import type { AuthActiveSession, Queue } from '@dongtian/contracts';
+import { apiClient } from './lib/api.js';
+import { buildIdleProgressView } from './features/dashboard/dashboard-adapter.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +55,43 @@ function formatDateTime(value: string | undefined): string {
     hour12: false,
     timeZone: 'Asia/Shanghai',
   }).format(date);
+}
+
+function GlobalIdleProgress({ characterId }: { readonly characterId: string }): ReactElement | null {
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  const queueQuery = useQuery<Queue>({
+    queryKey: ['global-idle-progress', characterId],
+    queryFn: () => apiClient.getQueue(characterId),
+    staleTime: 10_000,
+    refetchInterval: 30_000,
+  });
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNowMs(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const view = queueQuery.data === undefined ? null : buildIdleProgressView(queueQuery.data, nowMs);
+  if (view === null) return null;
+
+  return (
+    <div className="global-idle-progress" aria-label="全局挂机进度">
+      <div className="global-idle-progress__copy">
+        <span>正在挂机</span>
+        <strong>{view.actionLabel}</strong>
+      </div>
+      <div className="global-idle-progress__bar-wrap">
+        <div className="global-idle-progress__meta">
+          <span>{view.paused ? '已暂停' : view.remaining}</span>
+          <span>{Math.round(view.progress * 100)}%</span>
+        </div>
+        <div className="global-idle-progress__track" role="progressbar" aria-label={`${view.actionLabel}全局进度`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(view.progress * 100)}>
+          <span className="global-idle-progress__fill" style={{ width: `${view.progress * 100}%` }} />
+        </div>
+      </div>
+      <span className="global-idle-progress__cycles">已完成 {view.completedCycles} 轮</span>
+    </div>
+  );
 }
 
 function AppFrame({
@@ -98,6 +137,8 @@ function AppFrame({
             匿名角色 · 会话到期 {formatDateTime(session.session_expires_at)} · 角色 {session.character_id.slice(0, 8)}
           </p>
         </div>
+
+        <GlobalIdleProgress characterId={session.character_id} />
 
         <div className="topbar-metrics" aria-label="角色摘要">
           <div className="metric-chip">

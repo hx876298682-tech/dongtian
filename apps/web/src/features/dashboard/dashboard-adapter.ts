@@ -95,6 +95,35 @@ function formatRemaining(milliseconds: number): string {
   return remainder === 0 ? `${minutes} 分钟` : `${minutes} 分 ${remainder} 秒`;
 }
 
+export interface IdleProgressView {
+  readonly actionLabel: string;
+  readonly progress: number;
+  readonly remaining: string;
+  readonly completedCycles: string;
+  readonly paused: boolean;
+}
+
+export function buildIdleProgressView(queue: Queue, nowMs = Date.now()): IdleProgressView | null {
+  const action = queue.current ?? queue.entries[0] ?? null;
+  if (action === null) return null;
+
+  const cycleMs = ACTION_CYCLE_MS[action.action_id] ?? 100_000;
+  const serverAsOfMs = Date.parse(queue.as_of);
+  const serverProgressMs = Number(action.progress_time_us ?? '0') / 1000;
+  const liveProgressMs = queue.paused || !Number.isFinite(serverAsOfMs)
+    ? serverProgressMs
+    : serverProgressMs + Math.max(0, nowMs - serverAsOfMs);
+  const cycleProgress = liveProgressMs % cycleMs;
+
+  return {
+    actionLabel: describeAction(action.action_id),
+    progress: Math.min(0.99, cycleProgress / cycleMs),
+    remaining: `本轮还需 ${formatRemaining(cycleMs - cycleProgress)}`,
+    completedCycles: action.completed_cycles,
+    paused: queue.paused,
+  };
+}
+
 export interface SettlementFact {
   readonly label: string;
   readonly value: string;
