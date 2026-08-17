@@ -226,6 +226,19 @@ function AppFrame({
         </aside>
       </div>
 
+      <nav className="shell-mobile-nav" aria-label="移动端主导航">
+        {SHELL_ROUTES.map((route) => (
+          <NavLink
+            key={route.id}
+            className={({ isActive }) => `shell-mobile-nav__link ${isActive ? 'shell-mobile-nav__link--active' : ''}`}
+            to={route.path}
+            title={route.description}
+          >
+            {route.label}
+          </NavLink>
+        ))}
+      </nav>
+
       <footer className="app-shell__footer" role="contentinfo">
         操作状态与保存反馈
       </footer>
