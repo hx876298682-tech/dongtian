@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useMemo, useReducer, type ReactElement } from 'react';
+import { startTransition, useEffect, useMemo, useReducer, useRef, type ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router';
 
@@ -29,6 +29,7 @@ import {
   createInitialExpeditionDraft,
   expeditionDraftReducer,
   isExpeditionDraftReady,
+  resolveActiveLoadoutPresetId,
   QINGSHE_DUNGEON_ID,
   QINGSHE_HIGH_RISK_CHOICE_ID,
   QINGSHE_HIGH_RISK_ROUTE_ID,
@@ -37,6 +38,8 @@ import {
 } from './expedition-reducer.js';
 
 const EXPEDITION_QUERY_PREFIX = 'expedition';
+
+export const EXPEDITION_PRESET_GUIDANCE = '装备预设需要先在角色页选择；策略 safe 已为新手默认，可直接预览。';
 
 function createIdempotencyKey(): string {
   return typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
@@ -63,7 +66,11 @@ function syncSearch(
     }
   }
 
-  navigate({ pathname, search: params.toString().length > 0 ? `?${params.toString()}` : '' }, { replace: true });
+  const nextSearch = params.toString().length > 0 ? `?${params.toString()}` : '';
+  if (nextSearch === locationSearch) {
+    return;
+  }
+  navigate({ pathname, search: nextSearch }, { replace: true });
 }
 
 function formatDateTime(value: string | null | undefined): string {
@@ -136,6 +143,7 @@ function useExpeditionQueries(session: AuthActiveSession, loadoutPresetId: strin
   const opportunityQuery = useQuery<DungeonOpportunityResponse>({
     queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id, 'opportunity'],
     queryFn: () => apiClient.getDungeonOpportunities(session.character_id),
+    retry: false,
   });
   const inventoryQuery = useQuery<InventorySnapshot>({
     queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id, 'inventory'],
@@ -322,23 +330,23 @@ function ExpeditionPrepareCard({
 
       <div className="expedition-form">
         <label className="equipment-form__field">
-          <span className="equipment-form__label">loadout_preset_id</span>
+          <span className="equipment-form__label">装备预设 ID</span>
           <input
             className="equipment-form__input"
             type="text"
             value={draftLoadoutPresetId}
             onChange={(event) => onLoadoutPresetIdChange(event.target.value)}
-            placeholder="例如 preset-1"
+            placeholder="从角色页复制已保存的预设 ID"
           />
         </label>
         <label className="equipment-form__field">
-          <span className="equipment-form__label">strategy_preset_id</span>
+          <span className="equipment-form__label">策略预设 ID</span>
           <input
             className="equipment-form__input"
             type="text"
             value={draftStrategyPresetId}
             onChange={(event) => onStrategyPresetIdChange(event.target.value)}
-            placeholder="strategy.safe"
+            placeholder="默认 strategy.safe"
           />
         </label>
         <label className="equipment-form__field">
@@ -352,12 +360,13 @@ function ExpeditionPrepareCard({
           <span className="equipment-form__label">当前预设</span>
           <div className="expedition-inline-note">
             <strong>{loadoutPreset === null ? '未加载' : loadoutPreset.name}</strong>
-            <span>{loadoutPreset === null ? '输入 loadout_preset_id 后读取装备预设。' : `策略 ${loadoutPreset.strategy_id} · 版本 ${loadoutPreset.version}`}</span>
+            <span>{loadoutPreset === null ? EXPEDITION_PRESET_GUIDANCE : `策略 ${loadoutPreset.strategy_id} · 版本 ${loadoutPreset.version}`}</span>
           </div>
         </div>
       </div>
 
       <div className="expedition-actions">
+        <Link className="ghost-button" to="/character">选择装备预设</Link>
         <button className="ghost-button" type="button" onClick={onClaimGrant}>
           领取教学赠送
         </button>
@@ -612,6 +621,7 @@ export function ExpeditionPage(): ReactElement {
     undefined,
     () => createInitialExpeditionDraft(initialDraft),
   );
+  const activePresetHydratedRef = useRef(false);
 
   useEffect(() => {
     if (runIdFromSearch !== null) {
@@ -638,6 +648,18 @@ export function ExpeditionPage(): ReactElement {
     draft.loadoutPresetId,
     activeRunId,
   );
+
+  useEffect(() => {
+    if (activePresetHydratedRef.current || opportunityQuery.data === undefined) {
+      return;
+    }
+
+    activePresetHydratedRef.current = true;
+    const activePresetId = resolveActiveLoadoutPresetId(draft, opportunityQuery.data.character.active_loadout_preset_id);
+    if (activePresetId !== null) {
+      dispatch({ type: 'set-loadout-preset-id', loadoutPresetId: activePresetId });
+    }
+  }, [draft, opportunityQuery.data]);
 
   const previewMutation = useMutation({
     mutationFn: () => apiClient.previewDungeon(QINGSHE_DUNGEON_ID, createDungeonPreviewRequest(session.character_id, draft)),
@@ -728,7 +750,8 @@ export function ExpeditionPage(): ReactElement {
   });
 
   const firstError = progressionQuery.error ?? opportunityQuery.error ?? inventoryQuery.error ?? queueQuery.error ?? loadoutQuery.error ?? runQuery.error;
-  if (progressionQuery.isPending || opportunityQuery.isPending || inventoryQuery.isPending || queueQuery.isPending || loadoutQuery.isPending || runQuery.isPending) {
+  const runPending = activeRunId !== null && runQuery.isPending;
+  if (progressionQuery.isPending || opportunityQuery.isPending || inventoryQuery.isPending || queueQuery.isPending || runPending) {
     return <ExpeditionLoading />;
   }
 

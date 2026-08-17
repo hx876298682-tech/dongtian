@@ -9,6 +9,38 @@ import type {
 
 const numberFormat = new Intl.NumberFormat('zh-CN');
 
+const ID_LABELS: Readonly<Record<string, string>> = {
+  'skill.alchemy': '炼丹',
+  'skill.cultivation': '修炼',
+  'skill.herbalism': '采药',
+  'skill.mining': '挖矿',
+  'skill.smithing': '炼器',
+  'action.cultivation.qi': '修炼灵气',
+  'action.t1.herb_baicao_valley': '采药',
+  'action.t1.qi_gathering_powder': '炼制聚气散',
+  'action.t1.qi_gathering_pill': '炼制聚气丹',
+  'recipe.t1.qi_gathering_pill': '聚气丹配方',
+  'item.t1.qingling_herb': '青灵草',
+  'item.t1.qi_gathering_pill': '聚气丹',
+  'item.t1.cave_stone': '洞府石料',
+};
+
+export function describeSkillId(id: string | null | undefined): string {
+  return id === null || id === undefined || id.length === 0 ? '未知技能' : ID_LABELS[id] ?? id;
+}
+
+export function describeActionId(id: string | null | undefined): string {
+  return id === null || id === undefined || id.length === 0 ? '未知行动' : ID_LABELS[id] ?? id;
+}
+
+export function describeItemId(id: string | null | undefined): string {
+  return id === null || id === undefined || id.length === 0 ? '未知物品' : ID_LABELS[id] ?? id;
+}
+
+export function describeRecipeId(id: string | null | undefined): string {
+  return id === null || id === undefined || id.length === 0 ? '未知配方' : ID_LABELS[id] ?? id;
+}
+
 function toFiniteNumber(value: string | number | null | undefined): number | null {
   if (value === null || value === undefined || value === '') {
     return null;
@@ -78,7 +110,7 @@ export function summarizeItemQuantity(quantity: ContentItemQuantity): string {
 }
 
 export function describeRoute(route: ContentRoute): string {
-  return `${route.route_type === 'ACTION' ? '行动' : '配方'} · ${route.target_id}`;
+  return `${route.route_type === 'ACTION' ? '行动' : '配方'} · ${route.route_type === 'ACTION' ? describeActionId(route.target_id) : describeRecipeId(route.target_id)}`;
 }
 
 export function routeKey(route: ContentRoute): string {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
+import { SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
 
 describe('web shell scaffolding', () => {
@@ -27,5 +27,28 @@ describe('web shell scaffolding', () => {
     expect(state.queueDraftTitle).toContain('采药');
     expect(Object.keys(state).some((key) => key.includes('account'))).toBe(false);
     expect(Object.keys(state).some((key) => key.includes('asset'))).toBe(false);
+  });
+
+  it('defines an ordered single-player flow across the core cultivation surfaces', () => {
+    expect(SHELL_FLOW_STEPS.map((step) => step.id)).toEqual([
+      'dashboard',
+      'cave',
+      'cultivation',
+      'queue',
+      'inventory',
+      'expedition',
+    ]);
+    expect(SHELL_FLOW_STEPS.map((step) => step.path)).toEqual([
+      '/dashboard',
+      '/dashboard/cave',
+      '/cultivation',
+      '/dashboard#queue',
+      '/inventory',
+      '/expedition',
+    ]);
+  });
+
+  it('uses player-facing shell copy instead of implementation placeholders', () => {
+    expect(Object.values(SHELL_BRAND_COPY).join(' ')).not.toMatch(/M2|骨架|UI 草稿|桌面三栏/);
   });
 });

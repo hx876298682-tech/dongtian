@@ -1744,7 +1744,8 @@ export const openApiDocument = {
         "required": [
           "character_id",
           "state_version",
-          "active_config_version"
+          "active_config_version",
+          "active_loadout_preset_id"
         ],
         "properties": {
           "character_id": {
@@ -1756,6 +1757,11 @@ export const openApiDocument = {
           },
           "active_config_version": {
             "type": "string"
+          },
+          "active_loadout_preset_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           }
         }
       },

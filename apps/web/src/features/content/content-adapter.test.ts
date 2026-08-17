@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { ActionCatalogEntry, Queue } from '@dongtian/contracts';
 
-import { formatActionRate, formatCount, formatDurationUs, joinQueuePath, joinRoutePath, isActionQueued, selectBestAction, summarizeInventoryAsset } from './content-adapter.js';
+import { describeActionId, describeItemId, describeRecipeId, describeRoute, describeSkillId, formatActionRate, formatCount, formatDurationUs, joinQueuePath, joinRoutePath, isActionQueued, selectBestAction, summarizeInventoryAsset } from './content-adapter.js';
 
 describe('content adapter', () => {
   it('formats durations, queue links, and inventory summaries', () => {
@@ -20,6 +20,16 @@ describe('content adapter', () => {
         available_quantity: 3,
       }),
     ).toContain('可用 3');
+  });
+
+  it('translates known technical IDs for player-facing content labels', () => {
+    expect(describeSkillId('skill.alchemy')).toBe('炼丹');
+    expect(describeActionId('action.t1.herb_baicao_valley')).toBe('采药');
+    expect(describeItemId('item.t1.qingling_herb')).toBe('青灵草');
+    expect(describeRecipeId('recipe.t1.qi_gathering_pill')).toBe('聚气丹配方');
+    expect(describeRoute({ route_type: 'ACTION', target_id: 'action.t1.herb_baicao_valley', name_key: 'x', description_key: null, source_note: 'x' })).toBe('行动 · 采药');
+    expect(describeRoute({ route_type: 'RECIPE', target_id: 'recipe.t1.qi_gathering_pill', name_key: 'x', description_key: null, source_note: 'x' })).toBe('配方 · 聚气丹配方');
+    expect(describeActionId('action.unknown')).toBe('action.unknown');
   });
 
   it('selects the best unlocked action per skill and checks queue state', () => {

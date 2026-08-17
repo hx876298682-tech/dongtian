@@ -4,6 +4,7 @@ import {
   createDungeonPreviewRequest,
   createInitialExpeditionDraft,
   expeditionDraftReducer,
+  resolveActiveLoadoutPresetId,
   DEFAULT_DUNGEON_STRATEGY_ID,
   QINGSHE_SAFE_ROUTE_ID,
 } from './expedition-reducer.js';
@@ -40,5 +41,12 @@ describe('expedition reducer', () => {
     });
 
     expect(updated.initialRouteId).toBe('route.t1.qingshe_cave.deep_den');
+  });
+
+  it('uses the authoritative active preset only when the draft is empty', () => {
+    const emptyDraft = createInitialExpeditionDraft();
+    expect(resolveActiveLoadoutPresetId(emptyDraft, 'preset-active')).toBe('preset-active');
+    expect(resolveActiveLoadoutPresetId(emptyDraft, null)).toBeNull();
+    expect(resolveActiveLoadoutPresetId({ ...emptyDraft, loadoutPresetId: 'preset-manual' }, 'preset-active')).toBeNull();
   });
 });

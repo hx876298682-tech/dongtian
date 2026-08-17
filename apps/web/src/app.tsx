@@ -20,7 +20,7 @@ import { CharacterToolAssignmentsPage } from './features/character/tool-assignme
 import { CraftPage, InventoryPage } from './features/content/content-page.js';
 import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
-import { DEFAULT_SHELL_ROUTE, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
+import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
 import type { AuthActiveSession } from '@dongtian/contracts';
 
@@ -89,13 +89,13 @@ function AppFrame({
       </a>
       <header className="app-shell__topbar">
         <div className="brand-block">
-          <span className="brand-block__eyebrow">DONGTIAN / Web Shell</span>
+          <span className="brand-block__eyebrow">洞天修行</span>
           <div className="brand-block__title-row">
             <h1 className="brand-block__title">洞天</h1>
-            <span className="brand-block__version">M2 骨架</span>
+            <span className="brand-block__version">{SHELL_BRAND_COPY.version}</span>
           </div>
           <p className="brand-block__subtitle">
-            匿名测试身份 · 会话到期 {formatDateTime(session.session_expires_at)} · 角色 {session.character_id.slice(0, 8)}
+            匿名角色 · 会话到期 {formatDateTime(session.session_expires_at)} · 角色 {session.character_id.slice(0, 8)}
           </p>
         </div>
 
@@ -146,15 +146,33 @@ function AppFrame({
             ))}
           </nav>
 
+          <section className="shell-nav__flow" aria-label="单人修行流程">
+            <div className="shell-nav__flow-title">单人流程</div>
+            <div className="shell-nav__list">
+              {SHELL_FLOW_STEPS.map((step, index) => (
+                <NavLink
+                  key={step.id}
+                  className={({ isActive }) => `shell-nav__link shell-nav__flow-link ${isActive ? 'shell-nav__link--active' : ''}`}
+                  to={step.path}
+                  end={step.id === 'dashboard'}
+                  title={step.description}
+                >
+                  <span className="shell-nav__link-label">{index + 1}. {step.label}</span>
+                  <span className="shell-nav__link-desc">{step.description}</span>
+                </NavLink>
+              ))}
+            </div>
+          </section>
+
           <div className="shell-nav__footer">
-            <p>市场、坊市和跨玩家交易当前不在 MVP。</p>
+            <p>交易功能尚未开放。</p>
           </div>
         </aside>
 
         <main className="shell-main" id="main-content" tabIndex={-1} aria-label={`${currentRoute.label} 主内容`}>
           <div className="shell-main__hero">
             <div>
-              <p className="shell-main__eyebrow">桌面三栏骨架</p>
+              <p className="shell-main__eyebrow">{SHELL_BRAND_COPY.workspace}</p>
               <h2 className="shell-main__title">{currentRoute.label}</h2>
             </div>
             <p className="shell-main__copy">{currentRoute.description}</p>
@@ -192,7 +210,7 @@ function AppFrame({
 
           <section className="rail-card rail-card--draft">
             <div className="rail-card__header">
-              <strong className="rail-card__title">UI 草稿</strong>
+              <strong className="rail-card__title">{SHELL_BRAND_COPY.draft}</strong>
               <span className="rail-card__slot">{activeRailSection}</span>
             </div>
             <p className="rail-card__copy">{queueDraftTitle}</p>
@@ -209,7 +227,7 @@ function AppFrame({
       </div>
 
       <footer className="app-shell__footer" role="contentinfo">
-        状态 / 错误 / 保存反馈
+        操作状态与保存反馈
       </footer>
     </div>
   );

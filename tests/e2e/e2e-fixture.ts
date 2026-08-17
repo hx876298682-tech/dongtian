@@ -91,7 +91,7 @@ export async function seedVerticalSliceFixture(characterId: string): Promise<Ver
                 continuation_required = FALSE,
                 updated_at = CURRENT_TIMESTAMP
           WHERE character_id = $1`,
-        [characterId, new Date(now.getTime() - 8 * 60 * 60 * 1000 - 5 * 60 * 1000)],
+        [characterId, new Date(now.getTime() - 60 * 60 * 1000)],
       );
 
       await assetRepository.addOnTransaction(client, {

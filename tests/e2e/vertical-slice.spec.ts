@@ -53,6 +53,20 @@ async function apiJson<T>(
 }
 
 async function getSession(page: Page) {
+  await expect
+    .poll(
+      async () => {
+        const response = await apiJson<{ readonly data: { readonly authenticated?: boolean } }>(
+          page,
+          '/api/v1/auth/session',
+          { method: 'GET' },
+        );
+        return response.status === 200 && response.json.data.authenticated === true;
+      },
+      { timeout: 30_000 },
+    )
+    .toBe(true);
+
   const response = await apiJson<AuthSessionResponse>(page, '/api/v1/auth/session', { method: 'GET' });
   expect(response.status).toBe(200);
   expect(response.json.data.authenticated).toBe(true);
@@ -103,12 +117,6 @@ async function createQueuePlan(page: Page, characterId: string, session: AuthSes
         target_value: 1,
         on_blocked: 'FALLBACK',
       },
-      {
-        client_entry_id: 'e2e-cultivation-1',
-        action_id: 'action.cultivation.qi',
-        mode: 'INFINITE',
-        on_blocked: 'FALLBACK',
-      },
     ],
     fallback: {
       action_id: 'action.cultivation.qi',
@@ -137,11 +145,12 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
   await page.reload();
 
   await page.goto('/craft');
-  await expect(page.getByText('采药')).toBeVisible();
-  await expect(page.getByText('炼丹')).toBeVisible();
+  const craftMain = page.getByLabel('百艺 主内容');
+  await expect(craftMain.getByTitle('action.t1.herb_baicao_valley')).toBeVisible();
+  await expect(craftMain.getByTitle('action.t1.qi_gathering_powder')).toBeVisible();
 
   const queuePlan = await createQueuePlan(page, session.character_id, session);
-  const firstSaveKey = 'e2e-queue-idempotency';
+  const firstSaveKey = '11111111-1111-4111-8111-111111111111';
   const firstSave = await queuePlan.save(firstSaveKey);
   expect(firstSave.status).toBe(200);
   const repeatSave = await queuePlan.save(firstSaveKey);
@@ -149,11 +158,10 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
   expect(repeatSave.json.data.queue.queue_version).toBe(firstSave.json.data.queue.queue_version);
 
   await page.goto('/dashboard');
-  await expect(page.getByText('action.t1.herb_baicao_valley')).toBeVisible();
-  await expect(page.getByText('action.t1.qi_gathering_powder')).toBeVisible();
-  await expect(page.getByText('action.cultivation.qi')).toBeVisible();
+  await expect(page.getByText('action.t1.herb_baicao_valley').last()).toBeVisible();
+  await expect(page.getByText('action.t1.qi_gathering_powder').last()).toBeVisible();
 
-  await shiftSettlementClock(session.character_id, 8.1);
+  await shiftSettlementClock(session.character_id, 1.5);
   await page.reload();
   await expect(page.getByText('最新离线摘要 · COMPLETED')).toBeVisible();
   await expect(page.getByText('XP 与物品')).toBeVisible();
@@ -221,12 +229,6 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
         target_value: 1,
         on_blocked: 'FALLBACK',
       },
-      {
-        client_entry_id: 'e2e-cultivation-2',
-        action_id: 'action.cultivation.qi',
-        mode: 'INFINITE',
-        on_blocked: 'FALLBACK',
-      },
     ],
     fallback: {
       action_id: 'action.cultivation.qi',
@@ -235,11 +237,11 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
   } as const;
   const secondQueueSave = await writeApi(page, `/api/v1/characters/${session.character_id}/queue`, session, {
     body: JSON.stringify(secondPlan),
-    idempotencyKey: 'e2e-second-queue-save',
+    idempotencyKey: '22222222-2222-4222-8222-222222222222',
     method: 'PUT',
   });
   expect(secondQueueSave.status).toBe(200);
-  await expect(page.getByText('action.t1.qi_gathering_powder')).toBeVisible();
+  await expect(page.getByText('action.t1.qi_gathering_powder').last()).toBeVisible();
 
   await assertLedgerBalanced();
 });

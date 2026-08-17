@@ -45,6 +45,7 @@ type CharacterRow = {
   readonly characterId: string;
   readonly stateVersion: string;
   readonly activeConfigVersion: string;
+  readonly activeLoadoutPresetId: string | null;
 };
 
 type DungeonOpportunityResponse = {
@@ -52,6 +53,7 @@ type DungeonOpportunityResponse = {
     readonly character_id: string;
     readonly state_version: number;
     readonly active_config_version: string;
+    readonly active_loadout_preset_id: string | null;
   };
   readonly opportunity: {
     readonly current_opportunities: number;
@@ -241,6 +243,7 @@ function toOpportunityResponse(
       character_id: character.characterId,
       state_version: stateVersionAsNumber(character.stateVersion),
       active_config_version: character.activeConfigVersion,
+      active_loadout_preset_id: character.activeLoadoutPresetId,
     },
     opportunity: {
       current_opportunities: snapshot.opportunityCount,
@@ -1190,8 +1193,8 @@ export class DungeonService {
   }
 
   private async loadCharacter(characterId: string, accountId: string): Promise<CharacterRow | null> {
-    const result = await this.pool.query<{ readonly state_version: string; readonly active_config_version: string }>(
-      `SELECT state_version::text AS state_version, active_config_version
+    const result = await this.pool.query<{ readonly state_version: string; readonly active_config_version: string; readonly active_loadout_preset_id: string | null }>(
+      `SELECT state_version::text AS state_version, active_config_version, active_loadout_preset_id
          FROM characters
         WHERE id = $1 AND account_id = $2`,
       [characterId, accountId],
@@ -1204,6 +1207,7 @@ export class DungeonService {
       characterId,
       stateVersion: row.state_version,
       activeConfigVersion: row.active_config_version,
+      activeLoadoutPresetId: row.active_loadout_preset_id,
     };
   }
 
@@ -1212,8 +1216,8 @@ export class DungeonService {
     characterId: string,
     accountId: string,
   ): Promise<CharacterRow | null> {
-    const result = await client.query<{ readonly state_version: string; readonly active_config_version: string }>(
-      `SELECT state_version::text AS state_version, active_config_version
+    const result = await client.query<{ readonly state_version: string; readonly active_config_version: string; readonly active_loadout_preset_id: string | null }>(
+      `SELECT state_version::text AS state_version, active_config_version, active_loadout_preset_id
          FROM characters
         WHERE id = $1 AND account_id = $2
         FOR UPDATE`,
@@ -1227,6 +1231,7 @@ export class DungeonService {
       characterId,
       stateVersion: row.state_version,
       activeConfigVersion: row.active_config_version,
+      activeLoadoutPresetId: row.active_loadout_preset_id,
     };
   }
 

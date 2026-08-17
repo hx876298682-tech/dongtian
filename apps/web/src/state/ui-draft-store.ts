@@ -28,7 +28,7 @@ const initialState = {
   settlementSummary: '最新离线摘要尚未加载。',
   goalTrackerSummary: '加载目标追踪后显示筑基缺口。',
   queueDraftTitle: '采药 2 小时 → 炼丹 100 次 → 无限修炼',
-  queueDraftNote: '仅保存 UI 草稿，不承载权威队列或收益。',
+  queueDraftNote: '仅保存本机计划备注，不承载权威队列或收益。',
 };
 
 export const useUiDraftStore = create<UiDraftState>((set) => ({

@@ -1,8 +1,89 @@
+import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 
 import type { DatabasePool } from './index.js';
 
 const DEFAULT_FALLBACK_ACTION_ID = 'action.cultivation.qi';
+const STARTER_PRESET_NAME = '青蛇洞初始预设';
+const STARTER_ITEMS = [
+  'item.t1.cuizhi_jian',
+  'item.t1.buyi',
+  'item.t1.qingyu_pei',
+  'item.t1.mubing_yaochu',
+  'item.t1.cuizhi_danlu',
+] as const;
+
+async function ensureStarterKit(client: PoolClient, characterId: string, configVersion: string): Promise<void> {
+  await client.query(
+    `SELECT id FROM characters WHERE id = $1 FOR UPDATE`,
+    [characterId],
+  );
+  const existingPreset = await client.query<{ id: string }>(
+    `SELECT id FROM loadout_presets
+      WHERE character_id = $1 AND name = $2
+      LIMIT 1`,
+    [characterId, STARTER_PRESET_NAME],
+  );
+  if (existingPreset.rows[0]) {
+    return;
+  }
+
+  const transactionResult = await client.query<{ id: string }>(
+    `INSERT INTO asset_transactions (
+       character_id, operation_type, reason_code, reference_type, reference_id, config_version
+     ) VALUES ($1, 'ADD', 'AUTH_STARTER_KIT', 'AUTH', 'starter-kit', $2)
+     RETURNING id`,
+    [characterId, configVersion],
+  );
+  const transaction = transactionResult.rows[0];
+  if (!transaction) {
+    throw new Error('Starter kit transaction was not created.');
+  }
+
+  const instances = new Map<string, string>();
+  for (const itemId of STARTER_ITEMS) {
+    const instanceId = randomUUID();
+    const result = await client.query<{ id: string }>(
+      `INSERT INTO equipment_instances (
+         id, character_id, item_id, temper_level, bound, created_transaction_id, created_config_version
+       ) VALUES ($1, $2, $3, 0, FALSE, $4, $5)
+       RETURNING id`,
+      [instanceId, characterId, itemId, transaction.id, configVersion],
+    );
+    const instance = result.rows[0];
+    if (!instance) {
+      throw new Error('Starter kit equipment was not created.');
+    }
+    instances.set(itemId, instance.id);
+  }
+
+  await client.query(
+    `INSERT INTO skill_tool_assignments (character_id, skill_id, equipment_instance_id)
+     VALUES ($1, 'skill.herbalism', $2), ($1, 'skill.alchemy', $3)
+     ON CONFLICT (character_id, skill_id) DO NOTHING`,
+    [characterId, instances.get('item.t1.mubing_yaochu'), instances.get('item.t1.cuizhi_danlu')],
+  );
+
+  const presetId = randomUUID();
+  await client.query(
+    `INSERT INTO loadout_presets (
+       id, character_id, name, weapon_instance_id, armor_instance_id, accessory_instance_id,
+       combat_consumables, strategy_id, version
+     ) VALUES ($1, $2, $3, $4, $5, $6, '[]'::jsonb, 'strategy.safe', 0)`,
+    [
+      presetId,
+      characterId,
+      STARTER_PRESET_NAME,
+      instances.get('item.t1.cuizhi_jian'),
+      instances.get('item.t1.buyi'),
+      instances.get('item.t1.qingyu_pei'),
+    ],
+  );
+  await client.query(
+    `UPDATE characters SET active_loadout_preset_id = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+    [characterId, presetId],
+  );
+}
 
 export type AuthSessionRecord = {
   readonly sessionId: string;
@@ -118,6 +199,7 @@ export function createAuthRepository(pool: DatabasePool): AuthRepository {
           [character.id],
         );
         await ensureDefaultQueue(client, character.id);
+        await ensureStarterKit(client, character.id, input.defaultCharacter.activeConfigVersion);
 
         const sessionResult = await client.query<{
           id: string;
@@ -172,6 +254,7 @@ export function createAuthRepository(pool: DatabasePool): AuthRepository {
             [existing.id],
           );
           await ensureDefaultQueue(client, existing.id);
+          await ensureStarterKit(client, existing.id, input.activeConfigVersion);
           await client.query('COMMIT');
           return { characterId: existing.id };
         }
@@ -200,6 +283,7 @@ export function createAuthRepository(pool: DatabasePool): AuthRepository {
             [concurrent.id],
           );
           await ensureDefaultQueue(client, concurrent.id);
+          await ensureStarterKit(client, concurrent.id, input.activeConfigVersion);
           await client.query('COMMIT');
           return { characterId: concurrent.id };
         }
@@ -221,6 +305,7 @@ export function createAuthRepository(pool: DatabasePool): AuthRepository {
           [character.id],
         );
         await ensureDefaultQueue(client, character.id);
+        await ensureStarterKit(client, character.id, input.activeConfigVersion);
         await client.query('COMMIT');
         return { characterId: character.id };
       } catch (error) {

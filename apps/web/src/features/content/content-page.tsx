@@ -26,6 +26,10 @@ import {
 import { apiClient } from '../../lib/api.js';
 import {
   describeRoute,
+  describeActionId,
+  describeItemId,
+  describeRecipeId,
+  describeSkillId,
   formatActionRate,
   formatCount,
   formatDurationUs,
@@ -203,7 +207,7 @@ function ActionCard({
     <article className={`content-card ${isSelected ? 'content-card--selected' : ''}`}>
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={isSelected}>
         <span className="content-card__title-row">
-          <strong>{entry.action_id}</strong>
+          <strong title={entry.action_id}>{describeActionId(entry.action_id)}</strong>
           {isRunning ? <span className="content-card__status">执行中</span> : null}
           {entry.unlocked ? <span className="content-card__status">可用</span> : <span className="content-card__status content-card__status--locked">锁定</span>}
         </span>
@@ -246,7 +250,7 @@ function RecipeCard({
     <article className={`content-card ${isSelected ? 'content-card--selected' : ''}`}>
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={isSelected}>
         <span className="content-card__title-row">
-          <strong>{entry.recipe_id}</strong>
+          <strong title={entry.recipe_id}>{describeRecipeId(entry.recipe_id)}</strong>
           {isRunning ? <span className="content-card__status">执行中</span> : null}
           {entry.unlocked ? <span className="content-card__status">可用</span> : <span className="content-card__status content-card__status--locked">锁定</span>}
         </span>
@@ -285,7 +289,7 @@ function ItemCard({
     <article className={`content-card ${selected ? 'content-card--selected' : ''}`}>
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={selected}>
         <span className="content-card__title-row">
-          <strong>{item.asset_id}</strong>
+          <strong title={item.asset_id}>{describeItemId(item.asset_id)}</strong>
           <span className="content-card__status">{item.asset_type}</span>
         </span>
         <span className="content-card__subtitle">{item.category ?? '未分类'}</span>
@@ -330,7 +334,7 @@ function ActionDetail({
       </div>
       <div className="content-detail__metrics">
         <NormalStateScreen
-          title={action.action_id}
+          title={describeActionId(action.action_id)}
           description={action.unlock_state.reason}
           highlight={action.can_add_to_queue ? '可加入队列' : '不可加入队列'}
           footnote={`耗时 ${formatDurationUs(action.base_duration_us)} · 技能 XP ${formatCount(action.skill_xp)} · 修为 XP ${formatCount(action.cultivation_xp)}`}
@@ -341,7 +345,7 @@ function ActionDetail({
         {action.inputs.length === 0 ? <p className="content-detail__copy">无输入材料。</p> : null}
         {action.inputs.map((input) => (
           <article key={input.item_id} className="content-stack">
-            <strong>{input.item_id}</strong>
+            <strong title={input.item_id}>{describeItemId(input.item_id)}</strong>
             <p>{summarizeItemQuantity(input)}</p>
             {renderRouteButtons(input.source_routes, onSelectRoute)}
             {renderRouteButtons(input.usage_routes, onSelectRoute)}
@@ -358,7 +362,7 @@ function ActionDetail({
         {action.outputs.length === 0 ? <p className="content-detail__copy">无输出。</p> : null}
         {action.outputs.map((output) => (
           <article key={output.item_id} className="content-stack">
-            <strong>{output.item_id}</strong>
+            <strong title={output.item_id}>{describeItemId(output.item_id)}</strong>
             <p>{summarizeItemQuantity(output)}</p>
             {renderRouteButtons(output.source_routes, onSelectRoute)}
             {renderRouteButtons(output.usage_routes, onSelectRoute)}
@@ -399,7 +403,7 @@ function RecipeDetail({
       <div className="content-detail__header">
         <div>
           <p className="page-card__eyebrow">配方详情</p>
-          <h3 className="content-detail__title">{recipe.name_key}</h3>
+          <h3 className="content-detail__title" title={recipe.recipe_id}>{describeRecipeId(recipe.recipe_id)}</h3>
           <p className="content-detail__copy">{recipe.description_key ?? recipe.unlock_state.reason}</p>
         </div>
         <div className="content-detail__badges">
@@ -408,16 +412,16 @@ function RecipeDetail({
         </div>
       </div>
       <NormalStateScreen
-        title={recipe.recipe_id}
+        title={recipe.name_key}
         description={recipe.unlock_state.reason}
         highlight={recipe.can_add_to_queue ? '可加入队列' : '不可加入队列'}
-        footnote={`耗时 ${formatDurationUs(recipe.base_duration_us)} · 技能 XP ${formatCount(recipe.skill_xp)} · 结果 ${formatCount(recipe.result_quantity)}`}
+        footnote={`配方 ${recipe.recipe_id} · 耗时 ${formatDurationUs(recipe.base_duration_us)} · 技能 XP ${formatCount(recipe.skill_xp)} · 结果 ${formatCount(recipe.result_quantity)}`}
       />
       <div className="content-detail__section">
         <h4>材料</h4>
         {recipe.ingredients.map((ingredient) => (
           <article key={ingredient.item_id} className="content-stack">
-            <strong>{ingredient.item_id}</strong>
+            <strong title={ingredient.item_id}>{describeItemId(ingredient.item_id)}</strong>
             <p>{summarizeItemQuantity(ingredient)}</p>
             {renderRouteButtons(ingredient.source_routes, onSelectRoute)}
             {renderRouteButtons(ingredient.usage_routes, onSelectRoute)}
@@ -435,7 +439,7 @@ function RecipeDetail({
       <div className="content-detail__section">
         <h4>产物</h4>
         <article className="content-stack">
-          <strong>{recipe.result_item.item_id}</strong>
+          <strong title={recipe.result_item.item_id}>{describeItemId(recipe.result_item.item_id)}</strong>
           <p>{summarizeItemQuantity(recipe.result_item)}</p>
           {renderRouteButtons(recipe.result_item.source_routes, onSelectRoute)}
           {renderRouteButtons(recipe.result_item.usage_routes, onSelectRoute)}
@@ -470,7 +474,7 @@ function InventoryDetail({
       <div className="content-detail__header">
         <div>
           <p className="page-card__eyebrow">背包详情</p>
-          <h3 className="content-detail__title">{item.asset_id}</h3>
+          <h3 className="content-detail__title" title={item.asset_id}>{describeItemId(item.asset_id)}</h3>
           <p className="content-detail__copy">{item.category ?? '未分类'}</p>
         </div>
       </div>
@@ -631,11 +635,13 @@ export function CraftPage(): ReactElement {
           <div className="content-hero__skills">
             {progressionData.skills.map((skill) => (
               <div key={skill.skill_id} className="content-hero__skill">
-                <strong>{skill.skill_id}</strong>
+                <strong title={skill.skill_id}>{describeSkillId(skill.skill_id)}</strong>
                 <span>
                   等级 {skill.level} · XP {formatCount(skill.xp)}
                 </span>
-                <span>最佳行动：{bestBySkill.get(skill.skill_id)?.action_id ?? '暂无'}</span>
+                <span>
+                  最佳行动：{bestBySkill.get(skill.skill_id) === undefined ? '暂无' : describeActionId(bestBySkill.get(skill.skill_id)?.action_id)}
+                </span>
               </div>
             ))}
           </div>

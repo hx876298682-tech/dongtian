@@ -285,6 +285,25 @@ select {
   gap: 10px;
 }
 
+.shell-nav__flow {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.shell-nav__flow-title {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.shell-nav__flow-link {
+  padding: 10px 12px;
+}
+
 .shell-nav__link {
   display: grid;
   gap: 5px;
@@ -324,6 +343,10 @@ select {
 .shell-nav--collapsed .shell-nav__link-desc,
 .shell-nav--collapsed .shell-nav__footer {
   display: none;
+}
+
+.shell-nav--collapsed .shell-nav__flow-title {
+  font-size: 0;
 }
 
 .shell-rail--pinned {

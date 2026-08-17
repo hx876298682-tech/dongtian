@@ -10,7 +10,7 @@ import {
 } from './expedition-adapter.js';
 
 const opportunity: DungeonOpportunityResponse = {
-  character: { character_id: 'character-1', state_version: 42, active_config_version: '2026.08.16.1' },
+  character: { character_id: 'character-1', state_version: 42, active_config_version: '2026.08.16.1', active_loadout_preset_id: null },
   opportunity: {
     current_opportunities: 5,
     opportunity_cap: 6,

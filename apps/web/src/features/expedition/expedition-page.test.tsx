@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
-import { ExpeditionError, ExpeditionLocked, ExpeditionLoading, ExpeditionMaintenance } from './expedition-page.js';
+import { EXPEDITION_PRESET_GUIDANCE, ExpeditionError, ExpeditionLocked, ExpeditionLoading, ExpeditionMaintenance } from './expedition-page.js';
 
 describe('expedition page components', () => {
   it('renders loading and failure states without browser APIs', () => {
@@ -14,5 +14,10 @@ describe('expedition page components', () => {
     expect(errorMarkup).toContain('秘境页读取失败');
     expect(maintenanceMarkup).toContain('秘境服务维护中');
     expect(lockedMarkup).toContain('秘境功能受限');
+  });
+
+  it('explains the preset shortcut when the API cannot list presets', () => {
+    expect(EXPEDITION_PRESET_GUIDANCE).toContain('角色');
+    expect(EXPEDITION_PRESET_GUIDANCE).toContain('策略 safe');
   });
 });

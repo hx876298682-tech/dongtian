@@ -55,6 +55,7 @@ function makeService(accountId = 'account-1') {
     accountId,
     stateVersion: '3',
     activeConfigVersion: '2026.08.16.1',
+    activeLoadoutPresetId: 'preset-starter',
   };
   const opportunityState = {
     count: 1,
@@ -156,6 +157,7 @@ function makeService(accountId = 'account-1') {
           rows: [{
             state_version: character.stateVersion,
             active_config_version: character.activeConfigVersion,
+            active_loadout_preset_id: character.activeLoadoutPresetId,
           } as unknown as T],
         };
       }
@@ -164,6 +166,7 @@ function makeService(accountId = 'account-1') {
           ? ([{
               state_version: character.stateVersion,
               active_config_version: character.activeConfigVersion,
+              active_loadout_preset_id: character.activeLoadoutPresetId,
             } as unknown as T])
           : ([] as T[]);
         return {
@@ -196,6 +199,7 @@ function makeService(accountId = 'account-1') {
               rows: [{
                 state_version: character.stateVersion,
                 active_config_version: character.activeConfigVersion,
+                active_loadout_preset_id: character.activeLoadoutPresetId,
               } as unknown as T],
             }
           : { rows: [] as T[] };
@@ -567,6 +571,7 @@ describe('dungeon service', () => {
         character_id: 'character-1',
         state_version: 3,
         active_config_version: '2026.08.16.1',
+        active_loadout_preset_id: 'preset-starter',
       },
       opportunity: {
         current_opportunities: 1,

@@ -117,11 +117,12 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
       },
       DungeonOpportunityCharacter: {
         type: 'object',
-        required: ['character_id', 'state_version', 'active_config_version'],
+        required: ['character_id', 'state_version', 'active_config_version', 'active_loadout_preset_id'],
         properties: {
           character_id: { type: 'string', format: 'uuid' },
           state_version: { type: 'integer' },
           active_config_version: { type: 'string' },
+          active_loadout_preset_id: { type: 'string', format: 'uuid', nullable: true },
         },
       },
       DungeonOpportunityDetails: {

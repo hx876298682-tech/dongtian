@@ -448,6 +448,7 @@ export interface DungeonOpportunityCharacter {
   readonly character_id: string;
   readonly state_version: number;
   readonly active_config_version: string;
+  readonly active_loadout_preset_id: string | null;
 }
 
 export interface DungeonOpportunityDetails {

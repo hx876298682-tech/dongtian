@@ -675,7 +675,7 @@ export function DashboardPage(): ReactElement {
         <SettlementSummaryCard view={settlementView} onRefresh={async () => queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id, 'settlement-latest'] })} />
       </div>
 
-      <div className="dashboard-panel">
+      <div className="dashboard-panel" id="queue">
         <div className="dashboard-panel__header">
           <div>
             <p className="page-card__eyebrow">闭关队列编辑器</p>

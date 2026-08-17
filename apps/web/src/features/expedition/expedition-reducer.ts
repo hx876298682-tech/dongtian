@@ -27,6 +27,15 @@ export function createInitialExpeditionDraft(overrides: Partial<ExpeditionDraft>
   };
 }
 
+export function resolveActiveLoadoutPresetId(draft: ExpeditionDraft, activePresetId: string | null | undefined): string | null {
+  if (draft.loadoutPresetId.trim().length > 0) {
+    return null;
+  }
+
+  const normalized = activePresetId?.trim() ?? '';
+  return normalized.length > 0 ? normalized : null;
+}
+
 export function expeditionDraftReducer(state: ExpeditionDraft, action: ExpeditionAction): ExpeditionDraft {
   switch (action.type) {
     case 'hydrate':
