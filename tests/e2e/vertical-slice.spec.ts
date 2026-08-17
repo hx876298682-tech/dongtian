@@ -158,6 +158,7 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
   expect(repeatSave.json.data.queue.queue_version).toBe(firstSave.json.data.queue.queue_version);
 
   await page.goto('/dashboard');
+  await expect(page.getByRole('progressbar', { name: /本轮进度/ })).toBeVisible();
   await expect(page.getByText('百草谷采药').last()).toBeVisible();
   await expect(page.getByText('炼制聚气散').last()).toBeVisible();
 

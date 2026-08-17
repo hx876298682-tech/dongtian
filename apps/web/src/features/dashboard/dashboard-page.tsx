@@ -467,12 +467,18 @@ export function DashboardPage(): ReactElement {
   const [isPreviewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [quickStartState, setQuickStartState] = useState<'idle' | 'starting' | 'running' | 'error'>('idle');
   const [quickStartError, setQuickStartError] = useState<string | null>(null);
+  const [clockMs, setClockMs] = useState(() => Date.now());
   const setShellSummaries = useUiDraftStore((state) => state.setShellSummaries);
   const setQueueDraftTitle = useUiDraftStore((state) => state.setQueueDraftTitle);
   const setQueueDraftNote = useUiDraftStore((state) => state.setQueueDraftNote);
 
   const { progressionQuery, inventoryQuery, queueQuery, settlementQuery, breakthroughQuery, dungeonRunQuery } = useDashboardQueries(session.character_id);
   const [editorState, dispatch] = useReducer(queueEditorReducer, undefined, () => createInitialQueueEditorState());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setClockMs(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const startQuickTask = useCallback(
     async (actionId: string) => {
@@ -548,8 +554,9 @@ export function DashboardPage(): ReactElement {
       inventoryQuery.data,
       settlementQuery.data,
       breakthroughQuery.data,
+      clockMs,
     );
-  }, [breakthroughQuery.data, inventoryQuery.data, progressionQuery.data, queueQuery.data, settlementQuery.data]);
+  }, [breakthroughQuery.data, clockMs, inventoryQuery.data, progressionQuery.data, queueQuery.data, settlementQuery.data]);
 
   const settlementView = useMemo(() => buildLatestSettlementView(settlementQuery.data), [settlementQuery.data]);
 
@@ -638,9 +645,11 @@ export function DashboardPage(): ReactElement {
     return <DashboardError error={firstError.message} onRetry={async () => queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id] })} />;
   }
 
-  if (authoritySnapshot === null) {
+  const queue = queueQuery.data;
+  if (authoritySnapshot === null || queue === undefined) {
     return <DashboardLoading />;
   }
+  const activeEntry = queue.current ?? queue.entries[0] ?? null;
 
   const previewFresh = isPreviewFresh(editorState);
   const canSave = editorState.isDirty && previewFresh && !saveMutation.isPending && !pauseMutation.isPending && !resumeMutation.isPending;
@@ -683,6 +692,32 @@ export function DashboardPage(): ReactElement {
 
           {quickStartState === 'running' ? <p className="quick-task-feedback">已开始挂机：{authoritySnapshot.currentActionLabel}。离开一会儿再回来领取收益。</p> : null}
           {quickStartState === 'error' ? <p className="quick-task-feedback quick-task-feedback--error">{quickStartError ?? '任务暂时无法开始，请稍后再试。'}</p> : null}
+
+          {activeEntry !== null ? (
+            <section className="idle-progress" aria-label="当前挂机进度">
+              <div className="idle-progress__header">
+                <div>
+                  <span className="idle-progress__eyebrow">正在挂机</span>
+                  <strong>{authoritySnapshot.currentActionLabel}</strong>
+                </div>
+                <span>{queue.paused ? '已暂停' : authoritySnapshot.currentActionRemaining}</span>
+              </div>
+              <div
+                className="idle-progress__track"
+                role="progressbar"
+                aria-label={`${authoritySnapshot.currentActionLabel}本轮进度`}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(authoritySnapshot.currentActionProgress * 100)}
+              >
+                <span className="idle-progress__fill" style={{ width: `${authoritySnapshot.currentActionProgress * 100}%` }} />
+              </div>
+              <div className="idle-progress__footer">
+                <span>本轮 {Math.round(authoritySnapshot.currentActionProgress * 100)}%</span>
+                <span>已完成 {activeEntry.completed_cycles} 轮</span>
+              </div>
+            </section>
+          ) : null}
 
           <div className="dashboard-metrics" aria-label="权威摘要">
             <div className="metric-chip">

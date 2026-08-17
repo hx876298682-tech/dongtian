@@ -22,6 +22,13 @@ const ITEM_LABELS: Record<string, string> = {
   'item.t1.ninglu_hua': '凝露花',
 };
 
+const ACTION_CYCLE_MS: Record<string, number> = {
+  'action.cultivation.qi': 100_000,
+  'action.t1.herb_baicao_valley': 140_000,
+  'action.t1.qi_gathering_pill': 100_000,
+  'action.t1.qi_gathering_powder': 100_000,
+};
+
 export function describeAction(actionId: string | null | undefined): string {
   if (actionId === null || actionId === undefined || actionId === '') {
     return '暂无行动';
@@ -75,7 +82,17 @@ export interface DashboardAuthoritySnapshot {
   readonly goalTrackerLabel: string;
   readonly goalTrackerDetail: string;
   readonly inventoryLabel: string;
+  readonly currentActionProgress: number;
+  readonly currentActionRemaining: string;
   readonly offlineSummary: OfflineSummaryView;
+}
+
+function formatRemaining(milliseconds: number): string {
+  const seconds = Math.max(1, Math.ceil(milliseconds / 1000));
+  if (seconds < 60) return `${seconds} 秒`;
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return remainder === 0 ? `${minutes} 分钟` : `${minutes} 分 ${remainder} 秒`;
 }
 
 export interface SettlementFact {
@@ -195,8 +212,16 @@ export function buildDashboardAuthoritySnapshot(
   inventory: InventorySnapshot,
   latestSettlement?: LatestSettlementResponse | null,
   breakthrough?: BreakthroughPreviewResponse | null,
+  nowMs = Date.now(),
 ): DashboardAuthoritySnapshot {
-  const currentAction = queue.current;
+  const currentAction = queue.current ?? queue.entries[0] ?? null;
+  const cycleMs = currentAction === null ? 100_000 : ACTION_CYCLE_MS[currentAction.action_id] ?? 100_000;
+  const serverAsOfMs = Date.parse(queue.as_of);
+  const serverProgressMs = Number(currentAction?.progress_time_us ?? '0') / 1000;
+  const liveProgressMs = currentAction === null || queue.paused || !Number.isFinite(serverAsOfMs)
+    ? serverProgressMs
+    : serverProgressMs + Math.max(0, nowMs - serverAsOfMs);
+  const currentActionProgress = currentAction === null ? 0 : Math.min(0.99, (liveProgressMs % cycleMs) / cycleMs);
   const settlementView = buildLatestSettlementView(latestSettlement);
 
   return {
@@ -215,6 +240,8 @@ export function buildDashboardAuthoritySnapshot(
         ? `${progression.character.name} · 当前修为 ${progression.cultivation.xp} · 洞天物资 ${inventory.total_count} 件`
         : `${breakthrough.breakthrough.requirements.filter((requirement) => requirement.status === 'SATISFIED').length}/${breakthrough.breakthrough.requirements.length} 项条件满足 · ${breakthrough.breakthrough.all_satisfied ? '可以开始筑基' : '仍有资源缺口'}`,
     inventoryLabel: `库存 ${inventory.total_count} 件`,
+    currentActionProgress,
+    currentActionRemaining: currentAction === null ? '等待开始' : `本轮还需 ${formatRemaining(cycleMs - (liveProgressMs % cycleMs))}`,
     offlineSummary: settlementView,
   };
 }

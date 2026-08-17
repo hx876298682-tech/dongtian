@@ -114,7 +114,12 @@ describe('dashboard adapter', () => {
         paused: false,
         pending_replace_after_cycle: false,
         fallback: { action_id: 'action.cultivation.qi', mode: 'INFINITE' },
-        current: null,
+        current: {
+          entry_id: 'entry-1', client_entry_id: 'task-1', position: 0,
+          action_id: 'action.cultivation.qi', mode: 'INFINITE', target_value: null,
+          condition_item_id: null, condition_operator: null, on_blocked: 'FALLBACK',
+          status: 'RUNNING', completed_cycles: '2', progress_time_us: '0', snapshot_config_version: '2026.08.16.1',
+        },
         entries: [],
         as_of: '2026-08-16T02:00:06.000Z',
       },
@@ -124,10 +129,15 @@ describe('dashboard adapter', () => {
         equipment_instances: [],
         total_count: 3,
       },
+      null,
+      null,
+      new Date('2026-08-16T02:00:56.000Z').getTime(),
     );
 
     expect(snapshot.goalTrackerDetail).toContain('洞天散修');
     expect(snapshot.offlineSummary.kind).toBe('empty');
+    expect(snapshot.currentActionProgress).toBe(0.5);
+    expect(snapshot.currentActionRemaining).toBe('本轮还需 50 秒');
   });
 
   it('maps the latest settlement into the dashboard offline summary', () => {
