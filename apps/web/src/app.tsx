@@ -2,6 +2,7 @@ import { startTransition, useEffect, useMemo, useState, type ReactElement, type 
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import {
   Navigate,
+  Link,
   NavLink,
   Outlet,
   RouterProvider,
@@ -22,7 +23,7 @@ import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
 import { SettingsPage } from './features/system/settings-page.js';
 import { ReferencePage } from './features/system/reference-pages.js';
-import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
+import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
 import type { AuthActiveSession, InventoryAsset, InventorySnapshot, Queue } from '@dongtian/contracts';
 import { apiClient } from './lib/api.js';
@@ -168,6 +169,7 @@ function AppFrame({
   const setRightRailPinned = useUiDraftStore((state) => state.setRightRailPinned);
   const setActiveRailSection = useUiDraftStore((state) => state.setActiveRailSection);
   const [logCollapsed, setLogCollapsed] = useState(false);
+  const [rightRailTab, setRightRailTab] = useState<'inventory' | 'equipment' | 'skills' | 'cave' | 'loadout'>('inventory');
   const shellQueueQuery = useQuery<Queue>({
     queryKey: ['global-idle-progress', session.character_id],
     queryFn: () => apiClient.getQueue(session.character_id),
@@ -303,23 +305,28 @@ function AppFrame({
             </button>
           </div>
 
-          {SHELL_PANELS.map((panel) => (
-            <section key={panel.id} className="rail-card">
-              <div className="rail-card__header">
-                <span className="rail-card__slot">{panel.slot}</span>
-                <strong className="rail-card__title">{panel.title}</strong>
-              </div>
-              <p className="rail-card__copy">
-                {panel.id === 'current-action'
-                  ? liveActionSummary
-                  : panel.id === 'settlement-summary'
-                    ? settlementSummary
-                    : goalTrackerSummary}
-              </p>
-            </section>
-          ))}
+          <nav className="rail-tabs" aria-label="角色面板">
+            {([
+              ['inventory', '背包'],
+              ['equipment', '装备'],
+              ['skills', '技能'],
+              ['cave', '洞府'],
+              ['loadout', '配装'],
+            ] as const).map(([tab, label]) => (
+              <button key={tab} className={rightRailTab === tab ? 'rail-tab rail-tab--active' : 'rail-tab'} type="button" onClick={() => setRightRailTab(tab)}>{label}</button>
+            ))}
+          </nav>
 
-          <GlobalInventorySummary characterId={session.character_id} />
+          {rightRailTab === 'inventory' ? <GlobalInventorySummary characterId={session.character_id} /> : null}
+          {rightRailTab === 'equipment' ? <section className="rail-card"><strong className="rail-card__title">角色装备</strong><p className="rail-card__copy">查看装备槽位、比较属性并进行淬炼。</p><Link className="ghost-button" to="/character">打开装备</Link></section> : null}
+          {rightRailTab === 'skills' ? <section className="rail-card"><strong className="rail-card__title">修行技能</strong><p className="rail-card__copy">修炼、采集、炼丹和炼器会持续影响挂机收益。</p><Link className="ghost-button" to="/craft">打开百艺</Link></section> : null}
+          {rightRailTab === 'cave' ? <section className="rail-card"><strong className="rail-card__title">洞天设施</strong><p className="rail-card__copy">聚灵室、炼丹房和炼器房提供长期修行加成。</p><Link className="ghost-button" to="/dashboard/cave">查看设施</Link></section> : null}
+          {rightRailTab === 'loadout' ? <section className="rail-card"><strong className="rail-card__title">出战配装</strong><p className="rail-card__copy">秘境探险会使用角色页保存的装备方案。</p><Link className="ghost-button" to="/character">管理配装</Link></section> : null}
+
+          <section className="rail-card rail-card--status">
+            <div className="rail-card__header"><span className="rail-card__slot">当前</span><strong className="rail-card__title">{liveActionSummary}</strong></div>
+            <p className="rail-card__copy">{settlementSummary}</p>
+          </section>
 
           <section className="rail-card rail-card--draft">
             <div className="rail-card__header">
