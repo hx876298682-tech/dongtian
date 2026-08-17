@@ -15,7 +15,7 @@ export interface ShellFlowStep {
 export const SHELL_BRAND_COPY = {
   version: '修行日志',
   workspace: '修行总览',
-  draft: '计划草稿',
+  draft: '快捷任务',
 } as const;
 
 export const SHELL_ROUTES: readonly ShellRouteItem[] = [
@@ -32,15 +32,15 @@ export const SHELL_FLOW_STEPS: readonly ShellFlowStep[] = [
   { id: 'dashboard', label: '洞府首页', path: '/dashboard', description: '查看修为、库存和当前行动。' },
   { id: 'cave', label: '洞府设施', path: '/dashboard/cave', description: '管理聚灵室、炼丹房和炼器房。' },
   { id: 'cultivation', label: '修炼 / 筑基', path: '/cultivation', description: '检查境界门槛并发起筑基。' },
-  { id: 'queue', label: '闭关队列', path: '/dashboard#queue', description: '预览并保存采集、炼制、修炼计划。' },
+  { id: 'queue', label: '挂机计划', path: '/dashboard#queue', description: '调整任务顺序和材料条件。' },
   { id: 'inventory', label: '背包', path: '/inventory', description: '确认材料、丹药和装备回流。' },
   { id: 'expedition', label: '秘境历练', path: '/expedition', description: '准备并进入青蛇洞秘境。' },
 ];
 
 export const SHELL_PANELS = [
-  { id: 'current-action', title: '当前闭关', slot: '01' },
-  { id: 'settlement-summary', title: '最近回流摘要', slot: '02' },
-  { id: 'goal-tracker', title: '目标追踪', slot: '03' },
+  { id: 'current-action', title: '正在进行', slot: '01' },
+  { id: 'settlement-summary', title: '最近收获', slot: '02' },
+  { id: 'goal-tracker', title: '下一境界', slot: '03' },
 ] as const;
 
 const fallbackRoute = SHELL_ROUTES[0];

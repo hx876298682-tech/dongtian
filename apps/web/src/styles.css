@@ -1312,8 +1312,8 @@ select {
   padding: 16px;
   border: 1px solid rgba(47, 111, 95, 0.2);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(239, 248, 241, 0.92));
-  color: var(--ink);
+  background: linear-gradient(180deg, rgba(42, 42, 68, 0.98), rgba(30, 31, 53, 0.98));
+  color: var(--text);
   text-align: left;
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
@@ -1339,6 +1339,94 @@ select {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.45;
+}
+
+.dashboard-panel--hero {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.84), rgba(9, 14, 28, 0.84));
+}
+
+.dashboard-hero__header {
+  text-align: center;
+}
+
+.dashboard-hero__copy {
+  margin-inline: auto;
+}
+
+.dashboard-hero__actions {
+  justify-content: center;
+}
+
+.app-shell__topbar {
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(10, 18, 32, 0.94));
+}
+
+.shell-nav,
+.shell-rail {
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(10, 17, 31, 0.94));
+}
+
+.shell-nav__link {
+  background: transparent;
+  border-radius: 5px;
+}
+
+.shell-nav__link--active {
+  border-color: rgba(105, 125, 255, 0.5);
+  background: linear-gradient(90deg, rgba(86, 102, 202, 0.82), rgba(75, 87, 161, 0.55));
+}
+
+.shell-main__hero {
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 32, 0.9));
+}
+
+/* Reference-inspired game shell: compact three-column play surface. */
+.app-shell__topbar {
+  min-height: 82px;
+  border-radius: 8px;
+}
+
+.app-shell__workspace {
+  grid-template-columns: 240px minmax(450px, 1fr) 360px;
+  gap: 4px;
+}
+
+.shell-nav,
+.shell-main__hero,
+.shell-rail {
+  border-radius: 4px;
+}
+
+.shell-nav,
+.shell-rail {
+  padding: 8px;
+}
+
+.shell-nav__link {
+  padding: 8px 10px;
+  border-radius: 4px;
+}
+
+.shell-nav__link-desc {
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.shell-main {
+  gap: 4px;
+}
+
+.shell-main__hero {
+  padding: 8px 12px;
+}
+
+.shell-rail {
+  gap: 6px;
 }
 
 .quick-task-card em {
@@ -2387,6 +2475,12 @@ select {
     grid-column: auto;
   }
 
+}
+
+@media (max-width: 1200px) and (min-width: 921px) {
+  .app-shell__workspace {
+    grid-template-columns: 210px minmax(360px, 1fr) 300px;
+  }
 }
 
 @media (min-width: 921px) and (max-width: 1200px) {

@@ -187,8 +187,8 @@ function AppFrame({
             ))}
           </nav>
 
-          <section className="shell-nav__flow" aria-label="单人修行流程">
-            <div className="shell-nav__flow-title">单人流程</div>
+          <section className="shell-nav__flow" aria-label="快速入口">
+            <div className="shell-nav__flow-title">快速入口</div>
             <div className="shell-nav__list">
               {SHELL_FLOW_STEPS.map((step, index) => (
                 <NavLink
@@ -225,8 +225,8 @@ function AppFrame({
         <aside className={`shell-rail ${rightRailPinned ? 'shell-rail--pinned' : ''}`}>
           <div className="shell-rail__header">
             <div>
-              <p className="shell-rail__eyebrow">常驻右栏</p>
-              <h3 className="shell-rail__title">闭关与草稿</h3>
+              <p className="shell-rail__eyebrow">角色信息</p>
+              <h3 className="shell-rail__title">角色与背包</h3>
             </div>
             <button className="ghost-button ghost-button--compact" type="button" onClick={() => setRightRailPinned(!rightRailPinned)}>
               {rightRailPinned ? '取消固定' : '固定'}
@@ -252,14 +252,14 @@ function AppFrame({
           <section className="rail-card rail-card--draft">
             <div className="rail-card__header">
               <strong className="rail-card__title">{SHELL_BRAND_COPY.draft}</strong>
-              <span className="rail-card__slot">{activeRailSection}</span>
+              <span className="rail-card__slot">{{ 'current-action': '正在进行', 'settlement-summary': '最近收获', 'goal-tracker': '下一境界', 'slot-placeholder': '更多信息' }[activeRailSection]}</span>
             </div>
             <p className="rail-card__copy">{queueDraftTitle}</p>
             <p className="rail-card__note">{queueDraftNote}</p>
             <div className="rail-card__actions">
               {(['current-action', 'settlement-summary', 'goal-tracker', 'slot-placeholder'] as const).map((section) => (
                 <button key={section} className="chip-button" type="button" onClick={() => setActiveRailSection(section)}>
-                  {section}
+                  {{ 'current-action': '正在进行', 'settlement-summary': '最近收获', 'goal-tracker': '下一境界', 'slot-placeholder': '更多信息' }[section]}
                 </button>
               ))}
             </div>
@@ -281,7 +281,7 @@ function AppFrame({
       </nav>
 
       <footer className="app-shell__footer" role="contentinfo">
-        操作状态与保存反馈
+        洞天活动日志
       </footer>
     </div>
   );

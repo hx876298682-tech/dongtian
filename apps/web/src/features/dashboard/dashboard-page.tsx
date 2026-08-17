@@ -650,8 +650,6 @@ export function DashboardPage(): ReactElement {
   if (authoritySnapshot === null || queue === undefined) {
     return <DashboardLoading />;
   }
-  const activeEntry = queue.current ?? queue.entries[0] ?? null;
-
   const previewFresh = isPreviewFresh(editorState);
   const canSave = editorState.isDirty && previewFresh && !saveMutation.isPending && !pauseMutation.isPending && !resumeMutation.isPending;
   const hasEntries = editorState.draft.entries.length > 0;
@@ -662,31 +660,6 @@ export function DashboardPage(): ReactElement {
 
   return (
     <section className="dashboard-layout">
-      {activeEntry !== null ? (
-        <section className="idle-progress idle-progress--top" aria-label="当前挂机进度">
-          <div className="idle-progress__header">
-            <div>
-              <span className="idle-progress__eyebrow">正在挂机</span>
-              <strong>{authoritySnapshot.currentActionLabel}</strong>
-            </div>
-            <span>{queue.paused ? '已暂停' : authoritySnapshot.currentActionRemaining}</span>
-          </div>
-          <div
-            className="idle-progress__track"
-            role="progressbar"
-            aria-label={`${authoritySnapshot.currentActionLabel}本轮进度`}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round(authoritySnapshot.currentActionProgress * 100)}
-          >
-            <span className="idle-progress__fill" style={{ width: `${authoritySnapshot.currentActionProgress * 100}%` }} />
-          </div>
-          <div className="idle-progress__footer">
-            <span>本轮 {Math.round(authoritySnapshot.currentActionProgress * 100)}%</span>
-            <span>已完成 {activeEntry.completed_cycles} 轮</span>
-          </div>
-        </section>
-      ) : null}
       <div className="dashboard-panel dashboard-panel--hero">
         <div className="dashboard-hero">
           <div className="dashboard-hero__header">
@@ -718,39 +691,6 @@ export function DashboardPage(): ReactElement {
 
           {quickStartState === 'running' ? <p className="quick-task-feedback">已开始挂机：{authoritySnapshot.currentActionLabel}。离开一会儿再回来领取收益。</p> : null}
           {quickStartState === 'error' ? <p className="quick-task-feedback quick-task-feedback--error">{quickStartError ?? '任务暂时无法开始，请稍后再试。'}</p> : null}
-
-          <div className="dashboard-metrics" aria-label="权威摘要">
-            <div className="metric-chip">
-              <span className="metric-chip__label">境界</span>
-              <strong className="metric-chip__value" title={`境界 ${authoritySnapshot.realmLabel}`}>
-                {authoritySnapshot.realmLabel}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">修为进度</span>
-              <strong className="metric-chip__value" title={`修为进度 ${authoritySnapshot.cultivationLabel}`}>
-                {authoritySnapshot.cultivationLabel}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">当前行动</span>
-              <strong className="metric-chip__value" title={authoritySnapshot.currentActionLabel}>
-                {authoritySnapshot.currentActionLabel}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">挂机状态</span>
-              <strong className="metric-chip__value" title={`队列 ${authoritySnapshot.queueLabel}`}>
-                {authoritySnapshot.queueLabel}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">库存</span>
-              <strong className="metric-chip__value" title={authoritySnapshot.inventoryLabel}>
-                {authoritySnapshot.inventoryLabel}
-              </strong>
-            </div>
-          </div>
 
           <div className="dashboard-hero__actions"><Link className="ghost-button" to="/dashboard/cave">查看洞天</Link></div>
         </div>
