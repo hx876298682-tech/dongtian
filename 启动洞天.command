@@ -22,6 +22,32 @@ export VITE_API_PROXY_TARGET=http://127.0.0.1:3000
 say() { print "[洞天] $1"; }
 fail() { print -u2 "[洞天] 错误：$1"; read -k 1 "?按任意键关闭..."; exit 1; }
 
+is_project_process() {
+  local pid="$1"
+  local command cwd
+  command="$(ps -o command= -p "$pid" 2>/dev/null || true)"
+  cwd="$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' | head -1)"
+  [[ "$cwd" == "$PROJECT_DIR" || "$command" == *"$PROJECT_DIR"* ]]
+}
+
+stop_project_listener() {
+  local port="$1"
+  local pid
+  for pid in ${(f)"$(lsof -nP -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null || true)"}; do
+    if is_project_process "$pid"; then
+      say "清理项目残留进程 $pid（端口 $port）..."
+      kill -TERM "$pid" 2>/dev/null || true
+      for _ in {1..10}; do
+        kill -0 "$pid" 2>/dev/null || break
+        sleep 0.2
+      done
+      kill -KILL "$pid" 2>/dev/null || true
+    else
+      fail "端口 $port 已被其他项目占用（进程 $pid），未执行强制终止。"
+    fi
+  done
+}
+
 command -v pnpm >/dev/null || fail "没有找到 pnpm。请先安装 Node.js 24.x 和 pnpm 11.x。"
 command -v psql >/dev/null || fail "没有找到 PostgreSQL 客户端。请先安装 PostgreSQL 18。"
 
@@ -38,8 +64,9 @@ psql -h 127.0.0.1 -d postgres -v ON_ERROR_STOP=1 -tc "SELECT 1 FROM pg_database 
 pnpm db:migrate
 pnpm db:seed
 
-if lsof -nP -iTCP:3000 -sTCP:LISTEN >/dev/null 2>&1; then fail "端口 3000 已被占用。"; fi
-if lsof -nP -iTCP:5173 -sTCP:LISTEN >/dev/null 2>&1; then fail "端口 5173 已被占用。"; fi
+say "检查并清理上一次启动的服务..."
+stop_project_listener 3000
+stop_project_listener 5173
 
 say "启动 API 和 Web..."
 pnpm --filter @dongtian/api dev >"$PROJECT_DIR/.local-api.log" 2>&1 &
