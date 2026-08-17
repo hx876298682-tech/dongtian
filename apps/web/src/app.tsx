@@ -169,6 +169,7 @@ function AppFrame({
   const setRightRailPinned = useUiDraftStore((state) => state.setRightRailPinned);
   const setActiveRailSection = useUiDraftStore((state) => state.setActiveRailSection);
   const [logCollapsed, setLogCollapsed] = useState(false);
+  const [logChannel, setLogChannel] = useState<'收获' | '战斗' | '系统'>('收获');
   const [rightRailTab, setRightRailTab] = useState<'inventory' | 'equipment' | 'skills' | 'cave' | 'loadout'>('inventory');
   const shellQueueQuery = useQuery<Queue>({
     queryKey: ['global-idle-progress', session.character_id],
@@ -281,14 +282,14 @@ function AppFrame({
           <div className="shell-main__content">{children}</div>
           <section className={`game-log ${logCollapsed ? 'game-log--collapsed' : ''}`} aria-label="修行日志">
             <div className="game-log__header">
-              <div className="game-log__tabs"><strong>修行日志</strong><span>收获</span><span>战斗</span><span>系统</span></div>
+              <div className="game-log__tabs"><strong>修行日志</strong>{(['收获', '战斗', '系统'] as const).map((channel) => <button key={channel} className={logChannel === channel ? 'game-log__tab game-log__tab--active' : 'game-log__tab'} type="button" onClick={() => setLogChannel(channel)}>{channel}</button>)}</div>
               <button className="ghost-button ghost-button--compact" type="button" onClick={() => setLogCollapsed(!logCollapsed)}>{logCollapsed ? '展开' : '收起'}</button>
             </div>
             {logCollapsed ? null : (
               <div className="game-log__messages">
-                <p><time>当前</time><span>{liveActionSummary}</span></p>
-                <p><time>最近</time><span>{settlementSummary}</span></p>
-                <p><time>目标</time><span>{goalTrackerSummary}</span></p>
+                {logChannel === '收获' ? <><p><time>当前</time><span>{liveActionSummary}</span></p><p><time>最近</time><span>{settlementSummary}</span></p><p><time>目标</time><span>{goalTrackerSummary}</span></p></> : null}
+                {logChannel === '战斗' ? <p><time>暂无</time><span>还没有新的秘境战斗记录，开始一次探险后会显示路线和结果。</span></p> : null}
+                {logChannel === '系统' ? <><p><time>正常</time><span>洞天服务已连接，挂机会在切页后继续。</span></p><p><time>提示</time><span>可以在设置中调整面板密度、动效和日志显示。</span></p></> : null}
               </div>
             )}
           </section>

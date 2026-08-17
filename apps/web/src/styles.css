@@ -1554,6 +1554,21 @@ select {
   color: var(--accent-strong);
 }
 
+.game-log__tab {
+  padding: 3px 7px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.game-log__tab--active {
+  background: rgba(72, 88, 176, 0.62);
+  color: #fff;
+}
+
 .game-log__messages {
   display: grid;
   align-content: start;
