@@ -9,7 +9,6 @@ export APP_ENV=local
 export API_HOST=127.0.0.1
 export API_PORT=3000
 export WEB_ORIGIN=http://127.0.0.1:5173
-export DATABASE_URL="postgresql://${USER}@127.0.0.1:5432/dongtian"
 export SESSION_SECRET="local-development-session-secret"
 export CSRF_SECRET="local-development-csrf-secret"
 export RANDOM_SEED_ENCRYPTION_KEY="local-development-random-seed-key"
@@ -18,6 +17,10 @@ export CONFIG_STORAGE_MODE=filesystem
 export CONFIG_STORAGE_PATH="$PROJECT_DIR/config/releases"
 export LOG_LEVEL=info
 export VITE_API_PROXY_TARGET=http://127.0.0.1:3000
+
+DB_PORT=5432
+DB_NAME=dongtian
+DB_USER="$USER"
 
 say() { print "[洞天] $1"; }
 fail() { print -u2 "[洞天] 错误：$1"; read -k 1 "?按任意键关闭..."; exit 1; }
@@ -56,11 +59,23 @@ if command -v brew >/dev/null && brew services list | rg -q '^postgresql@18\s+st
   brew services start postgresql@18 >/dev/null
 fi
 
-pg_isready -h 127.0.0.1 -p 5432 >/dev/null 2>&1 || fail "PostgreSQL 没有在 127.0.0.1:5432 运行。"
+if ! pg_isready -h 127.0.0.1 -p "$DB_PORT" >/dev/null 2>&1; then
+  if pg_isready -h 127.0.0.1 -p 5433 >/dev/null 2>&1; then
+    DB_PORT=5433
+    DB_NAME=dongtian_test
+    DB_USER=dongtian_test
+    say "检测到 PostgreSQL 运行在 5433，使用本地测试数据库 dongtian_test。"
+  else
+    fail "PostgreSQL 没有在 127.0.0.1:5432 或 5433 运行。"
+  fi
+fi
+export DATABASE_URL="postgresql://${DB_USER}@127.0.0.1:${DB_PORT}/${DB_NAME}"
 
 say "准备本地数据库..."
-psql -h 127.0.0.1 -d postgres -v ON_ERROR_STOP=1 -c "SELECT 1" >/dev/null 2>&1 || fail "无法连接本机 PostgreSQL。请确认当前 macOS 用户有本地数据库权限。"
-psql -h 127.0.0.1 -d postgres -v ON_ERROR_STOP=1 -tc "SELECT 1 FROM pg_database WHERE datname = 'dongtian'" | rg -q 1 || createdb -h 127.0.0.1 dongtian
+psql -h 127.0.0.1 -p "$DB_PORT" -U "$DB_USER" -d postgres -v ON_ERROR_STOP=1 -c "SELECT 1" >/dev/null 2>&1 || fail "无法连接本机 PostgreSQL。请确认数据库用户和权限。"
+if [[ "$DB_NAME" == "dongtian" ]]; then
+  psql -h 127.0.0.1 -p "$DB_PORT" -U "$DB_USER" -d postgres -v ON_ERROR_STOP=1 -tc "SELECT 1 FROM pg_database WHERE datname = 'dongtian'" | rg -q 1 || createdb -h 127.0.0.1 -p "$DB_PORT" -U "$DB_USER" dongtian
+fi
 pnpm db:migrate
 pnpm db:seed
 
