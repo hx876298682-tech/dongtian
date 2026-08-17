@@ -24,7 +24,7 @@ describe('one-screen app shell', () => {
     expect(appSource).toMatch(/className="app-shell__workspace"/);
     expect(appSource).toMatch(/<aside className=\{`shell-nav/);
     expect(appSource).toMatch(/<main className="shell-main"[^>]*id="main-content"/);
-    expect(appSource).toMatch(/<aside className="shell-rail"/);
+    expect(appSource).toMatch(/<aside[^>]*className=\{`shell-rail/);
     expect(appSource).toMatch(/aria-label="活动日志"/);
     expect(appSource).not.toMatch(/className="app-shell__footer"/);
   });
@@ -53,23 +53,39 @@ describe('one-screen app shell', () => {
     expect(stylesSource).toMatch(/@media \(max-width: 920px\)[\s\S]*?\.topbar-metrics\s*\{[\s\S]*?min-width:\s*0/);
   });
 
-  it('uses a compact player-facing navigation with grouped destinations', () => {
-    expect(appSource).toMatch(/aria-label="主导航：修行"/);
-    expect(appSource).toMatch(/aria-label="主导航：冒险"/);
-    expect(appSource).toMatch(/aria-label="主导航：角色"/);
-    expect(appSource).not.toMatch(/快速入口/);
-    expect(appSource).not.toMatch(/交易功能尚未开放/);
-    expect(appSource).toMatch(/\['expedition', 'maze', 'shops', 'tasks'\]/);
-    expect(appSource).toMatch(/\['character', 'inventory', 'achievements', 'leaderboard'\]/);
-    expect(appSource).toMatch(/\['guild', 'social'\]/);
-    expect(appSource).toMatch(/\['settings', 'guide', 'rules', 'news'\]/);
+  it('keeps the complete desktop destination list visible like the reference navigation', () => {
+    expect(appSource).toMatch(/aria-label="主导航"/);
+    expect(appSource).toMatch(/SHELL_ROUTES\.map/);
+    expect(appSource).not.toMatch(/className="shell-nav__more"/);
+    expect(appSource).toMatch(/shell-nav__link-icon/);
     expect(appSource).not.toMatch(/shell-nav__link-desc/);
-    expect(appSource).toMatch(/shell-nav__link-label/);
+  });
+
+  it('lets each page own the central title instead of repeating a shell title band', () => {
+    expect(appSource).not.toMatch(/className="shell-main__hero"/);
+  });
+
+  it('renders API-backed craft and cultivation skill levels in the left navigation', () => {
+    expect(appSource).toMatch(/railProgressionQuery\.data\?\.skills/);
+    expect(appSource).toMatch(/describeSkillId\(skill\.skill_id\)/);
+    expect(appSource).toMatch(/aria-label="百艺技能等级"/);
+    expect(appSource).toMatch(/aria-label="战斗与修炼"/);
+    expect(appSource).toMatch(/技能等级/);
+    expect(appSource).not.toMatch(/skill\.(herbalism|mining|alchemy|forging|tempering)/);
+  });
+
+  it('keeps the Milky Way shell proportions compact while retaining four buff slots', () => {
+    const progress = cssBlock('.global-idle-progress');
+
+    expect(stylesSource).toMatch(/\/\* Milky Way style shell pass:[\s\S]*?\.app-shell__topbar\s*\{[\s\S]*?padding:\s*8px 12px/);
+    expect(progress).toMatch(/min-width:\s*220px/);
+    expect(stylesSource).toMatch(/\.topbar-buff\s*\{[\s\S]*?width:\s*34px[\s\S]*?height:\s*34px/);
+    expect(appSource.match(/className="topbar-buff"/g)).toHaveLength(1);
   });
 
   it('keeps the right rail summary without a pin control', () => {
     expect(appSource).toMatch(/aria-label="角色面板"/);
-    expect(appSource).toMatch(/\['inventory', '战利品'\]/);
+    expect(appSource).toMatch(/\['inventory', '背包'\]/);
     expect(appSource).toMatch(/\['loadout', '配装'\]/);
     expect(appSource).not.toMatch(/rightRailPinned/);
     expect(appSource).not.toMatch(/setRightRailPinned/);
@@ -85,7 +101,12 @@ describe('one-screen app shell', () => {
     expect(appSource).not.toMatch(/角色 \{session\.character_id/);
     expect(appSource).toMatch(/炼气入门/);
     expect(appSource).toMatch(/realmLabel\(progressionQuery\.data\?\.cultivation\.realm_stage_id\)/);
-    expect(appSource).toMatch(/formatPlayerNumber\(progressionQuery\.data\?\.cultivation\.xp\)/);
+    expect(appSource).toMatch(/resourceValue\(progressionQuery, progressionQuery\.data\?\.cultivation\.xp\)/);
+    expect(appSource).toMatch(/resourceValue\(inventoryQuery, currencies\[0\]\?\.available_quantity\)/);
+    expect(appSource).toMatch(/resourceValue\(opportunityQuery, opportunityQuery\.data\?\.opportunity\.current_opportunities\)/);
+    expect(appSource).not.toMatch(/\?\.available_quantity \?\? 0/);
+    expect(appSource).not.toMatch(/\?\.current_opportunities \?\? 0/);
+    expect(appSource).not.toMatch(/return '初入洞天'/);
   });
 
   it('lets players resume a paused idle action from the global top bar', () => {
@@ -107,7 +128,15 @@ describe('one-screen app shell', () => {
     expect(appSource).toMatch(/aria-selected=\{rightRailTab === tab\}/);
     expect(appSource).toMatch(/aria-controls=\{rightRailTab === tab \? `rail-panel-\$\{tab\}` : undefined\}/);
     expect(appSource).not.toMatch(/aria-controls=\{`rail-panel-\$\{tab\}`\}/);
-    expect(appSource).toMatch(/aria-pressed=\{logChannel === channel\}/);
+    expect(appSource).not.toMatch(/aria-pressed=\{logChannel === channel\}/);
+    expect(appSource).toMatch(/onKeyDown=\{handleRailTabKeyDown\}/);
+    expect(appSource).toMatch(/event\.key === 'Home'/);
+    expect(appSource).toMatch(/event\.key === 'End'/);
+    expect(appSource).toMatch(/handleRightRailKeyDown/);
+    expect(appSource).toMatch(/querySelectorAll<HTMLElement>/);
+    expect(appSource).not.toMatch(/未激活/);
+    expect(appSource).not.toMatch(/<strong>散修<\/strong>/);
+    expect(appSource).toMatch(/聊天功能暂未开放/);
   });
 
   it('keeps shell controls labelled and right rail states player-facing', () => {
@@ -133,7 +162,48 @@ describe('one-screen app shell', () => {
     expect(appSource).not.toMatch(/summary\?\.count \?\? 0/);
     expect(appSource).toMatch(/尚未设置装备方案/);
     expect(appSource).toMatch(/尚未设置出战配装/);
+    expect(appSource).not.toMatch(/aria-label="当前闭关计划"/);
+    expect(appSource).not.toMatch(/rail-card--status/);
+    expect(appSource).not.toMatch(/rail-card--draft/);
+    expect(appSource).toMatch(/shell-rail-toggle/);
+    expect(appSource).toMatch(/shell-rail__backdrop/);
     expect(appSource).not.toMatch(/buildEquipmentRailSummary\(railPresetQuery\.data \?\? null/);
     expect(appSource).not.toMatch(/buildLoadoutRailSummary\(railPresetQuery\.data \?\? null/);
+  });
+
+  it('uses an overlay right rail throughout the medium desktop range', () => {
+    expect(stylesSource).toMatch(/@media \(max-width: 1439px\) and \(min-width: 921px\)[\s\S]*?\.app-shell__workspace\s*\{[\s\S]*?grid-template-columns:\s*220px minmax\(0, 1fr\)/);
+    expect(stylesSource).toMatch(/@media \(max-width: 1439px\) and \(min-width: 921px\)[\s\S]*?\.shell-rail\s*\{[\s\S]*?position:\s*fixed/);
+    expect(stylesSource).toMatch(/@media \(max-width: 1439px\) and \(min-width: 921px\)[\s\S]*?\.shell-rail__backdrop--open\s*\{[\s\S]*?pointer-events:\s*auto/);
+  });
+
+  it('closes the right rail on Escape and when the route changes', () => {
+    expect(appSource).toMatch(/addEventListener\('keydown'/);
+    expect(appSource).toMatch(/event\.key === 'Escape'/);
+    expect(appSource).toMatch(/setRightRailOpen\(false\)/);
+    expect(appSource).toMatch(/previousPathname/);
+  });
+
+  it('gives the overlay drawer a labelled dialog and restores focus to its toggle', () => {
+    expect(appSource).toMatch(/useRef<HTMLElement>\(null\)/);
+    expect(appSource).toMatch(/useRef<HTMLButtonElement>\(null\)/);
+    expect(appSource).toMatch(/role=\{isRightRailOverlay \? 'dialog' : 'complementary'\}/);
+    expect(appSource).toMatch(/aria-modal=\{isRightRailOverlay && rightRailOpen\}/);
+    expect(appSource).toMatch(/aria-labelledby="shell-right-rail-title"/);
+    expect(appSource).toMatch(/aria-hidden=\{isRightRailOverlay \? !rightRailOpen : undefined\}/);
+    expect(appSource).toMatch(/railRef\.current\?\.focus\(\)/);
+    expect(appSource).toMatch(/railToggleRef\.current\?\.focus\(\)/);
+    expect(appSource).toMatch(/if \(!overlay\) setRightRailOpen\(true\)/);
+  });
+
+  it('keeps activity logs in the shell viewport while the content surface scrolls', () => {
+    const shell = cssBlock('.shell-main {');
+    const log = cssBlock('.game-log {');
+
+    expect(shell).toMatch(/grid-template-rows:\s*auto minmax\(0, 1fr\) auto/);
+    expect(shell).toMatch(/overflow:\s*hidden/);
+    expect(log).toMatch(/position:\s*sticky/);
+    expect(log).toMatch(/bottom:\s*0/);
+    expect(stylesSource).toMatch(/\.shell-main__content\s*\{[\s\S]*?overflow:\s*auto/);
   });
 });

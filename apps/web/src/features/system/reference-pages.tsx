@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react';
+import { useRef, useState, type KeyboardEvent, type ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useOutletContext } from 'react-router';
 import type { AuthActiveSession, DungeonOpportunityResponse, Queue, QueueEntry } from '@dongtian/contracts';
@@ -8,22 +8,22 @@ import { buildIdleProgressView, describeAction, describeItem } from '../dashboar
 
 type ReferencePageKind = 'tasks' | 'maze' | 'shops' | 'achievements' | 'leaderboard' | 'guild' | 'social' | 'guide' | 'rules' | 'news';
 type ReferenceItem = { readonly title: string; readonly copy: string; readonly state?: string; readonly href?: string };
-interface ReferencePageConfig { readonly title: string; readonly eyebrow: string; readonly copy: string; readonly tabs: readonly string[]; readonly locked?: string }
+interface ReferencePageConfig { readonly kind: ReferencePageKind; readonly title: string; readonly eyebrow: string; readonly copy: string; readonly tabs: readonly string[]; readonly panelTitle: string; readonly panelCopy: string; readonly locked?: string }
 
 const CONFIG: Record<ReferencePageKind, ReferencePageConfig> = {
-  tasks: { title: '修行任务', eyebrow: '任务', copy: '把当前修行拆成清晰的目标，完成后回到洞府领取收获。', tabs: ['当前任务', '已完成', '目标'] },
-  maze: { title: '秘境迷宫', eyebrow: '迷宫', copy: '准备路线、查看房间并继续你的秘境探险。', tabs: ['迷宫', '房间', '自动化'] },
-  shops: { title: '洞天商店', eyebrow: '商店', copy: '这里预留修仙资源兑换和秘境补给入口。', tabs: ['杂货', '秘境', '兑换'], locked: '坊市和商店经济系统属于延期系统，开放后接入真实商品、价格和购买操作。' },
-  achievements: { title: '修行成就', eyebrow: '成就', copy: '记录你在修炼、炼丹、秘境和突破路上的里程碑。', tabs: ['成就', '收藏', '妖兽图鉴'], locked: '成就、收藏和妖兽图鉴暂未开放，当前不虚构完成状态。' },
-  leaderboard: { title: '修行榜', eyebrow: '排行榜', copy: '比较不同修行方向的成长记录。', tabs: ['总榜', '修炼', '秘境'], locked: '排行榜需要独立的统计与快照服务，当前不显示假排名。' },
-  guild: { title: '宗门', eyebrow: '宗门', copy: '加入宗门，与其他修士共同修行。', tabs: ['宗门', '成员', '公告'], locked: '宗门与多人协作属于延期系统，开放后接入真实成员和权限。' },
-  social: { title: '仙友', eyebrow: '社交', copy: '管理仙友、私信和组队关系。', tabs: ['仙友', '推荐', '屏蔽'], locked: '社交与多人系统属于延期系统，当前不伪造玩家和消息。' },
-  guide: { title: '修行指南', eyebrow: '指南', copy: '从第一次挂机到筑基突破，逐步了解洞天里的修行方式。', tabs: ['入门', '修炼', '生产', '秘境'] },
-  rules: { title: '修行规则', eyebrow: '规则', copy: '查看挂机、结算、突破和秘境的基础规则。', tabs: ['挂机', '资源', '突破', '秘境'] },
-  news: { title: '洞天日志', eyebrow: '更新', copy: '查看洞天近期开放的玩法和规则变化。', tabs: ['最近更新', '规则记录'] },
+  tasks: { kind: 'tasks', title: '修行任务', eyebrow: '任务', copy: '当前队列与任务操作。', tabs: ['任务栏', '任务商店'], panelTitle: '任务栏', panelCopy: '队列中的任务、目标、进度和结算状态。' },
+  maze: { kind: 'maze', title: '秘境迷宫', eyebrow: '迷宫', copy: '青蛇洞入口与运行状态。', tabs: ['迷宫', '迷宫商店'], panelTitle: '青蛇洞', panelCopy: '查看真实探险机会，并从这里进入房间和自动化入口。' },
+  shops: { kind: 'shops', title: '洞天商店', eyebrow: '商店', copy: '这里预留修仙资源兑换和秘境补给入口。', tabs: ['杂货', '秘境', '兑换'], panelTitle: '坊市货架', panelCopy: '按分类浏览可兑换的修仙资源。', locked: '坊市和商店经济系统属于延期系统，开放后接入真实商品、价格和购买操作。' },
+  achievements: { kind: 'achievements', title: '修行成就', eyebrow: '成就', copy: '记录你在修炼、炼丹、秘境和突破路上的里程碑。', tabs: ['成就', '收藏', '妖兽图鉴'], panelTitle: '里程碑记录', panelCopy: '按修行方向查看已经写入系统的成就记录。', locked: '成就、收藏和妖兽图鉴暂未开放，当前不虚构完成状态。' },
+  leaderboard: { kind: 'leaderboard', title: '修行榜', eyebrow: '排行榜', copy: '比较不同修行方向的成长记录。', tabs: ['总榜', '修炼', '秘境'], panelTitle: '修行排行快照', panelCopy: '排行榜需要独立的统计与快照服务。', locked: '排行榜需要独立的统计与快照服务，当前不显示假排名。' },
+  guild: { kind: 'guild', title: '宗门', eyebrow: '宗门', copy: '加入宗门，与其他修士共同修行。', tabs: ['宗门', '成员', '公告'], panelTitle: '宗门面板', panelCopy: '查看宗门、成员与公告状态。', locked: '宗门与多人协作属于延期系统，开放后接入真实成员和权限。' },
+  social: { kind: 'social', title: '仙友', eyebrow: '社交', copy: '管理仙友、私信和组队关系。', tabs: ['仙友', '推荐', '屏蔽'], panelTitle: '仙友列表', panelCopy: '查看仙友关系和消息入口。', locked: '社交与多人系统属于延期系统，当前不伪造玩家和消息。' },
+  guide: { kind: 'guide', title: '修行指南', eyebrow: '指南', copy: '从第一次挂机到筑基突破，逐步了解洞天里的修行方式。', tabs: ['入门', '修炼', '生产', '秘境'], panelTitle: '指南条目', panelCopy: '按修行阶段阅读已开放的说明。' },
+  rules: { kind: 'rules', title: '修行规则', eyebrow: '规则', copy: '查看挂机、结算、突破和秘境的基础规则。', tabs: ['挂机', '资源', '突破', '秘境'], panelTitle: '规则条目', panelCopy: '按系统分区查看当前生效的规则说明。' },
+  news: { kind: 'news', title: '洞天日志', eyebrow: '更新', copy: '查看洞天近期开放的玩法和规则变化。', tabs: ['最近更新', '规则记录'], panelTitle: '更新记录', panelCopy: '按时间查看已上线与规划中的系统记录。' },
 };
 
-const guideSections: Record<string, readonly ReferenceItem[]> = { 入门: [{ title: '第一次挂机', copy: '进入洞府后选择任务，点击任务卡即可开始。' }, { title: '离线收获', copy: '回来后查看结算摘要，领取修为和物品。' }], 修炼: [{ title: '境界成长', copy: '修为达到门槛后，在修炼页准备突破材料。' }], 生产: [{ title: '材料生产', copy: '生产页会按已开放配方和库存显示可执行内容。' }], 秘境: [{ title: '路线探险', copy: '准备装备和路线，完成秘境后领取探险结果。' }] };
+const guideSections: Record<string, readonly ReferenceItem[]> = { 入门: [{ title: '第一次挂机', copy: '进入洞府后选择任务，点击任务卡即可开始。' }, { title: '离线收获', copy: '回来后查看结算摘要，确认修为和物品到账。' }], 修炼: [{ title: '境界成长', copy: '修为达到门槛后，在修炼页准备突破材料。' }], 生产: [{ title: '材料生产', copy: '生产页会按已开放配方和库存显示可执行内容。' }], 秘境: [{ title: '路线探险', copy: '准备装备和路线，完成秘境后查看探险结果。' }] };
 const ruleSections: Record<string, readonly ReferenceItem[]> = { 挂机: [{ title: '挂机结算', copy: '队列按照任务顺序执行，材料不足时按策略处理。' }], 资源: [{ title: '资源变化', copy: '每轮任务完成后记录修为、灵石和物品变化。' }], 突破: [{ title: '突破条件', copy: '达到境界门槛并满足材料条件后才可突破。' }], 秘境: [{ title: '探险结算', copy: '战斗与路线完成后，系统按真实结果发放收获。' }] };
 const newsSections: Record<string, readonly ReferenceItem[]> = { 最近更新: [{ title: '当前进展', copy: '洞天已开放挂机、修炼、生产、装备、背包和秘境流程。', state: '已上线' }], 规则记录: [{ title: '下一阶段', copy: '继续补齐参考式页面交互和真实系统。', state: '规划中' }] };
 const statusLabel: Record<string, string> = { RUNNING: '进行中', QUEUED: '待执行', DONE: '已完成', DONE_INCOMPLETE: '已完成', DONE_CONDITION_MET: '已完成', BLOCKED: '已阻塞', CANCELLED: '已取消' };
@@ -36,16 +36,21 @@ function queueEntriesWithCurrent(queue: Queue): readonly QueueEntry[] {
 
 export function selectTaskItemsByTab(queue: Queue, activeTab: string): readonly QueueEntry[] {
   const entries = queueEntriesWithCurrent(queue);
+  if (activeTab === '任务栏') return entries;
   if (activeTab === '当前任务') return entries.filter((entry) => entry.entry_id === queue.current?.entry_id || entry.status === 'RUNNING' || entry.status === 'QUEUED');
   if (activeTab === '已完成') return entries.filter((entry) => completedTaskStatuses.has(entry.status));
   if (activeTab === '目标') return entries.filter((entry) => entry.target_value !== null || entry.condition_item_id !== null);
   return [];
 }
 
-function ItemList({ items, emptyCopy = '暂无可展示记录', onItemDetail }: { readonly items: readonly ReferenceItem[]; readonly emptyCopy?: string; readonly onItemDetail: (item: ReferenceItem) => void }): ReactElement {
+function ItemList({ items, emptyCopy = '暂无可展示记录', onItemDetail, actionLabel = '前往操作' }: { readonly items: readonly ReferenceItem[]; readonly emptyCopy?: string; readonly onItemDetail: (item: ReferenceItem) => void; readonly actionLabel?: string }): ReactElement {
   const [filter, setFilter] = useState('全部');
   const filtered = filter === '全部' ? items : items.filter((item) => item.state === filter);
-  return <div className="reference-list-panel"><div className="reference-list-panel__filters" aria-label="筛选"><span>筛选</span>{['全部', '进行中', '已完成'].map((value) => <button key={value} className={filter === value ? 'reference-page__tab reference-page__tab--active' : 'reference-page__tab'} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>{filtered.length === 0 ? <div className="reference-empty-state"><strong>{emptyCopy}</strong><p>当前分类没有可用数据，系统不会用示例记录代替真实结果。</p></div> : <div className="reference-guide-list">{filtered.map((item) => <article key={item.title} className="reference-guide-card"><span className="reference-task-card__state">{item.state ?? '参考说明'}</span><h4>{item.title}</h4><p>{item.copy}</p><button className="ghost-button" type="button" onClick={() => onItemDetail(item)}>查看详情</button>{item.href ? <Link className="ghost-button" to={item.href}>前往操作</Link> : null}</article>)}</div>}</div>;
+  return <div className="reference-list-panel"><div className="reference-list-panel__filters" aria-label="筛选"><span>筛选</span>{['全部', '进行中', '已完成'].map((value) => <button key={value} className={filter === value ? 'reference-page__tab reference-page__tab--active' : 'reference-page__tab'} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>{filtered.length === 0 ? <div className="reference-empty-state"><strong>{emptyCopy}</strong><p>当前分类没有可用数据，系统不会用示例记录代替真实结果。</p></div> : <div className="reference-guide-list">{filtered.map((item) => <article key={item.title} className="reference-guide-card"><span className="reference-task-card__state">{item.state ?? '参考说明'}</span><h4>{item.title}</h4><p>{item.copy}</p><button className="ghost-button" type="button" onClick={() => onItemDetail(item)}>查看详情</button>{item.href ? <Link className="ghost-button" to={item.href}>{actionLabel}</Link> : null}</article>)}</div>}</div>;
+}
+
+function ContentPanel({ config, activeTab, items, onItemDetail }: { readonly config: ReferencePageConfig; readonly activeTab: string; readonly items: readonly ReferenceItem[]; readonly onItemDetail: (item: ReferenceItem) => void }): ReactElement {
+  return <section className={`reference-content-panel reference-content-panel--${config.kind}`} aria-label={`${config.title}${activeTab}`}><header className="reference-content-panel__header"><span className="reference-task-card__state">{config.eyebrow} · {activeTab}</span><h4>{config.panelTitle}</h4><p>{config.panelCopy}</p></header>{items.length === 0 ? <div className="reference-empty-state"><strong>暂无已记录内容</strong><p>当前分类没有可用数据，系统不会用示例记录代替真实结果。</p></div> : <ol className="reference-content-list">{items.map((item, index) => <li key={item.title} className="reference-content-row"><span className="reference-content-row__index">{String(index + 1).padStart(2, '0')}</span><div><span className="reference-task-card__state">{item.state ?? '参考说明'}</span><h5>{item.title}</h5><p>{item.copy}</p></div><button className="ghost-button" type="button" onClick={() => onItemDetail(item)}>查看详情</button></li>)}</ol>}</section>;
 }
 
 function describeTaskTarget(entry: QueueEntry): string | null {
@@ -61,25 +66,158 @@ function queueEntryToItem(entry: QueueEntry, title = describeAction(entry.action
   return { title, copy: `${target === null ? '' : `${target}，`}已完成 ${entry.completed_cycles} 轮。`, state: statusLabel[entry.status] ?? '待执行', href };
 }
 
+export interface TaskRowView {
+  readonly entryId: string;
+  readonly title: string;
+  readonly status: string;
+  readonly statusCode: QueueEntry['status'];
+  readonly targetLabel: string;
+  readonly progress: number | null;
+  readonly progressLabel: string;
+  readonly rewardLabel: string;
+  readonly href: string;
+}
+
+function countProgress(entry: QueueEntry): { readonly progress: number; readonly label: string } | null {
+  if (entry.mode !== 'COUNT' || entry.target_value === null || entry.target_value === '') return null;
+  const target = Number(entry.target_value);
+  const completed = Number(entry.completed_cycles);
+  if (!Number.isFinite(target) || target <= 0 || !Number.isFinite(completed)) return null;
+  return { progress: Math.min(1, Math.max(0, completed / target)), label: `${entry.completed_cycles} / ${entry.target_value} 轮` };
+}
+
+const ACTION_CYCLE_US: Record<string, number> = {
+  'action.cultivation.qi': 100_000_000,
+  'action.t1.herb_baicao_valley': 140_000_000,
+  'action.t1.qi_gathering_pill': 100_000_000,
+  'action.t1.qi_gathering_powder': 100_000_000,
+};
+
+function formatTaskDuration(microseconds: number): string {
+  const seconds = Math.max(0, Math.round(microseconds / 1_000_000));
+  if (seconds < 60) return `${seconds} 秒`;
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return remainder === 0 ? `${minutes} 分钟` : `${minutes} 分 ${remainder} 秒`;
+}
+
+function durationProgress(entry: QueueEntry, queue: Queue, nowMs: number): { readonly progress: number; readonly label: string } | null {
+  if (entry.mode !== 'DURATION' || entry.target_value === null || entry.target_value === '') return null;
+  const targetSeconds = Number(entry.target_value);
+  const completedCycles = Number(entry.completed_cycles);
+  const progressTimeUs = Number(entry.progress_time_us);
+  if (!Number.isFinite(targetSeconds) || targetSeconds <= 0 || !Number.isFinite(completedCycles) || !Number.isFinite(progressTimeUs)) return null;
+  if (completedTaskStatuses.has(entry.status)) return { progress: 1, label: '已完成' };
+  const cycleUs = ACTION_CYCLE_US[entry.action_id] ?? 100_000_000;
+  let partialUs = progressTimeUs;
+  if (queue.current?.entry_id === entry.entry_id && entry.status === 'RUNNING' && !queue.paused) {
+    const asOfMs = Date.parse(queue.as_of);
+    if (Number.isFinite(asOfMs)) partialUs += Math.max(0, nowMs - asOfMs) * 1_000;
+  }
+  const elapsedUs = Math.max(0, completedCycles * cycleUs + partialUs);
+  const targetUs = targetSeconds * 1_000_000;
+  return {
+    progress: Math.min(1, elapsedUs / targetUs),
+    label: `${formatTaskDuration(elapsedUs)} / ${formatTaskDuration(targetUs)}`,
+  };
+}
+
+function describeTaskRewardState(status: QueueEntry['status']): string {
+  if (completedTaskStatuses.has(status)) return '已结算';
+  if (status === 'BLOCKED' || status === 'CANCELLED') return '未结算';
+  return '待结算';
+}
+
+export function buildTaskRow(entry: QueueEntry, queue: Queue, nowMs = Date.now()): TaskRowView {
+  const currentView = queue.current?.entry_id === entry.entry_id ? buildIdleProgressView(queue, nowMs) : null;
+  const count = countProgress(entry);
+  const duration = durationProgress(entry, queue, nowMs);
+  const targetProgress = count ?? duration;
+  const actionProgress = currentView === null || (entry.mode !== 'INFINITE' && entry.mode !== 'UNTIL_INVENTORY')
+    ? null
+    : { progress: currentView.progress, label: `${Math.round(currentView.progress * 100)}% · ${currentView.remaining}` };
+  const progress = targetProgress?.progress ?? actionProgress?.progress ?? (completedTaskStatuses.has(entry.status) ? 1 : entry.status === 'QUEUED' ? 0 : null);
+  const progressLabel = targetProgress?.label ?? actionProgress?.label ?? (completedTaskStatuses.has(entry.status) ? '已完成' : entry.status === 'QUEUED' ? '等待执行' : '进度不可用');
+  return {
+    entryId: entry.entry_id,
+    title: describeAction(entry.action_id),
+    status: statusLabel[entry.status] ?? '待执行',
+    statusCode: entry.status,
+    targetLabel: describeTaskTarget(entry) ?? '持续执行',
+    progress,
+    progressLabel,
+    rewardLabel: describeTaskRewardState(entry.status),
+    href: entry.entry_id === queue.current?.entry_id ? '/dashboard' : '/dashboard#queue',
+  };
+}
+
+export function buildTaskRows(queue: Queue, activeTab: string, nowMs = Date.now()): readonly TaskRowView[] {
+  return selectTaskItemsByTab(queue, activeTab).map((entry) => buildTaskRow(entry, queue, nowMs));
+}
+
+function taskRowToItem(entry: QueueEntry, row: TaskRowView): ReferenceItem {
+  const item = queueEntryToItem(entry, row.title, row.href);
+  return { ...item, copy: `${row.targetLabel} · ${row.progressLabel} · 奖励${row.rewardLabel}` };
+}
+
+function TaskRows({ queue, activeTab, onItemDetail }: { readonly queue: Queue; readonly activeTab: string; readonly onItemDetail: (item: ReferenceItem) => void }): ReactElement {
+  const rows = buildTaskRows(queue, activeTab);
+  if (rows.length === 0) return <div className="reference-empty-state"><strong>还没有安排修行任务</strong><p>当前队列没有可展示记录，系统不会用示例任务代替真实结果。</p></div>;
+  const entries = queueEntriesWithCurrent(queue);
+  return <ol className="reference-task-list">{rows.map((row) => {
+    const entry = entries.find((candidate) => candidate.entry_id === row.entryId);
+    if (entry === undefined) return null;
+    return <li key={row.entryId} className={row.statusCode === 'RUNNING' ? 'reference-task-row reference-task-row--active' : 'reference-task-row'}><div className="reference-task-row__main"><span className="reference-task-card__state">{row.status}</span><h4>{row.title}</h4><p>{row.targetLabel}</p></div><div className="reference-task-row__progress"><progress max={1} value={row.progress ?? undefined} aria-label={`${row.title}进度`} /><span>{row.progressLabel}</span></div><div className="reference-task-row__reward"><span>奖励</span><strong>{row.rewardLabel}</strong></div><div className="reference-task-row__actions"><button className="ghost-button" type="button" onClick={() => onItemDetail(taskRowToItem(entry, row))}>详情</button><Link className="ghost-button" to={row.href}>前往</Link></div></li>;
+  })}</ol>;
+}
+
+function ReferenceQueryError({ copy, onRetry }: { readonly copy: string; readonly onRetry: () => void }): ReactElement {
+  return <div className="reference-query-error" role="alert"><strong>{copy}</strong><p>请检查网络连接，稍后再试。</p><button className="ghost-button" type="button" onClick={onRetry}>重试</button></div>;
+}
+
 function TasksPanel({ characterId, activeTab, onItemDetail }: { readonly characterId: string; readonly activeTab: string; readonly onItemDetail: (item: ReferenceItem) => void }): ReactElement {
-  const queueQuery = useQuery<Queue>({ queryKey: ['reference-tasks', characterId], queryFn: () => apiClient.getQueue(characterId), staleTime: 10_000 });
-  const currentView = queueQuery.data === undefined ? null : buildIdleProgressView(queueQuery.data);
-  const currentEntryId = queueQuery.data?.current?.entry_id;
-  const selectedEntries = queueQuery.data === undefined ? [] : selectTaskItemsByTab(queueQuery.data, activeTab);
-  const items = selectedEntries.map((entry) => queueEntryToItem(entry, entry.entry_id === currentEntryId ? currentView?.actionLabel ?? describeAction(entry.action_id) : describeAction(entry.action_id), entry.entry_id === currentEntryId ? '/dashboard' : '/dashboard#queue'));
-  const emptyCopy = activeTab === '已完成' ? '还没有完成修行任务' : activeTab === '目标' ? '队列中暂无目标' : '还没有安排修行任务';
-  return <ItemList items={items} emptyCopy={emptyCopy} onItemDetail={onItemDetail} />;
+  const queueQuery = useQuery<Queue>({ queryKey: ['reference-tasks', characterId], queryFn: () => apiClient.getQueue(characterId), staleTime: 1_000, refetchInterval: 1_000 });
+  if (queueQuery.data === undefined && queueQuery.isError) return <ReferenceQueryError copy="任务队列暂时无法读取" onRetry={() => void queueQuery.refetch()} />;
+  if (queueQuery.data === undefined) return <div className="reference-empty-state"><strong>正在读取任务队列</strong><p>任务状态以当前队列快照为准。</p></div>;
+  return <>{queueQuery.isError ? <ReferenceQueryError copy="任务队列更新失败，当前显示上一次记录" onRetry={() => void queueQuery.refetch()} /> : null}<TaskRows queue={queueQuery.data} activeTab={activeTab} onItemDetail={onItemDetail} /></>;
 }
 
 function MazePanel({ characterId, activeTab, onItemDetail }: { readonly characterId: string; readonly activeTab: string; readonly onItemDetail: (item: ReferenceItem) => void }): ReactElement {
   const opportunityQuery = useQuery<DungeonOpportunityResponse>({ queryKey: ['reference-maze', characterId], queryFn: () => apiClient.getDungeonOpportunities(characterId), staleTime: 10_000 });
+  if (opportunityQuery.data === undefined && opportunityQuery.isError) return <ReferenceQueryError copy="秘境机会暂时无法读取" onRetry={() => void opportunityQuery.refetch()} />;
+  if (opportunityQuery.data === undefined) return <div className="reference-empty-state"><strong>正在读取秘境状态</strong><p>秘境机会以当前服务端记录为准。</p></div>;
   const current = opportunityQuery.data?.opportunity.current_opportunities ?? 0;
   const cap = opportunityQuery.data?.opportunity.opportunity_cap ?? 0;
-  const items: readonly ReferenceItem[] = activeTab === '迷宫' ? [{ title: '青蛇洞', copy: `今日可用探险机会 ${current}/${cap}。`, state: current > 0 ? '可进入' : '机会用尽', href: '/expedition' }] : activeTab === '房间' ? [{ title: '入口石径', copy: '选择初始路线并确认装备。' }, { title: '蛇窟岔路', copy: '根据风险选择稳妥或深入路线。' }, { title: '深潭石台', copy: '完成战斗后整理秘境收获。' }] : [{ title: '自动选择安全路线', copy: '秘境页会使用角色当前保存的装备方案和战斗策略。', href: '/expedition' }];
-  return <ItemList items={items} emptyCopy="暂无可查看的迷宫记录" onItemDetail={onItemDetail} />;
+  const roomEntry: ReferenceItem = { title: '秘境房间', copy: '前往秘境页查看真实房间和路线状态。', state: '前往秘境', href: '/expedition' };
+  const automationEntry: ReferenceItem = { title: '自动化探险', copy: '前往秘境页查看当前可用的探险策略。', state: '前往秘境', href: '/expedition' };
+  const dungeonEntry: ReferenceItem = { title: '青蛇洞', copy: `今日可用探险机会 ${current}/${cap}。`, state: current > 0 ? '可进入' : '机会用尽', href: '/expedition' };
+  const items: readonly ReferenceItem[] = activeTab === '迷宫' ? [dungeonEntry, roomEntry, automationEntry] : [];
+  return <>{opportunityQuery.isError ? <ReferenceQueryError copy="秘境状态更新失败，当前显示上一次记录" onRetry={() => void opportunityQuery.refetch()} /> : null}<div className="reference-maze-panel"><header className="reference-maze-panel__header"><span className="reference-task-card__state">迷宫 · {activeTab}</span><h4>{CONFIG.maze.panelTitle}</h4><p>{CONFIG.maze.panelCopy}</p></header><ItemList items={items} emptyCopy="暂无可查看的迷宫记录" onItemDetail={onItemDetail} actionLabel="打开秘境" /></div></>;
 }
 
-function LockedPanel({ config, activeTab }: { readonly config: ReferencePageConfig; readonly activeTab: string }): ReactElement { return <div className="reference-locked-panel"><span className="reference-task-card__state">系统锁定</span><h4>{activeTab}暂未开放</h4><p>{config.locked}</p><p>当前没有真实记录可展示，暂不伪造商品、排名、成员或消息。</p><button className="ghost-button" type="button" disabled>等待系统开放</button></div>; }
+function LockedHeader({ config, activeTab }: { readonly config: ReferencePageConfig; readonly activeTab: string }): ReactElement {
+  return <header className="reference-locked-panel__header"><span className="reference-task-card__state">{config.eyebrow} · {activeTab}</span><h4>{config.panelTitle}</h4><p>{config.panelCopy}</p></header>;
+}
+
+function LockedPanel({ config, activeTab, copy }: { readonly config: ReferencePageConfig; readonly activeTab: string; readonly copy?: string }): ReactElement {
+  const message = copy ?? config.locked ?? '当前系统尚未开放。';
+  if (config.kind === 'shops') {
+    return <section className="reference-locked-panel reference-shop-lock" aria-label={`${config.title}${activeTab}状态`}><LockedHeader config={config} activeTab={activeTab} /><div className="reference-shop-lock__shelves" aria-label="货架分类"><span>灵石兑换</span><span>秘境补给</span><span>修行材料</span></div><p>{message}</p><p>商品、价格和购买操作开放后会显示在这里。</p><button className="ghost-button" type="button" disabled>等待商店开放</button></section>;
+  }
+  if (config.kind === 'achievements') {
+    return <section className="reference-locked-panel reference-achievement-lock" aria-label={`${config.title}${activeTab}状态`}><LockedHeader config={config} activeTab={activeTab} /><div className="reference-achievement-lock__summary"><strong>尚无成就记录</strong><span>成就数据服务尚未开放</span></div><p>{message}</p><button className="ghost-button" type="button" disabled>等待成就开放</button></section>;
+  }
+  if (config.kind === 'leaderboard') {
+    return <section className="reference-locked-panel reference-leaderboard-lock" aria-label={`${config.title}${activeTab}状态`}><LockedHeader config={config} activeTab={activeTab} /><div className="reference-leaderboard-lock__snapshot"><span>排行快照</span><strong>暂不可用</strong><small>统计服务开放后显示真实排名。</small></div><p>{message}</p><button className="ghost-button" type="button" disabled>等待排行榜开放</button></section>;
+  }
+  if (config.kind === 'guild') {
+    return <section className="reference-locked-panel reference-guild-lock" aria-label={`${config.title}${activeTab}状态`}><LockedHeader config={config} activeTab={activeTab} /><dl className="reference-guild-lock__facts"><div><dt>宗门状态</dt><dd>系统未接入</dd></div><div><dt>成员数据</dt><dd>不可查看</dd></div><div><dt>公告</dt><dd>不可查看</dd></div></dl><p>{message}</p><button className="ghost-button" type="button" disabled>等待宗门开放</button></section>;
+  }
+  if (config.kind === 'social') {
+    return <section className="reference-locked-panel reference-social-lock" aria-label={`${config.title}${activeTab}状态`}><LockedHeader config={config} activeTab={activeTab} /><div className="reference-social-lock__state"><span>仙友关系</span><strong>社交服务未开放</strong><p>当前没有真实仙友、私信或组队记录。</p></div><p>{message}</p><button className="ghost-button" type="button" disabled>等待社交开放</button></section>;
+  }
+  return <section className={`reference-locked-panel reference-locked-panel--${config.kind}`} aria-label={`${config.title}${activeTab}状态`}><LockedHeader config={config} activeTab={activeTab} /><div className="reference-locked-panel__status"><span>开放状态</span><strong>系统锁定</strong></div><p>{message}</p><p>当前没有真实记录可展示，暂不伪造商品、排名、成员或消息。</p><button className="ghost-button" type="button" disabled>等待系统开放</button></section>;
+}
 
 export function ReferencePage({ kind }: { readonly kind: ReferencePageKind }): ReactElement {
   const session = useOutletContext<AuthActiveSession>();
@@ -88,5 +226,24 @@ export function ReferencePage({ kind }: { readonly kind: ReferencePageKind }): R
   const [detail, setDetail] = useState<ReferenceItem | null>(null);
   const isGuide = kind === 'guide' || kind === 'rules' || kind === 'news';
   const staticItems = isGuide ? (kind === 'guide' ? guideSections[activeTab] : kind === 'rules' ? ruleSections[activeTab] : newsSections[activeTab]) ?? [] : [];
-  return <section className="reference-page"><header className="reference-page__header"><div><p className="page-card__eyebrow">{config.eyebrow}</p><h3>{config.title}</h3></div><p>{config.copy}</p></header><nav className="reference-page__tabs" aria-label={`${config.title}分类`}>{config.tabs.map((tab) => <button key={tab} className={tab === activeTab ? 'reference-page__tab reference-page__tab--active' : 'reference-page__tab'} type="button" aria-pressed={tab === activeTab} onClick={() => setActiveTab(tab)}>{tab}</button>)}</nav>{config.locked ? <LockedPanel config={config} activeTab={activeTab} /> : null}{!config.locked && kind === 'tasks' ? <TasksPanel characterId={session.character_id} activeTab={activeTab} onItemDetail={setDetail} /> : null}{!config.locked && kind === 'maze' ? <MazePanel characterId={session.character_id} activeTab={activeTab} onItemDetail={setDetail} /> : null}{!config.locked && isGuide ? <ItemList items={staticItems} onItemDetail={setDetail} /> : null}<GameDialog open={detail !== null} onOpenChange={(open) => { if (!open) setDetail(null); }} eyebrow={config.eyebrow} title={detail?.title ?? activeTab} primaryLabel="已了解" onPrimary={() => setDetail(null)} primaryDisabled={detail === null}><p className="game-dialog__copy">{detail?.copy ?? config.copy}</p><div className="game-dialog__facts"><span>当前分类</span><strong>{activeTab}</strong></div><div className="game-dialog__facts"><span>数据状态</span><strong>{config.locked ? '系统锁定' : '参考说明 / 真实进度'}</strong></div></GameDialog></section>;
+  const taskShopLocked = kind === 'tasks' && activeTab === '任务商店';
+  const mazeShopLocked = kind === 'maze' && activeTab === '迷宫商店';
+  const activeTabIndex = Math.max(0, config.tabs.indexOf(activeTab));
+  const tabId = `reference-tab-${kind}-${activeTabIndex}`;
+  const panelId = `reference-panel-${kind}-${activeTabIndex}`;
+  const referenceTabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && event.key !== 'Home' && event.key !== 'End') return;
+    event.preventDefault();
+    const nextIndex = event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? config.tabs.length - 1
+        : (activeTabIndex + (event.key === 'ArrowRight' ? 1 : -1) + config.tabs.length) % config.tabs.length;
+    const nextTab = config.tabs[nextIndex];
+    if (nextTab === undefined) return;
+    setActiveTab(nextTab);
+    window.requestAnimationFrame(() => referenceTabRefs.current[nextIndex]?.focus());
+  };
+  return <section className={`reference-page reference-page--${kind}`}><header className="reference-page__header"><div><p className="page-card__eyebrow">{config.eyebrow}</p><h3>{config.title}</h3><p>{config.copy}</p></div></header><nav className="reference-page__tabs" role="tablist" aria-label={`${config.title}分类`} onKeyDown={handleTabKeyDown}>{config.tabs.map((tab, index) => <button key={tab} ref={(element) => { referenceTabRefs.current[index] = element; }} id={`reference-tab-${kind}-${index}`} className={tab === activeTab ? 'reference-page__tab reference-page__tab--active' : 'reference-page__tab'} type="button" role="tab" aria-selected={tab === activeTab} aria-controls={`reference-panel-${kind}-${index}`} tabIndex={tab === activeTab ? 0 : -1} onClick={() => setActiveTab(tab)}>{tab}</button>)}</nav><div className="reference-page__tabpanel" id={panelId} role="tabpanel" aria-labelledby={tabId} tabIndex={0}>{config.locked ? <LockedPanel config={config} activeTab={activeTab} /> : null}{taskShopLocked ? <LockedPanel config={config} activeTab={activeTab} copy="任务商店尚未接入真实任务商品和兑换操作。" /> : null}{mazeShopLocked ? <LockedPanel config={config} activeTab={activeTab} copy="迷宫商店尚未接入真实商品和兑换操作。" /> : null}{!config.locked && kind === 'tasks' && !taskShopLocked ? <TasksPanel characterId={session.character_id} activeTab={activeTab} onItemDetail={setDetail} /> : null}{!config.locked && kind === 'maze' && !mazeShopLocked ? <MazePanel characterId={session.character_id} activeTab={activeTab} onItemDetail={setDetail} /> : null}{!config.locked && isGuide ? <ContentPanel config={config} activeTab={activeTab} items={staticItems} onItemDetail={setDetail} /> : null}</div><GameDialog open={detail !== null} onOpenChange={(open) => { if (!open) setDetail(null); }} eyebrow={config.eyebrow} title={detail?.title ?? activeTab} primaryLabel="已了解" onPrimary={() => setDetail(null)} primaryDisabled={detail === null}><p className="game-dialog__copy">{detail?.copy ?? config.copy}</p><div className="game-dialog__facts"><span>当前分类</span><strong>{activeTab}</strong></div><div className="game-dialog__facts"><span>数据状态</span><strong>{config.locked || taskShopLocked || mazeShopLocked ? '系统锁定' : '真实进度'}</strong></div></GameDialog></section>;
 }

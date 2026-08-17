@@ -5,9 +5,11 @@ import * as Dialog from '@radix-ui/react-dialog';
 
 import {
   ApiClientError,
+  type ActionCatalogEntry,
   type AuthActiveSession,
   type BreakthroughPreviewResponse,
   type CharacterProgression,
+  type ContentActionsResponse,
   type DungeonRunResponse,
   type InventorySnapshot,
   type LatestSettlementResponse,
@@ -29,6 +31,7 @@ import {
   describeQueuePreviewWarning,
   describeAction,
 } from './dashboard-adapter.js';
+import { describeActionId } from '../content/content-adapter.js';
 import {
   DEFAULT_QUEUE_ACTION_ID,
   createInitialQueueEditorState,
@@ -47,6 +50,35 @@ import {
 } from './queue-editor.js';
 
 const DASHBOARD_QUERY_PREFIX = 'dashboard';
+
+export interface QueueActionOption {
+  readonly value: string;
+  readonly label: string;
+  readonly disabled?: boolean;
+}
+
+export function buildQueueActionOptions(
+  actions: ReadonlyArray<ActionCatalogEntry>,
+  selectedActionId: string,
+): ReadonlyArray<QueueActionOption> {
+  const options = actions
+    .filter((action) => action.enabled && action.unlocked && action.can_add_to_queue)
+    .map((action) => ({ value: action.queue_action_id, label: describeActionId(action.queue_action_id) }));
+
+  if (options.some((option) => option.value === selectedActionId) || selectedActionId.length === 0) {
+    return options;
+  }
+
+  const selected = actions.find((action) => action.queue_action_id === selectedActionId);
+  return [
+    {
+      value: selectedActionId,
+      label: describeActionId(selected?.queue_action_id ?? selectedActionId),
+      disabled: true,
+    },
+    ...options,
+  ];
+}
 
 function normalizeDraftTarget(mode: QueueEditorMode, value: string): string {
   if (mode === 'INFINITE') {
@@ -133,6 +165,11 @@ function useDashboardQueries(characterId: string) {
     queryFn: () => apiClient.getInventory(characterId),
   });
 
+  const actionsQuery = useQuery<ContentActionsResponse>({
+    queryKey: [DASHBOARD_QUERY_PREFIX, characterId, 'actions'],
+    queryFn: () => apiClient.getActions(),
+  });
+
   const queueQuery = useQuery<Queue>({
     queryKey: [DASHBOARD_QUERY_PREFIX, characterId, 'queue'],
     queryFn: () => apiClient.getQueue(characterId),
@@ -161,7 +198,7 @@ function useDashboardQueries(characterId: string) {
     retry: false,
   });
 
-  return { progressionQuery, inventoryQuery, queueQuery, settlementQuery, breakthroughQuery, dungeonRunQuery };
+  return { progressionQuery, inventoryQuery, actionsQuery, queueQuery, settlementQuery, breakthroughQuery, dungeonRunQuery };
 }
 
 export function DashboardLoading(): ReactElement {
@@ -203,6 +240,7 @@ export function DashboardError({ error, onRetry }: { readonly error: unknown; re
 
 function QueueEditorRow({
   entry,
+  actions,
   disabled,
   onMoveDown,
   onMoveUp,
@@ -210,24 +248,32 @@ function QueueEditorRow({
   onUpdate,
 }: {
   readonly entry: QueueEditorEntryDraft;
+  readonly actions: ReadonlyArray<ActionCatalogEntry>;
   readonly disabled: boolean;
   readonly onMoveDown: () => void;
   readonly onMoveUp: () => void;
   readonly onRemove: () => void;
   readonly onUpdate: (patch: Partial<Pick<QueueEditorEntryDraft, 'actionId' | 'mode' | 'targetValue' | 'conditionItemId' | 'conditionOperator' | 'onBlocked'>>) => void;
 }): ReactElement | null {
+  const actionOptions = buildQueueActionOptions(actions, entry.actionId);
+
   return (
     <li className="queue-editor__row" tabIndex={0}>
       <div className="queue-editor__row-main">
         <label className="queue-editor__field">
           <span className="queue-editor__label">挂机任务</span>
-          <input
+          <select
             className="queue-editor__input"
-            type="text"
             value={entry.actionId}
             disabled={disabled}
             onChange={(event) => onUpdate({ actionId: event.target.value })}
-          />
+          >
+            {actionOptions.map((option) => (
+              <option key={option.value} value={option.value} disabled={option.disabled}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="queue-editor__field">
           <span className="queue-editor__label">执行方式</span>
@@ -417,6 +463,9 @@ export function SettlementSummaryCard({
     );
   }
 
+  const visibleTimeline = view.timeline.slice(0, 5);
+  const hiddenTimelineCount = Math.max(0, view.timeline.length - visibleTimeline.length);
+
   return (
     <div className="settlement-summary">
       <NormalStateScreen title={view.title} description={view.description} highlight="离线收益" footnote={view.footnote} />
@@ -425,13 +474,14 @@ export function SettlementSummaryCard({
         <section className="settlement-summary__section">
           <h5>行动摘要</h5>
           <ul>
-            {view.timeline.map((item, index) => (
+            {visibleTimeline.map((item, index) => (
               <li key={`${index}-${item.title}-${item.detail}`}>
                 <strong>{item.title}</strong>
                 <span>{item.detail}</span>
               </li>
             ))}
           </ul>
+          {hiddenTimelineCount > 0 ? <p className="settlement-summary__more">还有 {hiddenTimelineCount} 条记录</p> : null}
         </section>
 
         <section className="settlement-summary__section">
@@ -528,7 +578,7 @@ export function DashboardPage(): ReactElement {
   const setQueueDraftTitle = useUiDraftStore((state) => state.setQueueDraftTitle);
   const setQueueDraftNote = useUiDraftStore((state) => state.setQueueDraftNote);
 
-  const { progressionQuery, inventoryQuery, queueQuery, settlementQuery, breakthroughQuery, dungeonRunQuery } = useDashboardQueries(session.character_id);
+  const { progressionQuery, inventoryQuery, actionsQuery, queueQuery, settlementQuery, breakthroughQuery, dungeonRunQuery } = useDashboardQueries(session.character_id);
   const [editorState, dispatch] = useReducer(queueEditorReducer, undefined, () => createInitialQueueEditorState());
 
   useEffect(() => {
@@ -708,11 +758,11 @@ export function DashboardPage(): ReactElement {
     },
   });
 
-  if (progressionQuery.isPending || inventoryQuery.isPending || queueQuery.isPending || settlementQuery.isPending) {
+  if (progressionQuery.isPending || inventoryQuery.isPending || actionsQuery.isPending || queueQuery.isPending || settlementQuery.isPending) {
     return <DashboardLoading />;
   }
 
-  const firstError = progressionQuery.error ?? inventoryQuery.error ?? queueQuery.error ?? settlementQuery.error ?? dungeonRunQuery.error;
+  const firstError = progressionQuery.error ?? inventoryQuery.error ?? actionsQuery.error ?? queueQuery.error ?? settlementQuery.error ?? dungeonRunQuery.error;
   if (firstError !== undefined && firstError !== null) {
     return <DashboardError error={firstError} onRetry={async () => queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id] })} />;
   }
@@ -735,9 +785,9 @@ export function DashboardPage(): ReactElement {
       <div className="dashboard-panel dashboard-panel--hero">
         <div className="dashboard-hero">
           <div className="dashboard-hero__header">
-            <p className="dashboard-hero__eyebrow">洞天 · 今日修行</p>
-            <h3 className="dashboard-hero__title">选一件事，马上开始挂机</h3>
-            <p className="dashboard-hero__copy">不用安排复杂计划。点下面的任务，角色会自动修行；回来时领取收益就好。</p>
+            <p className="dashboard-hero__eyebrow">洞天 · 当前任务</p>
+            <h3 className="dashboard-hero__title">当前修行</h3>
+            <p className="dashboard-hero__copy">选择一个行动，角色会立即开始挂机；顶部进度会一直显示当前闭关。</p>
           </div>
 
           <div className="quick-task-grid" aria-label="开始挂机">
@@ -753,10 +803,10 @@ export function DashboardPage(): ReactElement {
                 onClick={() => void startQuickTask(task.id)}
                 disabled={quickStartState === 'starting' || queueEditingLocked}
               >
-                <span className="quick-task-card__tag">{task.reward}</span>
+                <span className="quick-task-card__tag">{queue.current?.action_id === task.id ? '正在进行' : task.reward}</span>
                 <strong>{task.title}</strong>
-                <span>{task.detail}</span>
-                <em>{quickStartState === 'starting' ? '正在安排…' : `开始${task.title}`}</em>
+                <span>{queue.current?.action_id === task.id ? `已完成 ${queue.current?.completed_cycles ?? 0} 轮` : task.detail}</span>
+                <em>{quickStartState === 'starting' ? '正在安排…' : queue.current?.action_id === task.id ? '继续当前行动' : `开始${task.title}`}</em>
               </button>
             ))}
           </div>
@@ -870,6 +920,7 @@ export function DashboardPage(): ReactElement {
               <QueueEditorRow
                 key={entry.clientEntryId}
                 entry={entry}
+                actions={actionsQuery.data?.actions ?? []}
                 disabled={queueEditingLocked}
                 onMoveUp={() => dispatch({ type: 'move-entry', clientEntryId: entry.clientEntryId, direction: -1 })}
                 onMoveDown={() => dispatch({ type: 'move-entry', clientEntryId: entry.clientEntryId, direction: 1 })}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type KeyboardEvent, type ReactElement } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate, useOutletContext } from 'react-router';
 
@@ -20,9 +20,9 @@ import {
   LoadingStateScreen,
   LocalErrorStateScreen,
   MaintenanceStateScreen,
-  NormalStateScreen,
 } from '@dongtian/ui';
 
+import { GameDialog } from '../../components/game-dialog.js';
 import { apiClient } from '../../lib/api.js';
 import {
   describeRoute,
@@ -33,7 +33,6 @@ import {
   describeRecipeDescription,
   describeUnlockReason,
   describeRealmId,
-  describeSkillId,
   formatActionRate,
   formatCount,
   formatDurationUs,
@@ -41,15 +40,18 @@ import {
   isActionQueued,
   joinQueuePath,
   routeKey,
-  selectBestAction,
   summarizeInventoryAsset,
   summarizeItemQuantity,
 } from './content-adapter.js';
 
-function describeInventoryCategory(category: string | null | undefined): string {
+export function describeInventoryCategory(category: string | null | undefined): string {
   if (category === 'MATERIAL') return '炼丹 / 炼器材料';
-  if (category === 'CONSUMABLE') return '丹药';
+  if (category === 'HERB') return '灵草';
+  if (category === 'ORE') return '矿材';
+  if (category === 'FOOD') return '灵膳';
+  if (category === 'TOOL') return '修行工具';
   if (category === 'EQUIPMENT') return '装备';
+  if (category === 'CONSUMABLE') return '丹药';
   if (category === 'CURRENCY') return '灵石与货币';
   return '修行物品';
 }
@@ -68,6 +70,12 @@ function nextContentTab(current: ContentTab, direction: -1 | 1): ContentTab {
 
 function parseSearch(locationSearch: string): URLSearchParams {
   return new URLSearchParams(locationSearch);
+}
+
+export function clearContentDetailSearch(locationSearch: string, detailKey: 'action_id' | 'recipe_id' | 'item_id'): string {
+  const params = parseSearch(locationSearch);
+  params.delete(detailKey);
+  return params.toString().length > 0 ? `?${params.toString()}` : '';
 }
 
 function syncSearch(navigate: ReturnType<typeof useNavigate>, pathname: string, locationSearch: string, next: Record<string, string | null | undefined>): void {
@@ -119,15 +127,15 @@ function useInventoryQueries(characterId: string) {
 
 function ContentLoading({ title, description }: { readonly title: string; readonly description: string }): ReactElement {
   return (
-    <section className="content-layout">
-      <div className="content-panel content-panel--hero">
+    <section className="content-workbench content-workbench--state">
+      <header className="content-workbench__header">
+        <div>
+          <p className="page-card__eyebrow">洞天内容</p>
+          <h3 className="page-card__title">{title}</h3>
+        </div>
+      </header>
+      <div className="content-panel content-workbench__panel">
         <LoadingStateScreen title={title} description={description} />
-      </div>
-      <div className="content-panel">
-        <LoadingStateScreen title="内容列表" description="正在整理可用内容。" />
-      </div>
-      <div className="content-panel">
-        <LoadingStateScreen title="详情" description="等待选中条目。" />
       </div>
     </section>
   );
@@ -138,43 +146,42 @@ function ContentError({
   onRetry,
 }: {
   readonly title: string;
-  readonly error: string;
   readonly onRetry: () => void;
 }): ReactElement {
   return (
-    <section className="content-layout">
-      <div className="content-panel content-panel--hero">
+    <section className="content-workbench content-workbench--state">
+      <header className="content-workbench__header">
+        <div>
+          <p className="page-card__eyebrow">洞天内容</p>
+          <h3 className="page-card__title">{title}</h3>
+        </div>
+      </header>
+      <div className="content-panel content-workbench__panel">
         <LocalErrorStateScreen
           title={title}
-          description="内容页读取失败，已保留页面壳和导航。"
+          description="暂时无法读取这些内容，请稍后重试。"
           actions={[{ label: '重试', onClick: onRetry }]}
         />
-      </div>
-      <div className="content-panel">
-        <EmptyStateScreen title="列表空白" description="暂未发现可用内容。" />
-      </div>
-      <div className="content-panel">
-        <EmptyStateScreen title="详情空白" description="等待选中条目。" />
       </div>
     </section>
   );
 }
 
-function ContentMaintenance({ title, onRetry }: { readonly title: string; readonly reason: string; readonly onRetry: () => void }): ReactElement {
+function ContentMaintenance({ title, onRetry }: { readonly title: string; readonly onRetry: () => void }): ReactElement {
   return (
-    <section className="content-layout">
-      <div className="content-panel content-panel--hero">
+    <section className="content-workbench content-workbench--state">
+      <header className="content-workbench__header">
+        <div>
+          <p className="page-card__eyebrow">洞天内容</p>
+          <h3 className="page-card__title">{title}</h3>
+        </div>
+      </header>
+      <div className="content-panel content-workbench__panel">
         <MaintenanceStateScreen
           title={title}
           description="内容暂时无法读取，请稍后重试。"
           actions={[{ label: '重试', onClick: onRetry }]}
         />
-      </div>
-      <div className="content-panel">
-        <EmptyStateScreen title="列表空白" description="维护期间不展示伪造内容。" />
-      </div>
-      <div className="content-panel">
-        <EmptyStateScreen title="详情空白" description="维护期间不展示伪造内容。" />
       </div>
     </section>
   );
@@ -213,7 +220,7 @@ function ActionCard({
   readonly onJoinQueue: () => void;
 }): ReactElement {
   return (
-    <article className={`content-card ${isSelected ? 'content-card--selected' : ''}`}>
+    <article className={`content-card content-card--compact ${isSelected ? 'content-card--selected' : ''}`}>
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={isSelected}>
         <span className="content-card__title-row">
           <strong title={describeActionId(entry.action_id)}>{describeActionId(entry.action_id)}</strong>
@@ -222,14 +229,13 @@ function ActionCard({
         </span>
         <span className="content-card__subtitle">{describeActionDescription(entry.action_id)}</span>
       </button>
-      <p className="content-card__copy">{describeActionDescription(entry.action_id)}</p>
       <div className="content-card__meta">
         <span>耗时 {formatDurationUs(entry.base_duration_us)}</span>
-        <span>技能 XP {formatCount(entry.skill_xp)}</span>
-        <span>修为 XP {formatCount(entry.cultivation_xp)}</span>
+        <span>技能经验 {formatCount(entry.skill_xp)}</span>
+        <span>修为经验 {formatCount(entry.cultivation_xp)}</span>
         <span>每小时 {formatActionRate(entry)}</span>
       </div>
-      {!entry.unlocked ? <div className="content-card__copy">{describeUnlockReason(entry.unlock_state.reason, entry.unlock_state.blockers)}</div> : null}
+      {!entry.unlocked ? <p className="content-card__unlock">{describeUnlockReason(entry.unlock_state.reason, entry.unlock_state.blockers)}</p> : null}
       <div className="content-card__actions">
         <button className="ghost-button ghost-button--compact" type="button" onClick={onOpen}>
           查看详情
@@ -256,7 +262,7 @@ function RecipeCard({
   readonly onJoinQueue: () => void;
 }): ReactElement {
   return (
-    <article className={`content-card ${isSelected ? 'content-card--selected' : ''}`}>
+    <article className={`content-card content-card--compact ${isSelected ? 'content-card--selected' : ''}`}>
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={isSelected}>
         <span className="content-card__title-row">
           <strong title={describeRecipeId(entry.recipe_id)}>{describeRecipeId(entry.recipe_id)}</strong>
@@ -265,14 +271,13 @@ function RecipeCard({
         </span>
         <span className="content-card__subtitle">{describeRecipeDescription(entry.recipe_id)}</span>
       </button>
-      <p className="content-card__copy">{describeRecipeDescription(entry.recipe_id)}</p>
       <div className="content-card__meta">
         <span>耗时 {formatDurationUs(entry.base_duration_us)}</span>
-        <span>技能 XP {formatCount(entry.skill_xp)}</span>
+        <span>技能经验 {formatCount(entry.skill_xp)}</span>
         <span>结果 {formatCount(entry.result_quantity)}</span>
         <span>每小时 {formatRecipeRate(entry)}</span>
       </div>
-      {!entry.unlocked ? <div className="content-card__copy">{describeUnlockReason(entry.unlock_state.reason, entry.unlock_state.blockers)}</div> : null}
+      {!entry.unlocked ? <p className="content-card__unlock">{describeUnlockReason(entry.unlock_state.reason, entry.unlock_state.blockers)}</p> : null}
       <div className="content-card__actions">
         <button className="ghost-button ghost-button--compact" type="button" onClick={onOpen}>
           查看详情
@@ -295,14 +300,14 @@ function ItemCard({
   readonly onOpen: () => void;
 }): ReactElement {
   return (
-    <article className={`content-card inventory-item-card ${selected ? 'content-card--selected' : ''}`}>
+    <article className={`content-card content-card--compact inventory-item-card ${selected ? 'content-card--selected' : ''}`}>
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={selected}>
         <span className="inventory-item-card__icon" aria-hidden="true">{item.asset_type === 'CURRENCY' ? '灵' : '物'}</span>
         <span className="content-card__title-row">
           <strong title={describeItemId(item.asset_id)}>{describeItemId(item.asset_id)}</strong>
-          <span className="content-card__status">{item.asset_type === 'CURRENCY' ? '灵石' : '材料'}</span>
+          <span className="content-card__status">{item.asset_type === 'CURRENCY' ? '灵石' : describeInventoryCategory(item.category)}</span>
         </span>
-        <span className="content-card__subtitle">{item.category ?? '未分类'}</span>
+        <span className="content-card__subtitle">{describeInventoryCategory(item.category)}</span>
       </button>
       <p className="content-card__copy">{summarizeInventoryAsset(item)}</p>
       <div className="content-card__actions">
@@ -311,6 +316,22 @@ function ItemCard({
         </button>
       </div>
     </article>
+  );
+}
+
+function DetailSummary({ facts, note }: { readonly facts: ReadonlyArray<readonly [string, string]>; readonly note: string }): ReactElement {
+  return (
+    <div className="content-detail__summary">
+      <div className="content-detail__facts">
+        {facts.map(([label, value]) => (
+          <div key={label} className="content-detail__fact">
+            <span>{label}</span>
+            <strong>{value}</strong>
+          </div>
+        ))}
+      </div>
+      <p className="content-detail__copy">{note}</p>
+    </div>
   );
 }
 
@@ -342,14 +363,15 @@ function ActionDetail({
           <span className="content-card__status">{action.unlocked ? '已解锁' : '锁定中'}</span>
         </div>
       </div>
-      <div className="content-detail__metrics">
-        <NormalStateScreen
-          title={describeActionId(action.action_id)}
-           description={describeUnlockReason(action.unlock_state.reason, action.unlock_state.blockers)}
-          highlight={action.can_add_to_queue ? '可加入队列' : '不可加入队列'}
-          footnote={`每轮 ${formatDurationUs(action.base_duration_us)} · 修为 ${formatCount(action.cultivation_xp)}`}
-        />
-      </div>
+      <DetailSummary
+        facts={[
+          ['状态', action.can_add_to_queue ? '可加入队列' : '不可加入队列'],
+          ['每轮', formatDurationUs(action.base_duration_us)],
+          ['技能经验', formatCount(action.skill_xp)],
+          ['修为经验', formatCount(action.cultivation_xp)],
+        ]}
+        note={describeUnlockReason(action.unlock_state.reason, action.unlock_state.blockers)}
+      />
       <div className="content-detail__section">
         <h4>输入</h4>
         {action.inputs.length === 0 ? <p className="content-detail__copy">无输入材料。</p> : null}
@@ -421,11 +443,14 @@ function RecipeDetail({
           <span className="content-card__status">{recipe.unlocked ? '已解锁' : '锁定中'}</span>
         </div>
       </div>
-      <NormalStateScreen
-        title={describeRecipeId(recipe.recipe_id)}
-        description={describeUnlockReason(recipe.unlock_state.reason, recipe.unlock_state.blockers)}
-        highlight={recipe.can_add_to_queue ? '可加入队列' : '不可加入队列'}
-        footnote={`每轮 ${formatDurationUs(recipe.base_duration_us)} · 熟练度 ${formatCount(recipe.skill_xp)} · 产出 ${formatCount(recipe.result_quantity)}`}
+      <DetailSummary
+        facts={[
+          ['状态', recipe.can_add_to_queue ? '可加入队列' : '不可加入队列'],
+          ['每轮', formatDurationUs(recipe.base_duration_us)],
+          ['熟练度', formatCount(recipe.skill_xp)],
+          ['产出', formatCount(recipe.result_quantity)],
+        ]}
+        note={describeUnlockReason(recipe.unlock_state.reason, recipe.unlock_state.blockers)}
       />
       <div className="content-detail__section">
         <h4>材料</h4>
@@ -488,10 +513,14 @@ function InventoryDetail({
           <p className="content-detail__copy">{describeInventoryCategory(item.category)}</p>
         </div>
       </div>
-      <NormalStateScreen
-        title={describeItemId(item.asset_id)}
-        description={summarizeInventoryAsset(item)}
-        highlight={item.asset_type === 'CURRENCY' ? '货币' : '修行物品'}
+      <DetailSummary
+        facts={[
+          ['类型', item.asset_type === 'CURRENCY' ? '货币' : '修行物品'],
+          ['数量', formatCount(item.quantity)],
+          ['可用', formatCount(item.available_quantity)],
+          ['预留', formatCount(item.reserved_quantity)],
+        ]}
+        note={summarizeInventoryAsset(item)}
       />
       <div className="content-detail__section">
         <h4>来源</h4>
@@ -527,31 +556,34 @@ export function CraftPage(): ReactElement {
   const { progressionQuery, actionsQuery, recipesQuery, queueQuery } = useCraftQueries(session.character_id);
   const params = useMemo(() => parseSearch(location.search), [location.search]);
   const tabParam = params.get('tab');
-  const [activeTab, setActiveTab] = useState<ContentTab>(tabParam === 'recipes' ? 'recipes' : 'actions');
-
-  useEffect(() => {
-    if (tabParam === 'recipes' || tabParam === 'actions') {
-      setActiveTab(tabParam);
-    }
-  }, [tabParam]);
-
   const selectedActionId = params.get('action_id');
   const selectedRecipeId = params.get('recipe_id');
+  const initialTab: ContentTab = tabParam === 'recipes' || selectedRecipeId !== null ? 'recipes' : 'actions';
+  const [activeTab, setActiveTab] = useState<ContentTab>(initialTab);
+  const contentTabRefs = useRef<Partial<Record<ContentTab, HTMLButtonElement | null>>>({});
+
+  useEffect(() => {
+    if (tabParam === 'recipes' || selectedRecipeId !== null) {
+      setActiveTab('recipes');
+    } else if (tabParam === 'actions' || selectedActionId !== null) {
+      setActiveTab('actions');
+    }
+  }, [selectedActionId, selectedRecipeId, tabParam]);
 
   const selectedAction = useMemo(
-    () => actionsQuery.data?.actions.find((entry) => entry.action_id === selectedActionId) ?? actionsQuery.data?.actions[0] ?? null,
+    () => (selectedActionId === null ? null : actionsQuery.data?.actions.find((entry) => entry.action_id === selectedActionId) ?? null),
     [actionsQuery.data?.actions, selectedActionId],
   );
   const selectedRecipe = useMemo(
-    () => recipesQuery.data?.recipes.find((entry) => entry.recipe_id === selectedRecipeId) ?? recipesQuery.data?.recipes[0] ?? null,
+    () => (selectedRecipeId === null ? null : recipesQuery.data?.recipes.find((entry) => entry.recipe_id === selectedRecipeId) ?? null),
     [recipesQuery.data?.recipes, selectedRecipeId],
   );
+  const detailTab: ContentTab = selectedAction !== null ? 'actions' : selectedRecipe !== null ? 'recipes' : activeTab;
 
   const progressionData = progressionQuery.data;
   const actionsData = actionsQuery.data;
   const recipesData = recipesQuery.data;
   const queueData = queueQuery.data;
-  const bestBySkill = useMemo(() => selectBestAction(actionsQuery.data?.actions ?? []), [actionsQuery.data?.actions]);
 
   const handleSelectRoute = (route: ContentRoute) => {
     syncSearch(navigate, location.pathname, location.search, route.route_type === 'ACTION' ? { tab: 'actions', action_id: route.target_id, recipe_id: null } : { tab: 'recipes', recipe_id: route.target_id, action_id: null });
@@ -563,18 +595,16 @@ export function CraftPage(): ReactElement {
     setActiveTab(nextTab);
     syncSearch(navigate, location.pathname, location.search, {
       tab: nextTab,
-      action_id: nextTab === 'actions' ? selectedAction?.action_id ?? null : null,
-      recipe_id: nextTab === 'recipes' ? selectedRecipe?.recipe_id ?? null : null,
+      action_id: null,
+      recipe_id: null,
     });
   };
   const handleTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
-      return;
-    }
-
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && event.key !== 'Home' && event.key !== 'End') return;
     event.preventDefault();
-    const nextTab = nextContentTab(activeTab, event.key === 'ArrowRight' ? 1 : -1);
+    const nextTab = event.key === 'Home' ? 'actions' : event.key === 'End' ? 'recipes' : nextContentTab(activeTab, event.key === 'ArrowRight' ? 1 : -1);
     handleTabChange(nextTab);
+    window.requestAnimationFrame(() => contentTabRefs.current[nextTab]?.focus());
   };
 
   const retryAll = () => {
@@ -586,82 +616,46 @@ export function CraftPage(): ReactElement {
     ]);
   };
 
+  const closeDetails = () => {
+    const withoutAction = clearContentDetailSearch(location.search, 'action_id');
+    navigate({ pathname: location.pathname, search: clearContentDetailSearch(withoutAction, 'recipe_id') });
+  };
+
   if (progressionQuery.isPending || actionsQuery.isPending || recipesQuery.isPending || queueQuery.isPending) {
-    return <ContentLoading title="正在读取百艺内容" description="先读取修为、动作、配方和库存，再渲染行动与配方页面。" />;
+    return <ContentLoading title="正在读取百艺内容" description="正在整理修行技能与炼丹内容，请稍候。" />;
   }
 
   const firstError = progressionQuery.error ?? actionsQuery.error ?? recipesQuery.error ?? queueQuery.error;
   if (firstError !== undefined && firstError !== null) {
     if (firstError instanceof ApiClientError && firstError.status === 503) {
-      return <ContentMaintenance title="百艺维护中" reason={firstError.message} onRetry={retryAll} />;
+      return <ContentMaintenance title="百艺维护中" onRetry={retryAll} />;
     }
 
-    return <ContentError title="百艺读取失败" error={firstError.message} onRetry={retryAll} />;
+    return <ContentError title="百艺读取失败" onRetry={retryAll} />;
   }
 
   if (progressionData === undefined || actionsData === undefined || recipesData === undefined || queueData === undefined) {
-    return <ContentLoading title="正在读取百艺内容" description="先读取修为、动作、配方和库存，再渲染行动与配方页面。" />;
+    return <ContentLoading title="正在读取百艺内容" description="正在整理修行技能与炼丹内容，请稍候。" />;
   }
 
-  const actionCount = actionsData.actions.length;
-  const recipeCount = recipesData.recipes.length;
-  const unlockedActionCount = actionsData.actions.filter((entry) => entry.unlocked).length;
-
   return (
-    <section className="content-layout content-screen">
-      <div className="content-panel content-panel--hero">
-        <div className="content-hero">
-          <div>
-            <p className="page-card__eyebrow">百艺</p>
-            <h3 className="page-card__title">修行技能</h3>
-            <p className="page-card__copy">选择一项技能查看详情，加入挂机后会自动持续修行。</p>
-          </div>
-          <div className="dashboard-metrics">
-            <div className="metric-chip">
-              <span className="metric-chip__label">修行项目</span>
-              <strong className="metric-chip__value" title={formatCount(actionCount)}>
-                {formatCount(actionCount)}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">已掌握</span>
-              <strong className="metric-chip__value" title={formatCount(unlockedActionCount)}>
-                {formatCount(unlockedActionCount)}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">可用配方</span>
-              <strong className="metric-chip__value" title={formatCount(recipeCount)}>
-                {formatCount(recipeCount)}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">当前境界</span>
-              <strong className="metric-chip__value">
-                {describeRealmId(progressionData.cultivation.realm_stage_id)}
-              </strong>
-            </div>
-          </div>
-          <div className="content-hero__skills">
-            {progressionData.skills.map((skill) => (
-              <div key={skill.skill_id} className="content-hero__skill">
-                <strong title={describeSkillId(skill.skill_id)}>{describeSkillId(skill.skill_id)}</strong>
-                <span>
-                  等级 {skill.level} · XP {formatCount(skill.xp)}
-                </span>
-                <span>
-                  最佳行动：{bestBySkill.get(skill.skill_id) === undefined ? '暂无' : describeActionId(bestBySkill.get(skill.skill_id)?.action_id)}
-                </span>
-              </div>
-            ))}
-          </div>
+    <section className="content-layout content-screen content-screen--single content-workbench content-workbench--craft">
+      <header className="content-workbench__header">
+        <div>
+          <p className="page-card__eyebrow">百艺</p>
+          <h3 className="page-card__title">修行技能</h3>
+          <p className="page-card__copy">选择技能或配方，查看真实材料与队列状态。</p>
         </div>
-      </div>
+        <p className="content-workbench__summary">
+          {formatCount(actionsData.actions.length)} 项技能 · {formatCount(actionsData.actions.filter((entry) => entry.unlocked).length)} 项已掌握 · {formatCount(recipesData.recipes.length)} 个配方 · {describeRealmId(progressionData.cultivation.realm_stage_id)}
+        </p>
+      </header>
 
-      <div className="content-panel">
+      <div className="content-panel content-workbench__panel">
         <div className="content-tabs" role="tablist" aria-label="百艺分类" onKeyDown={handleTabKeyDown}>
           <button
             id="content-tab-actions"
+            ref={(element) => { contentTabRefs.current.actions = element; }}
             className={`chip-button ${activeTab === 'actions' ? 'chip-button--active' : ''}`}
             type="button"
             role="tab"
@@ -674,6 +668,7 @@ export function CraftPage(): ReactElement {
           </button>
           <button
             id="content-tab-recipes"
+            ref={(element) => { contentTabRefs.current.recipes = element; }}
             className={`chip-button ${activeTab === 'recipes' ? 'chip-button--active' : ''}`}
             type="button"
             role="tab"
@@ -685,7 +680,7 @@ export function CraftPage(): ReactElement {
             炼丹
           </button>
         </div>
-        <div className="content-list">
+        <div className="content-list content-list--compact">
           {(activeTab === 'actions' ? actionsData.actions : recipesData.recipes).length === 0 ? (
             <EmptyStateScreen title="暂无可见内容" description="当前分类没有内容，或角色未解锁。" />
           ) : null}
@@ -720,24 +715,27 @@ export function CraftPage(): ReactElement {
         </div>
       </div>
 
-      <div className="content-panel">
-        {activeTab === 'actions' ? (
-          selectedAction ? (
-            selectedAction.unlocked ? (
-              <ActionDetail
-                action={selectedAction}
-                queue={queueData}
-                onJoinQueue={() => navigate(joinQueuePath(selectedAction.queue_action_id))}
-                onOpenInventoryItem={handleOpenInventoryItem}
-                onSelectRoute={handleSelectRoute}
-              />
-            ) : (
-               <LockedStateScreen title={describeActionId(selectedAction.action_id)} description={describeUnlockReason(selectedAction.unlock_state.reason, selectedAction.unlock_state.blockers)} />
-            )
+      <GameDialog
+        open={selectedAction !== null || selectedRecipe !== null || (actionsData !== undefined && selectedActionId !== null && selectedAction === null) || (recipesData !== undefined && selectedRecipeId !== null && selectedRecipe === null)}
+        onOpenChange={(open) => {
+          if (!open) closeDetails();
+        }}
+        eyebrow={detailTab === 'actions' ? '行动详情' : '配方详情'}
+        title={selectedActionId !== null && selectedAction === null ? '未找到行动' : selectedRecipeId !== null && selectedRecipe === null ? '未找到配方' : detailTab === 'actions' ? describeActionId(selectedAction?.action_id) : describeRecipeId(selectedRecipe?.recipe_id)}
+      >
+        {selectedActionId !== null && selectedAction === null ? <p className="game-dialog__copy">未找到对应的行动，请从百艺列表重新选择。</p> : selectedRecipeId !== null && selectedRecipe === null ? <p className="game-dialog__copy">未找到对应的配方，请从百艺列表重新选择。</p> : detailTab === 'actions' && selectedAction ? (
+          selectedAction.unlocked ? (
+            <ActionDetail
+              action={selectedAction}
+              queue={queueData}
+              onJoinQueue={() => navigate(joinQueuePath(selectedAction.queue_action_id))}
+              onOpenInventoryItem={handleOpenInventoryItem}
+              onSelectRoute={handleSelectRoute}
+            />
           ) : (
-            <EmptyStateScreen title="未选中行动" description="从左侧选择一个行动查看输入、输出和加入队列入口。" />
+            <LockedStateScreen title={describeActionId(selectedAction.action_id)} description={describeUnlockReason(selectedAction.unlock_state.reason, selectedAction.unlock_state.blockers)} />
           )
-        ) : selectedRecipe ? (
+        ) : detailTab === 'recipes' && selectedRecipe ? (
           selectedRecipe.unlocked ? (
             <RecipeDetail
               recipe={selectedRecipe}
@@ -747,12 +745,10 @@ export function CraftPage(): ReactElement {
               onSelectRoute={handleSelectRoute}
             />
           ) : (
-               <LockedStateScreen title={describeRecipeId(selectedRecipe.recipe_id)} description={describeUnlockReason(selectedRecipe.unlock_state.reason, selectedRecipe.unlock_state.blockers)} />
+            <LockedStateScreen title={describeRecipeId(selectedRecipe.recipe_id)} description={describeUnlockReason(selectedRecipe.unlock_state.reason, selectedRecipe.unlock_state.blockers)} />
           )
-        ) : (
-          <EmptyStateScreen title="未选中配方" description="从左侧选择一个配方查看材料、产物和加入队列入口。" />
-        )}
-      </div>
+        ) : null}
+      </GameDialog>
     </section>
   );
 }
@@ -767,73 +763,48 @@ export function InventoryPage(): ReactElement {
 
   const progressionData = progressionQuery.data;
   const inventoryData = inventoryQuery.data;
-  const selectedItem = useMemo(() => inventoryData?.items.find((item) => item.asset_id === selectedItemId) ?? inventoryData?.items[0] ?? null, [inventoryData?.items, selectedItemId]);
+  const selectedItem = useMemo(() => (selectedItemId === null ? null : inventoryData?.items.find((item) => item.asset_id === selectedItemId) ?? null), [inventoryData?.items, selectedItemId]);
 
   const retryInventory = () => {
     void Promise.all([progressionQuery.refetch(), inventoryQuery.refetch()]);
   };
 
+  const closeDetails = () => {
+    navigate({ pathname: location.pathname, search: clearContentDetailSearch(location.search, 'item_id') });
+  };
+
   if (progressionQuery.isPending || inventoryQuery.isPending) {
-    return <ContentLoading title="正在读取背包" description="先读取库存与角色概况，再渲染背包、来源和用途。" />;
+    return <ContentLoading title="正在读取背包" description="正在整理储藏、来源和用途，请稍候。" />;
   }
 
   const firstError = progressionQuery.error ?? inventoryQuery.error;
   if (firstError !== undefined && firstError !== null) {
     if (firstError instanceof ApiClientError && firstError.status === 503) {
-      return <ContentMaintenance title="背包维护中" reason={firstError.message} onRetry={retryInventory} />;
+      return <ContentMaintenance title="背包维护中" onRetry={retryInventory} />;
     }
 
-    return <ContentError title="背包读取失败" error={firstError.message} onRetry={retryInventory} />;
+    return <ContentError title="背包读取失败" onRetry={retryInventory} />;
   }
 
   if (progressionData === undefined || inventoryData === undefined) {
-    return <ContentLoading title="正在读取背包" description="先读取库存与角色概况，再渲染背包、来源和用途。" />;
+    return <ContentLoading title="正在读取背包" description="正在整理储藏、来源和用途，请稍候。" />;
   }
 
-  const itemCount = inventoryData.items.length;
-  const currencyCount = inventoryData.currencies.length;
-  const equipmentCount = inventoryData.equipment_instances.length;
-
   return (
-    <section className="content-layout">
-      <div className="content-panel content-panel--hero">
-        <div className="content-hero">
-          <div>
-            <p className="page-card__eyebrow">背包</p>
-            <h3 className="page-card__title">洞天储藏</h3>
-            <p className="page-card__copy">收集到的灵石、材料、丹药和装备都会存放在这里。</p>
-          </div>
-          <div className="dashboard-metrics">
-            <div className="metric-chip">
-              <span className="metric-chip__label">物品</span>
-              <strong className="metric-chip__value" title={formatCount(itemCount)}>
-                {formatCount(itemCount)}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">货币</span>
-              <strong className="metric-chip__value" title={formatCount(currencyCount)}>
-                {formatCount(currencyCount)}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">装备</span>
-              <strong className="metric-chip__value" title={formatCount(equipmentCount)}>
-                {formatCount(equipmentCount)}
-              </strong>
-            </div>
-            <div className="metric-chip">
-              <span className="metric-chip__label">总数</span>
-            <strong className="metric-chip__value" title={`总数 ${String(inventoryData.total_count)}`}>
-              {String(inventoryData.total_count)}
-            </strong>
-            </div>
-          </div>
+    <section className="content-layout inventory-screen content-screen--single content-workbench content-workbench--inventory">
+      <header className="content-workbench__header">
+        <div>
+          <p className="page-card__eyebrow">背包</p>
+          <h3 className="page-card__title">洞天储藏</h3>
+          <p className="page-card__copy">查看灵石、材料、丹药和装备的真实数量与用途。</p>
         </div>
-      </div>
+        <p className="content-workbench__summary">
+          {formatCount(inventoryData.items.length)} 件物品 · {formatCount(inventoryData.currencies.length)} 类货币 · {formatCount(inventoryData.equipment_instances.length)} 件装备 · 总计 {formatCount(inventoryData.total_count)}
+        </p>
+      </header>
 
-      <div className="content-panel">
-        <div className="content-list">
+      <div className="content-panel content-workbench__panel">
+        <div className="content-list content-list--compact">
           {inventoryData.items.length === 0 ? <EmptyStateScreen title="背包为空" description="当前没有可展示的库存物品。" /> : null}
           {inventoryData.items.map((item) => (
             <ItemCard
@@ -846,13 +817,21 @@ export function InventoryPage(): ReactElement {
         </div>
       </div>
 
-      <div className="content-panel">
-        {selectedItem ? (
-          <InventoryDetail item={selectedItem} onSelectRoute={(route) => syncSearch(navigate, '/craft', '', route.route_type === 'ACTION' ? { tab: 'actions', action_id: route.target_id, recipe_id: null } : { tab: 'recipes', recipe_id: route.target_id, action_id: null })} />
-        ) : (
-          <EmptyStateScreen title="未选中物品" description="选择一个库存条目查看来源和用途。" />
-        )}
-      </div>
+      <GameDialog
+        open={selectedItem !== null || (inventoryData !== undefined && selectedItemId !== null && selectedItem === null)}
+        onOpenChange={(open) => {
+          if (!open) closeDetails();
+        }}
+        eyebrow="背包详情"
+        title={selectedItemId !== null && selectedItem === null ? '未找到物品' : describeItemId(selectedItem?.asset_id)}
+      >
+        {selectedItemId !== null && selectedItem === null ? <p className="game-dialog__copy">未找到对应的修行物品，请从背包列表重新选择。</p> : selectedItem ? (
+          <InventoryDetail
+            item={selectedItem}
+            onSelectRoute={(route) => syncSearch(navigate, '/craft', '', route.route_type === 'ACTION' ? { tab: 'actions', action_id: route.target_id, recipe_id: null } : { tab: 'recipes', recipe_id: route.target_id, action_id: null })}
+          />
+        ) : null}
+      </GameDialog>
     </section>
   );
 }

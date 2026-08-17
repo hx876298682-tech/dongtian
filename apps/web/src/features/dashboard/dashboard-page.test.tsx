@@ -1,13 +1,54 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { ApiClientError } from '@dongtian/contracts';
+import { ApiClientError, type ActionCatalogEntry } from '@dongtian/contracts';
 
-import { DashboardError, DashboardLoading, QueuePreviewCard, SettlementSummaryCard, TaskStatusDialog, RewardStatusDialog, formatPlayerDashboardError, selectCurrentTask } from './dashboard-page.js';
+import { buildQueueActionOptions, DashboardError, DashboardLoading, QueuePreviewCard, SettlementSummaryCard, TaskStatusDialog, RewardStatusDialog, formatPlayerDashboardError, selectCurrentTask } from './dashboard-page.js';
 import { buildLatestSettlementView } from './dashboard-adapter.js';
-import { createQueueEditorState } from './queue-editor.js';
+import { createQueueEditorDraft, createQueueEditorEntryDraft, createQueueEditorState, createQueuePlanRequest } from './queue-editor.js';
 import dashboardSource from './dashboard-page.tsx?raw';
 
 describe('dashboard page components', () => {
+  it('builds Chinese queue task options from the content catalog without exposing action IDs as labels', () => {
+    const actions = [
+      {
+        action_id: 'action.t1.herb_baicao_valley',
+        queue_action_id: 'action.t1.herb_baicao_valley',
+        can_add_to_queue: true,
+        enabled: true,
+        unlocked: true,
+      },
+      {
+        action_id: 'action.t1.locked',
+        queue_action_id: 'action.t1.locked',
+        can_add_to_queue: false,
+        enabled: true,
+        unlocked: false,
+      },
+    ] as ActionCatalogEntry[];
+
+    expect(buildQueueActionOptions(actions, 'action.t1.herb_baicao_valley')).toEqual([
+      { value: 'action.t1.herb_baicao_valley', label: '采药' },
+    ]);
+  });
+
+  it('keeps the catalog canonical action ID in the queue plan request after selection', () => {
+    const selected = buildQueueActionOptions([
+      {
+        action_id: 'action.t1.qi_gathering_pill',
+        queue_action_id: 'action.t1.qi_gathering_pill',
+        can_add_to_queue: true,
+        enabled: true,
+        unlocked: true,
+      },
+    ] as ActionCatalogEntry[], 'action.t1.qi_gathering_pill')[0];
+    if (selected === undefined) {
+      throw new Error('expected a selectable catalog action');
+    }
+    const draft = createQueueEditorDraft('7', [createQueueEditorEntryDraft('entry-1', { actionId: selected.value })]);
+
+    expect(createQueuePlanRequest(draft).entries[0]?.action_id).toBe('action.t1.qi_gathering_pill');
+  });
+
   it('keeps right-rail draft copy in player language', () => {
     expect(dashboardSource).not.toContain('先预览再保存；保存、暂停、恢复都需要幂等键。');
     expect(dashboardSource).not.toContain('CSRF');
@@ -117,6 +158,48 @@ describe('dashboard page components', () => {
     expect(readyMarkup).not.toContain('7200000');
     expect(readyMarkup).not.toContain('1800000');
     expect(readyMarkup).not.toContain('只读持久化摘要');
+  });
+
+  it('keeps the activity timeline compact when a long offline settlement is returned', () => {
+    const timeline = Array.from({ length: 8 }, (_, index) => ({
+      segment_index: index,
+      queue_entry_id: `entry-${index}`,
+      action_config_id: 'action.cultivation.qi',
+      from_at: '2026-08-16T00:00:00.000Z',
+      to_at: '2026-08-16T01:00:00.000Z',
+      completed_cycles: '60',
+      inputs: [],
+      outputs: [],
+      xp_changes: [],
+      transition_reason: 'ACTION_SWITCH',
+      snapshot: {},
+    }));
+    const markup = renderToStaticMarkup(
+      <SettlementSummaryCard
+        view={buildLatestSettlementView({
+          settlement: {
+            settlement_id: 'settlement-long',
+            character_id: 'character-1',
+            as_of: '2026-08-16T02:00:06.000Z',
+            from_at: '2026-08-16T00:00:00.000Z',
+            requested_until: '2026-08-16T02:30:00.000Z',
+            effective_until: '2026-08-16T02:00:00.000Z',
+            effective_time_us: '7200000',
+            capped_time_us: '0',
+            continuation_required: false,
+            status: 'COMPLETED',
+            summary: { status: 'COMPLETED' },
+            rewards: { cultivation_xp: '2.5', skill_xp: '1.0', items: [] },
+            timeline,
+            ledger_entries: [],
+          },
+        })}
+        onRefresh={() => undefined}
+      />,
+    );
+
+    expect(markup.match(/<li>/g)?.length).toBe(7);
+    expect(markup).toContain('还有 3 条记录');
   });
 
   it('renders task status details and reward status in explicit dialogs', () => {
