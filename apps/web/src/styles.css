@@ -1315,6 +1315,13 @@ select {
   background: rgba(255, 255, 255, 0.72);
 }
 
+.idle-progress--top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  box-shadow: 0 8px 18px rgba(28, 53, 45, 0.08);
+}
+
 .idle-progress__header,
 .idle-progress__footer {
   display: flex;
