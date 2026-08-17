@@ -12,3 +12,5 @@ test-results/
 !.env.example
 *.tsbuildinfo
 .DS_Store
+.local-api.log
+.local-web.log
