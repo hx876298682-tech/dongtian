@@ -61,6 +61,8 @@ docs/            GDD、PRD、架构、测试与开发记录
 
 ## 本地启动
 
+macOS 测试者可以直接双击仓库根目录的 [`启动洞天.command`](启动洞天.command)。它会检查本机 PostgreSQL、准备 `dongtian` 数据库、执行迁移和种子，然后启动 API/Web 并打开浏览器。体验结束后回到终端按任意键停止本次启动的服务。
+
 ```bash
 pnpm install
 pnpm infra:up
