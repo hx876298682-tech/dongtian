@@ -41,6 +41,34 @@ export function describeRecipeId(id: string | null | undefined): string {
   return id === null || id === undefined || id.length === 0 ? '未知配方' : ID_LABELS[id] ?? id;
 }
 
+export function describeActionDescription(id: string | null | undefined): string {
+  switch (id) {
+    case 'action.cultivation.qi':
+      return '吸收洞天灵气，稳定积累修为。';
+    case 'action.t1.herb_baicao_valley':
+      return '采集青灵草，为炼丹准备材料。';
+    case 'action.t1.qi_gathering_powder':
+      return '炼制聚气散，提升炼丹熟练度。';
+    case 'action.t1.qi_gathering_pill':
+      return '炼制聚气丹，材料不足时会自动停下。';
+    default:
+      return '完成这项修行后获得对应的技能经验与产出。';
+  }
+}
+
+export function describeRecipeDescription(id: string | null | undefined): string {
+  switch (id) {
+    case 'recipe.t1.qi_gathering_pill':
+      return '以青灵草炼制聚气丹，适合前期积累丹药。';
+    case 'recipe.t1.foundation_pill':
+      return '炼制筑基丹，为突破下一个境界做准备。';
+    case 'recipe.t1.meridian_pill':
+      return '炼制护脉丹，降低突破时的风险。';
+    default:
+      return '准备材料后即可加入挂机计划。';
+  }
+}
+
 function toFiniteNumber(value: string | number | null | undefined): number | null {
   if (value === null || value === undefined || value === '') {
     return null;

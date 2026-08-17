@@ -27,8 +27,10 @@ import { apiClient } from '../../lib/api.js';
 import {
   describeRoute,
   describeActionId,
+  describeActionDescription,
   describeItemId,
   describeRecipeId,
+  describeRecipeDescription,
   describeSkillId,
   formatActionRate,
   formatCount,
@@ -211,16 +213,16 @@ function ActionCard({
           {isRunning ? <span className="content-card__status">执行中</span> : null}
           {entry.unlocked ? <span className="content-card__status">可用</span> : <span className="content-card__status content-card__status--locked">锁定</span>}
         </span>
-        <span className="content-card__subtitle">{entry.name_key}</span>
+        <span className="content-card__subtitle">{describeActionDescription(entry.action_id)}</span>
       </button>
-      <p className="content-card__copy">{entry.description_key ?? '无描述键'}</p>
+      <p className="content-card__copy">{describeActionDescription(entry.action_id)}</p>
       <div className="content-card__meta">
         <span>耗时 {formatDurationUs(entry.base_duration_us)}</span>
         <span>技能 XP {formatCount(entry.skill_xp)}</span>
         <span>修为 XP {formatCount(entry.cultivation_xp)}</span>
         <span>每小时 {formatActionRate(entry)}</span>
       </div>
-      <div className="content-card__copy">{entry.unlock_state.reason}</div>
+      {!entry.unlocked ? <div className="content-card__copy">{entry.unlock_state.reason}</div> : null}
       <div className="content-card__actions">
         <button className="ghost-button ghost-button--compact" type="button" onClick={onOpen}>
           查看详情
@@ -254,16 +256,16 @@ function RecipeCard({
           {isRunning ? <span className="content-card__status">执行中</span> : null}
           {entry.unlocked ? <span className="content-card__status">可用</span> : <span className="content-card__status content-card__status--locked">锁定</span>}
         </span>
-        <span className="content-card__subtitle">{entry.name_key}</span>
+        <span className="content-card__subtitle">{describeRecipeDescription(entry.recipe_id)}</span>
       </button>
-      <p className="content-card__copy">{entry.description_key ?? '无描述键'}</p>
+      <p className="content-card__copy">{describeRecipeDescription(entry.recipe_id)}</p>
       <div className="content-card__meta">
         <span>耗时 {formatDurationUs(entry.base_duration_us)}</span>
         <span>技能 XP {formatCount(entry.skill_xp)}</span>
         <span>结果 {formatCount(entry.result_quantity)}</span>
         <span>每小时 {formatRecipeRate(entry)}</span>
       </div>
-      <div className="content-card__copy">{entry.unlock_state.reason}</div>
+      {!entry.unlocked ? <div className="content-card__copy">{entry.unlock_state.reason}</div> : null}
       <div className="content-card__actions">
         <button className="ghost-button ghost-button--compact" type="button" onClick={onOpen}>
           查看详情
@@ -286,11 +288,12 @@ function ItemCard({
   readonly onOpen: () => void;
 }): ReactElement {
   return (
-    <article className={`content-card ${selected ? 'content-card--selected' : ''}`}>
+    <article className={`content-card inventory-item-card ${selected ? 'content-card--selected' : ''}`}>
       <button className="content-card__title-button" type="button" onClick={onOpen} aria-pressed={selected}>
+        <span className="inventory-item-card__icon" aria-hidden="true">{item.asset_type === 'CURRENCY' ? '灵' : '物'}</span>
         <span className="content-card__title-row">
           <strong title={item.asset_id}>{describeItemId(item.asset_id)}</strong>
-          <span className="content-card__status">{item.asset_type}</span>
+          <span className="content-card__status">{item.asset_type === 'CURRENCY' ? '灵石' : '材料'}</span>
         </span>
         <span className="content-card__subtitle">{item.category ?? '未分类'}</span>
       </button>
@@ -325,7 +328,7 @@ function ActionDetail({
         <div>
           <p className="page-card__eyebrow">行动详情</p>
           <h3 className="content-detail__title">{action.name_key}</h3>
-          <p className="content-detail__copy">{action.description_key ?? action.unlock_state.reason}</p>
+          <p className="content-detail__copy">{describeActionDescription(action.action_id)}</p>
         </div>
         <div className="content-detail__badges">
           <span className="content-card__status">{statusLabel}</span>
@@ -337,7 +340,7 @@ function ActionDetail({
           title={describeActionId(action.action_id)}
           description={action.unlock_state.reason}
           highlight={action.can_add_to_queue ? '可加入队列' : '不可加入队列'}
-          footnote={`耗时 ${formatDurationUs(action.base_duration_us)} · 技能 XP ${formatCount(action.skill_xp)} · 修为 XP ${formatCount(action.cultivation_xp)}`}
+          footnote={`每轮 ${formatDurationUs(action.base_duration_us)} · 修为 ${formatCount(action.cultivation_xp)}`}
         />
       </div>
       <div className="content-detail__section">
@@ -404,7 +407,7 @@ function RecipeDetail({
         <div>
           <p className="page-card__eyebrow">配方详情</p>
           <h3 className="content-detail__title" title={recipe.recipe_id}>{describeRecipeId(recipe.recipe_id)}</h3>
-          <p className="content-detail__copy">{recipe.description_key ?? recipe.unlock_state.reason}</p>
+          <p className="content-detail__copy">{describeRecipeDescription(recipe.recipe_id)}</p>
         </div>
         <div className="content-detail__badges">
           <span className="content-card__status">{statusLabel}</span>
@@ -415,7 +418,7 @@ function RecipeDetail({
         title={recipe.name_key}
         description={recipe.unlock_state.reason}
         highlight={recipe.can_add_to_queue ? '可加入队列' : '不可加入队列'}
-        footnote={`配方 ${recipe.recipe_id} · 耗时 ${formatDurationUs(recipe.base_duration_us)} · 技能 XP ${formatCount(recipe.skill_xp)} · 结果 ${formatCount(recipe.result_quantity)}`}
+        footnote={`每轮 ${formatDurationUs(recipe.base_duration_us)} · 熟练度 ${formatCount(recipe.skill_xp)} · 产出 ${formatCount(recipe.result_quantity)}`}
       />
       <div className="content-detail__section">
         <h4>材料</h4>
@@ -596,39 +599,37 @@ export function CraftPage(): ReactElement {
   const unlockedActionCount = actionsData.actions.filter((entry) => entry.unlocked).length;
 
   return (
-    <section className="content-layout">
+    <section className="content-layout content-screen">
       <div className="content-panel content-panel--hero">
         <div className="content-hero">
           <div>
             <p className="page-card__eyebrow">百艺</p>
-            <h3 className="page-card__title">行动、配方与背包来源在同一条权威链路里</h3>
-            <p className="page-card__copy">
-              当前只展示服务端返回的可见内容、锁定原因、输入输出、耗时和技能 XP，不显示价格、市场或 NPC 交易。
-            </p>
+            <h3 className="page-card__title">修行技能</h3>
+            <p className="page-card__copy">选择一项技能查看详情，加入挂机后会自动持续修行。</p>
           </div>
           <div className="dashboard-metrics">
             <div className="metric-chip">
-              <span className="metric-chip__label">可见行动</span>
+              <span className="metric-chip__label">修行项目</span>
               <strong className="metric-chip__value" title={formatCount(actionCount)}>
                 {formatCount(actionCount)}
               </strong>
             </div>
             <div className="metric-chip">
-              <span className="metric-chip__label">已解锁</span>
+              <span className="metric-chip__label">已掌握</span>
               <strong className="metric-chip__value" title={formatCount(unlockedActionCount)}>
                 {formatCount(unlockedActionCount)}
               </strong>
             </div>
             <div className="metric-chip">
-              <span className="metric-chip__label">配方</span>
+              <span className="metric-chip__label">可用配方</span>
               <strong className="metric-chip__value" title={formatCount(recipeCount)}>
                 {formatCount(recipeCount)}
               </strong>
             </div>
             <div className="metric-chip">
-              <span className="metric-chip__label">队列版本</span>
-              <strong className="metric-chip__value" title={`队列版本 ${String(queueQuery.data?.queue_version ?? '0')}`}>
-                {String(queueQuery.data?.queue_version ?? '0')}
+              <span className="metric-chip__label">当前境界</span>
+              <strong className="metric-chip__value">
+                {progressionData.cultivation.realm_stage_id === 'realm.mortal.entry' ? '炼气入门' : progressionData.cultivation.realm_stage_id.replace('realm.', '')}
               </strong>
             </div>
           </div>
@@ -660,7 +661,7 @@ export function CraftPage(): ReactElement {
             tabIndex={activeTab === 'actions' ? 0 : -1}
             onClick={() => setActiveTab('actions')}
           >
-            行动
+            技能
           </button>
           <button
             id="content-tab-recipes"
@@ -672,7 +673,7 @@ export function CraftPage(): ReactElement {
             tabIndex={activeTab === 'recipes' ? 0 : -1}
             onClick={() => setActiveTab('recipes')}
           >
-            配方
+            炼丹
           </button>
         </div>
         <div className="content-list">
@@ -790,8 +791,8 @@ export function InventoryPage(): ReactElement {
         <div className="content-hero">
           <div>
             <p className="page-card__eyebrow">背包</p>
-            <h3 className="page-card__title">权威库存、预留和可用数量</h3>
-            <p className="page-card__copy">只展示来自服务端的 quantity / reserved / available，以及对应的来源和用途路线。</p>
+            <h3 className="page-card__title">洞天储藏</h3>
+            <p className="page-card__copy">收集到的灵石、材料、丹药和装备都会存放在这里。</p>
           </div>
           <div className="dashboard-metrics">
             <div className="metric-chip">

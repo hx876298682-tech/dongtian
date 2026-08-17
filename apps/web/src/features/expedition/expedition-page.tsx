@@ -39,7 +39,11 @@ import {
 
 const EXPEDITION_QUERY_PREFIX = 'expedition';
 
-export const EXPEDITION_PRESET_GUIDANCE = '装备预设需要先在角色页选择；策略 safe 已为新手默认，可直接预览。';
+export const EXPEDITION_PRESET_GUIDANCE = '先在角色页准备一套装备；新手可以直接使用稳妥探险。';
+
+function describeStrategy(strategyId: string): string {
+  return strategyId === 'strategy.safe' ? '稳妥探险' : strategyId === 'strategy.risk' ? '大胆探险' : '默认策略';
+}
 
 function createIdempotencyKey(): string {
   return typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
@@ -71,24 +75,6 @@ function syncSearch(
     return;
   }
   navigate({ pathname, search: nextSearch }, { replace: true });
-}
-
-function formatDateTime(value: string | null | undefined): string {
-  if (typeof value !== 'string' || value.length === 0) {
-    return '待同步';
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat('zh-CN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    hour12: false,
-    timeZone: 'Asia/Shanghai',
-  }).format(date);
 }
 
 function formatRelativeCountdown(targetAt: string | null | undefined, now = new Date()): string {
@@ -182,13 +168,13 @@ export function ExpeditionLoading(): ReactElement {
   return (
     <section className="expedition-layout">
       <div className="expedition-panel expedition-panel--hero">
-        <LoadingStateScreen title="正在读取青蛇洞权威快照" description="先拉取机会、修为、库存和运行状态，再渲染准备页与运行页。" />
+        <LoadingStateScreen title="正在查看青蛇洞" description="正在准备秘境、修为和背包信息。" />
       </div>
       <div className="expedition-panel">
-        <LoadingStateScreen title="准备页" description="等待预设、机会和预览数据。" />
+        <LoadingStateScreen title="准备进入秘境" description="正在读取装备和路线。" />
       </div>
       <div className="expedition-panel">
-        <LoadingStateScreen title="运行页" description="等待 run_id 恢复或新建入场。" />
+        <LoadingStateScreen title="正在恢复秘境进度" description="正在找回上次的探险状态。" />
       </div>
     </section>
   );
@@ -198,7 +184,7 @@ export function ExpeditionError({ error, onRetry }: { readonly error: string; re
   return (
     <section className="expedition-layout">
       <div className="expedition-panel expedition-panel--hero">
-        <LocalErrorStateScreen title="秘境页读取失败" description="权威快照读取失败，已保留本地草稿。" actions={[{ label: '重试', onClick: onRetry }]} footnote={error} />
+        <LocalErrorStateScreen title="秘境暂时无法打开" description="探险数据读取失败，已保留你的准备内容。" actions={[{ label: '重试', onClick: onRetry }]} footnote={error} />
       </div>
       <div className="expedition-panel">
         <EmptyStateScreen title="准备页" description="读取失败时不展示伪造的秘境数据。" />
@@ -317,7 +303,7 @@ function ExpeditionPrepareCard({
         </div>
         <div className="dashboard-panel__meta">
           <span>{opportunityView.grantLine}</span>
-          <span>机会只读展示，提交仍走服务端校验</span>
+          <span>今日探险次数</span>
         </div>
       </div>
 
@@ -332,7 +318,7 @@ function ExpeditionPrepareCard({
 
       <div className="expedition-form">
         <label className="equipment-form__field">
-          <span className="equipment-form__label" id="loadout_preset_id-label">装备预设 ID</span>
+          <span className="equipment-form__label" id="loadout_preset_id-label">出战装备</span>
           <input
             id="loadout_preset_id"
             aria-labelledby="loadout_preset_id-label"
@@ -340,11 +326,11 @@ function ExpeditionPrepareCard({
             type="text"
             value={draftLoadoutPresetId}
             onChange={(event) => onLoadoutPresetIdChange(event.target.value)}
-            placeholder="从角色页复制已保存的预设 ID"
+            placeholder="输入装备组合名称"
           />
         </label>
         <label className="equipment-form__field">
-          <span className="equipment-form__label" id="strategy_preset_id-label">策略预设 ID</span>
+          <span className="equipment-form__label" id="strategy_preset_id-label">战斗策略</span>
           <input
             id="strategy_preset_id"
             aria-labelledby="strategy_preset_id-label"
@@ -352,11 +338,11 @@ function ExpeditionPrepareCard({
             type="text"
             value={draftStrategyPresetId}
             onChange={(event) => onStrategyPresetIdChange(event.target.value)}
-            placeholder="默认 strategy.safe"
+            placeholder="例如：稳妥探险"
           />
         </label>
         <label className="equipment-form__field">
-          <span className="equipment-form__label" id="initial_route_id-label">initial_route_id</span>
+          <span className="equipment-form__label" id="initial_route_id-label">进入路线</span>
           <select id="initial_route_id" aria-labelledby="initial_route_id-label" className="equipment-form__input" value={draftInitialRouteId} onChange={(event) => onInitialRouteIdChange(event.target.value)}>
             <option value={QINGSHE_SAFE_ROUTE_ID}>左侧矿脉 / 安全</option>
             <option value={QINGSHE_HIGH_RISK_ROUTE_ID}>右侧妖巢 / 高风险</option>
@@ -366,7 +352,7 @@ function ExpeditionPrepareCard({
           <span className="equipment-form__label">当前预设</span>
           <div className="expedition-inline-note">
             <strong>{loadoutPreset === null ? '未加载' : loadoutPreset.name}</strong>
-            <span>{loadoutPreset === null ? EXPEDITION_PRESET_GUIDANCE : `策略 ${loadoutPreset.strategy_id} · 版本 ${loadoutPreset.version}`}</span>
+            <span>{loadoutPreset === null ? EXPEDITION_PRESET_GUIDANCE : `战斗策略：${describeStrategy(loadoutPreset.strategy_id)}`}</span>
           </div>
         </div>
       </div>
@@ -376,21 +362,21 @@ function ExpeditionPrepareCard({
         <button className="ghost-button" type="button" onClick={onClaimGrant}>
           领取教学赠送
         </button>
-        <button className="ghost-button" type="button" onClick={onPreview} disabled={!canPreview || previewPending}>
-          {previewPending ? '预览中…' : '预览'}
+          <button className="ghost-button" type="button" onClick={onPreview} disabled={!canPreview || previewPending}>
+          {previewPending ? '查看路线中…' : '查看路线'}
         </button>
         <button className="ghost-button" type="button" onClick={onEnter} disabled={!canEnter || enterPending}>
-          {enterPending ? '入场中…' : '消耗 1 次机会进入'}
+          {enterPending ? '进入中…' : '开始探险'}
         </button>
       </div>
 
       {previewError !== null ? <p className="form-error" role="alert">预览失败：{previewError}</p> : null}
 
       {previewView === null ? (
-        <EmptyStateScreen title="尚未生成预览" description="先填写预设并点击预览，服务端会返回推荐战力、成功率和路线。" />
+        <EmptyStateScreen title="还没有选择路线" description="选择装备和路线后，可以先查看这次探险的风险与收获。" />
       ) : (
         <div className="expedition-preview">
-          <NormalStateScreen title={previewView.summary} description="预览只读，不决定掉落或胜负。" highlight="服务端预览" />
+          <NormalStateScreen title={previewView.summary} description="这里会展示可能遇到的战斗和收获。" highlight="路线预览" />
           <div className="expedition-facts">
             {previewView.facts.map((fact) => (
               <div key={fact.label} className="expedition-fact">
@@ -476,12 +462,12 @@ function ExpeditionRuntimeCard({
           <h4 className="dashboard-panel__title">{runView.headline}</h4>
         </div>
         <div className="dashboard-panel__meta">
-          <span>{run.run_id}</span>
-          <span>{timedOut ? '已超时，等待服务端恢复' : formatRelativeCountdown(run.choice_deadline_at)}</span>
+          <span>探险进行中</span>
+          <span>{timedOut ? '时间到，正在整理结果' : formatRelativeCountdown(run.choice_deadline_at)}</span>
         </div>
       </div>
 
-      <NormalStateScreen title={runView.description} description="客户端只负责展示、刷新和提交选择。" highlight={run.phase} />
+      <NormalStateScreen title={runView.description} description="选择下一步行动，完成这次秘境探险。" highlight="探险中" />
 
       <div className="expedition-facts">
         {runView.facts.map((fact) => (
@@ -785,9 +771,9 @@ export function ExpeditionPage(): ReactElement {
       <div className="expedition-panel expedition-panel--hero">
         <NormalStateScreen
           title="青蛇洞秘境"
-          description="准备、入场、断线恢复、超时与结算都由服务端权威推进。"
+          description="选择装备和路线，深入青蛇洞寻找修炼资源。"
           highlight={`机会 ${opportunityQuery.data?.opportunity.current_opportunities ?? 0}/${opportunityQuery.data?.opportunity.opportunity_cap ?? 0}`}
-          footnote={`当前 run_id ${activeRunId ?? '无'} · 校验时间 ${formatDateTime(opportunityQuery.data?.calculation_as_of)}`}
+          footnote={`今日可探险 ${opportunityQuery.data?.opportunity.current_opportunities ?? 0} 次`}
         />
       </div>
 

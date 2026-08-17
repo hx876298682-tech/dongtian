@@ -758,15 +758,13 @@ export function CharacterEquipmentPage(): ReactElement {
   const selectedAssignment = getSelectedInstanceAssignment(selectedInstanceId, currentPreset);
 
   return (
-    <section className="equipment-layout">
+    <section className="equipment-layout character-screen">
       <div className="equipment-panel equipment-panel--hero">
         <div className="equipment-hero">
           <div>
             <p className="page-card__eyebrow">角色</p>
-            <h3 className="page-card__title">装备实例、预设和比较都只依赖权威读写</h3>
-            <p className="page-card__copy">
-              当前页只负责展示、编辑和提交预设；不会本地修改当前战斗、资产或下周期结果。保存和启用都带幂等键，启用会明确标注下周期生效。
-            </p>
+            <h3 className="page-card__title">角色装备</h3>
+            <p className="page-card__copy">整理法器、护具和饰品，选择一套装备方案用于下一轮修行。</p>
           </div>
           <div className="dashboard-metrics">
             <div className="metric-chip">
@@ -796,12 +794,12 @@ export function CharacterEquipmentPage(): ReactElement {
           </div>
           <div className="equipment-hero__controls">
             <label className="equipment-form__field">
-              <span className="equipment-form__label">preset_id</span>
-              <input className="equipment-form__input" value={presetInput} onChange={(event) => setPresetInput(event.target.value)} placeholder="preset-uuid" />
+                <span className="equipment-form__label">装备方案</span>
+                <input className="equipment-form__input" value={presetInput} onChange={(event) => setPresetInput(event.target.value)} placeholder="输入方案编号" />
             </label>
             <label className="equipment-form__field">
-              <span className="equipment-form__label">compare_preset_id</span>
-              <input className="equipment-form__input" value={comparePresetInput} onChange={(event) => setComparePresetInput(event.target.value)} placeholder="compare-uuid" />
+                <span className="equipment-form__label">对比方案</span>
+                <input className="equipment-form__input" value={comparePresetInput} onChange={(event) => setComparePresetInput(event.target.value)} placeholder="输入对比方案" />
             </label>
             <div className="equipment-hero__actions">
               <button

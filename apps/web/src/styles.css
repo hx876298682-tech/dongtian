@@ -1722,6 +1722,255 @@ select {
   color: var(--muted);
 }
 
+/* Inventory and character surfaces use a compact game-inventory treatment. */
+.inventory-screen {
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.72fr);
+  gap: 10px;
+}
+
+.inventory-screen .content-panel,
+.character-screen .equipment-panel {
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+}
+
+.inventory-screen .content-panel--hero,
+.character-screen .equipment-panel--hero {
+  grid-column: 1 / -1;
+  padding: 14px 16px;
+}
+
+.inventory-screen .content-hero,
+.character-screen .equipment-hero {
+  gap: 10px;
+}
+
+.inventory-screen .content-hero .page-card__title,
+.character-screen .equipment-hero .page-card__title {
+  margin: 2px 0 0;
+  font-size: 20px;
+}
+
+.inventory-screen .content-hero .page-card__copy,
+.character-screen .equipment-hero .page-card__copy {
+  font-size: 13px;
+}
+
+.inventory-screen .dashboard-metrics,
+.character-screen .dashboard-metrics {
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+.inventory-screen .metric-chip,
+.character-screen .metric-chip {
+  min-height: 44px;
+  padding: 7px 9px;
+  border-radius: 6px;
+}
+
+.inventory-screen .content-panel:nth-child(2) {
+  min-width: 0;
+}
+
+.inventory-screen .content-panel:nth-child(2) .content-list {
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  max-height: min(52vh, 520px);
+  overflow: auto;
+  align-content: start;
+}
+
+.inventory-screen .content-tabs {
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.inventory-screen .content-card {
+  min-width: 0;
+  min-height: 126px;
+  padding: 9px;
+  gap: 7px;
+  border-radius: 6px;
+  background: rgba(30, 41, 59, 0.78);
+}
+
+.inventory-screen .content-card__title-button {
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 7px;
+}
+
+.inventory-screen .inventory-item-card__icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 6px;
+  background: linear-gradient(145deg, rgba(34, 197, 94, 0.22), rgba(15, 23, 42, 0.9));
+  color: #86efac;
+  font-weight: 800;
+}
+
+.inventory-screen .content-card__title-row {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.inventory-screen .content-card__title-row strong,
+.inventory-screen .content-card__subtitle,
+.inventory-screen .content-card__copy {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inventory-screen .content-card__status {
+  width: fit-content;
+  min-height: 18px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.inventory-screen .content-card__copy {
+  font-size: 12px;
+}
+
+.inventory-screen .content-card__actions {
+  margin-top: auto;
+}
+
+.inventory-screen .content-card__actions .ghost-button {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.inventory-screen .content-panel:last-child {
+  min-width: 0;
+  max-height: min(62vh, 640px);
+  overflow: auto;
+}
+
+.inventory-screen .content-detail {
+  gap: 10px;
+}
+
+.inventory-screen .content-detail__title {
+  font-size: 19px;
+}
+
+.inventory-screen .content-stack {
+  padding: 9px 10px;
+  border-radius: 6px;
+}
+
+.character-screen {
+  grid-template-columns: minmax(0, 1.35fr) minmax(250px, 0.8fr);
+  gap: 10px;
+}
+
+.character-screen .equipment-panel:nth-child(2) {
+  grid-column: 1;
+  grid-row: 2 / span 2;
+  min-height: 0;
+}
+
+.character-screen .equipment-panel:nth-child(3) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.character-screen .equipment-panel:nth-child(4) {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.character-screen .equipment-panel:nth-child(5) {
+  grid-column: 1 / -1;
+}
+
+.character-screen .equipment-panel:nth-child(6) {
+  grid-column: 1 / -1;
+}
+
+.character-screen .equipment-list {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  max-height: min(57vh, 600px);
+  overflow: auto;
+  align-content: start;
+}
+
+.character-screen .equipment-instance,
+.character-screen .equipment-slot,
+.character-screen .equipment-compare__row,
+.character-screen .tempering-ladder__row {
+  min-width: 0;
+  padding: 10px;
+  gap: 7px;
+  border-radius: 6px;
+  background: rgba(30, 41, 59, 0.78);
+}
+
+.character-screen .equipment-instance__subtitle,
+.character-screen .equipment-instance__copy {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.character-screen .equipment-instance__meta {
+  gap: 4px;
+}
+
+.character-screen .equipment-chip {
+  min-height: 18px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.character-screen .equipment-instance__actions,
+.character-screen .equipment-editor__actions {
+  gap: 5px;
+}
+
+.character-screen .equipment-instance__actions .chip-button,
+.character-screen .equipment-editor__actions .ghost-button {
+  padding: 5px 7px;
+  border-radius: 5px;
+  font-size: 11px;
+}
+
+.character-screen .equipment-form,
+.character-screen .equipment-filterbar {
+  gap: 7px;
+}
+
+.character-screen .equipment-form__input {
+  padding: 7px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .inventory-screen,
+  .character-screen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .character-screen .equipment-panel:nth-child(n) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
 .queue-editor__input {
   padding: 10px 12px;
   border-radius: 14px;
@@ -2322,6 +2571,169 @@ select {
 
 .breakthrough-commit-list span {
   color: var(--muted);
+}
+
+/* Game-like skill and advancement panels: compact rows, persistent selection,
+   and clear separation between the list and the selected detail. */
+.content-layout {
+  grid-template-columns: minmax(300px, 0.92fr) minmax(0, 1.35fr);
+  gap: 10px;
+}
+
+.content-panel {
+  padding: 14px;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.content-panel--hero {
+  padding: 16px 18px;
+  border-radius: 8px;
+}
+
+.content-hero {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 20px;
+}
+
+.content-hero__skills {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.content-hero__skill,
+.content-card,
+.content-stack {
+  border-radius: 6px;
+  background: rgba(2, 6, 23, 0.48);
+}
+
+.content-hero__skill {
+  padding: 9px 11px;
+}
+
+.content-tabs {
+  margin: -2px -2px 12px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(2, 6, 23, 0.42);
+}
+
+.content-tabs .chip-button {
+  min-width: 92px;
+  border-radius: 4px;
+}
+
+.content-card {
+  gap: 7px;
+  padding: 11px 12px;
+}
+
+.content-card--selected {
+  border-color: rgba(34, 197, 94, 0.75);
+  box-shadow: inset 3px 0 0 rgba(34, 197, 94, 0.85);
+}
+
+.content-card__title-row {
+  justify-content: space-between;
+}
+
+.content-card__title-button strong {
+  font-size: 15px;
+}
+
+.content-card__subtitle {
+  font-size: 12px;
+}
+
+.content-card__meta {
+  gap: 6px 12px;
+  font-size: 12px;
+}
+
+.content-detail {
+  gap: 12px;
+}
+
+.content-detail__header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.content-detail__title {
+  font-size: 20px;
+}
+
+.content-detail__section {
+  padding-top: 10px;
+}
+
+.content-stack {
+  padding: 10px 11px;
+}
+
+.breakthrough-layout {
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 10px;
+}
+
+.breakthrough-panel {
+  gap: 12px;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.breakthrough-panel--hero {
+  padding: 17px 18px;
+}
+
+.breakthrough-requirement,
+.breakthrough-queue__list li,
+.breakthrough-choice,
+.breakthrough-unlock-grid > div,
+.breakthrough-commit-list li {
+  border-radius: 6px;
+}
+
+.breakthrough-requirement {
+  padding: 10px 11px;
+}
+
+.breakthrough-requirement p,
+.breakthrough-runtime p,
+.breakthrough-queue p {
+  font-size: 13px;
+}
+
+.breakthrough-choice {
+  padding: 11px;
+}
+
+.breakthrough-queue__controls {
+  grid-template-columns: minmax(150px, 1.25fr) repeat(5, minmax(82px, 1fr));
+}
+
+@media (max-width: 920px) {
+  .content-layout,
+  .breakthrough-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .content-panel--hero,
+  .breakthrough-panel--hero {
+    grid-column: auto;
+  }
+
+  .content-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .breakthrough-queue__controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .dashboard-preview__muted {

@@ -164,6 +164,16 @@ function AppFrame({
   const setRightRailPinned = useUiDraftStore((state) => state.setRightRailPinned);
   const setActiveRailSection = useUiDraftStore((state) => state.setActiveRailSection);
   const [logCollapsed, setLogCollapsed] = useState(false);
+  const shellQueueQuery = useQuery<Queue>({
+    queryKey: ['global-idle-progress', session.character_id],
+    queryFn: () => apiClient.getQueue(session.character_id),
+    staleTime: 10_000,
+    refetchInterval: 30_000,
+  });
+  const shellActionView = shellQueueQuery.data === undefined ? null : buildIdleProgressView(shellQueueQuery.data);
+  const liveActionSummary = shellActionView === null
+    ? currentActionSummary
+    : `${shellActionView.paused ? '已暂停' : '正在挂机'} · ${shellActionView.actionLabel}`;
 
   const currentRoute = useMemo(
     () => SHELL_ROUTES.find((route) => location.pathname === route.path || location.pathname.startsWith(`${route.path}/`)) ?? DEFAULT_SHELL_ROUTE,
@@ -209,7 +219,7 @@ function AppFrame({
       </header>
 
       <div className="app-shell__announcer sr-only" aria-live="polite" aria-atomic="true">
-        {currentRoute.label} · {currentActionSummary}
+        {currentRoute.label} · {liveActionSummary}
       </div>
 
       <div className="app-shell__workspace">
@@ -270,7 +280,7 @@ function AppFrame({
             </div>
             {logCollapsed ? null : (
               <div className="game-log__messages">
-                <p><time>当前</time><span>{currentActionSummary}</span></p>
+                <p><time>当前</time><span>{liveActionSummary}</span></p>
                 <p><time>最近</time><span>{settlementSummary}</span></p>
                 <p><time>目标</time><span>{goalTrackerSummary}</span></p>
               </div>
@@ -297,7 +307,7 @@ function AppFrame({
               </div>
               <p className="rail-card__copy">
                 {panel.id === 'current-action'
-                  ? currentActionSummary
+                  ? liveActionSummary
                   : panel.id === 'settlement-summary'
                     ? settlementSummary
                     : goalTrackerSummary}
