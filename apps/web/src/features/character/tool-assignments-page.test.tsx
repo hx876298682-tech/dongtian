@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
 import { NormalStateScreen } from '@dongtian/ui';
+import type { InventorySnapshot } from '@dongtian/contracts';
 
 import {
   ToolAssignmentsEmpty,
@@ -10,6 +11,7 @@ import {
   ToolAssignmentsLocked,
   ToolAssignmentsLoading,
   ToolAssignmentsMaintenance,
+  summarizeToolInventory,
 } from './tool-assignments-page.js';
 
 describe('tool assignments page states', () => {
@@ -30,5 +32,11 @@ describe('tool assignments page states', () => {
     expect(screens[4]).toContain('暂无工具分配');
     expect(screens[5]).toContain('状态已更新');
     expect(screens[0]).not.toContain('权威');
+  });
+
+  it('uses player-facing equipment wording in inventory statistics', () => {
+    const inventory: InventorySnapshot = { items: [], currencies: [], equipment_instances: [], total_count: 0 };
+    expect(summarizeToolInventory(inventory)).toBe('装备 0 件 · 物品 0 件 · 货币 0 件');
+    expect(summarizeToolInventory(inventory)).not.toContain('实例');
   });
 });

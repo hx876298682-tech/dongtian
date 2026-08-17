@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES } from './navigation.js';
+import { SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES, SHELL_ROUTE_ALIASES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
 
 describe('web shell scaffolding', () => {
@@ -17,6 +17,26 @@ describe('web shell scaffolding', () => {
     ]));
     expect(SHELL_ROUTES.map((route) => route.id)).toEqual(expect.arrayContaining(['tasks', 'maze', 'shops', 'achievements', 'leaderboard', 'guild', 'social', 'guide', 'rules', 'news']));
     expect(SHELL_PANELS.map((panel) => panel.id)).toEqual(['current-action', 'settlement-summary', 'goal-tracker']);
+  });
+
+  it('exposes the reference shop and update destinations as independent player-facing entries', () => {
+    const routesById = new Map(SHELL_ROUTES.map((route) => [route.id, route]));
+
+    expect(routesById.get('shops')).toMatchObject({ path: '/shops', label: '市场' });
+    expect(routesById.get('store')).toMatchObject({ path: '/store', label: '商店' });
+    expect(routesById.get('cowbell-shop')).toMatchObject({ path: '/cowbell-shop', label: '牛铃商店' });
+    expect(routesById.get('news')).toMatchObject({ path: '/news', label: '新闻' });
+    expect(routesById.get('changelog')).toMatchObject({ path: '/changelog', label: '更新日志' });
+  });
+
+  it('keeps legacy and common reference deep links mapped to existing locked page kinds', () => {
+    expect(SHELL_ROUTE_ALIASES).toEqual(expect.arrayContaining([
+      { path: '/market', kind: 'shops' },
+      { path: '/updates', kind: 'news' },
+      { path: '/update-log', kind: 'changelog' },
+    ]));
+    expect(SHELL_ROUTE_ALIASES.some((alias) => alias.path === '/shops')).toBe(false);
+    expect(SHELL_ROUTE_ALIASES.some((alias) => alias.path === '/news')).toBe(false);
   });
 
   it('keeps zustand state limited to ui drafts', () => {

@@ -1863,8 +1863,11 @@ select {
 
 .reference-page__tabs {
   display: flex;
+  max-width: 100%;
   gap: 4px;
   padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .reference-page__tabpanel {
@@ -1875,6 +1878,8 @@ select {
 }
 
 .reference-page__tab {
+  flex: 0 0 auto;
+  white-space: nowrap;
   padding: 8px 14px;
   border: 0;
   background: transparent;
@@ -1988,6 +1993,7 @@ select {
 .reference-shop-lock__shelves,
 .reference-achievement-lock__summary,
 .reference-leaderboard-lock__snapshot,
+.reference-leaderboard-lock__empty,
 .reference-social-lock__state {
   display: grid;
   gap: 5px;
@@ -2011,16 +2017,24 @@ select {
 
 .reference-achievement-lock__summary strong,
 .reference-leaderboard-lock__snapshot strong,
+.reference-leaderboard-lock__empty strong,
 .reference-social-lock__state strong {
   color: var(--text);
 }
 
 .reference-achievement-lock__summary span,
 .reference-leaderboard-lock__snapshot small,
+.reference-leaderboard-lock__empty span,
 .reference-social-lock__state p {
   margin: 0;
   color: var(--muted);
   font-size: 12px;
+}
+
+.reference-leaderboard-lock__empty {
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 10px;
 }
 
 .reference-leaderboard-lock__snapshot {
@@ -2030,6 +2044,54 @@ select {
 
 .reference-leaderboard-lock__snapshot small {
   grid-column: 1 / -1;
+}
+
+.reference-leaderboard-lock__mode,
+.reference-leaderboard-lock__category-panel {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: rgba(31, 34, 58, 0.54);
+}
+
+.reference-leaderboard-lock__mode {
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.reference-leaderboard-lock__mode span,
+.reference-leaderboard-lock__category-panel span,
+.reference-leaderboard-lock__category-panel small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.reference-leaderboard-lock__mode strong,
+.reference-leaderboard-lock__category-panel strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.reference-leaderboard-lock__categories {
+  display: flex;
+  gap: 2px;
+  max-width: 100%;
+  padding: 3px;
+  border: 1px solid var(--line);
+  background: rgba(17, 18, 30, 0.54);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.reference-leaderboard-lock__categories .reference-page__tab {
+  padding: 6px 9px;
+  font-size: 12px;
+}
+
+.reference-leaderboard-lock__category-panel small {
+  line-height: 1.45;
 }
 
 .reference-guild-lock__facts {

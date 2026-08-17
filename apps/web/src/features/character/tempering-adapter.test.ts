@@ -47,5 +47,10 @@ describe('tempering adapter', () => {
   it('summarizes same-class materials and authoritative stock', () => {
     expect(buildEquipmentLootSummary(inventory.equipment_instances[0]!, 2).materialSummary).toContain('同类 1 件');
     expect(summarizeEquipmentAvailability(inventory.equipment_instances[0]!, inventory)).toContain('可用 2');
+
+    const withoutStackedItem = { ...inventory, items: [] };
+    const availability = summarizeEquipmentAvailability(inventory.equipment_instances[0]!, withoutStackedItem);
+    expect(availability).toContain('装备');
+    expect(availability).not.toContain('实例');
   });
 });

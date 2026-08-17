@@ -43,15 +43,15 @@ function buildInstanceSummary(instance: EquipmentInstance | null): string {
 
 function buildInstanceDiff(currentInstance: EquipmentInstance | null, compareInstance: EquipmentInstance | null): string {
   if (currentInstance === null && compareInstance === null) {
-    return '两边都为空';
+    return '当前和比较方案都未装备';
   }
 
   if (currentInstance === null || compareInstance === null) {
-    return currentInstance === null ? '当前为空，比较侧有配置' : '当前有配置，比较侧为空';
+    return currentInstance === null ? '当前未装备，比较方案有装备' : '当前有装备，比较方案未装备';
   }
 
   const parts = [
-    currentInstance.instance_id === compareInstance.instance_id ? '实例一致' : '实例不同',
+    currentInstance.instance_id === compareInstance.instance_id ? '装备相同' : '装备不同',
     currentInstance.temper_level === compareInstance.temper_level
       ? `强化相同 +${currentInstance.temper_level}`
       : `强化差 ${currentInstance.temper_level} / ${compareInstance.temper_level}`,
@@ -127,7 +127,7 @@ export function buildEquipmentSelectionView(
   const currentSlots = buildSlotInstanceMap(currentPreset);
   const compareSlots = buildSlotInstanceMap(comparePreset);
 
-  let slotHint = '尚未选中实例';
+  let slotHint = '尚未选中装备';
   if (instance !== null) {
     const currentSlot = EQUIPMENT_SLOT_ORDER.find((slot) => currentSlots.get(slot) === instance.instance_id);
     const compareSlot = EQUIPMENT_SLOT_ORDER.find((slot) => compareSlots.get(slot) === instance.instance_id);
@@ -155,7 +155,7 @@ export function buildEquipmentSelectionView(
 
 export function summarizeEquipmentError(status: number, _code: string | undefined, _details: unknown): string {
   if (status === 404) {
-    return '预设或装备实例不存在，或不属于当前角色。';
+    return '预设或装备不存在，或不属于当前角色。';
   }
 
   if (status === 403) {

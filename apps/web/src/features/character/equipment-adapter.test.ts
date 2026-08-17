@@ -57,16 +57,18 @@ describe('equipment adapter', () => {
     const rows = buildEquipmentSlotComparisonRows(currentPreset, comparePreset, inventory);
 
     expect(rows).toHaveLength(3);
-    expect(rows[0]?.diffSummary).toContain('实例不同');
+    expect(rows[0]?.diffSummary).toContain('装备不同');
+    expect(rows[0]?.diffSummary).not.toContain('实例');
     expect(rows[0]?.currentInstanceId).toBe('weapon-1');
     expect(rows[0]?.compareInstanceId).toBe('weapon-2');
-    expect(rows[2]?.diffSummary).toContain('当前有配置，比较侧为空');
+    expect(rows[2]?.diffSummary).toContain('当前有装备，比较方案未装备');
   });
 
   it('builds a selection view that points to the selected slot and comparison target', () => {
     const view = buildEquipmentSelectionView('weapon-1', inventory, currentPreset, comparePreset);
 
     expect(view.slotHint).toContain('武器');
-    expect(view.compareSummary).toContain('实例不同');
+    expect(view.compareSummary).toContain('装备不同');
+    expect(view.slotHint).not.toContain('实例');
   });
 });

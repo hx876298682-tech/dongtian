@@ -405,7 +405,7 @@ function EquipmentSlotCard({
           <span>比较</span>
           <strong>{row.compareInstanceId ?? '未配置'}</strong>
           <button className="ghost-button ghost-button--compact" type="button" onClick={() => row.compareInstanceId && onInspectInstance(row.compareInstanceId)}>
-            查看实例
+            查看装备
           </button>
         </div>
       </div>
@@ -474,6 +474,10 @@ export function TemperingOutcomeCard({
       actions={[{ label: '沿用本次操作重试', onClick: onRetry }]}
     />
   );
+}
+
+export function getTemperingActionIntent(confirmImportantActions: boolean): 'confirm' | 'execute' {
+  return confirmImportantActions ? 'confirm' : 'execute';
 }
 
 export function TemperingLadderTable({
@@ -918,7 +922,7 @@ export function CharacterEquipmentPage(): ReactElement {
           </span>
         </div>
         <div className="equipment-list">
-          {filteredEquipment.length === 0 ? <EmptyStateScreen title="没有符合条件的装备实例" description="调整筛选条件，或清空搜索后再试。" /> : null}
+          {filteredEquipment.length === 0 ? <EmptyStateScreen title="没有符合条件的装备" description="调整筛选条件，或清空搜索后再试。" /> : null}
           {pagedEquipment.map((instance) => {
             const slotHint = selectedInstanceId === instance.instance_id ? selectedAssignment ?? '未上阵' : getSelectedInstanceAssignment(instance.instance_id, currentPreset);
             const kept = temperingState.keptInstanceIds.has(instance.instance_id);
@@ -1091,7 +1095,7 @@ export function CharacterEquipmentPage(): ReactElement {
             className="ghost-button"
             type="button"
             onClick={() => {
-              if (shouldConfirmImportantActions()) setTemperingConfirmationOpen(true);
+              if (getTemperingActionIntent(shouldConfirmImportantActions()) === 'confirm') setTemperingConfirmationOpen(true);
               else temperMutation.mutate();
             }}
             disabled={
@@ -1127,7 +1131,13 @@ export function CharacterEquipmentPage(): ReactElement {
           </button>
         </div>
         <TemperingLadderTable selectedTargetLevel={selectedTemperingTargetLevel} />
-        <TemperingOutcomeCard response={temperingState.lastResponse} onRetry={() => temperMutation.mutate()} />
+        <TemperingOutcomeCard
+          response={temperingState.lastResponse}
+          onRetry={() => {
+            if (getTemperingActionIntent(shouldConfirmImportantActions()) === 'confirm') setTemperingConfirmationOpen(true);
+            else temperMutation.mutate();
+          }}
+        />
         <EquipmentNoticeCard notice={temperingNotice} />
       </div>
 

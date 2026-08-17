@@ -63,7 +63,9 @@ describe('reference pages parity contract', () => {
 
   it('uses reference task and maze sections without inventing a task claim action', () => {
     expect(referencePagesSource).toMatch(/tabs: \['任务栏', '任务商店'\]/);
-    expect(referencePagesSource).toMatch(/tabs: \['迷宫', '迷宫商店'\]/);
+    expect(referencePagesSource).toMatch(/tabs: \['迷宫', '房间', '自动化', '迷宫商店'\]/);
+    expect(referencePagesSource).toMatch(/tabs: \['杂货', '地下城'\]/);
+    expect(referencePagesSource).toMatch(/href: '\/expedition'/);
     expect(referencePagesSource).toMatch(/roomEntry/);
     expect(referencePagesSource).toMatch(/automationEntry/);
     expect(referencePagesSource).toMatch(/<progress/);
@@ -71,6 +73,18 @@ describe('reference pages parity contract', () => {
     expect(referencePagesSource).toMatch(/任务商店/);
     expect(referencePagesSource).toMatch(/迷宫商店/);
     expect(referencePagesSource).not.toMatch(/任务.*领取/);
+  });
+
+  it('matches the reference page category hierarchy without fabricating deferred records', () => {
+    expect(referencePagesSource).toMatch(/tabs: \['成就', '收藏', '妖兽图鉴'\]/);
+    expect(referencePagesSource).toMatch(/tabs: \['标准', '铁牛', '公会'\]/);
+    expect(referencePagesSource).toMatch(/personalLeaderboardCategories/);
+    expect(referencePagesSource).toMatch(/guildLeaderboardCategories/);
+    expect(referencePagesSource).toMatch(/role="tablist"/);
+    expect(referencePagesSource).toMatch(/暂无真实排行数据/);
+    expect(referencePagesSource).toMatch(/tabs: \['常见问题', '采集类专业', '生产类专业', '炼金', '强化', '战斗', '任务', '迷宫', '交易市场', '公会', '成就', '聊天命令', '经验表'\]/);
+    expect(referencePagesSource).toMatch(/hideTabs: true/);
+    expect(referencePagesSource).toMatch(/const ruleSections: Record<string, readonly ReferenceItem\[]> = \{ 规则:/);
   });
 
   it('selects current, completed, and target task entries from the authoritative queue', () => {
@@ -157,5 +171,15 @@ describe('reference pages parity contract', () => {
     expect(referencePagesSource).toMatch(/reference-leaderboard-lock/);
     expect(referencePagesSource).toMatch(/reference-guild-lock/);
     expect(referencePagesSource).toMatch(/reference-social-lock/);
+  });
+
+  it('keeps reference page families distinct when deferred data uses the same locked primitive', () => {
+    expect(referencePagesSource).toMatch(/title: '洞天市场'/);
+    expect(referencePagesSource).toMatch(/title: '洞天商店'/);
+    expect(referencePagesSource).toMatch(/title: '牛铃商店'/);
+    expect(referencePagesSource).toMatch(/tabs: \['购买牛铃', '哞卡', '便利升级'/);
+    expect(referencePagesSource).toMatch(/title: '洞天新闻'/);
+    expect(referencePagesSource).toMatch(/title: '更新日志'/);
+    expect(referencePagesSource).toMatch(/kind === 'changelog'/);
   });
 });

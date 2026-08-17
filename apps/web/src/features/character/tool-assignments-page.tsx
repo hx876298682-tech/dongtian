@@ -66,6 +66,10 @@ function buildMutationNotice(error: unknown): ToolNotice {
   };
 }
 
+export function summarizeToolInventory(inventory: InventorySnapshot): string {
+  return `装备 ${formatCount(inventory.equipment_instances.length)} 件 · 物品 ${formatCount(inventory.items.length)} 件 · 货币 ${formatCount(inventory.currencies.length)} 件`;
+}
+
 function ToolNoticeCard({ notice }: { readonly notice: ToolNotice | null }): ReactElement {
   if (notice === null) {
     return <EmptyStateScreen title="操作反馈" description="保存、切换和刷新后的结果会显示在这里。" />;
@@ -682,7 +686,7 @@ export function CharacterToolAssignmentsPage(): ReactElement {
         <div className="tool-inspector">
           <NormalStateScreen
             title="当前库存"
-            description={`装备实例 ${formatCount(inventory.equipment_instances.length)} · 物品 ${formatCount(inventory.items.length)} · 货币 ${formatCount(inventory.currencies.length)}`}
+            description={summarizeToolInventory(inventory)}
             highlight={response.effective_next_cycle ? '下周期生效' : '当前生效'}
             footnote="当前库存与工具安排已同步。"
           />

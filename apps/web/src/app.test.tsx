@@ -61,6 +61,14 @@ describe('one-screen app shell', () => {
     expect(appSource).not.toMatch(/shell-nav__link-desc/);
   });
 
+  it('keeps shop and update aliases reachable without inventing new page kinds', () => {
+    expect(appSource).toMatch(/path: 'store', element: <ReferencePage kind="store" \/>/);
+    expect(appSource).toMatch(/path: 'cowbell-shop', element: <ReferencePage kind="cowbell-shop" \/>/);
+    expect(appSource).toMatch(/path: 'changelog', element: <ReferencePage kind="changelog" \/>/);
+    expect(appSource).toMatch(/SHELL_ROUTE_ALIASES\.map/);
+    expect(appSource).toMatch(/<ReferencePage kind={alias\.kind} \/>/);
+  });
+
   it('lets each page own the central title instead of repeating a shell title band', () => {
     expect(appSource).not.toMatch(/className="shell-main__hero"/);
   });

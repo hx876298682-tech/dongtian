@@ -23,7 +23,7 @@ import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
 import { SettingsPage } from './features/system/settings-page.js';
 import { ReferencePage } from './features/system/reference-pages.js';
-import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_ROUTES } from './navigation.js';
+import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_ROUTES, SHELL_ROUTE_ALIASES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
 import type { AuthActiveSession, CharacterProgression, InventorySnapshot, LoadoutPreset, Queue, CaveResponse, SkillToolAssignmentsResponse, DungeonOpportunityResponse } from '@dongtian/contracts';
 import { apiClient } from './lib/api.js';
@@ -146,6 +146,8 @@ function routeGlyph(routeId: string): string {
     case 'tasks': return '▣';
     case 'maze': return '⌘';
     case 'shops': return '◈';
+    case 'store': return '▣';
+    case 'cowbell-shop': return '♢';
     case 'character': return '♙';
     case 'inventory': return '▤';
     case 'achievements': return '★';
@@ -156,6 +158,7 @@ function routeGlyph(routeId: string): string {
     case 'guide': return '?';
     case 'rules': return '≡';
     case 'news': return '✉';
+    case 'changelog': return '≡';
     default: return '•';
   }
 }
@@ -367,7 +370,12 @@ function AppFrame({
   }, [closeRightRail, location.pathname, rightRailOpen]);
 
   const currentRoute = useMemo(
-    () => SHELL_ROUTES.find((route) => location.pathname === route.path || location.pathname.startsWith(`${route.path}/`)) ?? DEFAULT_SHELL_ROUTE,
+    () => {
+      const directRoute = SHELL_ROUTES.find((route) => location.pathname === route.path || location.pathname.startsWith(`${route.path}/`));
+      if (directRoute !== undefined) return directRoute;
+      const alias = SHELL_ROUTE_ALIASES.find((candidate) => location.pathname === candidate.path || location.pathname.startsWith(`${candidate.path}/`));
+      return SHELL_ROUTES.find((route) => route.id === alias?.kind) ?? DEFAULT_SHELL_ROUTE;
+    },
     [location.pathname],
   );
   const retryEquipment = async (): Promise<void> => {
@@ -426,14 +434,14 @@ function AppFrame({
             ['采集', '采'],
             ['效率', '效'],
             ['战利品', '战'],
-          ].map(([label, glyph]) => <span className="topbar-buff" key={label} title={`${label}加成暂未接入`}><strong>{glyph}</strong><small>未接入</small></span>)}
+          ].map(([label, glyph]) => <span className="topbar-buff" key={label} title={`${label}加成暂不可用`}><strong>{glyph}</strong><small>暂无加成</small></span>)}
         </div>
 
         <div className="topbar-metrics" aria-label="角色摘要">
           <GlobalResourceSummary characterId={session.character_id} />
           <div className="topbar-profile" aria-label="角色身份">
             <span className="topbar-profile__avatar" aria-hidden="true">修</span>
-            <span><strong>角色信息</strong><small>身份暂未接入</small></span>
+            <span><strong>角色信息</strong><small>身份信息暂不可用</small></span>
           </div>
           <Link className="topbar-quick-link" to="/inventory" title="背包">背包</Link>
           <Link className="topbar-quick-link" to="/settings" title="设置">设置</Link>
@@ -461,7 +469,7 @@ function AppFrame({
             {SHELL_ROUTES.map((route) => (
               <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
                 <span className="shell-nav__link-icon" aria-hidden="true">{routeGlyph(route.id)}</span>
-                <span className="shell-nav__link-label">{route.id === 'shops' ? '市场' : route.label}</span>
+                <span className="shell-nav__link-label">{route.label}</span>
               </NavLink>
             ))}
           </nav>
@@ -511,7 +519,7 @@ function AppFrame({
                 <div className="game-log__messages">
                   {logChannel === '收获' ? <><p><time>当前</time><span>{liveActionSummary}</span></p><p><time>最近</time><span>{settlementSummary}</span></p><p><time>目标</time><span>{goalTrackerSummary}</span></p></> : null}
                   {logChannel === '战斗' ? <p><time>暂无</time><span>开始一次秘境历练后，会在这里显示路线和结果。</span></p> : null}
-                  {logChannel === '活动' ? <><p><time>状态</time><span>活动记录暂未接入。</span></p><p><time>记录</time><span>完成行动后会在这里显示。</span></p></> : null}
+                  {logChannel === '活动' ? <><p><time>状态</time><span>暂无活动记录。</span></p><p><time>记录</time><span>完成行动后会在这里显示。</span></p></> : null}
                 </div>
                 <div className="game-log__composer" aria-label="聊天功能暂未开放">
                   <input aria-label="聊天输入（暂未开放）" placeholder="聊天系统暂未开放" disabled />
@@ -715,6 +723,8 @@ const router = createBrowserRouter([
       { path: 'tasks', element: <ReferencePage kind="tasks" /> },
       { path: 'maze', element: <ReferencePage kind="maze" /> },
       { path: 'shops', element: <ReferencePage kind="shops" /> },
+      { path: 'store', element: <ReferencePage kind="store" /> },
+      { path: 'cowbell-shop', element: <ReferencePage kind="cowbell-shop" /> },
       { path: 'achievements', element: <ReferencePage kind="achievements" /> },
       { path: 'leaderboard', element: <ReferencePage kind="leaderboard" /> },
       { path: 'guild', element: <ReferencePage kind="guild" /> },
@@ -722,6 +732,8 @@ const router = createBrowserRouter([
       { path: 'guide', element: <ReferencePage kind="guide" /> },
       { path: 'rules', element: <ReferencePage kind="rules" /> },
       { path: 'news', element: <ReferencePage kind="news" /> },
+      { path: 'changelog', element: <ReferencePage kind="changelog" /> },
+      ...SHELL_ROUTE_ALIASES.map((alias) => ({ path: alias.path.slice(1), element: <ReferencePage kind={alias.kind} /> })),
     ],
   },
 ]);

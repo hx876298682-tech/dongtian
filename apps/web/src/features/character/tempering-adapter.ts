@@ -1,6 +1,6 @@
 import type { EquipmentInstance, InventorySnapshot, TemperingAttemptResponse } from '@dongtian/contracts';
 
-import { formatCount, summarizeInventoryAsset } from '../content/content-adapter.js';
+import { describeItemId, formatCount, summarizeInventoryAsset } from '../content/content-adapter.js';
 
 export type EquipmentFilterMode = 'all' | 'bound' | 'unbound' | 'duplicates' | 'temperable';
 export type EquipmentSortMode = 'recent' | 'item' | 'temper-level' | 'duplicates';
@@ -113,13 +113,13 @@ export function summarizeTemperingResponse(response: TemperingAttemptResponse | 
   }
 
   const outcome = response.success ? '成功' : response.outcome === 'REJECTED' ? '被拒绝' : '失败';
-  return `审计 ${response.temper_audit_id} · ${outcome} · ${response.equipment.item_id} +${response.level_before} → +${response.level_after}`;
+  return `${outcome} · ${describeItemId(response.equipment.item_id)} · +${response.level_before} → +${response.level_after}`;
 }
 
 export function summarizeEquipmentAvailability(instance: EquipmentInstance, inventory: InventorySnapshot): string {
   const matched = inventory.items.find((item) => item.asset_id === instance.item_id) ?? null;
   if (matched === null) {
-    return `实例 ${instance.instance_id} 不对应可堆叠物品库存，只能按装备实例比较与淬炼。`;
+    return '这件装备没有对应的可堆叠物品库存，只能作为独立装备进行比较与淬炼。';
   }
 
   return summarizeInventoryAsset(matched);

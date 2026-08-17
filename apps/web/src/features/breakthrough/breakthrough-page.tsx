@@ -27,6 +27,7 @@ import {
   buildBreakthroughPageView,
   formatBreakthroughRequirement,
   formatCountdown,
+  getBreakthroughAssetLabel,
 } from './breakthrough-adapter.js';
 import {
   appendBreakthroughQueueEntry,
@@ -819,25 +820,25 @@ export function BreakthroughPage(): ReactElement {
               {run === undefined ? '尚未开始' : breakthroughRunStatusLabel(run.status)}
             </h3>
           </div>
-          {run ? <span>节点 {run.current_node_id}</span> : null}
+          {run ? <span>当前阶段：{run.current_node_id === 'node.choice' ? '路线选择' : '试炼进行中'}</span> : null}
         </div>
         {run === undefined ? (
           <EmptyStateScreen
-            title="预留前不创建试炼"
-            description="条件满足后才会创建唯一 active run。"
+            title="尚未开始试炼"
+            description="满足筑基条件后，就可以开始一次试炼。"
           />
         ) : run.status === 'COMPLETED' ? (
           <UnlockResult response={runResponse as BreakthroughRunResponse} onRefresh={refreshAll} />
         ) : (
           <div className="breakthrough-runtime">
             <p>
-              预留快照：
+              已准备材料：
               {run.reservation_snapshot
-                .map((asset) => `${asset.asset_id} × ${asset.quantity}`)
+                .map((asset) => `${getBreakthroughAssetLabel(asset.asset_id)} × ${asset.quantity}`)
                 .join(' · ') || '无'}
             </p>
             <p>
-              试炼截止：{run.trial_deadline_at} · 倒计时{' '}
+              试炼剩余时间：
               {formatCountdown(run.trial_deadline_at, now)}
             </p>
             {isChoiceStep ? (

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import { NormalStateScreen } from '@dongtian/ui';
 
-import { EquipmentError, EquipmentInstanceDialogContent, EquipmentLocked, EquipmentLoading, EquipmentMaintenance, EquipmentMissingPreset } from './equipment-page.js';
+import { EquipmentError, EquipmentInstanceDialogContent, EquipmentLocked, EquipmentLoading, EquipmentMaintenance, EquipmentMissingPreset, getTemperingActionIntent } from './equipment-page.js';
 
 describe('equipment page states', () => {
   it('renders the six required surfaces without browser APIs', () => {
@@ -51,5 +51,13 @@ describe('equipment instance detail', () => {
     expect(markup).toContain('当前预设中是武器');
     expect(markup).toContain('强化差 3 / 5');
     expect(markup).toContain('进入淬炼');
+    expect(markup).not.toContain('实例');
+  });
+});
+
+describe('tempering confirmation intent', () => {
+  it('confirms by default and executes directly only when the setting is disabled', () => {
+    expect(getTemperingActionIntent(true)).toBe('confirm');
+    expect(getTemperingActionIntent(false)).toBe('execute');
   });
 });
