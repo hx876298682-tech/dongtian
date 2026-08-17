@@ -21,6 +21,7 @@ import {
 } from '@dongtian/ui';
 
 import { apiClient } from '../../lib/api.js';
+import { emitGameFeedback } from '../../lib/game-feedback.js';
 import {
   buildEquipmentSelectionView,
   buildEquipmentSlotComparisonRows,
@@ -622,6 +623,7 @@ export function CharacterEquipmentPage(): ReactElement {
       return apiClient.saveLoadoutPreset(session.character_id, editorState.draft.presetId, createLoadoutSaveRequest(editorState.draft), createIdempotencyKey());
     },
     onSuccess: (data) => {
+      emitGameFeedback('装备方案已保存。', 'success');
       dispatch({ type: 'mark-saved', preset: data });
       setNotice({
         kind: 'success',
@@ -653,6 +655,7 @@ export function CharacterEquipmentPage(): ReactElement {
       return apiClient.equipLoadoutPreset(session.character_id, editorState.draft.presetId, createIdempotencyKey());
     },
     onSuccess: (data) => {
+      emitGameFeedback('装备方案已启用。', 'success');
       dispatch({ type: 'mark-saved', preset: data });
       setNotice({
         kind: 'success',
@@ -701,7 +704,7 @@ export function CharacterEquipmentPage(): ReactElement {
         kind: 'success',
         title: response.success ? `+${response.target_level} 淬炼成功` : `+${response.target_level} 淬炼完成`,
         description: summarizeTemperingResponse(response),
-        footnote: `状态版本 ${response.state_version} · 配置 ${response.config_version}`,
+        footnote: '新的装备属性会在角色面板中更新。',
       });
       void queryClient.invalidateQueries({ queryKey: [EQUIPMENT_QUERY_PREFIX, session.character_id] });
     },

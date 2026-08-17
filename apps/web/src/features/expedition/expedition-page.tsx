@@ -16,6 +16,7 @@ import {
 import { EmptyStateScreen, LoadingStateScreen, LockedStateScreen, LocalErrorStateScreen, MaintenanceStateScreen, NormalStateScreen } from '@dongtian/ui';
 
 import { apiClient } from '../../lib/api.js';
+import { emitGameFeedback } from '../../lib/game-feedback.js';
 import { readActiveDungeonRunId, writeActiveDungeonRunId } from './dungeon-session.js';
 import {
   dungeonRouteHint,
@@ -682,6 +683,7 @@ export function ExpeditionPage(): ReactElement {
       );
     },
     onSuccess: async (response) => {
+      emitGameFeedback('已进入秘境，开始探险。', 'success');
       writeActiveDungeonRunId(response.run.run_id);
       startTransition(() => {
         navigate(
@@ -711,6 +713,7 @@ export function ExpeditionPage(): ReactElement {
       return apiClient.chooseDungeonRun(runQuery.data.run.run_id, { choice_id: choiceId, expected_run_version: runQuery.data.run.revision }, createIdempotencyKey());
     },
     onSuccess: async (response) => {
+      emitGameFeedback('路线选择已提交。', 'success');
       queryClient.setQueryData([EXPEDITION_QUERY_PREFIX, session.character_id, 'run', response.run.run_id], response);
       await queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] });
       await queryClient.invalidateQueries({ queryKey: ['dashboard', session.character_id] });
@@ -725,6 +728,7 @@ export function ExpeditionPage(): ReactElement {
       return apiClient.finalizeDungeonRun(runQuery.data.run.run_id, createIdempotencyKey());
     },
     onSuccess: async (response) => {
+      emitGameFeedback('秘境探险已结算。', 'success');
       queryClient.setQueryData([EXPEDITION_QUERY_PREFIX, session.character_id, 'run', response.run.run_id], response);
       await queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] });
       await queryClient.invalidateQueries({ queryKey: ['dashboard', session.character_id] });

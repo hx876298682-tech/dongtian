@@ -1640,6 +1640,32 @@ select {
   accent-color: var(--accent-strong);
 }
 
+.game-feedback {
+  position: fixed;
+  top: 92px;
+  left: 50%;
+  z-index: 50;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 10px 16px;
+  border: 1px solid rgba(142, 159, 255, 0.52);
+  border-radius: 4px;
+  background: #292c4b;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  color: #f6f7ff;
+  font-size: 13px;
+  transform: translateX(-50%);
+}
+
+.game-feedback--success {
+  border-color: rgba(73, 202, 161, 0.6);
+  background: #173b3b;
+}
+
+.game-feedback--warning {
+  border-color: rgba(245, 172, 67, 0.65);
+  background: #49351d;
+}
+
 html[data-show-game-log='false'] .game-log {
   display: none;
 }

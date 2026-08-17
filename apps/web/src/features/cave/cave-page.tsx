@@ -20,6 +20,7 @@ import {
 } from '@dongtian/ui';
 
 import { apiClient } from '../../lib/api.js';
+import { emitGameFeedback } from '../../lib/game-feedback.js';
 import { buildCaveBuildRequest, buildCavePageView, summarizeCaveFacilitySubtitle, type CaveFacilityView } from './cave-adapter.js';
 import {
   cavePageReducer,
@@ -355,6 +356,7 @@ export function CavePage(): ReactElement {
       return apiClient.buildCaveFacility(session.character_id, buildCaveBuildRequest(cave, facility), idempotencyKey);
     },
     onSuccess: async (response) => {
+      emitGameFeedback('洞天设施已升级。', 'success');
       dispatch({ type: 'mark-success', response });
       await queryClient.invalidateQueries({ queryKey: [CAVE_QUERY_PREFIX, session.character_id] });
     },

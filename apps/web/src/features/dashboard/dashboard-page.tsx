@@ -16,6 +16,7 @@ import {
 import { EmptyStateScreen, LoadingStateScreen, LocalErrorStateScreen, NormalStateScreen } from '@dongtian/ui';
 
 import { apiClient } from '../../lib/api.js';
+import { emitGameFeedback } from '../../lib/game-feedback.js';
 import { readActiveDungeonRunId } from '../expedition/dungeon-session.js';
 import { summarizeDungeonRun } from '../expedition/expedition-adapter.js';
 import { useUiDraftStore } from '../../state/ui-draft-store.js';
@@ -505,6 +506,7 @@ export function DashboardPage(): ReactElement {
         }
         await queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id] });
         await queryClient.invalidateQueries({ queryKey: ['global-idle-progress', session.character_id] });
+        emitGameFeedback(`已开始挂机：${describeAction(actionId)}`, 'success');
         setQuickStartState('running');
       } catch (error) {
         setQuickStartState('error');

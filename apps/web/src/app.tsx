@@ -26,6 +26,7 @@ import { useUiDraftStore } from './state/ui-draft-store.js';
 import type { AuthActiveSession, InventoryAsset, InventorySnapshot, Queue } from '@dongtian/contracts';
 import { apiClient } from './lib/api.js';
 import { buildIdleProgressView } from './features/dashboard/dashboard-adapter.js';
+import { emitGameFeedback, subscribeGameFeedback, type GameFeedbackDetail } from './lib/game-feedback.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +78,7 @@ function GlobalIdleProgress({ characterId }: { readonly characterId: string }): 
       createIdempotencyKey(),
     ),
     onSuccess: async () => {
+      emitGameFeedback('已暂停挂机。', 'success');
       await queueQuery.refetch();
       await queryClient.invalidateQueries({ queryKey: ['dashboard', characterId] });
     },
@@ -471,9 +473,24 @@ const router = createBrowserRouter([
 
 export const appQueryClient = queryClient;
 
+function GlobalGameFeedback(): ReactElement | null {
+  const [feedback, setFeedback] = useState<GameFeedbackDetail | null>(null);
+
+  useEffect(() => subscribeGameFeedback(setFeedback), []);
+  useEffect(() => {
+    if (feedback === null) return undefined;
+    const timer = window.setTimeout(() => setFeedback(null), 3600);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  if (feedback === null) return null;
+  return <div className={`game-feedback game-feedback--${feedback.tone ?? 'info'}`} role="status">{feedback.message}</div>;
+}
+
 export function App(): ReactElement {
   return (
     <QueryClientProvider client={queryClient}>
+      <GlobalGameFeedback />
       <RouterProvider router={router} />
     </QueryClientProvider>
   );
