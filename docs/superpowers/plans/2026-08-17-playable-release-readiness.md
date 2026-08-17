@@ -94,4 +94,4 @@
 - [x] Run full Vitest, typecheck, lint, build, OpenAPI check, integration tests, and the real Chrome/PostgreSQL vertical slice.
 - [x] Verify target viewports and no page-level scroll at 1366x768, 1440x900, 390x844, and 375x667.
 - [x] Update `docs/工作进度记录.md` with evidence and remaining blockers.
-- [ ] Push `main` only after all required gates are green; pending final diff review and commit in the current worktree.
+- [x] Push `main` after final diff review and green local gates; commit `6d9d180` is synchronized with `origin/main`.
