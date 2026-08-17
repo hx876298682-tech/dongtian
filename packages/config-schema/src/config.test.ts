@@ -153,6 +153,8 @@ describe('versioned config registry', () => {
     expect(registry.monsters).toHaveLength(11);
     expect(registry.dungeons).toHaveLength(3);
     expect(registry.regions).toHaveLength(6);
+    expect(registry.monsters.filter((monster) => monster.tags.includes('boss')).length).toBeGreaterThanOrEqual(2);
+    expect(registry.dungeons.filter((dungeon) => dungeon.enabled)).toHaveLength(3);
     expect(registry.caveFacilities).toHaveLength(12);
     expect(registry.temperings).toHaveLength(10);
   });

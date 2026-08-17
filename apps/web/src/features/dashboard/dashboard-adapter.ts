@@ -1,4 +1,5 @@
 import type {
+  BreakthroughPreviewResponse,
   CharacterProgression,
   InventorySnapshot,
   LatestSettlementResponse,
@@ -7,7 +8,6 @@ import type {
   SettlementLedgerEntry,
   SettlementTimelineEntry,
   Queue,
-  QueueEntry,
 } from '@dongtian/contracts';
 
 function formatStringValue(value: string | number | null | undefined): string {
@@ -18,24 +18,20 @@ function formatStringValue(value: string | number | null | undefined): string {
   return String(value);
 }
 
-function describeQueueEntry(entry: QueueEntry): string {
-  const targetValue = entry.target_value === null ? '' : ` · 目标 ${entry.target_value}`;
-  const progress = ` · 完成 ${entry.completed_cycles} · 累计 ${entry.progress_time_us}µs`;
-  const snapshot = entry.snapshot_config_version === null ? '' : ` · 快照 ${entry.snapshot_config_version}`;
-  return `${entry.position + 1}. ${entry.action_id} · ${entry.mode}${targetValue} · ${entry.status}${progress}${snapshot}`;
-}
-
 export interface OfflineTimelineItem {
   readonly title: string;
   readonly detail: string;
 }
 
 export interface OfflineSummaryView {
-  readonly kind: 'unavailable';
+  readonly kind: 'empty' | 'ready';
   readonly title: string;
   readonly description: string;
   readonly timeline: ReadonlyArray<OfflineTimelineItem>;
   readonly footnote: string;
+  readonly rewards: ReadonlyArray<SettlementLineItem>;
+  readonly consumptions: ReadonlyArray<SettlementLineItem>;
+  readonly anomalies: ReadonlyArray<SettlementLineItem>;
 }
 
 export interface DashboardAuthoritySnapshot {
@@ -188,28 +184,11 @@ export function buildDashboardAuthoritySnapshot(
   progression: CharacterProgression,
   queue: Queue,
   inventory: InventorySnapshot,
+  latestSettlement?: LatestSettlementResponse | null,
+  breakthrough?: BreakthroughPreviewResponse | null,
 ): DashboardAuthoritySnapshot {
   const currentAction = queue.current;
-  const timeline: OfflineTimelineItem[] = [];
-
-  if (currentAction === null) {
-    timeline.push({
-      title: '当前行动',
-      detail: '暂无正在运行的权威行动快照。',
-    });
-  } else {
-    timeline.push({
-      title: '当前行动',
-      detail: `${currentAction.action_id} · ${currentAction.status} · 已完成 ${currentAction.completed_cycles} 周期`,
-    });
-  }
-
-  for (const entry of queue.entries) {
-    timeline.push({
-      title: `队列 ${entry.position + 1}`,
-      detail: describeQueueEntry(entry),
-    });
-  }
+  const settlementView = buildLatestSettlementView(latestSettlement);
 
   return {
     realmLabel: progression.cultivation.realm_stage_id,
@@ -221,18 +200,13 @@ export function buildDashboardAuthoritySnapshot(
         : `${currentAction.action_id} · ${currentAction.status} · 队列版本 ${formatStringValue(queue.queue_version)}`,
     queueLabel: `队列版本 ${formatStringValue(queue.queue_version)} · ${queue.entries.length} 段`,
     queueDetail: `${queue.paused ? '已暂停' : '运行中'} · 保底 ${queue.fallback.action_id}`,
-    goalTrackerLabel: progression.feature_permissions.some((permission) => permission.visible)
-      ? '目标追踪已接入'
-      : '目标追踪待接入',
-    goalTrackerDetail: `${progression.character.name} · 修为 ${progression.cultivation.xp} · 总库存 ${inventory.total_count}`,
+    goalTrackerLabel: breakthrough === null ? '目标追踪暂不可用' : '筑基目标追踪',
+    goalTrackerDetail:
+      breakthrough?.breakthrough === undefined
+        ? `${progression.character.name} · 修为 ${progression.cultivation.xp} · 总库存 ${inventory.total_count}`
+        : `${breakthrough.breakthrough.requirements.filter((requirement) => requirement.status === 'SATISFIED').length}/${breakthrough.breakthrough.requirements.length} 项条件满足 · ${breakthrough.breakthrough.all_satisfied ? '可以开始筑基' : '仍有资源缺口'}`,
     inventoryLabel: `库存 ${inventory.total_count} 件`,
-    offlineSummary: {
-      kind: 'unavailable',
-      title: '后端尚未提供离线摘要 GET',
-      description: '当前只展示权威队列、修为和库存快照；不会在前端本地推演结算或发奖。',
-      timeline,
-      footnote: `如果后端补齐 GET /characters/{character_id}/settlements/{settlement_id}，这里可以切换为真实回流摘要。`,
-    },
+    offlineSummary: settlementView,
   };
 }
 

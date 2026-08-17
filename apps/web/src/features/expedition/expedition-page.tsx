@@ -285,6 +285,7 @@ function ExpeditionPrepareCard({
   onPreview,
   onEnter,
   previewPending,
+  previewError,
   enterPending,
   canPreview,
   canEnter,
@@ -302,6 +303,7 @@ function ExpeditionPrepareCard({
   readonly onPreview: () => void;
   readonly onEnter: () => void;
   readonly previewPending: boolean;
+  readonly previewError: string | null;
   readonly enterPending: boolean;
   readonly canPreview: boolean;
   readonly canEnter: boolean;
@@ -330,8 +332,10 @@ function ExpeditionPrepareCard({
 
       <div className="expedition-form">
         <label className="equipment-form__field">
-          <span className="equipment-form__label">装备预设 ID</span>
+          <span className="equipment-form__label" id="loadout_preset_id-label">装备预设 ID</span>
           <input
+            id="loadout_preset_id"
+            aria-labelledby="loadout_preset_id-label"
             className="equipment-form__input"
             type="text"
             value={draftLoadoutPresetId}
@@ -340,8 +344,10 @@ function ExpeditionPrepareCard({
           />
         </label>
         <label className="equipment-form__field">
-          <span className="equipment-form__label">策略预设 ID</span>
+          <span className="equipment-form__label" id="strategy_preset_id-label">策略预设 ID</span>
           <input
+            id="strategy_preset_id"
+            aria-labelledby="strategy_preset_id-label"
             className="equipment-form__input"
             type="text"
             value={draftStrategyPresetId}
@@ -350,8 +356,8 @@ function ExpeditionPrepareCard({
           />
         </label>
         <label className="equipment-form__field">
-          <span className="equipment-form__label">initial_route_id</span>
-          <select className="equipment-form__input" value={draftInitialRouteId} onChange={(event) => onInitialRouteIdChange(event.target.value)}>
+          <span className="equipment-form__label" id="initial_route_id-label">initial_route_id</span>
+          <select id="initial_route_id" aria-labelledby="initial_route_id-label" className="equipment-form__input" value={draftInitialRouteId} onChange={(event) => onInitialRouteIdChange(event.target.value)}>
             <option value={QINGSHE_SAFE_ROUTE_ID}>左侧矿脉 / 安全</option>
             <option value={QINGSHE_HIGH_RISK_ROUTE_ID}>右侧妖巢 / 高风险</option>
           </select>
@@ -377,6 +383,8 @@ function ExpeditionPrepareCard({
           {enterPending ? '入场中…' : '消耗 1 次机会进入'}
         </button>
       </div>
+
+      {previewError !== null ? <p className="form-error" role="alert">预览失败：{previewError}</p> : null}
 
       {previewView === null ? (
         <EmptyStateScreen title="尚未生成预览" description="先填写预设并点击预览，服务端会返回推荐战力、成功率和路线。" />
@@ -412,7 +420,7 @@ function ExpeditionPrepareCard({
           </div>
           <div className="expedition-choice-list">
             {previewView.choices.map((choice, index) => (
-              <div key={choice.choiceId} className="expedition-choice-shell">
+              <div key={`${choice.choiceId}-${index}`} className="expedition-choice-shell">
                 <DungeonChoiceButton
                   choiceId={choice.choiceId}
                   routeId={choice.routeId}
@@ -509,7 +517,7 @@ function ExpeditionRuntimeCard({
         <div className="expedition-choice-list">
           {previewChoices.map((choice) => (
             <DungeonChoiceButton
-              key={choice.choiceId}
+              key={`${choice.choiceId}-${choice.routeId}`}
               choiceId={choice.choiceId}
               routeId={choice.routeId}
               riskLabel={choice.riskLabel}
@@ -664,11 +672,6 @@ export function ExpeditionPage(): ReactElement {
   const previewMutation = useMutation({
     mutationFn: () => apiClient.previewDungeon(QINGSHE_DUNGEON_ID, createDungeonPreviewRequest(session.character_id, draft)),
   });
-
-  useEffect(() => {
-    previewMutation.reset();
-  }, [draft.initialRouteId, draft.loadoutPresetId, draft.strategyPresetId, previewMutation]);
-
   const enterMutation = useMutation({
     mutationFn: async () => {
       const opportunity = opportunityQuery.data;
@@ -746,6 +749,7 @@ export function ExpeditionPage(): ReactElement {
     mutationFn: () => apiClient.claimDungeonTeachingGrant(session.character_id, createIdempotencyKey()),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id, 'opportunity'] });
+      await queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id, 'progression'] });
     },
   });
 
@@ -802,6 +806,7 @@ export function ExpeditionPage(): ReactElement {
           onPreview={() => previewMutation.mutate()}
           onEnter={() => enterMutation.mutate()}
           previewPending={previewMutation.isPending}
+          previewError={previewMutation.error instanceof Error ? previewMutation.error.message : null}
           enterPending={enterMutation.isPending}
           canPreview={canPreview}
           canEnter={canEnter}

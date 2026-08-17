@@ -633,8 +633,8 @@ export function createDungeonRepository(pool: DatabasePool): DungeonRepository {
              selected_at, combat_resolved_at, finalized_at,
              run_state, reward_intent, result_snapshot
            )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-                  $15, $16, $17, $18, $19, $20, $21::jsonb, $22::jsonb, $23::jsonb, $24::jsonb)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
+                  $15, $16, $17, $18, $19, $20, $21::jsonb, $22::jsonb, $23::jsonb)
            RETURNING id, character_id, dungeon_id, status, current_node_id,
                      phase, outcome, revision::text AS revision,
                      initial_route_id, loadout_preset_id, strategy_preset_id,
@@ -680,7 +680,7 @@ export function createDungeonRepository(pool: DatabasePool): DungeonRepository {
              run_state, reward_intent, result_snapshot
            )
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-                  $15, $16, $17, $18, $19, $20, $21::jsonb, $22::jsonb, $23::jsonb)
+                  $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23::jsonb, $24::jsonb)
            RETURNING id, character_id, dungeon_id, status, current_node_id,
                      phase, outcome, revision::text AS revision,
                      initial_route_id, loadout_preset_id, strategy_preset_id,

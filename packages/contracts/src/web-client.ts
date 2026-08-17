@@ -1182,7 +1182,7 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
         baseUrl,
         fetchImpl,
         csrfToken,
-        `/api/v1/dungeons/${dungeonId}/preview`,
+        `/api/v1/characters/dungeons/${dungeonId}/preview`,
         {
           method: 'POST',
           body: JSON.stringify(request),
@@ -1219,7 +1219,7 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
         baseUrl,
         fetchImpl,
         csrfToken,
-        `/api/v1/dungeon-runs/${runId}`,
+        `/api/v1/characters/dungeon-runs/${runId}`,
         { method: 'GET' },
       );
       return response.data;
@@ -1229,7 +1229,7 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
         baseUrl,
         fetchImpl,
         csrfToken,
-        `/api/v1/dungeon-runs/${runId}/choices`,
+        `/api/v1/characters/dungeon-runs/${runId}/choices`,
         {
           method: 'POST',
           headers: { 'idempotency-key': idempotencyKey },
@@ -1243,7 +1243,7 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
         baseUrl,
         fetchImpl,
         csrfToken,
-        `/api/v1/dungeon-runs/${runId}/finalize`,
+        `/api/v1/characters/dungeon-runs/${runId}/finalize`,
         {
           method: 'POST',
           headers: { 'idempotency-key': idempotencyKey },

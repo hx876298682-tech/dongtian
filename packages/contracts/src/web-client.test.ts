@@ -626,7 +626,7 @@ describe('createApiClient', () => {
         } as Response;
       }
 
-      if (url.includes('/api/v1/dungeons/dungeon.t1.qingshe_cave/preview')) {
+      if (url.includes('/api/v1/characters/dungeons/dungeon.t1.qingshe_cave/preview')) {
         return {
           ok: true,
           status: 200,
@@ -717,7 +717,7 @@ describe('createApiClient', () => {
         } as Response;
       }
 
-      if (headers.get('idempotency-key') !== null && url.endsWith('/api/v1/dungeon-runs/run-1/choices')) {
+      if (headers.get('idempotency-key') !== null && url.endsWith('/api/v1/characters/dungeon-runs/run-1/choices')) {
         return {
           ok: true,
           status: 200,
@@ -775,7 +775,7 @@ describe('createApiClient', () => {
         } as Response;
       }
 
-      if (headers.get('idempotency-key') !== null && url.endsWith('/api/v1/dungeon-runs/run-1/finalize')) {
+      if (headers.get('idempotency-key') !== null && url.endsWith('/api/v1/characters/dungeon-runs/run-1/finalize')) {
         return {
           ok: true,
           status: 200,

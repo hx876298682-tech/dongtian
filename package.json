@@ -28,6 +28,7 @@
     "test:e2e:serve:external": "E2E_DATABASE_MODE=external tsx tests/e2e/start-server.ts",
     "test:e2e:external": "E2E_DATABASE_MODE=external playwright test",
     "test:e2e:install": "playwright install chromium",
+    "test:e2e:smoke": "playwright test tests/e2e/vertical-slice.spec.ts --list",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:integration": "vitest run tests/integration",

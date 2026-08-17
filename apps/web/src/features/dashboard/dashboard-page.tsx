@@ -6,6 +6,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import {
   ApiClientError,
   type AuthActiveSession,
+  type BreakthroughPreviewResponse,
   type CharacterProgression,
   type DungeonRunResponse,
   type InventorySnapshot,
@@ -120,6 +121,12 @@ function useDashboardQueries(characterId: string) {
     queryFn: () => apiClient.getLatestSettlement(characterId),
   });
 
+  const breakthroughQuery = useQuery<BreakthroughPreviewResponse>({
+    queryKey: [DASHBOARD_QUERY_PREFIX, characterId, 'breakthrough-next'],
+    queryFn: () => apiClient.getNextBreakthrough(characterId),
+    retry: false,
+  });
+
   const dungeonRunQuery = useQuery<DungeonRunResponse>({
     queryKey: [DASHBOARD_QUERY_PREFIX, characterId, 'dungeon-run', activeDungeonRunId ?? 'none'],
     queryFn: () => {
@@ -132,7 +139,7 @@ function useDashboardQueries(characterId: string) {
     retry: false,
   });
 
-  return { progressionQuery, inventoryQuery, queueQuery, settlementQuery, dungeonRunQuery };
+  return { progressionQuery, inventoryQuery, queueQuery, settlementQuery, breakthroughQuery, dungeonRunQuery };
 }
 
 export function DashboardLoading(): ReactElement {
@@ -467,7 +474,7 @@ export function DashboardPage(): ReactElement {
   const setQueueDraftTitle = useUiDraftStore((state) => state.setQueueDraftTitle);
   const setQueueDraftNote = useUiDraftStore((state) => state.setQueueDraftNote);
 
-  const { progressionQuery, inventoryQuery, queueQuery, settlementQuery, dungeonRunQuery } = useDashboardQueries(session.character_id);
+  const { progressionQuery, inventoryQuery, queueQuery, settlementQuery, breakthroughQuery, dungeonRunQuery } = useDashboardQueries(session.character_id);
   const [editorState, dispatch] = useReducer(queueEditorReducer, undefined, () => createInitialQueueEditorState());
 
   useEffect(() => {
@@ -505,8 +512,14 @@ export function DashboardPage(): ReactElement {
       return null;
     }
 
-    return buildDashboardAuthoritySnapshot(progressionQuery.data, queueQuery.data, inventoryQuery.data);
-  }, [inventoryQuery.data, progressionQuery.data, queueQuery.data]);
+    return buildDashboardAuthoritySnapshot(
+      progressionQuery.data,
+      queueQuery.data,
+      inventoryQuery.data,
+      settlementQuery.data,
+      breakthroughQuery.data,
+    );
+  }, [breakthroughQuery.data, inventoryQuery.data, progressionQuery.data, queueQuery.data, settlementQuery.data]);
 
   const settlementView = useMemo(() => buildLatestSettlementView(settlementQuery.data), [settlementQuery.data]);
 

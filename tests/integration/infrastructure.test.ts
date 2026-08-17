@@ -19,6 +19,10 @@ type ComposeFile = {
   volumes?: Record<string, Record<string, never>>;
 };
 
+type PackageManifest = {
+  scripts?: Record<string, string>;
+};
+
 const composePath = resolve(process.cwd(), 'docker-compose.yml');
 const compose = parse(readFileSync(composePath, 'utf8')) as ComposeFile;
 
@@ -40,5 +44,25 @@ describe('local PostgreSQL infrastructure', () => {
       'dongtian-postgres-data',
       'dongtian-postgres-test-data',
     ]);
+  });
+
+  it('defines a credential-free CI gate for install, checks, OpenAPI, build, and Playwright smoke', () => {
+    const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/ci.yml'), 'utf8');
+    const packageManifest = JSON.parse(
+      readFileSync(resolve(process.cwd(), 'package.json'), 'utf8'),
+    ) as PackageManifest;
+
+    expect(packageManifest.scripts?.['test:e2e:smoke']).toBe(
+      'playwright test tests/e2e/vertical-slice.spec.ts --list',
+    );
+    expect(workflow).toContain('pnpm install --frozen-lockfile');
+    expect(workflow).toContain('pnpm typecheck');
+    expect(workflow).toContain('pnpm lint');
+    expect(workflow).toContain('pnpm test');
+    expect(workflow).toContain('pnpm test:integration');
+    expect(workflow).toContain('pnpm openapi:check');
+    expect(workflow).toContain('pnpm build');
+    expect(workflow).toContain('pnpm test:e2e:smoke');
+    expect(workflow).toContain('E2E_DATABASE_MODE: docker');
   });
 });
