@@ -1,11 +1,14 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
-import { DashboardError, DashboardLoading, QueuePreviewCard, SettlementSummaryCard } from './dashboard-page.js';
+import { DashboardError, DashboardLoading, QueuePreviewCard, SettlementSummaryCard, TaskStatusDialog, RewardStatusDialog, selectCurrentTask } from './dashboard-page.js';
 import { buildLatestSettlementView } from './dashboard-adapter.js';
 import { createQueueEditorState } from './queue-editor.js';
 
 describe('dashboard page components', () => {
+  it('falls back to the first queued task when the API has no current pointer', () => {
+    expect(selectCurrentTask({ current: null, entries: [{ entry_id: 'first' } as never] })?.entry_id).toBe('first');
+  });
   it('renders loading and error surfaces without browser-only APIs', () => {
     const loadingMarkup = renderToStaticMarkup(<DashboardLoading />);
     const errorMarkup = renderToStaticMarkup(<DashboardError error="boom" onRetry={() => undefined} />);
@@ -73,5 +76,19 @@ describe('dashboard page components', () => {
     expect(readyMarkup).toContain('离线收获');
     expect(readyMarkup).toContain('时间线');
     expect(readyMarkup).toContain('XP 与物品');
+  });
+
+  it('renders task status details and reward status in explicit dialogs', () => {
+    const taskMarkup = renderToStaticMarkup(
+      <TaskStatusDialog open task={{ action_id: 'action.cultivation.qi', status: 'RUNNING', completed_cycles: '3', progress_time_us: '1200000' }} onOpenChange={() => undefined} />,
+    );
+    const rewardMarkup = renderToStaticMarkup(
+      <RewardStatusDialog open rewards={[{ title: '修为', detail: '+2.5 XP' }]} onOpenChange={() => undefined} />,
+    );
+
+    expect(taskMarkup).toContain('任务详情');
+    expect(taskMarkup).toContain('已完成 3 轮');
+    expect(rewardMarkup).toContain('奖励状态');
+    expect(rewardMarkup).toContain('+2.5 XP');
   });
 });

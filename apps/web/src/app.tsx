@@ -23,9 +23,9 @@ import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
 import { SettingsPage } from './features/system/settings-page.js';
 import { ReferencePage } from './features/system/reference-pages.js';
-import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_ROUTES } from './navigation.js';
+import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_ROUTES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
-import type { AuthActiveSession, InventoryAsset, InventorySnapshot, Queue } from '@dongtian/contracts';
+import type { AuthActiveSession, CharacterProgression, InventoryAsset, InventorySnapshot, Queue } from '@dongtian/contracts';
 import { apiClient } from './lib/api.js';
 import { buildIdleProgressView } from './features/dashboard/dashboard-adapter.js';
 import { emitGameFeedback, subscribeGameFeedback, type GameFeedbackDetail } from './lib/game-feedback.js';
@@ -42,24 +42,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-function formatDateTime(value: string | undefined): string {
-  if (!value) {
-    return '待同步';
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat('zh-CN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    hour12: false,
-    timeZone: 'Asia/Shanghai',
-  }).format(date);
-}
 
 function createIdempotencyKey(): string {
   return typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `web-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -95,7 +77,7 @@ function GlobalIdleProgress({ characterId }: { readonly characterId: string }): 
   if (view === null) return null;
 
   return (
-    <div className="global-idle-progress" aria-label="全局挂机进度">
+    <div className="global-idle-progress" aria-label="全局当前行动">
       <div className="global-idle-progress__copy">
         <span>正在挂机</span>
         <strong>{view.actionLabel}</strong>
@@ -123,6 +105,19 @@ function inventoryLabel(asset: InventoryAsset): string {
   return raw.replaceAll('_', ' ');
 }
 
+function realmLabel(realmStageId: string | undefined): string {
+  if (realmStageId === 'realm.mortal.entry') return '炼气入门';
+  if (realmStageId === 'realm.mortal.foundation') return '筑基初成';
+  if (realmStageId?.startsWith('realm.')) return '修行中';
+  return '初入洞天';
+}
+
+function formatPlayerNumber(value: string | number | undefined): string {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return '0';
+  return new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 2 }).format(numeric);
+}
+
 function GlobalInventorySummary({ characterId }: { readonly characterId: string }): ReactElement {
   const inventoryQuery = useQuery<InventorySnapshot>({
     queryKey: ['global-inventory', characterId],
@@ -144,6 +139,30 @@ function GlobalInventorySummary({ characterId }: { readonly characterId: string 
         ))}
       </div>
     </section>
+  );
+}
+
+function GlobalResourceSummary({ characterId }: { readonly characterId: string }): ReactElement {
+  const progressionQuery = useQuery<CharacterProgression>({
+    queryKey: ['global-progression', characterId],
+    queryFn: () => apiClient.getProgression(characterId),
+    staleTime: 20_000,
+    refetchInterval: 45_000,
+  });
+  const inventoryQuery = useQuery<InventorySnapshot>({
+    queryKey: ['global-resources', characterId],
+    queryFn: () => apiClient.getInventory(characterId),
+    staleTime: 20_000,
+    refetchInterval: 45_000,
+  });
+  const currencies = inventoryQuery.data?.currencies.slice(0, 1) ?? [];
+
+  return (
+    <div className="topbar-resources" aria-label="角色资源">
+      <div className="topbar-resource"><span>境界</span><strong>{realmLabel(progressionQuery.data?.cultivation.realm_stage_id)}</strong></div>
+      <div className="topbar-resource"><span>修为</span><strong>{formatPlayerNumber(progressionQuery.data?.cultivation.xp)}</strong></div>
+      <div className="topbar-resource"><span>灵石</span><strong>{currencies[0]?.available_quantity ?? 0}</strong></div>
+    </div>
   );
 }
 
@@ -169,7 +188,7 @@ function AppFrame({
   const setRightRailPinned = useUiDraftStore((state) => state.setRightRailPinned);
   const setActiveRailSection = useUiDraftStore((state) => state.setActiveRailSection);
   const [logCollapsed, setLogCollapsed] = useState(false);
-  const [logChannel, setLogChannel] = useState<'收获' | '战斗' | '系统'>('收获');
+  const [logChannel, setLogChannel] = useState<'收获' | '战斗' | '活动'>('收获');
   const [rightRailTab, setRightRailTab] = useState<'inventory' | 'equipment' | 'skills' | 'cave' | 'loadout'>('inventory');
   const shellQueueQuery = useQuery<Queue>({
     queryKey: ['global-idle-progress', session.character_id],
@@ -199,28 +218,15 @@ function AppFrame({
             <h1 className="brand-block__title">洞天</h1>
             <span className="brand-block__version">{SHELL_BRAND_COPY.version}</span>
           </div>
-          <p className="brand-block__subtitle">
-            匿名角色 · 会话到期 {formatDateTime(session.session_expires_at)} · 角色 {session.character_id.slice(0, 8)}
-          </p>
+          <p className="brand-block__subtitle">散修 · 洞天一隅</p>
         </div>
 
         <GlobalIdleProgress characterId={session.character_id} />
 
         <div className="topbar-metrics" aria-label="角色摘要">
-          <div className="metric-chip">
-            <span className="metric-chip__label">所在区域</span>
-            <strong className="metric-chip__value" title={currentRoute.label}>
-              {currentRoute.label}
-            </strong>
-          </div>
-          <div className="metric-chip">
-            <span className="metric-chip__label">角色</span>
-            <strong className="metric-chip__value" title="洞天散修">
-              洞天散修
-            </strong>
-          </div>
+          <GlobalResourceSummary characterId={session.character_id} />
           <button className="ghost-button" type="button" onClick={onLogout}>
-            切换角色
+            离开
           </button>
         </div>
       </header>
@@ -238,35 +244,66 @@ function AppFrame({
             </button>
           </div>
 
-          <nav className="shell-nav__list" aria-label="主导航">
-            {SHELL_ROUTES.map((route) => (
-              <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
-                <span className="shell-nav__link-label">{route.label}</span>
-                <span className="shell-nav__link-desc">{route.description}</span>
-              </NavLink>
-            ))}
-          </nav>
-
-          <section className="shell-nav__flow" aria-label="快速入口">
-            <div className="shell-nav__flow-title">快速入口</div>
-            <div className="shell-nav__list">
-              {SHELL_FLOW_STEPS.map((step, index) => (
-                <NavLink
-                  key={step.id}
-                  className={({ isActive }) => `shell-nav__link shell-nav__flow-link ${isActive ? 'shell-nav__link--active' : ''}`}
-                  to={step.path}
-                  end={step.id === 'dashboard'}
-                  title={step.description}
-                >
-                  <span className="shell-nav__link-label">{index + 1}. {step.label}</span>
-                  <span className="shell-nav__link-desc">{step.description}</span>
-                </NavLink>
-              ))}
-            </div>
-          </section>
+          <div className="shell-nav__groups">
+            <section className="shell-nav__group">
+              <h2 className="shell-nav__group-title">修行</h2>
+              <nav className="shell-nav__list" aria-label="主导航：修行">
+                {SHELL_ROUTES.filter((route) => ['dashboard', 'cultivation', 'craft'].includes(route.id)).map((route) => (
+                  <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-label">{route.label}</span>
+                    <span className="shell-nav__link-desc">{route.description}</span>
+                  </NavLink>
+                ))}
+              </nav>
+            </section>
+            <section className="shell-nav__group">
+              <h2 className="shell-nav__group-title">冒险</h2>
+              <nav className="shell-nav__list" aria-label="主导航：冒险">
+                {SHELL_ROUTES.filter((route) => ['expedition', 'maze', 'shops', 'tasks'].includes(route.id)).map((route) => (
+                  <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-label">{route.label}</span>
+                    <span className="shell-nav__link-desc">{route.description}</span>
+                  </NavLink>
+                ))}
+              </nav>
+            </section>
+            <section className="shell-nav__group">
+              <h2 className="shell-nav__group-title">角色</h2>
+              <nav className="shell-nav__list" aria-label="主导航：角色">
+                {SHELL_ROUTES.filter((route) => ['character', 'inventory', 'achievements', 'leaderboard'].includes(route.id)).map((route) => (
+                  <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-label">{route.label}</span>
+                    <span className="shell-nav__link-desc">{route.description}</span>
+                  </NavLink>
+                ))}
+              </nav>
+            </section>
+            <section className="shell-nav__group">
+              <h2 className="shell-nav__group-title">社交</h2>
+              <nav className="shell-nav__list" aria-label="主导航：社交">
+                {SHELL_ROUTES.filter((route) => ['guild', 'social'].includes(route.id)).map((route) => (
+                  <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-label">{route.label}</span>
+                    <span className="shell-nav__link-desc">{route.description}</span>
+                  </NavLink>
+                ))}
+              </nav>
+            </section>
+            <section className="shell-nav__group">
+              <h2 className="shell-nav__group-title">其他</h2>
+              <nav className="shell-nav__list" aria-label="主导航：其他">
+                {SHELL_ROUTES.filter((route) => ['settings', 'guide', 'rules', 'news'].includes(route.id)).map((route) => (
+                  <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                    <span className="shell-nav__link-label">{route.label}</span>
+                    <span className="shell-nav__link-desc">{route.description}</span>
+                  </NavLink>
+                ))}
+              </nav>
+            </section>
+          </div>
 
           <div className="shell-nav__footer">
-            <p>交易功能尚未开放。</p>
+            <p>洞天在线</p>
           </div>
         </aside>
 
@@ -280,16 +317,16 @@ function AppFrame({
           </div>
 
           <div className="shell-main__content">{children}</div>
-          <section className={`game-log ${logCollapsed ? 'game-log--collapsed' : ''}`} aria-label="修行日志">
+          <section className={`game-log ${logCollapsed ? 'game-log--collapsed' : ''}`} aria-label="活动日志">
             <div className="game-log__header">
-              <div className="game-log__tabs"><strong>修行日志</strong>{(['收获', '战斗', '系统'] as const).map((channel) => <button key={channel} className={logChannel === channel ? 'game-log__tab game-log__tab--active' : 'game-log__tab'} type="button" onClick={() => setLogChannel(channel)}>{channel}</button>)}</div>
+              <div className="game-log__tabs"><strong>修行记录</strong>{(['收获', '战斗', '活动'] as const).map((channel) => <button key={channel} className={logChannel === channel ? 'game-log__tab game-log__tab--active' : 'game-log__tab'} type="button" onClick={() => setLogChannel(channel)}>{channel}</button>)}</div>
               <button className="ghost-button ghost-button--compact" type="button" onClick={() => setLogCollapsed(!logCollapsed)}>{logCollapsed ? '展开' : '收起'}</button>
             </div>
             {logCollapsed ? null : (
               <div className="game-log__messages">
                 {logChannel === '收获' ? <><p><time>当前</time><span>{liveActionSummary}</span></p><p><time>最近</time><span>{settlementSummary}</span></p><p><time>目标</time><span>{goalTrackerSummary}</span></p></> : null}
                 {logChannel === '战斗' ? <p><time>暂无</time><span>还没有新的秘境战斗记录，开始一次探险后会显示路线和结果。</span></p> : null}
-                {logChannel === '系统' ? <><p><time>正常</time><span>洞天服务已连接，挂机会在切页后继续。</span></p><p><time>提示</time><span>可以在设置中调整面板密度、动效和日志显示。</span></p></> : null}
+                {logChannel === '活动' ? <><p><time>修行</time><span>洞天安稳运转，挂机会在切页后继续。</span></p><p><time>活动</time><span>新的修行记录会在这里出现。</span></p></> : null}
               </div>
             )}
           </section>
@@ -308,7 +345,7 @@ function AppFrame({
 
           <nav className="rail-tabs" aria-label="角色面板">
             {([
-              ['inventory', '背包'],
+              ['inventory', '战利品'],
               ['equipment', '装备'],
               ['skills', '技能'],
               ['cave', '洞府'],
@@ -503,7 +540,7 @@ function GlobalGameFeedback(): ReactElement | null {
   }, [feedback]);
 
   if (feedback === null) return null;
-  return <div className={`game-feedback game-feedback--${feedback.tone ?? 'info'}`} role="status">{feedback.message}</div>;
+  return <div className={`game-feedback game-feedback--${feedback.tone ?? 'info'}`} role="status" aria-label="操作反馈">{feedback.message}</div>;
 }
 
 export function App(): ReactElement {

@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useMemo, useReducer, useRef, type ReactElement } from 'react';
+import { startTransition, useEffect, useMemo, useReducer, useRef, useState, type ReactElement } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router';
 
@@ -17,6 +17,7 @@ import { EmptyStateScreen, LoadingStateScreen, LockedStateScreen, LocalErrorStat
 
 import { apiClient } from '../../lib/api.js';
 import { emitGameFeedback } from '../../lib/game-feedback.js';
+import { GameDialog } from '../../components/game-dialog.js';
 import { readActiveDungeonRunId, writeActiveDungeonRunId } from './dungeon-session.js';
 import {
   dungeonRouteHint,
@@ -27,6 +28,7 @@ import {
 } from './expedition-adapter.js';
 import {
   createDungeonPreviewRequest,
+  DEFAULT_DUNGEON_STRATEGY_ID,
   createInitialExpeditionDraft,
   expeditionDraftReducer,
   isExpeditionDraftReady,
@@ -120,6 +122,41 @@ function choiceLabel(choiceId: string): string {
     default:
       return choiceId;
   }
+}
+
+export function DungeonRoomDialog({
+  open,
+  roomId,
+  routeId,
+  onOpenChange,
+}: {
+  readonly open: boolean;
+  readonly roomId: string;
+  readonly routeId: string | null;
+  readonly onOpenChange: (open: boolean) => void;
+}): ReactElement | null {
+  if (!open) return null;
+  const roomLabel = roomId.includes('entry') ? '入口石径' : roomId.includes('branch') ? '蛇窟岔路' : roomId.includes('deep') ? '深潭石台' : '当前房间';
+  const routeLabelText = routeId === QINGSHE_SAFE_ROUTE_ID ? '稳妥路线' : routeId === QINGSHE_HIGH_RISK_ROUTE_ID ? '高风险路线' : '尚未选择';
+  const body = <><div className="game-dialog__facts"><span>房间</span><strong>{roomLabel}</strong></div><div className="game-dialog__facts"><span>路线</span><strong>{routeLabelText}</strong></div></>;
+  if (typeof window === 'undefined') return <div role="dialog"><h2>房间详情</h2>{body}</div>;
+  return <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="青蛇洞" title="房间详情">{body}</GameDialog>;
+}
+
+export function AutomationDialog({
+  open,
+  strategyId,
+  onOpenChange,
+}: {
+  readonly open: boolean;
+  readonly strategyId: string | null;
+  readonly onOpenChange: (open: boolean) => void;
+}): ReactElement | null {
+  if (!open) return null;
+  const strategyLabel = strategyId === DEFAULT_DUNGEON_STRATEGY_ID ? '稳妥路线' : strategyId === 'strategy.risk' ? '大胆路线' : '未设置';
+  const body = <><p className="game-dialog__copy">当前仅展示已提交策略，未开放的自动化配置不会在前端伪造。</p><div className="game-dialog__facts"><span>策略</span><strong>{strategyLabel}</strong></div></>;
+  if (typeof window === 'undefined') return <div role="dialog"><h2>自动化策略</h2>{body}</div>;
+  return <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="青蛇洞" title="自动化策略">{body}</GameDialog>;
 }
 
 function useExpeditionQueries(session: AuthActiveSession, loadoutPresetId: string, runId: string | null) {
@@ -432,6 +469,8 @@ function ExpeditionRuntimeCard({
   onRefresh,
   onChoose,
   onFinalize,
+  onOpenRoom,
+  onOpenAutomation,
   choosePending,
   finalizePending,
 }: {
@@ -440,6 +479,8 @@ function ExpeditionRuntimeCard({
   readonly onRefresh: () => void;
   readonly onChoose: (choiceId: string) => void;
   readonly onFinalize: () => void;
+  readonly onOpenRoom: () => void;
+  readonly onOpenAutomation: () => void;
   readonly choosePending: boolean;
   readonly finalizePending: boolean;
 }): ReactElement {
@@ -521,8 +562,10 @@ function ExpeditionRuntimeCard({
         <button className="ghost-button" type="button" onClick={onRefresh}>
           刷新当前运行
         </button>
+        <button className="ghost-button" type="button" onClick={onOpenRoom}>查看房间</button>
+        <button className="ghost-button" type="button" onClick={onOpenAutomation}>查看自动化</button>
         <button className="ghost-button" type="button" onClick={onFinalize} disabled={!runView.canFinalize || finalizePending}>
-          {finalizePending ? '结算中…' : 'finalize 结果'}
+          {finalizePending ? '结算中…' : '结算收获'}
         </button>
       </div>
 
@@ -616,6 +659,8 @@ export function ExpeditionPage(): ReactElement {
     undefined,
     () => createInitialExpeditionDraft(initialDraft),
   );
+  const [roomDialogOpen, setRoomDialogOpen] = useState(false);
+  const [automationDialogOpen, setAutomationDialogOpen] = useState(false);
   const activePresetHydratedRef = useRef(false);
 
   useEffect(() => {
@@ -812,12 +857,16 @@ export function ExpeditionPage(): ReactElement {
           onFinalize={() => finalizeMutation.mutate()}
           choosePending={chooseMutation.isPending}
           finalizePending={finalizeMutation.isPending}
+          onOpenRoom={() => setRoomDialogOpen(true)}
+          onOpenAutomation={() => setAutomationDialogOpen(true)}
         />
       </div>
 
       <div className="expedition-panel">
         <ExpeditionReadOnlyLinks session={session} loadoutPresetId={draft.loadoutPresetId} runResponse={runResponse} queue={queue} />
       </div>
+      <DungeonRoomDialog open={roomDialogOpen} roomId={runResponse?.run.current_node_id ?? '暂无运行'} routeId={runResponse?.run.selected_route_id ?? null} onOpenChange={setRoomDialogOpen} />
+      <AutomationDialog open={automationDialogOpen} strategyId={runResponse?.run.strategy_preset_id ?? draft.strategyPresetId} onOpenChange={setAutomationDialogOpen} />
     </section>
   );
 }

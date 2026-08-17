@@ -17,6 +17,7 @@ import { EmptyStateScreen, LoadingStateScreen, LocalErrorStateScreen, NormalStat
 
 import { apiClient } from '../../lib/api.js';
 import { emitGameFeedback } from '../../lib/game-feedback.js';
+import { GameDialog } from '../../components/game-dialog.js';
 import { readActiveDungeonRunId } from '../expedition/dungeon-session.js';
 import { summarizeDungeonRun } from '../expedition/expedition-adapter.js';
 import { useUiDraftStore } from '../../state/ui-draft-store.js';
@@ -189,7 +190,7 @@ function QueueEditorRow({
   readonly onMoveUp: () => void;
   readonly onRemove: () => void;
   readonly onUpdate: (patch: Partial<Pick<QueueEditorEntryDraft, 'actionId' | 'mode' | 'targetValue' | 'conditionItemId' | 'conditionOperator' | 'onBlocked'>>) => void;
-}): ReactElement {
+}): ReactElement | null {
   return (
     <li className="queue-editor__row" tabIndex={0}>
       <div className="queue-editor__row-main">
@@ -459,6 +460,54 @@ export function SettlementSummaryCard({
   );
 }
 
+export interface TaskStatusDialogTask {
+  readonly action_id: string;
+  readonly status: string;
+  readonly completed_cycles: string;
+  readonly progress_time_us: string;
+}
+
+export function selectCurrentTask(queue: Pick<Queue, 'current' | 'entries'>): Queue['current'] {
+  return queue.current ?? queue.entries[0] ?? null;
+}
+
+function taskStatusLabel(status: string): string { return status === 'RUNNING' ? '进行中' : status === 'DONE' ? '已完成' : status === 'BLOCKED' ? '等待材料' : status === 'CANCELLED' ? '已取消' : '排队中'; }
+function formatTaskTime(value: string): string { const micros = Number(value); return Number.isFinite(micros) ? `${(micros / 1_000_000).toFixed(1)} 秒` : '暂无'; }
+
+export function TaskStatusDialog({
+  open,
+  task,
+  onOpenChange,
+}: {
+  readonly open: boolean;
+  readonly task: TaskStatusDialogTask | null;
+  readonly onOpenChange: (open: boolean) => void;
+}): ReactElement | null {
+  if (task === null) {
+    return null;
+  }
+
+  if (!open) return null;
+  const body = <><div className="game-dialog__facts"><span>行动</span><strong>{describeAction(task.action_id)}</strong></div><div className="game-dialog__facts"><span>状态</span><strong>{taskStatusLabel(task.status)}</strong></div><div className="game-dialog__facts"><span>完成轮数</span><strong>已完成 {task.completed_cycles} 轮</strong></div><div className="game-dialog__facts"><span>累计时长</span><strong>{formatTaskTime(task.progress_time_us)}</strong></div></>;
+  if (typeof window === 'undefined') return <div role="dialog"><h2>任务详情</h2>{body}</div>;
+  return <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="当前修行" title="任务详情">{body}</GameDialog>;
+}
+
+export function RewardStatusDialog({
+  open,
+  rewards,
+  onOpenChange,
+}: {
+  readonly open: boolean;
+  readonly rewards: ReadonlyArray<{ readonly title: string; readonly detail: string }>;
+  readonly onOpenChange: (open: boolean) => void;
+}): ReactElement | null {
+  if (!open) return null;
+  const body = rewards.length === 0 ? <p className="game-dialog__copy">暂无已入账奖励。</p> : rewards.map((reward) => <div key={`${reward.title}-${reward.detail}`} className="game-dialog__facts"><span>{reward.title}</span><strong>{reward.detail}</strong></div>);
+  if (typeof window === 'undefined') return <div role="dialog"><h2>奖励状态</h2>{body}</div>;
+  return <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="最近结算" title="奖励状态">{body}</GameDialog>;
+}
+
 export function DashboardPage(): ReactElement {
   const session = useOutletContext<AuthActiveSession>();
   const location = useLocation();
@@ -466,6 +515,8 @@ export function DashboardPage(): ReactElement {
   const queryClient = useQueryClient();
   const seededActionIdRef = useRef<string | null>(null);
   const [isPreviewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [isTaskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [isRewardDialogOpen, setRewardDialogOpen] = useState(false);
   const [quickStartState, setQuickStartState] = useState<'idle' | 'starting' | 'running' | 'error'>('idle');
   const [quickStartError, setQuickStartError] = useState<string | null>(null);
   const [clockMs, setClockMs] = useState(() => Date.now());
@@ -659,6 +710,7 @@ export function DashboardPage(): ReactElement {
   const dungeonRun = dungeonRunQuery.data?.run ?? null;
   const queueEditingLocked = dungeonRun !== null && dungeonRun.phase !== 'FINALIZED';
   const dungeonRunSummary = dungeonRunQuery.data === undefined || dungeonRunQuery.data === null ? null : summarizeDungeonRun(dungeonRunQuery.data);
+  const currentTask = selectCurrentTask(queue);
 
   return (
     <section className="dashboard-layout">
@@ -695,6 +747,7 @@ export function DashboardPage(): ReactElement {
           {quickStartState === 'error' ? <p className="quick-task-feedback quick-task-feedback--error">{quickStartError ?? '任务暂时无法开始，请稍后再试。'}</p> : null}
 
           <div className="dashboard-hero__actions"><Link className="ghost-button" to="/dashboard/cave">查看洞天</Link></div>
+          <button className="ghost-button" type="button" onClick={() => setTaskDialogOpen(true)} disabled={currentTask === null}>查看当前任务</button>
         </div>
       </div>
 
@@ -711,6 +764,7 @@ export function DashboardPage(): ReactElement {
 
       <div className="dashboard-panel">
         <SettlementSummaryCard view={settlementView} onRefresh={async () => queryClient.invalidateQueries({ queryKey: [DASHBOARD_QUERY_PREFIX, session.character_id, 'settlement-latest'] })} />
+        <button className="ghost-button" type="button" onClick={() => setRewardDialogOpen(true)} disabled={settlementView.kind === 'empty'}>查看奖励状态</button>
       </div>
 
       <div className="dashboard-panel" id="queue">
@@ -823,6 +877,7 @@ export function DashboardPage(): ReactElement {
             <button className="ghost-button" type="button" onClick={() => resumeMutation.mutate()} disabled={queueEditingLocked || resumeMutation.isPending || queueQuery.data?.paused === false}>
               {resumeMutation.isPending ? '恢复中…' : '恢复'}
             </button>
+            <button className="ghost-button" type="button" disabled title="停止功能暂未开放">停止（未开放）</button>
           </div>
         </div>
 
@@ -869,6 +924,9 @@ export function DashboardPage(): ReactElement {
           />
         </div>
       </div>
+
+      <TaskStatusDialog open={isTaskDialogOpen} task={currentTask} onOpenChange={setTaskDialogOpen} />
+      <RewardStatusDialog open={isRewardDialogOpen} rewards={settlementView.kind === 'empty' ? [] : settlementView.rewards} onOpenChange={setRewardDialogOpen} />
     </section>
   );
 }

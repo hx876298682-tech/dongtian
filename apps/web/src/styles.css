@@ -117,6 +117,7 @@ select {
   min-height: 0;
   overflow: hidden;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 10px;
   padding: 10px;
@@ -200,6 +201,31 @@ select {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.topbar-resources {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.topbar-resource {
+  min-width: 62px;
+  display: grid;
+  gap: 2px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  background: rgba(7, 12, 24, 0.58);
+}
+
+.topbar-resource span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.topbar-resource strong {
+  color: var(--accent-strong);
+  font-size: 13px;
 }
 
 .global-idle-progress {
@@ -370,6 +396,26 @@ select {
   gap: 5px;
 }
 
+.shell-nav__groups {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.shell-nav__group {
+  display: grid;
+  gap: 5px;
+}
+
+.shell-nav__group-title {
+  margin: 0;
+  padding: 2px 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
 .shell-nav__flow {
   display: grid;
   gap: 10px;
@@ -430,6 +476,11 @@ select {
   display: none;
 }
 
+.shell-nav--collapsed .shell-nav__group-title {
+  font-size: 0;
+  padding: 0;
+}
+
 .shell-nav--collapsed .shell-nav__flow-title {
   font-size: 0;
 }
@@ -440,6 +491,7 @@ select {
 }
 
 .shell-main {
+  min-width: 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 8px;
@@ -1108,6 +1160,45 @@ select {
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.equipment-instance-dialog {
+  display: grid;
+  gap: 12px;
+}
+
+.equipment-instance-dialog__title,
+.equipment-instance-dialog__copy {
+  margin: 0;
+}
+
+.equipment-instance-dialog__identity,
+.equipment-instance-dialog__compare {
+  display: grid;
+  gap: 8px;
+}
+
+.equipment-instance-dialog__identity {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.equipment-instance-dialog__compare > div {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+}
+
+.equipment-instance-dialog__compare span,
+.equipment-instance-dialog__note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.equipment-instance-dialog__note {
+  margin: 0;
 }
 
 .equipment-editor {

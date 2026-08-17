@@ -38,12 +38,48 @@ describe('one-screen app shell', () => {
     expect(html).toMatch(/overflow:\s*hidden/);
     expect(body).toMatch(/overflow:\s*hidden/);
     expect(shell).toMatch(/height:\s*100dvh/);
+    expect(shell).toMatch(/grid-template-columns:\s*minmax\(0,\s*1fr\)/);
     expect(content).toMatch(/overflow:\s*auto/);
+    expect(stylesSource).toMatch(/\.shell-main\s*\{[\s\S]*?min-width:\s*0/);
   });
 
   it('provides a dedicated mobile navigation landmark for the one-screen layout', () => {
     expect(appSource).toMatch(/className="shell-mobile-nav"/);
     expect(appSource).toMatch(/aria-label="移动端主导航"/);
     expect(stylesSource).toMatch(/@media \(max-width: 920px\)[\s\S]*\.shell-mobile-nav \{[\s\S]*?display:\s*grid/);
+  });
+
+  it('uses a compact player-facing navigation with grouped destinations', () => {
+    expect(appSource).toMatch(/aria-label="主导航：修行"/);
+    expect(appSource).toMatch(/aria-label="主导航：冒险"/);
+    expect(appSource).toMatch(/aria-label="主导航：角色"/);
+    expect(appSource).not.toMatch(/快速入口/);
+    expect(appSource).not.toMatch(/交易功能尚未开放/);
+    expect(appSource).toMatch(/\['expedition', 'maze', 'shops', 'tasks'\]/);
+    expect(appSource).toMatch(/\['character', 'inventory', 'achievements', 'leaderboard'\]/);
+    expect(appSource).toMatch(/\['guild', 'social'\]/);
+    expect(appSource).toMatch(/\['settings', 'guide', 'rules', 'news'\]/);
+  });
+
+  it('keeps the top bar focused on player resources instead of engineering metadata', () => {
+    expect(appSource).toMatch(/aria-label="全局当前行动"/);
+    expect(appSource).toMatch(/aria-label="角色资源"/);
+    expect(appSource).toMatch(/灵石/);
+    expect(appSource).not.toMatch(/所在区域/);
+    expect(appSource).not.toMatch(/会话到期/);
+    expect(appSource).not.toMatch(/角色 \{session\.character_id/);
+    expect(appSource).toMatch(/炼气入门/);
+    expect(appSource).toMatch(/realmLabel\(progressionQuery\.data\?\.cultivation\.realm_stage_id\)/);
+    expect(appSource).toMatch(/formatPlayerNumber\(progressionQuery\.data\?\.cultivation\.xp\)/);
+  });
+
+  it('exposes player-facing right rail tabs, activity log channels, and feedback landmark', () => {
+    expect(appSource).toMatch(/aria-label="角色面板"/);
+    expect(appSource).toMatch(/战利品/);
+    expect(appSource).toMatch(/修行/);
+    expect(appSource).toMatch(/活动/);
+    expect(appSource).toMatch(/aria-label="活动日志"/);
+    expect(appSource).toMatch(/aria-label="操作反馈"/);
+    expect(appSource).toMatch(/logChannel === '活动'/);
   });
 });

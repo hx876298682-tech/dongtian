@@ -59,3 +59,9 @@
 - [ ] Run `pnpm vitest run`, `pnpm typecheck`, `pnpm lint`, `pnpm build`, `pnpm openapi:check`, and `git diff --check`.
 - [ ] Update `docs/工作进度记录.md` with exact evidence, remaining deferred systems, and any environment warnings.
 - [ ] Request a final code review before claiming the parity milestone complete.
+
+### Follow-up parity pass
+
+- [ ] Replace right-rail link cards with compact live inventory/equipment/skill/cave summaries and preserve route actions.
+- [ ] Expand reference pages with Milky Way-style tab content, locked-state dialogs, and player-facing empty states without inventing backend data.
+- [ ] Apply the important-action confirmation setting to breakthrough, cave upgrade, tempering, and dungeon exit operations.

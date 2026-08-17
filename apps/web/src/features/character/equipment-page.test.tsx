@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import { NormalStateScreen } from '@dongtian/ui';
 
-import { EquipmentError, EquipmentLocked, EquipmentLoading, EquipmentMaintenance, EquipmentMissingPreset } from './equipment-page.js';
+import { EquipmentError, EquipmentInstanceDialogContent, EquipmentLocked, EquipmentLoading, EquipmentMaintenance, EquipmentMissingPreset } from './equipment-page.js';
 
 describe('equipment page states', () => {
   it('renders the six required surfaces without browser APIs', () => {
@@ -23,5 +23,31 @@ describe('equipment page states', () => {
     expect(screens[3]).toContain('装备功能受限');
     expect(screens[4]).toContain('请选择装备方案');
     expect(screens[5]).toContain('权威响应');
+  });
+});
+
+describe('equipment instance detail', () => {
+  it('shows the selected instance and current/compare context in the detail dialog', () => {
+    const markup = renderToStaticMarkup(
+      createElement(EquipmentInstanceDialogContent, {
+        instance: {
+          instance_id: 'eq-current',
+          item_id: 'item.t1.cuizhi_jian',
+          temper_level: 3,
+          bound: false,
+          created_config_version: '2026.08.16.1',
+        },
+        currentSummary: '当前预设中是武器',
+        compareSummary: '强化差 3 / 5',
+        canTemper: true,
+        onTemper: () => undefined,
+      }),
+    );
+
+    expect(markup).toContain('装备详情');
+    expect(markup).toContain('cuizhi_jian');
+    expect(markup).toContain('当前预设中是武器');
+    expect(markup).toContain('强化差 3 / 5');
+    expect(markup).toContain('进入淬炼');
   });
 });

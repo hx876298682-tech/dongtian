@@ -22,6 +22,8 @@ import {
 
 import { apiClient } from '../../lib/api.js';
 import { emitGameFeedback } from '../../lib/game-feedback.js';
+import { GameDialog } from '../../components/game-dialog.js';
+import { describeItemId } from '../content/content-adapter.js';
 import {
   buildEquipmentSelectionView,
   buildEquipmentSlotComparisonRows,
@@ -230,6 +232,74 @@ function EquipmentPanelHeader({
       </div>
       <p className="page-card__copy">{copy}</p>
     </div>
+  );
+}
+
+export function EquipmentInstanceDialogContent({
+  instance,
+  currentSummary,
+  compareSummary,
+  canTemper,
+  onTemper,
+}: {
+  readonly instance: EquipmentInstance;
+  readonly currentSummary: string;
+  readonly compareSummary: string;
+  readonly canTemper: boolean;
+  readonly onTemper: () => void;
+}): ReactElement {
+  return (
+      <div className="equipment-instance-dialog">
+        <h3 className="equipment-instance-dialog__title">装备详情</h3>
+        <div className="equipment-instance-dialog__identity">
+          <strong>{describeItemId(instance.item_id)}</strong>
+          <span className="equipment-chip">{instance.bound ? '已绑定' : '未绑定'}</span>
+        </div>
+        <p className="equipment-instance-dialog__copy">装备 · 品质：未鉴定</p>
+        <p className="equipment-instance-dialog__copy">强化 +{instance.temper_level}</p>
+        <div className="equipment-instance-dialog__compare">
+          <div>
+            <span>当前预设</span>
+            <strong>{currentSummary}</strong>
+          </div>
+          <div>
+            <span>比较预设</span>
+            <strong>{compareSummary}</strong>
+          </div>
+        </div>
+        {!canTemper ? <p className="equipment-instance-dialog__note">当前装备不可淬炼，入口已禁用。</p> : null}
+      <button className="primary-button" type="button" onClick={onTemper} disabled={!canTemper}>进入淬炼</button>
+    </div>
+  );
+}
+
+export function EquipmentInstanceDialog({
+  open,
+  onOpenChange,
+  instance,
+  currentSummary,
+  compareSummary,
+  canTemper,
+  onTemper,
+}: {
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly instance: EquipmentInstance;
+  readonly currentSummary: string;
+  readonly compareSummary: string;
+  readonly canTemper: boolean;
+  readonly onTemper: () => void;
+}): ReactElement {
+  return (
+    <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="角色 · 装备" title="装备详情">
+      <EquipmentInstanceDialogContent
+        instance={instance}
+        currentSummary={currentSummary}
+        compareSummary={compareSummary}
+        canTemper={canTemper}
+        onTemper={onTemper}
+      />
+    </GameDialog>
   );
 }
 
@@ -532,6 +602,7 @@ export function CharacterEquipmentPage(): ReactElement {
   const [temperingState, temperingDispatch] = useReducer(temperingPageReducer, createInitialTemperingPageState());
   const [notice, setNotice] = useState<EquipmentNotice | null>(null);
   const [temperingNotice, setTemperingNotice] = useState<EquipmentNotice | null>(null);
+  const [instanceDialogOpen, setInstanceDialogOpen] = useState(false);
   const [presetInput, setPresetInput] = useState(params.get('preset_id') ?? '');
   const [comparePresetInput, setComparePresetInput] = useState(params.get('compare_preset_id') ?? '');
 
@@ -866,6 +937,7 @@ export function CharacterEquipmentPage(): ReactElement {
                   syncSearch(navigate, location.pathname, location.search, { instance_id: instance.instance_id });
                   temperingDispatch({ type: 'select-instance', instanceId: instance.instance_id });
                   temperingDispatch({ type: 'set-target-level', targetLevel: Math.min(instance.temper_level + 1, 7) });
+                  setInstanceDialogOpen(true);
                 }}
                 onKeep={() => temperingDispatch({ type: 'toggle-keep', instanceId: instance.instance_id })}
                 onAssign={(slot) => {
@@ -934,7 +1006,10 @@ export function CharacterEquipmentPage(): ReactElement {
                   comparePreset={compareMissing ? currentPreset : comparePreset}
                   inventory={inventory}
                   onClearSlot={() => dispatch({ type: 'set-slot-instance', slot, instanceId: null })}
-                  onInspectInstance={(instanceId) => syncSearch(navigate, location.pathname, location.search, { instance_id: instanceId })}
+                onInspectInstance={(instanceId) => {
+                  syncSearch(navigate, location.pathname, location.search, { instance_id: instanceId });
+                  setInstanceDialogOpen(true);
+                }}
                 />
               ))}
             </div>
@@ -956,7 +1031,7 @@ export function CharacterEquipmentPage(): ReactElement {
         )}
       </div>
 
-      <div className="equipment-panel">
+      <div className="equipment-panel" id="tempering-panel">
         <EquipmentPanelHeader title="淬炼台" copy="选择一件装备进行淬炼，提升它的基础属性。" />
         {selectedTemperingInstance === null ? (
           <EmptyStateScreen title="未选中淬炼目标" description="从左侧装备列表选择一个实例，或用下方下拉框指定要淬炼的装备。" />
@@ -1099,6 +1174,25 @@ export function CharacterEquipmentPage(): ReactElement {
           <EquipmentNoticeCard notice={notice} />
         </div>
       </div>
+
+      {selectedInstanceView?.instance ? (
+        <EquipmentInstanceDialog
+          open={instanceDialogOpen}
+          onOpenChange={setInstanceDialogOpen}
+          instance={selectedInstanceView.instance}
+          currentSummary={selectedInstanceView.slotHint}
+          compareSummary={selectedInstanceView.compareSummary}
+          canTemper={selectedInstanceView.instance.temper_level < 6}
+          onTemper={() => {
+            setInstanceDialogOpen(false);
+            temperingDispatch({ type: 'select-instance', instanceId: selectedInstanceView.instance?.instance_id ?? null });
+            setTemperingNotice({ kind: 'info', title: '已定位淬炼台', description: `${describeItemId(selectedInstanceView.instance?.item_id)} 已作为淬炼目标。` });
+            if (typeof document !== 'undefined') {
+              document.getElementById('tempering-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }}
+        />
+      ) : null}
     </section>
   );
 }

@@ -9,9 +9,10 @@ export interface GameDialogProps {
   readonly children: ReactNode;
   readonly primaryLabel?: string;
   readonly onPrimary?: () => void;
+  readonly primaryDisabled?: boolean;
 }
 
-export function GameDialog({ open, onOpenChange, eyebrow, title, children, primaryLabel, onPrimary }: GameDialogProps): ReactElement {
+export function GameDialog({ open, onOpenChange, eyebrow, title, children, primaryLabel, onPrimary, primaryDisabled = false }: GameDialogProps): ReactElement {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -24,7 +25,7 @@ export function GameDialog({ open, onOpenChange, eyebrow, title, children, prima
           <div className="game-dialog__body">{children}</div>
           <footer className="game-dialog__actions">
             <Dialog.Close className="ghost-button">返回</Dialog.Close>
-            {primaryLabel && onPrimary ? <button className="primary-button" type="button" onClick={onPrimary}>{primaryLabel}</button> : null}
+            {primaryLabel && onPrimary ? <button className="primary-button" type="button" onClick={onPrimary} disabled={primaryDisabled}>{primaryLabel}</button> : null}
           </footer>
         </Dialog.Content>
       </Dialog.Portal>
