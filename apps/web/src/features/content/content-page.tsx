@@ -45,6 +45,14 @@ import {
   summarizeItemQuantity,
 } from './content-adapter.js';
 
+function describeInventoryCategory(category: string | null | undefined): string {
+  if (category === 'MATERIAL') return '炼丹 / 炼器材料';
+  if (category === 'CONSUMABLE') return '丹药';
+  if (category === 'EQUIPMENT') return '装备';
+  if (category === 'CURRENCY') return '灵石与货币';
+  return '修行物品';
+}
+
 const CONTENT_QUERY_PREFIX = 'content';
 
 type ContentTab = 'actions' | 'recipes';
@@ -479,14 +487,13 @@ function InventoryDetail({
         <div>
           <p className="page-card__eyebrow">背包详情</p>
           <h3 className="content-detail__title" title={item.asset_id}>{describeItemId(item.asset_id)}</h3>
-          <p className="content-detail__copy">{item.category ?? '未分类'}</p>
+          <p className="content-detail__copy">{describeInventoryCategory(item.category)}</p>
         </div>
       </div>
       <NormalStateScreen
-        title={item.asset_id}
+        title={describeItemId(item.asset_id)}
         description={summarizeInventoryAsset(item)}
-        highlight={item.asset_type}
-        footnote="只展示数量、预留、可用、来源和用途，不包含价格或交易。"
+        highlight={item.asset_type === 'CURRENCY' ? '货币' : '修行物品'}
       />
       <div className="content-detail__section">
         <h4>来源</h4>
