@@ -118,7 +118,7 @@ export function EquipmentLoading(): ReactElement {
   return (
     <section className="equipment-layout">
       <div className="equipment-panel equipment-panel--hero">
-        <LoadingStateScreen title="正在读取装备权威快照" description="先拉取修为、背包和预设，再渲染装备与比较面板。" />
+        <LoadingStateScreen title="正在整理角色装备" description="正在读取背包、装备方案和属性。" />
       </div>
       <div className="equipment-panel">
         <LoadingStateScreen title="装备实例" description="等待库存中的装备实例。" />
@@ -195,17 +195,17 @@ export function EquipmentMissingPreset({ onOpenInventory }: { readonly onOpenInv
     <section className="equipment-layout">
       <div className="equipment-panel equipment-panel--hero">
         <EmptyStateScreen
-          title="请输入 preset_id"
-          description="装备页没有预设列表接口，必须显式指定要读取的 preset_id，才能进行保存、启用和比较。"
+          title="请选择装备方案"
+          description="输入已保存的装备方案编号，就可以编辑、启用和比较。"
           actions={[{ label: '去背包比较', onClick: onOpenInventory }]}
-          footnote="可以通过地址栏或输入框设置 preset_id 和 compare_preset_id。"
+          footnote="也可以先去背包挑选装备。"
         />
       </div>
       <div className="equipment-panel">
-        <EmptyStateScreen title="装备实例" description="先选择一个 preset_id 后再读取实例与槽位。" />
+        <EmptyStateScreen title="装备背包" description="选择一个装备方案后查看对应槽位。" />
       </div>
       <div className="equipment-panel">
-        <EmptyStateScreen title="预设编辑" description="当前没有可编辑的权威预设。" />
+        <EmptyStateScreen title="装备方案" description="当前没有可编辑的装备方案。" />
       </div>
       <div className="equipment-panel">
         <EmptyStateScreen title="属性比较" description="先输入比较目标再读取比较数据。" />
@@ -774,13 +774,13 @@ export function CharacterEquipmentPage(): ReactElement {
               </strong>
             </div>
             <div className="metric-chip">
-              <span className="metric-chip__label">状态版本</span>
-              <strong className="metric-chip__value" title={`状态版本 ${progression.character.state_version}`}>
-                {progression.character.state_version}
+              <span className="metric-chip__label">境界</span>
+              <strong className="metric-chip__value">
+                {progression.cultivation.realm_stage_id === 'realm.mortal.entry' ? '炼气入门' : '修行中'}
               </strong>
             </div>
             <div className="metric-chip">
-              <span className="metric-chip__label">装备实例</span>
+              <span className="metric-chip__label">拥有装备</span>
               <strong className="metric-chip__value" title={String(inventory.equipment_instances.length)}>
                 {inventory.equipment_instances.length}
               </strong>
@@ -828,7 +828,7 @@ export function CharacterEquipmentPage(): ReactElement {
       </div>
 
       <div className="equipment-panel">
-        <EquipmentPanelHeader title="装备实例" copy="列表来自权威 inventory.equipment_instances，支持筛选、排序、分页和保留标记，不会本地改写库存。" />
+        <EquipmentPanelHeader title="装备背包" copy="筛选、比较并选择适合当前修行路线的装备。" />
         <EquipmentFilterBar
           query={temperingState.query}
           filterMode={temperingState.filterMode}
@@ -889,7 +889,7 @@ export function CharacterEquipmentPage(): ReactElement {
       </div>
 
       <div className="equipment-panel">
-        <EquipmentPanelHeader title="预设编辑" copy="编辑内容只影响草稿，提交时才会走服务端校验与版本检查。" />
+        <EquipmentPanelHeader title="装备方案" copy="搭配装备槽位，保存后可随时切换使用。" />
         {presetMissingInput ? (
           <EquipmentMissingPreset onOpenInventory={goToInventory} />
         ) : presetMaintenance ? (
@@ -897,11 +897,11 @@ export function CharacterEquipmentPage(): ReactElement {
         ) : presetLocked ? (
           <LockedStateScreen title="预设被锁定" description={presetQuery.error?.message ?? '没有权限读取当前预设。'} footnote={presetQuery.error?.message ?? undefined} />
         ) : presetMissing ? (
-          <EmptyStateScreen title="预设不存在" description="当前 preset_id 没有对应预设，或者不属于当前角色。" actions={[{ label: '刷新', onClick: refreshAll }]} />
+          <EmptyStateScreen title="没有找到装备方案" description="输入一个已保存的方案编号，或者回到角色页创建方案。" actions={[{ label: '刷新', onClick: refreshAll }]} />
         ) : presetQuery.isPending ? (
-          <LoadingStateScreen title="读取预设中" description="等待权威 loadout 详情。" />
+          <LoadingStateScreen title="正在读取装备方案" description="正在准备装备槽位。" />
         ) : currentDraft === null ? (
-          <EmptyStateScreen title="暂无可编辑预设" description="先输入 preset_id 后再编辑装备预设。" />
+          <EmptyStateScreen title="暂无装备方案" description="先输入装备方案编号，再编辑装备槽位。" />
         ) : (
           <div className="equipment-editor">
             <div className="equipment-form">
@@ -954,7 +954,7 @@ export function CharacterEquipmentPage(): ReactElement {
       </div>
 
       <div className="equipment-panel">
-        <EquipmentPanelHeader title="淬炼台" copy="选择装备实例后提交 +1~+6，+7 以上锁定；attempt_id 保留以支持响应丢失后的同键恢复。" />
+        <EquipmentPanelHeader title="淬炼台" copy="选择一件装备进行淬炼，提升它的基础属性。" />
         {selectedTemperingInstance === null ? (
           <EmptyStateScreen title="未选中淬炼目标" description="从左侧装备列表选择一个实例，或用下方下拉框指定要淬炼的装备。" />
         ) : (
@@ -1070,7 +1070,7 @@ export function CharacterEquipmentPage(): ReactElement {
       </div>
 
       <div className="equipment-panel">
-        <EquipmentPanelHeader title="属性比较" copy="比较的是预设槽位和装备实例元数据，不伪造价格、市场或本地战斗结果。" />
+        <EquipmentPanelHeader title="属性比较" copy="比较两套装备的槽位、强化等级和主要属性。" />
         <div className="equipment-compare">
           {comparisonRows.length === 0 ? <EmptyStateScreen title="暂无比较数据" description="先加载预设和背包。" /> : null}
           {comparisonRows.map((row) => (

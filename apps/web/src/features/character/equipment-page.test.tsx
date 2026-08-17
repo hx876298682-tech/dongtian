@@ -17,11 +17,11 @@ describe('equipment page states', () => {
       renderToStaticMarkup(createElement(NormalStateScreen, { title: '正常', description: '可编辑。', highlight: '权威响应' })),
     ];
 
-    expect(screens[0]).toContain('正在读取装备权威快照');
+    expect(screens[0]).toContain('正在整理角色装备');
     expect(screens[1]).toContain('装备页读取失败');
     expect(screens[2]).toContain('装备页维护中');
     expect(screens[3]).toContain('装备功能受限');
-    expect(screens[4]).toContain('请输入 preset_id');
+    expect(screens[4]).toContain('请选择装备方案');
     expect(screens[5]).toContain('权威响应');
   });
 });
