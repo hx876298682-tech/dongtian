@@ -5,7 +5,7 @@ import { useUiDraftStore } from './state/ui-draft-store.js';
 
 describe('web shell scaffolding', () => {
   it('keeps the core navigation and reference-style page entries', () => {
-    expect(SHELL_ROUTES.length).toBeGreaterThanOrEqual(17);
+    expect(SHELL_ROUTES.length).toBeGreaterThanOrEqual(13);
     expect(SHELL_ROUTES.map((route) => route.id)).toEqual(expect.arrayContaining([
       'dashboard',
       'cultivation',
@@ -15,18 +15,19 @@ describe('web shell scaffolding', () => {
       'inventory',
       'settings',
     ]));
-    expect(SHELL_ROUTES.map((route) => route.id)).toEqual(expect.arrayContaining(['tasks', 'maze', 'shops', 'achievements', 'leaderboard', 'guild', 'social', 'guide', 'rules', 'news']));
+    expect(SHELL_ROUTES.map((route) => route.id)).toEqual(expect.arrayContaining(['shops', 'leaderboard', 'guild', 'social', 'guide', 'rules']));
     expect(SHELL_PANELS.map((panel) => panel.id)).toEqual(['current-action', 'settlement-summary', 'goal-tracker']);
   });
 
-  it('exposes the reference shop and update destinations as independent player-facing entries', () => {
+  it('keeps only the market as a visible network entry and removes unfinished placeholder pages', () => {
     const routesById = new Map(SHELL_ROUTES.map((route) => [route.id, route]));
 
     expect(routesById.get('shops')).toMatchObject({ path: '/shops', label: '市场' });
-    expect(routesById.get('store')).toMatchObject({ path: '/store', label: '商店' });
-    expect(routesById.get('cowbell-shop')).toMatchObject({ path: '/cowbell-shop', label: '牛铃商店' });
-    expect(routesById.get('news')).toMatchObject({ path: '/news', label: '新闻' });
-    expect(routesById.get('changelog')).toMatchObject({ path: '/changelog', label: '更新日志' });
+    expect(routesById.has('store')).toBe(false);
+    expect(routesById.has('cowbell-shop')).toBe(false);
+    expect(routesById.has('tasks')).toBe(false);
+    expect(routesById.has('maze')).toBe(false);
+    expect(routesById.has('achievements')).toBe(false);
   });
 
   it('exposes all behavior child routes directly under 百艺', () => {

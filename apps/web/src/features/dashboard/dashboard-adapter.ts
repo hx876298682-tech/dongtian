@@ -27,13 +27,6 @@ const ITEM_LABELS: Record<string, string> = {
   'item.t1.ninglu_hua': '凝露花',
 };
 
-const ACTION_CYCLE_MS: Record<string, number> = {
-  'action.cultivation.qi': 100_000,
-  'action.t1.herb_baicao_valley': 140_000,
-  'action.t1.qi_gathering_pill': 100_000,
-  'action.t1.qi_gathering_powder': 100_000,
-};
-
 export function describeAction(actionId: string | null | undefined): string {
   if (actionId === null || actionId === undefined || actionId === '') {
     return '暂无行动';
@@ -112,7 +105,8 @@ export function buildIdleProgressView(queue: Queue, nowMs = Date.now()): IdlePro
   const action = queue.current ?? queue.entries[0] ?? null;
   if (action === null) return null;
 
-  const cycleMs = ACTION_CYCLE_MS[action.action_id] ?? 100_000;
+  const configuredDurationUs = action.base_duration_us;
+  const cycleMs = configuredDurationUs === undefined ? 60_000 : Math.max(1, Number(configuredDurationUs) / 1_000);
   const serverAsOfMs = Date.parse(queue.as_of);
   const serverProgressMs = Number(action.progress_time_us ?? '0') / 1000;
   const liveProgressMs = queue.paused || !Number.isFinite(serverAsOfMs)
@@ -240,7 +234,7 @@ export function buildDashboardAuthoritySnapshot(
   nowMs = Date.now(),
 ): DashboardAuthoritySnapshot {
   const currentAction = queue.current ?? queue.entries[0] ?? null;
-  const cycleMs = currentAction === null ? 100_000 : ACTION_CYCLE_MS[currentAction.action_id] ?? 100_000;
+  const cycleMs = currentAction === null ? 60_000 : Math.max(1, Number(currentAction.base_duration_us ?? '60000000') / 1_000);
   const serverAsOfMs = Date.parse(queue.as_of);
   const serverProgressMs = Number(currentAction?.progress_time_us ?? '0') / 1000;
   const liveProgressMs = currentAction === null || queue.paused || !Number.isFinite(serverAsOfMs)

@@ -96,6 +96,12 @@ describe('PollingLoop', () => {
 });
 
 describe('WorkerRuntimeService', () => {
+  it('declares every constructor dependency explicitly for the tsx runtime', () => {
+    const dependencies = Reflect.getMetadata('self:paramtypes', WorkerRuntimeService) as ReadonlyArray<{ readonly index: number }> | undefined;
+
+    expect(dependencies?.map((dependency) => dependency.index).sort((left, right) => left - right)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+  });
+
   it('uses Nest lifecycle hooks to start and stop the runtime', async () => {
     const pool = {
       end: vi.fn(async () => undefined),

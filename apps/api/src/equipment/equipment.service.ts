@@ -10,6 +10,7 @@ import type {
   LoadoutPresetRecord,
   PoolClient,
 } from '@dongtian/database';
+import { resolveEffectiveRealmStageId } from '@dongtian/game-rules';
 
 import { assetRepositoryToken } from '../asset/asset.tokens.js';
 import { AuthService } from '../auth/auth.service.js';
@@ -44,6 +45,7 @@ type ParsedSaveRequest = {
 type CharacterStateRow = {
   readonly state_version: string;
   readonly realm_stage_id: string;
+  readonly cultivation_xp: string;
   readonly active_loadout_preset_id: string | null;
 };
 
@@ -227,7 +229,7 @@ export class EquipmentService {
 
         const selected = this.validateSelection({
           inventory,
-          realmStageId: state.realm_stage_id,
+          realmStageId: resolveEffectiveRealmStageId(this.configRegistry.realms, state.realm_stage_id, state.cultivation_xp),
           weaponInstanceId: parsed.weaponInstanceId,
           armorInstanceId: parsed.armorInstanceId,
           accessoryInstanceId: parsed.accessoryInstanceId,
@@ -339,8 +341,10 @@ export class EquipmentService {
     const result = await this.pool.query<CharacterStateRow>(
       `SELECT c.state_version::text AS state_version,
               c.realm_stage_id,
+              cp.cultivation_xp::text AS cultivation_xp,
               c.active_loadout_preset_id::text AS active_loadout_preset_id
          FROM characters c
+         INNER JOIN character_progression cp ON cp.character_id = c.id
         WHERE c.id = $1
           AND c.account_id = $2`,
       [characterId, accountId],
@@ -356,8 +360,10 @@ export class EquipmentService {
     const result = await client.query<CharacterStateRow>(
       `SELECT c.state_version::text AS state_version,
               c.realm_stage_id,
+              cp.cultivation_xp::text AS cultivation_xp,
               c.active_loadout_preset_id::text AS active_loadout_preset_id
          FROM characters c
+         INNER JOIN character_progression cp ON cp.character_id = c.id
         WHERE c.id = $1
           AND c.account_id = $2
         FOR UPDATE`,

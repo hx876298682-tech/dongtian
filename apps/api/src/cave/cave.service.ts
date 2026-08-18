@@ -18,6 +18,7 @@ import {
   getCaveFacilityRule,
   microseconds,
   resolveCaveModifierSnapshotBoundary,
+  resolveEffectiveRealmStageId,
   type CaveFacilityModifier,
   type CaveFacilityRuleInput,
   type CaveFacilityRule,
@@ -48,6 +49,7 @@ type CharacterStateRow = {
   readonly state_version: string;
   readonly active_config_version: string;
   readonly realm_stage_id: string;
+  readonly cultivation_xp: string;
 };
 
 type ParsedBuildRequest = {
@@ -581,7 +583,12 @@ export class CaveService {
         }
 
         const rule = getCaveFacilityRule(catalog, parsed.facilityId, parsed.targetLevel);
-        const currentRealmGroup = this.configRegistry.getRealm(character.realm_stage_id).realm_group as CaveRealmGroup;
+        const effectiveRealmStageId = resolveEffectiveRealmStageId(
+          this.configRegistry.realms,
+          character.realm_stage_id,
+          character.cultivation_xp,
+        );
+        const currentRealmGroup = this.configRegistry.getRealm(effectiveRealmStageId).realm_group as CaveRealmGroup;
         if (parsed.targetLevel !== currentLevel + 1) {
           throw badRequest('target_level_NON_CONTIGUOUS');
         }
@@ -674,7 +681,8 @@ export class CaveService {
       `SELECT c.id AS character_id,
               c.state_version::text AS state_version,
               c.active_config_version,
-              cp.realm_stage_id
+              cp.realm_stage_id,
+              cp.cultivation_xp::text AS cultivation_xp
          FROM characters c
          INNER JOIN character_progression cp ON cp.character_id = c.id
         WHERE c.id = $1
@@ -693,7 +701,8 @@ export class CaveService {
       `SELECT c.id AS character_id,
               c.state_version::text AS state_version,
               c.active_config_version,
-              cp.realm_stage_id
+              cp.realm_stage_id,
+              cp.cultivation_xp::text AS cultivation_xp
          FROM characters c
          INNER JOIN character_progression cp ON cp.character_id = c.id
         WHERE c.id = $1

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { mapCultivationStage, mapSkillProgress } from './index.js';
+import { mapCultivationStage, mapSkillProgress, resolveEffectiveRealmStageId } from './index.js';
 
 const stages = [
   {
@@ -15,6 +15,18 @@ const stages = [
     cultivation_xp_start: '100',
     cultivation_xp_required: '2000',
   },
+  {
+    id: 'realm.qi.mid',
+    stage_order: 2,
+    cultivation_xp_start: '2100',
+    cultivation_xp_required: '2600',
+  },
+  {
+    id: 'realm.foundation.early',
+    stage_order: 5,
+    cultivation_xp_start: '10000',
+    cultivation_xp_required: '26000',
+  },
 ];
 
 describe('progression rules', () => {
@@ -22,6 +34,13 @@ describe('progression rules', () => {
     expect(mapCultivationStage(stages, '99.999999').realmStageId).toBe('realm.mortal.entry');
     expect(mapCultivationStage(stages, '100').realmStageId).toBe('realm.qi.early');
     expect(mapCultivationStage(stages, '100').stageProgressXp).toBe('0');
+  });
+
+  it('advances mortal and qi stages from XP without bypassing the foundation breakthrough', () => {
+    expect(resolveEffectiveRealmStageId(stages, 'realm.mortal.entry', '100')).toBe('realm.qi.early');
+    expect(resolveEffectiveRealmStageId(stages, 'realm.mortal.entry', '2100')).toBe('realm.qi.mid');
+    expect(resolveEffectiveRealmStageId(stages, 'realm.mortal.entry', '999999')).toBe('realm.qi.mid');
+    expect(resolveEffectiveRealmStageId(stages, 'realm.foundation.early', '10000')).toBe('realm.foundation.early');
   });
 
   it('maps skill XP at zero, exact threshold, and max-level boundaries', () => {

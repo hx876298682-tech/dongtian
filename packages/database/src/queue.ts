@@ -53,6 +53,7 @@ export type QueueReplaceInput = {
   readonly characterId: string;
   readonly expectedQueueVersion: bigint;
   readonly fallbackActionId: string;
+  readonly replaceCurrent?: boolean;
   readonly entries: readonly QueueEntryWrite[];
 };
 
@@ -269,6 +270,18 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
       throw new QueueVersionConflictError(current.queueVersion);
     }
     const active = current.entries.find((entry) => entry.status === 'RUNNING');
+    if (input.replaceCurrent === true && active !== undefined) {
+      await client.query(
+        `UPDATE action_queue_entries
+            SET status = 'CANCELLED',
+                completed_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+          WHERE character_id = $1
+            AND id = $2
+            AND status = 'RUNNING'`,
+        [input.characterId, active.id],
+      );
+    }
     await client.query(
       `DELETE FROM action_queue_entries
         WHERE character_id = $1
@@ -282,9 +295,9 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
               fallback_action_id = $3,
               updated_at = CURRENT_TIMESTAMP
         WHERE character_id = $1`,
-      [input.characterId, active !== undefined, input.fallbackActionId],
+      [input.characterId, active !== undefined && input.replaceCurrent !== true, input.fallbackActionId],
     );
-    const entries = active === undefined
+    const entries = active === undefined || input.replaceCurrent === true
       ? input.entries
       : input.entries.filter(
           (entry) => entry.clientEntryId !== active.clientEntryId && entry.clientEntryId !== active.id,
@@ -292,7 +305,7 @@ export function createQueueRepository(pool: DatabasePool): QueueRepository {
     await insertEntries(
       client,
       { ...input, entries },
-      active === undefined ? 0 : active.position + 1,
+      active === undefined || input.replaceCurrent === true ? 0 : active.position + 1,
     );
     return (await lockQueue(client, input.characterId)) ?? failQueueRead();
   }

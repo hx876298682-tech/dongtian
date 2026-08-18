@@ -23,7 +23,7 @@ import { HerbalismPage } from './features/behavior/herbalism-page.js';
 import { MiningPage } from './features/behavior/mining-page.js';
 import { AlchemyPage } from './features/behavior/alchemy-page.js';
 import { ForgingPage } from './features/behavior/forging-page.js';
-import { ExpeditionPage } from './features/expedition/expedition-page.js';
+import { CombatPage } from './features/expedition/combat-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
 import { CultivationPage } from './features/cultivation/cultivation-page.js';
 import { SettingsPage } from './features/system/settings-page.js';
@@ -633,7 +633,7 @@ function AppRoutes(): ReactElement {
   useEffect(() => {
     if (auth.status === 'authenticated' && (location.pathname === '/' || location.pathname === '')) {
       startTransition(() => {
-        navigate('/dashboard/cave', { replace: true });
+        navigate('/cultivation', { replace: true });
       });
     }
   }, [auth.status, location.pathname, navigate]);
@@ -724,7 +724,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <AppRoutes />,
     children: [
-      { index: true, element: <Navigate to="/dashboard/cave" replace /> },
+      { index: true, element: <Navigate to="/cultivation" replace /> },
       { path: 'dashboard', element: <Navigate to="/dashboard/cave" replace /> },
       { path: 'dashboard/queue', element: <DashboardPage /> },
       { path: 'dashboard/cave', element: <CavePage /> },
@@ -735,13 +735,13 @@ const router = createBrowserRouter([
       { path: 'craft/mining', element: <MiningPage /> },
       { path: 'craft/alchemy', element: <AlchemyPage /> },
       { path: 'craft/forging', element: <ForgingPage /> },
-      { path: 'expedition', element: <ExpeditionPage /> },
+      { path: 'expedition', element: <CombatPage /> },
       { path: 'character', element: <CharacterEquipmentPage /> },
       { path: 'character/tools', element: <CharacterToolAssignmentsPage /> },
       { path: 'inventory', element: <InventoryPage /> },
       { path: 'settings', element: <SettingsPage /> },
       { path: 'tasks', element: <ReferencePage kind="tasks" /> },
-      { path: 'maze', element: <ReferencePage kind="maze" /> },
+      { path: 'maze', element: <Navigate to="/expedition" replace /> },
       { path: 'shops', element: <ReferencePage kind="shops" /> },
       { path: 'store', element: <ReferencePage kind="store" /> },
       { path: 'cowbell-shop', element: <ReferencePage kind="cowbell-shop" /> },

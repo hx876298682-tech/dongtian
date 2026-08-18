@@ -43,26 +43,19 @@ export const SHELL_CULTIVATION_CHILDREN: readonly ShellChildRouteItem[] = [
 ] as const;
 
 export const SHELL_ROUTES: readonly ShellRouteItem[] = [
-  { id: 'shops', label: '市场', path: '/shops', description: '资源兑换与秘境补给。' },
-  { id: 'store', label: '商店', path: '/store', description: '洞天商店与系统兑换入口。' },
-  { id: 'cowbell-shop', label: '牛铃商店', path: '/cowbell-shop', description: '牛铃兑换与特殊补给入口。' },
-  { id: 'tasks', label: '任务', path: '/tasks', description: '当前目标、完成记录和修行计划。' },
-  { id: 'maze', label: '迷宫', path: '/maze', description: '房间、路线和自动化探险。' },
   { id: 'dashboard', label: '洞府', path: '/dashboard/cave', description: '修建和升级练功房、炼丹炉、锻造炉。' },
   { id: 'cultivation', label: '修炼', path: '/cultivation', description: '选择修炼方向并安排挂机。', children: SHELL_CULTIVATION_CHILDREN },
   { id: 'craft', label: '百艺', path: '/craft', description: '采药、挖矿、炼丹、炼器和淬炼。', children: SHELL_CRAFT_CHILDREN },
   { id: 'expedition', label: '历练', path: '/expedition', description: '选择地图区域、怪物与秘境路线。' },
   { id: 'character', label: '角色', path: '/character', description: '装备整理、比较、保留和淬炼。' },
   { id: 'inventory', label: '背包', path: '/inventory', description: '材料、丹药、装备和分页筛选。' },
-  { id: 'guild', label: '宗门', path: '/guild', description: '宗门与多人协作入口。' },
-  { id: 'social', label: '仙友', path: '/social', description: '仙友、私信和组队。' },
-  { id: 'achievements', label: '成就', path: '/achievements', description: '修行里程碑和妖兽图鉴。' },
-  { id: 'leaderboard', label: '修行榜', path: '/leaderboard', description: '查看修行方向的成长记录。' },
   { id: 'settings', label: '设置', path: '/settings', description: '界面密度、动效和修行日志。' },
-  { id: 'news', label: '新闻', path: '/news', description: '洞天近期开放内容。' },
-  { id: 'changelog', label: '更新日志', path: '/changelog', description: '查看洞天版本更新记录。' },
   { id: 'guide', label: '指南', path: '/guide', description: '从第一次挂机开始了解洞天。' },
   { id: 'rules', label: '规则', path: '/rules', description: '挂机、资源、突破和秘境规则。' },
+  { id: 'shops', label: '市场', path: '/shops', description: '资源兑换与秘境补给。' },
+  { id: 'guild', label: '宗门', path: '/guild', description: '宗门与多人协作入口。' },
+  { id: 'social', label: '仙友', path: '/social', description: '仙友、私信和组队。' },
+  { id: 'leaderboard', label: '修行榜', path: '/leaderboard', description: '查看修行方向的成长记录。' },
 ];
 
 /**
@@ -92,7 +85,7 @@ export const SHELL_PANELS = [
   { id: 'goal-tracker', title: '下一境界', slot: '03' },
 ] as const;
 
-const fallbackRoute = SHELL_ROUTES[0];
+const fallbackRoute = SHELL_ROUTES.find((route) => route.id === 'cultivation') ?? SHELL_ROUTES[0];
 
 if (fallbackRoute === undefined) {
   throw new Error('SHELL_ROUTES must contain at least one entry.');

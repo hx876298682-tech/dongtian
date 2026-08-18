@@ -2,7 +2,7 @@ import type { PoolClient } from 'pg';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { DatabasePool } from './index.js';
-import { createQueueRepository } from './queue.js';
+import { createQueueRepository, type QueueReplaceInput } from './queue.js';
 
 describe('queue repository', () => {
   it('reads queue version, fallback, and ordered entries as bigint/string values', async () => {
@@ -151,6 +151,32 @@ describe('queue repository', () => {
     expect(deletes[0]).toContain("status IN ('QUEUED', 'BLOCKED')");
     expect(inserts).toHaveLength(1);
     expect(inserts[0]?.[8]).toContain('new-entry');
+  });
+
+  it('cancels the running entry when an immediate replacement is requested', async () => {
+    const queries: string[] = [];
+    const client = {
+      async query<T>(sql: string): Promise<{ readonly rows: T[] }> {
+        queries.push(sql);
+        if (sql.includes('SELECT id FROM characters')) return { rows: [{ id: 'character-1' }] as T[] };
+        if (sql.includes('SELECT continuation_required')) return { rows: [{ continuation_required: false }] as T[] };
+        if (sql.includes('FROM action_queues')) return { rows: [{ character_id: 'character-1', queue_version: '1', pending_replace_after_cycle: false, paused: false, fallback_action_id: 'action.cultivation.qi' }] as T[] };
+        if (sql.includes('FROM action_queue_entries')) return { rows: [{ id: 'entry-running', character_id: 'character-1', position: 0, action_config_id: 'action.cultivation.qi', mode: 'INFINITE', target_value: null, condition_item_id: null, condition_operator: null, on_blocked: 'FALLBACK', status: 'RUNNING', completed_cycles: '0', progress_time_us: '0', snapshot: null, snapshot_config_version: null, started_at: new Date(), completed_at: null, blocked_reason: null }] as T[] };
+        return { rows: [] as T[] };
+      },
+      release: vi.fn(),
+    } as unknown as PoolClient;
+    const input = {
+      characterId: 'character-1',
+      expectedQueueVersion: 1n,
+      fallbackActionId: 'action.cultivation.qi',
+      replaceCurrent: true,
+      entries: [{ clientEntryId: 'new-action', position: 0, actionConfigId: 'action.t1.combat_qingshe', mode: 'INFINITE', onBlocked: 'FALLBACK', configVersion: '2026.08.16.1' }],
+    } as unknown as QueueReplaceInput;
+
+    await createQueueRepository({ query: client.query.bind(client) } as unknown as DatabasePool).replaceQueue(client, input);
+
+    expect(queries.some((sql) => sql.includes("SET status = 'CANCELLED'"))).toBe(true);
   });
 
   it('casts queue entry status parameters consistently for PostgreSQL enum comparisons', async () => {

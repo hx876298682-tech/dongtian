@@ -85,7 +85,15 @@ function BehaviorActionCard({ action, definition, region, starting, onStart }: {
   const visibleOutputs = outputs.length > 0 ? outputs : action.outputs;
   const unlockCopy = describeUnlockReason(action.unlock_state.reason, action.unlock_state.blockers);
   return (
-    <article className={`behavior-resource ${available ? '' : 'behavior-resource--locked'}`}>
+    <article
+      className={`behavior-resource ${available ? 'behavior-resource--clickable' : 'behavior-resource--locked'} ${starting ? 'behavior-resource--starting' : ''}`}
+      role="button"
+      tabIndex={available && !starting ? 0 : -1}
+      aria-disabled={!available || starting}
+      aria-label={`${describeBehaviorAction(action.action_id)}，${starting ? '正在开始' : definition.startLabel}`}
+      onClick={() => { if (available && !starting) onStart(action); }}
+      onKeyDown={(event) => { if ((event.key === 'Enter' || event.key === ' ') && available && !starting) { event.preventDefault(); onStart(action); } }}
+    >
       <div className="behavior-resource__header">
         <div><p className="page-card__eyebrow">{definition.title}行动</p><h4>{describeBehaviorAction(action.action_id)}</h4></div>
         <span className="behavior-resource__status">{available ? '可执行' : action.unlocked ? '暂不可用' : '已锁定'}</span>
@@ -94,7 +102,7 @@ function BehaviorActionCard({ action, definition, region, starting, onStart }: {
       <div className="behavior-resource__outputs"><span>产出</span>{visibleOutputs.length === 0 ? <strong>暂无产出</strong> : visibleOutputs.map((output) => <strong key={output.item_id}>{describeBehaviorItem(output.item_id)} × {formatCount(output.quantity)}</strong>)}</div>
       <div className="behavior-resource__facts"><span>每轮 {formatDurationUs(action.base_duration_us)}</span><span>技能经验 {formatCount(action.skill_xp)}</span></div>
       {!available ? <p className="behavior-resource__lock-copy">{modeUnavailable ?? unlockCopy}</p> : null}
-      <button className="ghost-button behavior-resource__start" type="button" onClick={() => onStart(action)} disabled={!available || starting}>{starting ? '正在开始…' : definition.startLabel}</button>
+      {available ? <span className="behavior-resource__start" aria-hidden="true">{starting ? '正在开始…' : `点击${definition.startLabel}`}</span> : null}
     </article>
   );
 }
@@ -104,7 +112,15 @@ function BehaviorRecipeCard({ recipe, action, definition, starting, onStart }: {
   const modeUnavailable = recipe.unlocked && (action === null || !action.allowed_queue_modes.includes('INFINITE')) ? '当前配方不支持无限挂机' : null;
   const unlockCopy = describeUnlockReason(recipe.unlock_state.reason, recipe.unlock_state.blockers);
   return (
-    <article className={`behavior-resource ${available ? '' : 'behavior-resource--locked'}`}>
+    <article
+      className={`behavior-resource ${available ? 'behavior-resource--clickable' : 'behavior-resource--locked'} ${starting ? 'behavior-resource--starting' : ''}`}
+      role="button"
+      tabIndex={available && !starting ? 0 : -1}
+      aria-disabled={!available || starting}
+      aria-label={`${describeBehaviorItem(recipe.result_item.item_id)}，${starting ? '正在开始' : definition.startLabel}`}
+      onClick={() => { if (available && action !== null && !starting) onStart(recipe, action); }}
+      onKeyDown={(event) => { if ((event.key === 'Enter' || event.key === ' ') && available && action !== null && !starting) { event.preventDefault(); onStart(recipe, action); } }}
+    >
       <div className="behavior-resource__header">
         <div><p className="page-card__eyebrow">{definition.title}配方</p><h4>{describeBehaviorItem(recipe.result_item.item_id)}</h4></div>
         <span className="behavior-resource__status">{available ? '可执行' : recipe.unlocked ? '暂不可用' : '已锁定'}</span>
@@ -113,7 +129,7 @@ function BehaviorRecipeCard({ recipe, action, definition, starting, onStart }: {
       <div className="behavior-resource__outputs"><span>产出</span><strong>{describeBehaviorItem(recipe.result_item.item_id)} × {formatCount(recipe.result_item.quantity)}</strong></div>
       <div className="behavior-resource__facts"><span>每轮 {formatDurationUs(recipe.base_duration_us)}</span><span>技能经验 {formatCount(recipe.skill_xp)}</span></div>
       {!available ? <p className="behavior-resource__lock-copy">{modeUnavailable ?? unlockCopy}</p> : null}
-      <button className="ghost-button behavior-resource__start" type="button" onClick={() => onStart(recipe, action)} disabled={!available || starting}>{starting ? '正在开始…' : definition.startLabel}</button>
+      {available ? <span className="behavior-resource__start" aria-hidden="true">{starting ? '正在开始…' : `点击${definition.startLabel}`}</span> : null}
     </article>
   );
 }

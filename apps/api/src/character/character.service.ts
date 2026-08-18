@@ -7,7 +7,7 @@ import type {
   CharacterRepository,
 } from '@dongtian/database';
 import {
-  mapCultivationStage,
+  mapEffectiveCultivationStage,
   mapSkillProgress,
   type SkillProgress,
 } from '@dongtian/game-rules';
@@ -50,7 +50,11 @@ export class CharacterService {
       throw notFound();
     }
 
-    const stageProgress = mapCultivationStage(this.configRegistry.realms, character.cultivationXp);
+    const stageProgress = mapEffectiveCultivationStage(
+      this.configRegistry.realms,
+      character.realmStageId,
+      character.cultivationXp,
+    );
     const stateVersion = stateVersionAsNumber(character.stateVersion);
     const skills = character.skills.map((skill) => this.mapSkill(character, skill.skillId, skill.xp));
 

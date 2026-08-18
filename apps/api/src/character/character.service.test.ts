@@ -80,7 +80,7 @@ describe('CharacterService', () => {
 
     const permissions = result['feature_permissions'] as Array<Record<string, unknown>>;
     expect(permissions.find((permission) => permission['feature_id'] === 'feature.herbalism')).toEqual(
-      expect.objectContaining({ enabled: true, visible: false, usable: false }),
+      expect.objectContaining({ enabled: true, visible: true, usable: true }),
     );
     expect(permissions.find((permission) => permission['feature_id'] === 'feature.market')).toEqual(
       expect.objectContaining({ enabled: false, visible: false, usable: false }),

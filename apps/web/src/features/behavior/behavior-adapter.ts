@@ -45,7 +45,7 @@ export function findBehaviorActions(region: BehaviorRegion, actions: ReadonlyArr
 export function findHerbalismActions(region: HerbalismRegion, actions: ReadonlyArray<ActionCatalogEntry>): ReadonlyArray<ActionCatalogEntry> { return findBehaviorActions(region, actions, 'herb'); }
 export function findHerbalismAction(region: HerbalismRegion, actions: ReadonlyArray<ActionCatalogEntry>): ActionCatalogEntry | null { return findHerbalismActions(region, actions)[0] ?? null; }
 
-export type BehaviorKind = 'herbalism' | 'mining' | 'alchemy' | 'forging' | 'cultivation';
+export type BehaviorKind = 'herbalism' | 'mining' | 'alchemy' | 'forging' | 'cultivation' | 'combat';
 export interface BehaviorGroup { readonly id: string; readonly label: string; readonly description: string; readonly recipes: ReadonlyArray<RecipeCatalogEntry>; }
 
 const GROUP_LABELS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
@@ -114,13 +114,17 @@ export async function startBehaviorAction(action: ActionCatalogEntry, options: S
   const kind = options.behaviorKind ?? 'herbalism';
   const makeKey = options.createIdempotencyKey ?? (() => createIdempotencyKey(kind));
   const createDraft = (queueVersion: number | string) => createQueueEditorDraft(queueVersion, [createQueueEditorEntryDraft(`${kind}-${action.action_id}-${Date.now()}`, { actionId: action.queue_action_id, mode: 'INFINITE', targetValue: '' })]);
+  const createRequest = (queueVersion: number | string) => ({
+    ...createQueuePlanRequest(createDraft(queueVersion)),
+    replace_current: true,
+  });
   let mutation: QueueMutation;
   try {
-    mutation = await options.client.saveQueue(options.characterId, createQueuePlanRequest(createDraft(options.queue.queue_version)), makeKey());
+    mutation = await options.client.saveQueue(options.characterId, createRequest(options.queue.queue_version), makeKey());
   } catch (error) {
     if (!(error instanceof ApiClientError) || error.status !== 409) throw error;
     const latestQueue = await options.client.getQueue(options.characterId);
-    mutation = await options.client.saveQueue(options.characterId, createQueuePlanRequest(createDraft(latestQueue.queue_version)), makeKey());
+    mutation = await options.client.saveQueue(options.characterId, createRequest(latestQueue.queue_version), makeKey());
   }
   if (mutation.queue.paused) mutation = await options.client.resumeQueue(options.characterId, { expected_queue_version: mutation.queue.queue_version }, makeKey());
   await Promise.all([

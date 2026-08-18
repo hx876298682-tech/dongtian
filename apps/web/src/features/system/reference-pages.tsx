@@ -105,13 +105,6 @@ function countProgress(entry: QueueEntry): { readonly progress: number; readonly
   return { progress: Math.min(1, Math.max(0, completed / target)), label: `${entry.completed_cycles} / ${entry.target_value} 轮` };
 }
 
-const ACTION_CYCLE_US: Record<string, number> = {
-  'action.cultivation.qi': 100_000_000,
-  'action.t1.herb_baicao_valley': 140_000_000,
-  'action.t1.qi_gathering_pill': 100_000_000,
-  'action.t1.qi_gathering_powder': 100_000_000,
-};
-
 function formatTaskDuration(microseconds: number): string {
   const seconds = Math.max(0, Math.round(microseconds / 1_000_000));
   if (seconds < 60) return `${seconds} 秒`;
@@ -127,7 +120,7 @@ function durationProgress(entry: QueueEntry, queue: Queue, nowMs: number): { rea
   const progressTimeUs = Number(entry.progress_time_us);
   if (!Number.isFinite(targetSeconds) || targetSeconds <= 0 || !Number.isFinite(completedCycles) || !Number.isFinite(progressTimeUs)) return null;
   if (completedTaskStatuses.has(entry.status)) return { progress: 1, label: '已完成' };
-  const cycleUs = ACTION_CYCLE_US[entry.action_id] ?? 100_000_000;
+  const cycleUs = Number(entry.base_duration_us ?? '60000000');
   let partialUs = progressTimeUs;
   if (queue.current?.entry_id === entry.entry_id && entry.status === 'RUNNING' && !queue.paused) {
     const asOfMs = Date.parse(queue.as_of);

@@ -403,6 +403,9 @@ function aggregateItemRewards(result: SingleActionSettlementResult): readonly { 
   const quantities = new Map<string, bigint>();
   for (const segment of result.segments) {
     for (const [itemId, quantity] of Object.entries(segment.outputs as Record<string, string>)) {
+      if (quantity === '0') {
+        continue;
+      }
       const current = quantities.get(itemId) ?? 0n;
       quantities.set(itemId, current + BigInt(quantity));
     }
@@ -540,6 +543,23 @@ export class SettlementService {
     @Inject(environmentToken) private readonly environment: Environment,
     @Optional() @Inject(queueRepositoryToken) private readonly queueRepository?: QueueRepository,
   ) {}
+
+  public setActiveQueueCycleOnTransaction(
+    client: PoolClient,
+    characterId: string,
+    entryId: string | null,
+    action: ActionConfig,
+  ): Promise<void> {
+    return this.settlementRepository.setActiveQueueCycle(client, {
+      characterId,
+      activeQueueEntryId: entryId,
+      activeCycleSnapshot: snapshotFromAction(
+        action,
+        this.configRegistry.manifest.config_version,
+        this.configRegistry.manifest.formula_version,
+      ),
+    });
+  }
 
   public async settleToNow(request: FastifyRequest, characterId: string): Promise<SettlementRunResponse> {
     await this.authService.assertCharacterOwnership(request, characterId);

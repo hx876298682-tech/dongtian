@@ -7,16 +7,15 @@ const action = { action_id: 'action.cultivation.qi', enabled: true, unlocked: tr
 describe('cultivation catalog', () => {
   it('exposes the non-weapon directions and maps the configured qi action', () => {
     const directions = getCultivationDirections();
-    expect(directions.map((direction) => direction.label)).toEqual(['练气', '练体']);
+    expect(directions.map((direction) => direction.label)).toEqual(['练气']);
     expect(findCultivationAction(directions[0]!, [action])).toBe(action);
     expect(isCultivationDirectionAvailable(directions[0]!, [action])).toBe(true);
-    expect(isCultivationDirectionAvailable(directions[1]!, [action])).toBe(false);
   });
 
-  it('presents body, qi, and weapon training as one peer-level catalog', () => {
+  it('only presents cultivation routes backed by real actions', () => {
     const choices = getCultivationChoices();
-    expect(choices.map((choice) => choice.label)).toEqual(['练气', '练体', '练剑', '练刀', '练枪', '练杖']);
-    expect(choices.map((choice) => choice.kind)).toEqual(['direction', 'direction', 'weapon', 'weapon', 'weapon', 'weapon']);
+    expect(choices.map((choice) => choice.label)).toEqual(['练气', '练剑', '练刀', '练枪', '练杖']);
+    expect(choices.map((choice) => choice.kind)).toEqual(['direction', 'weapon', 'weapon', 'weapon', 'weapon']);
   });
 
   it('maps all weapon masteries to their real infinite actions and progression', () => {

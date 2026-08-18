@@ -175,9 +175,9 @@ describe('ContentService', () => {
     );
     expect(actions.find((action) => action['action_id'] === 'action.t1.herb_baicao_valley')).toEqual(
       expect.objectContaining({
-        unlocked: false,
+        unlocked: true,
         unlock_state: expect.objectContaining({
-          reason_key: 'feature.locked.tutorial',
+          usable: true,
         }),
       }),
     );
@@ -187,7 +187,7 @@ describe('ContentService', () => {
     ] as Array<Record<string, unknown>>;
     expect(recipes.find((recipe) => recipe['recipe_id'] === 'recipe.t1.qi_gathering_pill')).toEqual(
       expect.objectContaining({
-        unlocked: false,
+        unlocked: true,
         queue_action_id: 'action.t1.qi_gathering_pill',
         ingredients: expect.arrayContaining([
           expect.objectContaining({
@@ -198,6 +198,18 @@ describe('ContentService', () => {
           }),
         ]),
       }),
+    );
+  });
+
+  it('derives pre-foundation realm permissions from cultivation XP', async () => {
+    const result = await makeService({
+      character: makeCharacter({ cultivationXp: '2100', realmStageId: 'realm.mortal.entry' }),
+    }).getActions({} as FastifyRequest);
+    const actions = result['actions'] as Array<Record<string, unknown>>;
+
+    expect(result).toMatchObject({ character: { realm_stage_id: 'realm.qi.mid' } });
+    expect(actions.find((action) => action['action_id'] === 'action.t1.ore_xuantie_kuang')).toEqual(
+      expect.objectContaining({ unlocked: true }),
     );
   });
 

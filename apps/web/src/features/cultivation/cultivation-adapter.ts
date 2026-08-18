@@ -10,7 +10,6 @@ export interface CultivationDirection {
 
 export const CULTIVATION_DIRECTIONS: readonly CultivationDirection[] = [
   { id: 'qi', label: '练气', description: '吐纳灵气，稳定提升修为。', actionId: 'action.cultivation.qi', unavailableReason: '' },
-  { id: 'body', label: '练体', description: '淬炼肉身，强化近身根基。', actionId: null, unavailableReason: '当前版本尚未配置练体行动。' },
 ] as const;
 
 export function getCultivationDirections(): readonly CultivationDirection[] { return CULTIVATION_DIRECTIONS; }

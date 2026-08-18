@@ -13,6 +13,7 @@ import type {
   CharacterRepository,
   InventorySnapshot,
 } from '@dongtian/database';
+import { resolveEffectiveRealmStageId } from '@dongtian/game-rules';
 
 import { AuthService } from '../auth/auth.service.js';
 import { assetRepositoryToken } from '../asset/asset.tokens.js';
@@ -128,7 +129,6 @@ function getFeatureState(
   const visibleStage = registry.getRealm(feature.visible_stage);
   const usableStage = registry.getRealm(feature.usable_stage);
   const masteryStage = registry.getRealm(feature.mastery_stage);
-  const tutorialsComplete = feature.required_tutorial_ids.length === 0;
   const skillLevel =
     feature.required_skill_id === null ? null : (context.skillLevels.get(feature.required_skill_id) ?? 0);
   const skillReady =
@@ -137,20 +137,13 @@ function getFeatureState(
       skillLevel !== null &&
       skillLevel >= feature.required_skill_level);
   const enabled = feature.enabled;
-  const visible = enabled && tutorialsComplete && currentStage.stage_order >= visibleStage.stage_order;
+  const visible = enabled && currentStage.stage_order >= visibleStage.stage_order;
   const usable = visible && currentStage.stage_order >= usableStage.stage_order && skillReady;
   const optimized = usable && currentStage.stage_order >= masteryStage.stage_order;
 
   const blockers: Record<string, unknown>[] = [];
   if (!enabled) {
     blockers.push({ kind: 'feature', required_id: feature.feature_id, reason_key: feature.locked_reason_key });
-  }
-  if (!tutorialsComplete) {
-    blockers.push({
-      kind: 'tutorial',
-      required_id: feature.required_tutorial_ids.join(','),
-      reason_key: feature.locked_reason_key,
-    });
   }
   if (currentStage.stage_order < visibleStage.stage_order) {
     blockers.push({
@@ -470,14 +463,20 @@ export class ContentService {
     if (!resolvedInventory) {
       throw notFound();
     }
+    const effectiveRealmStageId = resolveEffectiveRealmStageId(
+      this.configRegistry.realms,
+      character.realmStageId,
+      character.cultivationXp,
+    );
+    const effectiveCharacter = { ...character, realmStageId: effectiveRealmStageId };
     const routeIndexes = buildContentRouteIndexes(this.configRegistry);
     const featurePermissions = computeFeaturePermissions(
       this.configRegistry,
-      character.realmStageId,
+      effectiveRealmStageId,
       character.skills,
     );
     return {
-      character,
+      character: effectiveCharacter,
       skillLevels: new Map(character.skills.map((skill) => [skill.skillId, skill.level])),
       inventoryByItemId: inventoryIndex(resolvedInventory),
       sourceRoutesByItemId: routeIndexes.sourceRoutesByItemId,

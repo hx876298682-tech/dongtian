@@ -5248,6 +5248,26 @@ body::before {
   background: rgba(2, 6, 23, 0.48);
 }
 
+.behavior-resource--clickable {
+  cursor: pointer;
+  transition: border-color 140ms ease, background-color 140ms ease, transform 140ms ease;
+}
+
+.behavior-resource--clickable:hover,
+.behavior-resource--clickable:focus-visible {
+  border-color: var(--accent);
+  background: rgba(9, 42, 52, 0.7);
+  outline: none;
+}
+
+.behavior-resource--clickable:active {
+  transform: translateY(1px);
+}
+
+.behavior-resource--starting {
+  cursor: wait;
+}
+
 .behavior-resource--locked {
   border-color: rgba(251, 191, 36, 0.32);
 }
@@ -5318,6 +5338,10 @@ body::before {
 }
 
 .behavior-resource__start {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-strong);
+  font-size: 11px;
   justify-self: start;
   min-width: 112px;
   border-radius: 4px;

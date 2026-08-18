@@ -715,7 +715,9 @@ export function CharacterEquipmentPage(): ReactElement {
           },
         });
       }
-      setNotice(buildMutationNotice(error));
+      const nextNotice = buildMutationNotice(error);
+      setNotice(nextNotice);
+      emitGameFeedback(nextNotice.description, 'warning');
     },
   });
 

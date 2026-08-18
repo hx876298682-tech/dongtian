@@ -146,8 +146,8 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
 
   await page.goto('/craft');
   const craftMain = page.getByLabel('百艺 主内容');
-  await expect(craftMain.getByTitle('action.t1.herb_baicao_valley')).toBeVisible();
-  await expect(craftMain.getByTitle('action.t1.qi_gathering_powder')).toBeVisible();
+  await expect(craftMain.getByText('采药', { exact: true }).first()).toBeVisible();
+  await expect(craftMain.getByText('炼制聚气散', { exact: true })).toBeVisible();
 
   const queuePlan = await createQueuePlan(page, session.character_id, session);
   const firstSaveKey = '11111111-1111-4111-8111-111111111111';
@@ -157,15 +157,15 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
   expect(repeatSave.status).toBe(200);
   expect(repeatSave.json.data.queue.queue_version).toBe(firstSave.json.data.queue.queue_version);
 
-  await page.goto('/dashboard');
-  await expect(page.getByRole('progressbar', { name: /本轮进度/ })).toBeVisible();
+  await page.goto('/dashboard/queue');
+  await expect(page.getByRole('progressbar', { name: /全局进度/ })).toBeVisible();
   await expect(page.getByText('百草谷采药').last()).toBeVisible();
-  await expect(page.getByText('炼制聚气散').last()).toBeVisible();
+  await expect(page.getByRole('button', { name: '查看当前任务' })).toBeVisible();
 
   await shiftSettlementClock(session.character_id, 1.5);
   await page.reload();
   await expect(page.getByText('离线收获')).toBeVisible();
-  await expect(page.getByText('XP 与物品')).toBeVisible();
+  await expect(page.getByText('修为与物品')).toBeVisible();
 
   await page.goto(`/character?preset_id=${encodeURIComponent(fixture.mainPresetId)}&compare_preset_id=${encodeURIComponent(fixture.comparePresetId)}`);
   await expect(page.getByText('青蛇洞主力预设')).toBeVisible();
@@ -178,31 +178,22 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
   expect(currentPresetResponse.status).toBe(200);
   expect(currentPresetResponse.json.data.state_version).toBeGreaterThanOrEqual(0);
 
-  await page.getByLabel('名称').fill(equipmentDraftName);
+  await page.getByRole('textbox', { name: '名称' }).fill(equipmentDraftName);
   await page.getByRole('button', { name: '保存预设' }).click();
   await expect(page.getByText('预设已保存')).toBeVisible();
   await page.getByRole('button', { name: '启用预设' }).click();
   await expect(page.getByText('预设已启用')).toBeVisible();
 
   await page.goto('/expedition');
-  await page.getByLabel('装备预设 ID').fill(fixture.mainPresetId);
-  await page.getByLabel('策略预设 ID').fill('strategy.safe');
-  await page.getByLabel('initial_route_id').selectOption('route.t1.qingshe_cave.safe_exit');
-  await page.getByRole('button', { name: '预览' }).click();
-  await expect(page.getByText('预计成功率')).toBeVisible();
-
-  await page.getByRole('button', { name: '领取教学赠送' }).click();
-  await expect(page.getByText('教学赠送已领取')).toBeVisible();
-
-  await page.getByRole('button', { name: '消耗 1 次机会进入' }).click();
-  await expect(page.getByText('青蛇洞 · 运行页')).toBeVisible();
-  await page.reload();
-  await expect(page.getByText('青蛇洞 · 运行页')).toBeVisible();
-
-  await page.getByRole('button', { name: '安全撤离' }).click();
-  await expect(page.getByText('等待结算')).toBeVisible();
-  await page.getByRole('button', { name: 'finalize 结果' }).click();
-  await expect(page.getByRole('heading', { name: '奖励已入账', exact: true })).toBeVisible();
+  await expect(page.getByText('选择怪物，开始挂机')).toBeVisible();
+  await expect(page.getByText('点击怪物开始战斗')).toBeVisible();
+  await page.getByRole('button', { name: /青蛇，点击开始战斗挂机/ }).click();
+  await expect(page.getByRole('status', { name: '操作反馈' })).toContainText('已开始挂机：青蛇战斗');
+  const combatQueue = await apiJson<Envelope<{
+    readonly current: { readonly action_id: string } | null;
+  }>>(page, `/api/v1/characters/${session.character_id}/queue`, { method: 'GET' });
+  expect(combatQueue.status).toBe(200);
+  expect(combatQueue.json.data.current?.action_id).toBe('action.t1.combat_qingshe');
 
   const inventoryResponse = await apiJson<Envelope<{
     readonly items: ReadonlyArray<{ readonly asset_id: string; readonly quantity: number }>;
@@ -210,7 +201,7 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
   expect(inventoryResponse.status).toBe(200);
   expect(Array.isArray(inventoryResponse.json.data.items)).toBe(true);
 
-  await page.goto('/dashboard');
+  await page.goto('/dashboard/queue');
   const refreshedQueue = await apiJson<Envelope<{ readonly queue_version: number }>>(page, `/api/v1/characters/${session.character_id}/queue`, { method: 'GET' });
   expect(refreshedQueue.status).toBe(200);
   const secondPlan = {
@@ -242,7 +233,7 @@ test('DT-M3-006 vertical slice end-to-end', async ({ page }) => {
     method: 'PUT',
   });
   expect(secondQueueSave.status).toBe(200);
-  await expect(page.getByText('炼制聚气散').last()).toBeVisible();
+  await expect(page.getByRole('button', { name: '查看当前任务' })).toBeVisible();
 
   await assertLedgerBalanced();
 });
@@ -255,7 +246,7 @@ test('DT-M3-006 preserves stale drafts on 409 conflicts', async ({ page }) => {
   await page.goto(`/character?preset_id=${encodeURIComponent(fixture.mainPresetId)}&compare_preset_id=${encodeURIComponent(fixture.comparePresetId)}`);
   await expect(page.getByText('青蛇洞主力预设')).toBeVisible();
 
-  await page.getByLabel('名称').fill('冲突草稿');
+  await page.getByRole('textbox', { name: '名称' }).fill('冲突草稿');
 
   const stalePreset = await apiJson<Envelope<{ readonly state_version: number }>>(page, `/api/v1/characters/${session.character_id}/loadouts/${fixture.mainPresetId}`, { method: 'GET' });
   expect(stalePreset.status).toBe(200);
@@ -270,13 +261,13 @@ test('DT-M3-006 preserves stale drafts on 409 conflicts', async ({ page }) => {
       combat_consumables: [],
       strategy_id: 'strategy.safe',
     }),
-    idempotencyKey: 'e2e-equipment-external-save',
+    idempotencyKey: '33333333-3333-4333-8333-333333333333',
     method: 'PUT',
   });
   expect(externalSave.status).toBe(200);
 
   await page.getByRole('button', { name: '保存预设' }).click();
-  await expect(page.getByText('写入失败 · HTTP 409')).toBeVisible();
-  await expect(page.getByLabel('名称')).toHaveValue('冲突草稿');
+  await expect(page.locator('.game-feedback')).toContainText('当前状态已变化，请刷新后重试。');
+  await expect(page.getByRole('textbox', { name: '名称' })).toHaveValue('冲突草稿');
   await assertLedgerBalanced();
 });

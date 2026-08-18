@@ -463,10 +463,10 @@ export class WorkerRuntimeService implements OnApplicationBootstrap, BeforeAppli
     @Inject(WORKER_LOGGER) private readonly logger: Pick<Logger, 'error' | 'info' | 'warn'>,
     @Inject(WORKER_RUNTIME_OPTIONS) private readonly options: WorkerRuntimeOptions,
     @Inject(WORKER_SLEEP) private readonly sleep: WorkerSleep,
-    private readonly outboxWorker: OutboxWorker,
-    private readonly settlementWorker: SettlementContinuationWorker,
-    private readonly caveWorker: CaveRecoveryWorker,
-    private readonly breakthroughWorker: BreakthroughRecoveryWorker,
+    @Inject(OutboxWorker) private readonly outboxWorker: OutboxWorker,
+    @Inject(SettlementContinuationWorker) private readonly settlementWorker: SettlementContinuationWorker,
+    @Inject(CaveRecoveryWorker) private readonly caveWorker: CaveRecoveryWorker,
+    @Inject(BreakthroughRecoveryWorker) private readonly breakthroughWorker: BreakthroughRecoveryWorker,
   ) {}
 
   public onApplicationBootstrap(): void {

@@ -21,6 +21,7 @@ function createQueueEntry(entryId: string, status: QueueEntryStatus, overrides: 
     status,
     completed_cycles: '0',
     progress_time_us: '0',
+    base_duration_us: '60000000',
     snapshot_config_version: null,
     ...overrides,
   };
@@ -97,7 +98,7 @@ describe('reference pages parity contract', () => {
     const rows = buildTaskRows(queueFixture, '任务栏', Date.parse('2026-08-17T00:00:10.000Z'));
 
     expect(rows.map((row) => row.entryId)).toEqual(['running', 'queued', 'done', 'incomplete', 'condition']);
-    expect(rows[0]).toMatchObject({ status: '进行中', progress: 0.1, progressLabel: '10% · 本轮还需 1 分 30 秒', rewardLabel: '待结算' });
+    expect(rows[0]).toMatchObject({ status: '进行中', progress: 1 / 6, progressLabel: '17% · 本轮还需 50 秒', rewardLabel: '待结算' });
     expect(rows[1]).toMatchObject({ status: '待执行', progress: 0, progressLabel: '0 / 3 轮', rewardLabel: '待结算' });
     expect(rows[2]).toMatchObject({ status: '已完成', progress: 1, progressLabel: '5 / 5 轮', rewardLabel: '已结算' });
   });
@@ -128,7 +129,7 @@ describe('reference pages parity contract', () => {
       as_of: '2026-08-17T00:00:00.000Z',
     };
     const row = buildTaskRows(durationQueue, '任务栏', Date.parse('2026-08-17T00:00:10.000Z'))[0];
-    expect(row).toMatchObject({ progress: 13 / 30, progressLabel: '2 分 10 秒 / 5 分钟' });
+    expect(row).toMatchObject({ progress: 0.3, progressLabel: '1 分 30 秒 / 5 分钟' });
     expect(referencePagesSource).toMatch(/mode === 'DURATION'/);
     expect(referencePagesSource).not.toMatch(/currentView\?\.progress \?\?/);
   });

@@ -1,4 +1,4 @@
-import type { ConfigRegistry, FeatureUnlockConfig, RealmConfig } from '@dongtian/config-schema';
+import type { ConfigRegistry, RealmConfig } from '@dongtian/config-schema';
 import type { CharacterProgressionRecord } from '@dongtian/database';
 
 export type FeaturePermission = {
@@ -14,10 +14,6 @@ function resolveStage(registry: ConfigRegistry, realmStageId: string): RealmConf
   return registry.getRealm(realmStageId);
 }
 
-function tutorialCheck(feature: FeatureUnlockConfig): boolean {
-  return feature.required_tutorial_ids.length === 0;
-}
-
 export function computeFeaturePermissions(
   registry: ConfigRegistry,
   realmStageId: string,
@@ -28,10 +24,8 @@ export function computeFeaturePermissions(
 
   return registry.features.map((feature) => {
     const enabled = feature.enabled;
-    const tutorialsComplete = tutorialCheck(feature);
     const visible =
       enabled &&
-      tutorialsComplete &&
       currentStage.stage_order >= registry.getRealm(feature.visible_stage).stage_order;
     const skillReady =
       feature.required_skill_id === null ||
@@ -39,7 +33,6 @@ export function computeFeaturePermissions(
         (skillLevels.get(feature.required_skill_id) ?? 0) >= feature.required_skill_level);
     const usable =
       visible &&
-      tutorialsComplete &&
       currentStage.stage_order >= registry.getRealm(feature.usable_stage).stage_order &&
       skillReady;
     const optimized = usable && currentStage.stage_order >= registry.getRealm(feature.mastery_stage).stage_order;
@@ -54,4 +47,3 @@ export function computeFeaturePermissions(
     };
   });
 }
-

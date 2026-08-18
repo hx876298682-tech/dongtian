@@ -4363,6 +4363,9 @@ export const openApiDocument = {
               }
             ]
           },
+          "replace_current": {
+            "type": "boolean"
+          },
           "entries": {
             "type": "array",
             "maxItems": 3,

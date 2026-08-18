@@ -119,6 +119,7 @@ describe('dashboard adapter', () => {
           action_id: 'action.cultivation.qi', mode: 'INFINITE', target_value: null,
           condition_item_id: null, condition_operator: null, on_blocked: 'FALLBACK',
           status: 'RUNNING', completed_cycles: '2', progress_time_us: '0', snapshot_config_version: '2026.08.16.1',
+          base_duration_us: '60000000',
         },
         entries: [],
         as_of: '2026-08-16T02:00:06.000Z',
@@ -136,8 +137,8 @@ describe('dashboard adapter', () => {
 
     expect(snapshot.goalTrackerDetail).toContain('洞天散修');
     expect(snapshot.offlineSummary.kind).toBe('empty');
-    expect(snapshot.currentActionProgress).toBe(0.5);
-    expect(snapshot.currentActionRemaining).toBe('本轮还需 50 秒');
+    expect(snapshot.currentActionProgress).toBeCloseTo(5 / 6);
+    expect(snapshot.currentActionRemaining).toBe('本轮还需 10 秒');
   });
 
   it('maps the latest settlement into the dashboard offline summary', () => {

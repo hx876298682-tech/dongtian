@@ -103,6 +103,48 @@ export function mapCultivationStage(
   };
 }
 
+function isAutomaticallyAdvancedRealm(realmStageId: string): boolean {
+  return realmStageId === 'realm.mortal.entry' || realmStageId.startsWith('realm.qi.');
+}
+
+export function resolveEffectiveRealmStageId(
+  stages: readonly RealmStageRule[],
+  persistedRealmStageId: string,
+  cultivationXp: string,
+): string {
+  if (!Array.isArray(stages) || stages.length === 0) {
+    return persistedRealmStageId;
+  }
+  const persisted = stages.find((stage) => stage.id === persistedRealmStageId);
+  if (persisted === undefined) {
+    throw new Error('REALM_STAGE_NOT_FOUND');
+  }
+  if (!isAutomaticallyAdvancedRealm(persistedRealmStageId)) {
+    return persistedRealmStageId;
+  }
+
+  const automaticStages = stages.filter((stage) => isAutomaticallyAdvancedRealm(stage.id));
+  const mapped = mapCultivationStage(automaticStages, cultivationXp);
+  const mappedStage = automaticStages.find((stage) => stage.id === mapped.realmStageId);
+  if (mappedStage === undefined || mappedStage.stage_order < persisted.stage_order) {
+    return persistedRealmStageId;
+  }
+  return mapped.realmStageId;
+}
+
+export function mapEffectiveCultivationStage(
+  stages: readonly RealmStageRule[],
+  persistedRealmStageId: string,
+  cultivationXp: string,
+): CultivationStageProgress {
+  const realmStageId = resolveEffectiveRealmStageId(stages, persistedRealmStageId, cultivationXp);
+  const stage = stages.find((candidate) => candidate.id === realmStageId);
+  if (stage === undefined) {
+    throw new Error('REALM_STAGE_NOT_FOUND');
+  }
+  return mapCultivationStage([stage], cultivationXp);
+}
+
 export function mapSkillProgress(curve: SkillXpCurveRule, skillXp: string): SkillProgress {
   if (curve.levels.length === 0) {
     throw new Error('SKILL_XP_CURVE_EMPTY');

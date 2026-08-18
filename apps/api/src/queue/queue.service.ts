@@ -36,6 +36,7 @@ import {
   type SupportedQueueMode,
   formatBlockedMaterialReason,
   isQueueInventoryConditionSatisfied,
+  resolveEffectiveRealmStageId,
   validateQueuePlan,
 } from '@dongtian/game-rules';
 
@@ -56,6 +57,7 @@ type ParsedQueueEntry = QueueEntryDraft & {
 
 type ParsedQueueRequest = {
   readonly expectedQueueVersion: bigint;
+  readonly replaceCurrent: boolean;
   readonly entries: readonly ParsedQueueEntry[];
   readonly fallbackActionId: string;
 };
@@ -260,6 +262,10 @@ function parseRequest(body: unknown): ParsedQueueRequest {
   if (fallbackMode !== 'INFINITE') {
     throw invalidRequest('fallback_mode_MUST_BE_INFINITE');
   }
+  const replaceCurrentValue = body['replace_current'];
+  if (replaceCurrentValue !== undefined && typeof replaceCurrentValue !== 'boolean') {
+    throw invalidRequest('replace_current_INVALID');
+  }
 
   const entries = entriesValue.map((value, index): ParsedQueueEntry => {
     if (!isRecord(value)) {
@@ -291,6 +297,7 @@ function parseRequest(body: unknown): ParsedQueueRequest {
 
   return {
     expectedQueueVersion: nonNegativeVersion(body),
+    replaceCurrent: replaceCurrentValue === true,
     entries,
     fallbackActionId: requiredString(fallbackValue, 'action_id'),
   };
@@ -467,7 +474,7 @@ function estimateEntry(
   };
 }
 
-function mapEntry(entry: QueueEntryRecord): JsonObject {
+function mapEntry(entry: QueueEntryRecord, actionDurationById: ReadonlyMap<string, string>): JsonObject {
   return {
     entry_id: entry.id,
     client_entry_id: entry.clientEntryId,
@@ -481,12 +488,13 @@ function mapEntry(entry: QueueEntryRecord): JsonObject {
     status: entry.status,
     completed_cycles: entry.completedCycles.toString(),
     progress_time_us: entry.progressTimeUs.toString(),
+    base_duration_us: actionDurationById.get(entry.actionConfigId) ?? null,
     blocked_reason: entry.blockedReason,
     snapshot_config_version: entry.snapshotConfigVersion,
   };
 }
 
-function mapQueue(queue: QueueRecord): JsonObject {
+function mapQueue(queue: QueueRecord, actionDurationById: ReadonlyMap<string, string>): JsonObject {
   const current = queue.entries.find((entry) => entry.status === 'RUNNING' || entry.status === 'BLOCKED') ?? null;
   return {
     queue_version: safeVersion(queue.queueVersion),
@@ -496,24 +504,24 @@ function mapQueue(queue: QueueRecord): JsonObject {
     current: current === null
       ? null
       : {
-          ...mapEntry(current),
+          ...mapEntry(current, actionDurationById),
           cycle_progress: {
             completed_cycles: current.completedCycles.toString(),
             progress_time_us: current.progressTimeUs.toString(),
           },
         },
-    entries: queue.entries.map(mapEntry),
+    entries: queue.entries.map((entry) => mapEntry(entry, actionDurationById)),
     as_of: new Date().toISOString(),
   };
 }
 
-function mapMutation(queue: QueueRecord): JsonObject {
+function mapMutation(queue: QueueRecord, actionDurationById: ReadonlyMap<string, string>, effectiveAt = 'current_cycle_boundary'): JsonObject {
   return {
     queue_version: safeVersion(queue.queueVersion),
-    effective_at: 'current_cycle_boundary',
+    effective_at: effectiveAt,
     pending_replace_after_cycle: queue.pendingReplaceAfterCycle,
     paused: queue.paused,
-    queue: mapQueue(queue),
+    queue: mapQueue(queue, actionDurationById),
   };
 }
 
@@ -535,7 +543,7 @@ export class QueueService {
     if (queue === null) {
       throw notFound();
     }
-    return mapQueue(queue);
+    return mapQueue(queue, new Map(this.configRegistry.actions.map((action) => [action.id, action.base_duration_us])));
   }
 
   public async preview(
@@ -616,7 +624,11 @@ export class QueueService {
         const queue = await this.saveQueuePlan(client, context, characterId, parsed, normalized);
         return {
           statusCode: 200,
-          response: mapMutation(queue),
+          response: mapMutation(
+            queue,
+            new Map(this.configRegistry.actions.map((action) => [action.id, action.base_duration_us])),
+            parsed.replaceCurrent ? 'immediate' : 'current_cycle_boundary',
+          ),
         };
       });
       return result.response;
@@ -662,7 +674,7 @@ export class QueueService {
             : await this.reconcileQueueReservations(client, context, queue);
           return {
             statusCode: 200,
-            response: mapMutation(reconciledQueue),
+          response: mapMutation(reconciledQueue, new Map(this.configRegistry.actions.map((action) => [action.id, action.base_duration_us]))),
           };
         },
       );
@@ -710,7 +722,7 @@ export class QueueService {
       throw new QueueVersionConflictError(actualVersion);
     }
     if (currentQueue !== null) {
-      const removedEntries = currentQueue.entries.filter((entry) => entry.status === 'QUEUED' || entry.status === 'BLOCKED');
+      const removedEntries = currentQueue.entries.filter((entry) => entry.status === 'QUEUED' || entry.status === 'BLOCKED' || (parsed.replaceCurrent && entry.status === 'RUNNING'));
       await this.releaseQueueEntryReservations(client, context, removedEntries);
     }
 
@@ -718,10 +730,33 @@ export class QueueService {
       characterId,
       expectedQueueVersion: parsed.expectedQueueVersion,
       fallbackActionId: parsed.fallbackActionId,
+      replaceCurrent: parsed.replaceCurrent,
       entries: this.toWrites(normalized.entries, parsed.entries),
     });
-
-    return this.reconcileQueueReservations(client, context, queue);
+    const reconciled = await this.reconcileQueueReservations(client, context, queue);
+    if (!parsed.replaceCurrent) {
+      return reconciled;
+    }
+    const nextEntry = [...reconciled.entries]
+      .sort((left, right) => left.position - right.position)
+      .find((entry) => entry.status === 'QUEUED');
+    const fallbackAction = context.actions.get(parsed.fallbackActionId);
+    if (nextEntry === undefined) {
+      if (fallbackAction === undefined) throw new Error(`QUEUE_ACTION_NOT_FOUND:${parsed.fallbackActionId}`);
+      await this.settlementService.setActiveQueueCycleOnTransaction(client, characterId, null, fallbackAction);
+      return reconciled;
+    }
+    const action = context.actions.get(nextEntry.actionConfigId);
+    if (action === undefined) throw new Error(`QUEUE_ACTION_NOT_FOUND:${nextEntry.actionConfigId}`);
+    const activated = await this.repository.setEntryStatus(client, {
+      characterId,
+      entryId: nextEntry.id,
+      status: 'RUNNING',
+      blockedReason: null,
+      progressTimeUs: 0n,
+    });
+    await this.settlementService.setActiveQueueCycleOnTransaction(client, characterId, nextEntry.id, action);
+    return activated;
   }
 
   private async releaseQueueEntryReservations(
@@ -888,7 +923,12 @@ export class QueueService {
     if (character === null) {
       throw notFound();
     }
-    const realm = this.configRegistry.getRealm(character.realmStageId);
+    const effectiveRealmStageId = resolveEffectiveRealmStageId(
+      this.configRegistry.realms,
+      character.realmStageId,
+      character.cultivationXp,
+    );
+    const realm = this.configRegistry.getRealm(effectiveRealmStageId);
     const actions = new Map<string, ActionConfig>();
     const allowedModes = new Map<string, ReadonlySet<SupportedQueueMode>>();
     for (const action of this.configRegistry.actions) {
@@ -901,7 +941,7 @@ export class QueueService {
     }
     return {
       accountId,
-      character,
+      character: { ...character, realmStageId: effectiveRealmStageId },
       maxSlots: realm.queue_slots,
       supportsInventoryConditions: realm.queue_slots >= 3,
       offlineCapSeconds: realm.offline_cap_seconds,

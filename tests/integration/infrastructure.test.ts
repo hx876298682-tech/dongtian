@@ -46,7 +46,7 @@ describe('local PostgreSQL infrastructure', () => {
     ]);
   });
 
-  it('defines a credential-free CI gate for install, checks, OpenAPI, build, and Playwright smoke', () => {
+  it('defines a credential-free CI gate for install, checks, OpenAPI, build, and Playwright end-to-end', () => {
     const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/ci.yml'), 'utf8');
     const packageManifest = JSON.parse(
       readFileSync(resolve(process.cwd(), 'package.json'), 'utf8'),
@@ -62,7 +62,7 @@ describe('local PostgreSQL infrastructure', () => {
     expect(workflow).toContain('pnpm test:integration');
     expect(workflow).toContain('pnpm openapi:check');
     expect(workflow).toContain('pnpm build');
-    expect(workflow).toContain('pnpm test:e2e:smoke');
+    expect(workflow).toContain('pnpm test:e2e');
     expect(workflow).toContain('E2E_DATABASE_MODE: docker');
   });
 });

@@ -586,6 +586,7 @@ export interface QueuePlanFallback {
 
 export interface QueuePlanRequest {
   readonly expected_queue_version: number | string;
+  readonly replace_current?: boolean;
   readonly entries: ReadonlyArray<QueuePlanEntry>;
   readonly fallback: QueuePlanFallback;
 }
@@ -607,6 +608,7 @@ export interface QueueEntry {
   readonly status: QueueEntryStatus;
   readonly completed_cycles: string;
   readonly progress_time_us: string;
+  readonly base_duration_us?: string;
   readonly snapshot_config_version: string | null;
 }
 

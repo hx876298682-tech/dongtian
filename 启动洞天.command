@@ -83,14 +83,16 @@ say "检查并清理上一次启动的服务..."
 stop_project_listener 3000
 stop_project_listener 5173
 
-say "启动 API 和 Web..."
+say "启动 API、Worker 和 Web..."
 pnpm --filter @dongtian/api dev >"$PROJECT_DIR/.local-api.log" 2>&1 &
 API_PID=$!
+pnpm --filter @dongtian/worker dev >"$PROJECT_DIR/.local-worker.log" 2>&1 &
+WORKER_PID=$!
 pnpm --filter @dongtian/web exec vite --host 127.0.0.1 --port 5173 --strictPort >"$PROJECT_DIR/.local-web.log" 2>&1 &
 WEB_PID=$!
 
 cleanup() {
-  kill "$API_PID" "$WEB_PID" 2>/dev/null || true
+  kill "$API_PID" "$WORKER_PID" "$WEB_PID" 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
 

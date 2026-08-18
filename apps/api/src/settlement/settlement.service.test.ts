@@ -222,6 +222,7 @@ function makeService(
     async lockState() {
       return currentState;
     },
+    async setActiveQueueCycle() {},
     async getLatestSummary() {
       return currentState === null ? null : summaryRecord;
     },
@@ -401,6 +402,17 @@ function makeService(
 }
 
 describe('SettlementService', () => {
+  it('does not write zero-quantity item rewards when no cycle elapsed', async () => {
+    const { service, addedRewards } = makeService({
+      ...state,
+      lastSettledAt: new Date('2026-08-16T00:00:00.999Z'),
+    });
+
+    await service.settleToNow({} as unknown as FastifyRequest, 'character-1');
+
+    expect(addedRewards).toHaveLength(0);
+  });
+
   it('settles the current snapshot and persists rewards in a single transaction', async () => {
     const { service, assetRepository, addedRewards, queries, getLastPersist } = makeService();
     const result = await service.settleToNow({} as unknown as FastifyRequest, 'character-1');

@@ -26,6 +26,7 @@ import {
   prepareDungeonRun as resolveDungeonPreview,
   resolveDungeonTimeout as resolveDungeonChoiceTimeout,
   restoreDungeonRunState,
+  resolveEffectiveRealmStageId,
   submitDungeonChoice as resolveDungeonChoice,
   type CombatantInput,
   type DungeonConfig as DungeonRulesConfig,
@@ -1115,8 +1116,9 @@ export class DungeonService {
     characterId: string,
     accountId: string,
   ): Promise<{ readonly realmStageId: string; readonly skills: readonly { readonly skillId: string; readonly level: number; readonly xp: string }[] } | null> {
-    const result = await client.query<{ readonly realm_stage_id: string; readonly skill_id: string | null; readonly skill_level: number | null; readonly skill_xp: string | null }>(
+    const result = await client.query<{ readonly realm_stage_id: string; readonly cultivation_xp: string; readonly skill_id: string | null; readonly skill_level: number | null; readonly skill_xp: string | null }>(
       `SELECT cp.realm_stage_id,
+              cp.cultivation_xp::text AS cultivation_xp,
               sp.skill_id,
               sp.level AS skill_level,
               sp.xp::text AS skill_xp
@@ -1131,7 +1133,7 @@ export class DungeonService {
       return null;
     }
     return {
-      realmStageId: row.realm_stage_id,
+      realmStageId: resolveEffectiveRealmStageId(this.configRegistry.realms, row.realm_stage_id, row.cultivation_xp),
       skills: result.rows.flatMap((skill) => skill.skill_id === null || skill.skill_level === null || skill.skill_xp === null ? [] : [{ skillId: skill.skill_id, level: skill.skill_level, xp: skill.skill_xp }]),
     };
   }

@@ -112,6 +112,14 @@ export type SettlementSummaryRecord = {
 export type SettlementRepository = {
   readonly getState: (characterId: string) => Promise<SettlementStateRecord | null>;
   readonly lockState: (client: PoolClient, characterId: string) => Promise<SettlementStateRecord | null>;
+  readonly setActiveQueueCycle: (
+    client: PoolClient,
+    input: {
+      readonly characterId: string;
+      readonly activeQueueEntryId: string | null;
+      readonly activeCycleSnapshot: SettlementJson;
+    },
+  ) => Promise<void>;
   readonly persist: (client: PoolClient, input: SettlementPersistenceInput) => Promise<string>;
   readonly getLatestSummary: (characterId: string) => Promise<SettlementSummaryRecord | null>;
   readonly getSummaryById: (characterId: string, settlementId: string) => Promise<SettlementSummaryRecord | null>;
@@ -498,6 +506,25 @@ export function createSettlementRepository(pool: DatabasePool): SettlementReposi
     return selectLatestSummary(pool as unknown as Pick<PoolClient, 'query'>, characterId);
   }
 
+  async function setActiveQueueCycle(
+    client: PoolClient,
+    input: {
+      readonly characterId: string;
+      readonly activeQueueEntryId: string | null;
+      readonly activeCycleSnapshot: SettlementJson;
+    },
+  ): Promise<void> {
+    await client.query(
+      `UPDATE settlement_states
+          SET active_queue_entry_id = $2,
+              active_cycle_snapshot = $3::jsonb,
+              progress_time_us = 0,
+              updated_at = CURRENT_TIMESTAMP
+        WHERE character_id = $1`,
+      [input.characterId, input.activeQueueEntryId, json(input.activeCycleSnapshot)],
+    );
+  }
+
   async function runContinuationBatch(
     limit: number,
     handler: (client: PoolClient, characterId: string) => Promise<void>,
@@ -535,5 +562,5 @@ export function createSettlementRepository(pool: DatabasePool): SettlementReposi
     }
   }
 
-  return { getState, lockState, persist, getLatestSummary, getSummaryById, runContinuationBatch };
+  return { getState, lockState, setActiveQueueCycle, persist, getLatestSummary, getSummaryById, runContinuationBatch };
 }

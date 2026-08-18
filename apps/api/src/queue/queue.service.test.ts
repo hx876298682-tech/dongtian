@@ -298,7 +298,10 @@ function makeService(
         throw new Error(`QUEUE_VERSION_CONFLICT:${currentVersion.toString()}`);
       }
 
-      const existingRunning = queueState.current?.entries.filter((entry) => entry.status === 'RUNNING').map(cloneEntry) ?? [];
+      const replaceCurrent = (input as typeof input & { readonly replaceCurrent?: boolean }).replaceCurrent === true;
+      const existingRunning = replaceCurrent
+        ? []
+        : queueState.current?.entries.filter((entry) => entry.status === 'RUNNING').map(cloneEntry) ?? [];
       const nextEntries = input.entries.map((entry, index) => ({
         id: `entry-${nextEntryId++}`,
         characterId: input.characterId,
@@ -454,6 +457,10 @@ function makeService(
   } as unknown as AuthService;
 
   const settlementService = {
+    async setActiveQueueCycleOnTransaction(client: unknown, characterId: string, entryId: string | null, action: ActionConfig) {
+      steps.push(`settlement.setActiveQueueCycle:${characterId}:${entryId ?? 'fallback'}:${action.id}`);
+      assertTxClient(client);
+    },
     async executeSettledWrite<T extends JsonValue>(
       request: FastifyRequest,
       characterId: string,
@@ -695,6 +702,43 @@ describe('QueueService', () => {
     expect(reservations[0]).toMatchObject({ status: 'RELEASED' });
     expect(inventoryState.reserved).toBe(0n);
     expect(steps[0]).toBe('settlement:QUEUE_SAVE');
+  });
+
+  it('immediately replaces the running action for a single-click behavior', async () => {
+    const { service, queueState, steps } = makeService();
+    const initial = await service.save(request('initial-action'), character.characterId, {
+      expected_queue_version: 0,
+      entries: [{
+        client_entry_id: 'initial-action',
+        action_id: freeAction.id,
+        mode: 'INFINITE',
+        on_blocked: 'FALLBACK',
+      }],
+      fallback: { action_id: freeAction.id, mode: 'INFINITE' },
+    });
+    const initialEntry = queueState.current?.entries[0];
+    if (initialEntry === undefined || queueState.current === null) throw new Error('expected initial queue entry');
+    queueState.current = { ...queueState.current, entries: [{ ...initialEntry, status: 'RUNNING' }] };
+
+    const switched = await service.save(request('switch-action'), character.characterId, {
+      expected_queue_version: initial['queue_version'],
+      replace_current: true,
+      entries: [{
+        client_entry_id: 'combat-action',
+        action_id: freeAction.id,
+        mode: 'INFINITE',
+        on_blocked: 'FALLBACK',
+      }],
+      fallback: { action_id: freeAction.id, mode: 'INFINITE' },
+    });
+
+    expect(switched).toMatchObject({
+      effective_at: 'immediate',
+      queue: {
+        current: expect.objectContaining({ client_entry_id: 'combat-action', status: 'RUNNING' }),
+      },
+    });
+    expect(steps.some((step) => step.startsWith('settlement.setActiveQueueCycle:character-1:entry-'))).toBe(true);
   });
 
   it('routes pause and resume through the settlement wrapper on the same transaction client', async () => {

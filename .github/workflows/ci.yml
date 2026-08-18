@@ -52,5 +52,5 @@ jobs:
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Playwright smoke discovery
-        run: pnpm test:e2e:smoke
+      - name: Playwright end-to-end suite
+        run: pnpm test:e2e

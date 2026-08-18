@@ -93,4 +93,22 @@ describe('herbalism behavior adapter', () => {
     expect(client.getQueue).toHaveBeenCalledWith('c1');
     expect(client.resumeQueue).toHaveBeenCalled();
   });
+
+  it('requests an immediate switch when a player starts a single behavior', async () => {
+    const queue = { queue_version: '1', paused: false } as unknown as import('@dongtian/contracts').Queue;
+    const client = {
+      getQueue: vi.fn(),
+      saveQueue: vi.fn().mockResolvedValue({ queue: { ...queue, queue_version: '2' } }),
+      resumeQueue: vi.fn(),
+    };
+    const action = { action_id: 'action.t1.combat_qingshe', queue_action_id: 'action.t1.combat_qingshe', enabled: true, unlocked: true, can_add_to_queue: true, allowed_queue_modes: ['INFINITE'] } as unknown as ActionCatalogEntry;
+
+    await startBehaviorAction(action, { characterId: 'c1', queue, client, invalidate: vi.fn(), createIdempotencyKey: () => 'key', behaviorKind: 'combat' });
+
+    expect(client.saveQueue).toHaveBeenCalledWith(
+      'c1',
+      expect.objectContaining({ replace_current: true }),
+      'key',
+    );
+  });
 });

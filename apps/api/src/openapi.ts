@@ -1184,6 +1184,7 @@ export async function createOpenApiDocument(): Promise<OpenAPIObject> {
         required: ['expected_queue_version', 'entries', 'fallback'],
         properties: {
           expected_queue_version: { oneOf: [{ type: 'integer', minimum: 0 }, { type: 'string', pattern: '^(?:0|[1-9]\\d*)$' }] },
+          replace_current: { type: 'boolean' },
           entries: {
             type: 'array',
             maxItems: 3,

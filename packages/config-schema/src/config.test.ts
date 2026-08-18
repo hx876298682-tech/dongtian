@@ -163,7 +163,7 @@ describe('versioned config registry', () => {
       outputs: [],
       allowed_queue_modes: ['INFINITE'],
     });
-    expect(registry.actions).toHaveLength(39);
+    expect(registry.actions).toHaveLength(50);
     expect(registry.items).toHaveLength(49);
     expect(registry.recipes).toHaveLength(25);
     expect(registry.buffs).toHaveLength(9);

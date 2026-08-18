@@ -1,5 +1,6 @@
 export interface ExpeditionMonsterCatalogEntry {
   readonly id: string;
+  readonly actionId: string;
   readonly label: string;
   readonly description: string;
   readonly hp: number;
@@ -20,17 +21,17 @@ export interface ExpeditionRegionCatalogEntry {
 }
 
 const MONSTERS: readonly ExpeditionMonsterCatalogEntry[] = [
-  { id: 'monster.t1.qingshe', label: '青蛇', description: '青云山麓常见妖蛇，适合初次历练。', hp: 180, attack: 18, defense: 8, recommendedPower: 60, loot: ['青蛇丹'], dungeonId: 'dungeon.t1.qingshe_cave' },
-  { id: 'monster.t1.qingshe_wang', label: '青蛇王', description: '盘踞蛇窟深处的精英妖兽。', hp: 240, attack: 26, defense: 14, recommendedPower: 82, loot: ['青蛇丹'], dungeonId: 'dungeon.t1.qingshe_cave' },
-  { id: 'monster.t1.zhuling_yao', label: '竹灵妖', description: '雾隐丘陵中由灵竹化形的妖物。', hp: 210, attack: 20, defense: 9, recommendedPower: 72, loot: ['青竹', '凝露花'], dungeonId: null },
-  { id: 'monster.t1.gray_wolf', label: '灰狼', description: '黑石山道上成群出没的妖狼。', hp: 360, attack: 26, defense: 12, recommendedPower: 92, loot: ['妖狼牙', '妖丹'], dungeonId: 'dungeon.t1.xuantie_cavern' },
-  { id: 'monster.t1.shijia_beast', label: '石甲兽', description: '吞食矿脉、披覆石甲的重型妖兽。', hp: 520, attack: 34, defense: 22, recommendedPower: 130, loot: ['石甲', '玄铁矿'], dungeonId: 'dungeon.t1.xuantie_cavern' },
-  { id: 'monster.t1.chitong_jiachong', label: '赤铜甲虫', description: '雾隐丘陵矿洞中的甲壳妖虫。', hp: 260, attack: 22, defense: 11, recommendedPower: 78, loot: ['赤铜矿', '玄铁矿'], dungeonId: 'dungeon.t1.xuantie_cavern' },
-  { id: 'monster.t1.wuying_yuan', label: '无影猿', description: '善于藏匿的山林妖猿。', hp: 300, attack: 24, defense: 10, recommendedPower: 84, loot: ['青竹', '妖狼牙'], dungeonId: null },
-  { id: 'monster.t1.xingwen_kui', label: '星纹傀', description: '星落矿区由陨铁孕育的矿傀。', hp: 980, attack: 52, defense: 34, recommendedPower: 210, loot: ['星纹钢', '灵玉矿'], dungeonId: null },
-  { id: 'monster.t1.heifeng_lang', label: '黑风狼', description: '黑风谷中受煞气侵染的妖狼。', hp: 850, attack: 48, defense: 30, recommendedPower: 190, loot: ['妖狼牙', '黑风晶'], dungeonId: 'dungeon.t1.heifeng_mijing' },
-  { id: 'monster.t1.lingquan_shouwei', label: '灵泉守卫', description: '镇守灵泉的高阶妖兽。', hp: 1400, attack: 70, defense: 48, recommendedPower: 250, loot: ['地脉参', '灵髓'], dungeonId: null },
-  { id: 'monster.t1.heifeng_yaowang', label: '黑风妖王', description: '黑风谷深处的终段妖王。', hp: 5200, attack: 145, defense: 90, recommendedPower: 520, loot: ['黑风晶', '妖丹'], dungeonId: 'dungeon.t1.heifeng_mijing' },
+  { id: 'monster.t1.qingshe', actionId: 'action.t1.combat_qingshe', label: '青蛇', description: '青云山麓常见妖蛇，适合初次历练。', hp: 180, attack: 18, defense: 8, recommendedPower: 60, loot: ['青蛇丹'], dungeonId: 'dungeon.t1.qingshe_cave' },
+  { id: 'monster.t1.qingshe_wang', actionId: 'action.t1.combat_qingshe_wang', label: '青蛇王', description: '盘踞蛇窟深处的精英妖兽。', hp: 240, attack: 26, defense: 14, recommendedPower: 82, loot: ['青蛇丹'], dungeonId: 'dungeon.t1.qingshe_cave' },
+  { id: 'monster.t1.zhuling_yao', actionId: 'action.t1.combat_zhuling_yao', label: '竹灵妖', description: '雾隐丘陵中由灵竹化形的妖物。', hp: 210, attack: 20, defense: 9, recommendedPower: 72, loot: ['青竹', '凝露花'], dungeonId: null },
+  { id: 'monster.t1.gray_wolf', actionId: 'action.t1.combat_gray_wolf', label: '灰狼', description: '黑石山道上成群出没的妖狼。', hp: 360, attack: 26, defense: 12, recommendedPower: 92, loot: ['妖狼牙', '妖丹'], dungeonId: 'dungeon.t1.xuantie_cavern' },
+  { id: 'monster.t1.shijia_beast', actionId: 'action.t1.combat_shijia_beast', label: '石甲兽', description: '吞食矿脉、披覆石甲的重型妖兽。', hp: 520, attack: 34, defense: 22, recommendedPower: 130, loot: ['石甲', '玄铁矿'], dungeonId: 'dungeon.t1.xuantie_cavern' },
+  { id: 'monster.t1.chitong_jiachong', actionId: 'action.t1.combat_chitong_jiachong', label: '赤铜甲虫', description: '雾隐丘陵矿洞中的甲壳妖虫。', hp: 260, attack: 22, defense: 11, recommendedPower: 78, loot: ['赤铜矿', '玄铁矿'], dungeonId: 'dungeon.t1.xuantie_cavern' },
+  { id: 'monster.t1.wuying_yuan', actionId: 'action.t1.combat_wuying_yuan', label: '无影猿', description: '善于藏匿的山林妖猿。', hp: 300, attack: 24, defense: 10, recommendedPower: 84, loot: ['青竹', '妖狼牙'], dungeonId: null },
+  { id: 'monster.t1.xingwen_kui', actionId: 'action.t1.combat_xingwen_kui', label: '星纹傀', description: '星落矿区由陨铁孕育的矿傀。', hp: 980, attack: 52, defense: 34, recommendedPower: 210, loot: ['星纹钢', '灵玉矿'], dungeonId: null },
+  { id: 'monster.t1.heifeng_lang', actionId: 'action.t1.combat_heifeng_lang', label: '黑风狼', description: '黑风谷中受煞气侵染的妖狼。', hp: 850, attack: 48, defense: 30, recommendedPower: 190, loot: ['妖狼牙', '黑风晶'], dungeonId: 'dungeon.t1.heifeng_mijing' },
+  { id: 'monster.t1.lingquan_shouwei', actionId: 'action.t1.combat_lingquan_shouwei', label: '灵泉守卫', description: '镇守灵泉的高阶妖兽。', hp: 1400, attack: 70, defense: 48, recommendedPower: 250, loot: ['地脉参', '灵髓'], dungeonId: null },
+  { id: 'monster.t1.heifeng_yaowang', actionId: 'action.t1.combat_heifeng_yaowang', label: '黑风妖王', description: '黑风谷深处的终段妖王。', hp: 5200, attack: 145, defense: 90, recommendedPower: 520, loot: ['黑风晶', '妖丹'], dungeonId: 'dungeon.t1.heifeng_mijing' },
 ] as const;
 
 export const EXPEDITION_REGIONS: readonly ExpeditionRegionCatalogEntry[] = [
