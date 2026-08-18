@@ -63,5 +63,61 @@
     "source_note": "04_百艺XP:技能成长",
     "max_level": 100,
     "scope": "MVP"
+  },
+  {
+    "id": "skill.weapon_mastery.sword",
+    "name_key": "skill.weapon_mastery.sword.name",
+    "description_key": "skill.weapon_mastery.sword.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 6,
+    "tags": ["weapon_mastery", "sword"],
+    "source_note": "武器专精:剑",
+    "max_level": 100,
+    "attack_bonus_per_level": "0.02",
+    "scope": "MVP"
+  },
+  {
+    "id": "skill.weapon_mastery.blade",
+    "name_key": "skill.weapon_mastery.blade.name",
+    "description_key": "skill.weapon_mastery.blade.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 7,
+    "tags": ["weapon_mastery", "blade"],
+    "source_note": "武器专精:刀",
+    "max_level": 100,
+    "attack_bonus_per_level": "0.02",
+    "scope": "MVP"
+  },
+  {
+    "id": "skill.weapon_mastery.spear",
+    "name_key": "skill.weapon_mastery.spear.name",
+    "description_key": "skill.weapon_mastery.spear.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 8,
+    "tags": ["weapon_mastery", "spear"],
+    "source_note": "武器专精:枪",
+    "max_level": 100,
+    "attack_bonus_per_level": "0.02",
+    "scope": "MVP"
+  },
+  {
+    "id": "skill.weapon_mastery.staff",
+    "name_key": "skill.weapon_mastery.staff.name",
+    "description_key": "skill.weapon_mastery.staff.desc",
+    "enabled": true,
+    "deprecated": false,
+    "realm_required": "realm.mortal.entry",
+    "sort_order": 9,
+    "tags": ["weapon_mastery", "staff"],
+    "source_note": "武器专精:杖",
+    "max_level": 100,
+    "attack_bonus_per_level": "0.02",
+    "scope": "MVP"
   }
 ]

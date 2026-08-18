@@ -15,7 +15,7 @@ describe('content adapter', () => {
   it('formats durations, queue links, and inventory summaries', () => {
     expect(formatCount('1200')).toBe('1,200');
     expect(formatDurationUs('60000000')).toBe('1 分钟');
-    expect(joinQueuePath('action.cultivation.qi')).toBe('/dashboard?action_id=action.cultivation.qi');
+    expect(joinQueuePath('action.cultivation.qi')).toBe('/dashboard/queue?action_id=action.cultivation.qi');
     expect(joinRoutePath({ route_type: 'RECIPE', target_id: 'recipe.t1.qi_gathering_pill', name_key: 'x', description_key: null, source_note: 'y' })).toBe('/craft?tab=recipes&recipe_id=recipe.t1.qi_gathering_pill');
     expect(
       summarizeInventoryAsset({
@@ -31,7 +31,9 @@ describe('content adapter', () => {
 
   it('translates known technical IDs for player-facing content labels', () => {
     expect(describeSkillId('skill.alchemy')).toBe('炼丹');
+    expect(describeSkillId('skill.weapon_mastery.sword')).toBe('练剑');
     expect(describeActionId('action.t1.herb_baicao_valley')).toBe('采药');
+    expect(describeActionId('action.weapon_mastery.sword')).toBe('练剑');
     expect(describeItemId('item.t1.qingling_herb')).toBe('青灵草');
     expect(describeRecipeId('recipe.t1.qi_gathering_pill')).toBe('聚气丹配方');
     expect(describeRoute({ route_type: 'ACTION', target_id: 'action.t1.herb_baicao_valley', name_key: 'x', description_key: null, source_note: 'x' })).toBe('行动 · 采药');

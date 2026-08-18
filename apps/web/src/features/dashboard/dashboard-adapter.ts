@@ -11,6 +11,10 @@ import type {
 
 const ACTION_LABELS: Record<string, string> = {
   'action.cultivation.qi': '采气修炼',
+  'action.weapon_mastery.sword': '练剑',
+  'action.weapon_mastery.blade': '练刀',
+  'action.weapon_mastery.spear': '练枪',
+  'action.weapon_mastery.staff': '练杖',
   'action.t1.herb_baicao_valley': '百草谷采药',
   'action.t1.herb_wuyin_slope': '雾隐坡采花',
   'action.t1.qi_gathering_pill': '炼制聚气丹',

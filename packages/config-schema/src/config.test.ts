@@ -143,10 +143,27 @@ describe('versioned config registry', () => {
       - BigInt(registry.getAction('action.t1.qi_gathering_pill').base_duration_us) * 20n;
     expect(cultivationTailUs).toBe(17_100_000_000n);
     expect(registry.getFeatureUnlock('feature.market').enabled).toBe(false);
+    expect(registry.getFeatureUnlock('feature.weapon_mastery.sword')).toMatchObject({
+      enabled: true,
+      visible_stage: 'realm.mortal.entry',
+      usable_stage: 'realm.mortal.entry',
+    });
     expect(registry.getSkill('skill.herbalism').max_level).toBe(100);
     expect(registry.getSkillXpCurve('skill.herbalism').levels).toHaveLength(100);
     expect(registry.getSkillXpCurve('skill.herbalism').levels[1]?.cumulative_xp).toBe('83');
-    expect(registry.actions).toHaveLength(35);
+    expect(registry.getSkill('skill.weapon_mastery.sword')).toMatchObject({
+      tags: ['weapon_mastery', 'sword'],
+      attack_bonus_per_level: '0.02',
+    });
+    expect(registry.getAction('action.weapon_mastery.sword')).toMatchObject({
+      skill_id: 'skill.weapon_mastery.sword',
+      base_duration_us: '60000000',
+      skill_xp: '5',
+      cultivation_xp: '0',
+      outputs: [],
+      allowed_queue_modes: ['INFINITE'],
+    });
+    expect(registry.actions).toHaveLength(39);
     expect(registry.items).toHaveLength(49);
     expect(registry.recipes).toHaveLength(25);
     expect(registry.buffs).toHaveLength(9);

@@ -48,6 +48,21 @@ type CharacterRow = {
   readonly activeLoadoutPresetId: string | null;
 };
 
+export function applyWeaponMasteryAttack(
+  weaponAttack: number,
+  weaponTags: readonly string[],
+  masterySkills: readonly { readonly tags: readonly string[]; readonly level: number; readonly attackBonusPerLevel?: string | undefined }[],
+): number {
+  if (weaponAttack <= 0 || weaponTags.length === 0) return weaponAttack;
+  const mastery = masterySkills.find((skill) =>
+    skill.tags.includes('weapon_mastery')
+    && skill.tags.some((tag) => tag !== 'weapon_mastery' && weaponTags.includes(tag)),
+  );
+  if (mastery === undefined || mastery.level <= 0) return weaponAttack;
+  const bonus = Number(mastery.attackBonusPerLevel ?? '0');
+  return Number.isFinite(bonus) && bonus > 0 ? weaponAttack * (1 + mastery.level * bonus) : weaponAttack;
+}
+
 type DungeonOpportunityResponse = {
   readonly character: {
     readonly character_id: string;
@@ -930,7 +945,13 @@ export class DungeonService {
     const armor = loadout.armorItemId === null ? null : this.configRegistry.getEquipment(loadout.armorItemId);
     const accessory = loadout.accessoryItemId === null ? null : this.configRegistry.getEquipment(loadout.accessoryItemId);
 
-    const totalAttack = (weapon?.attack ?? 0) + (armor?.attack ?? 0) + (accessory?.attack ?? 0);
+    const weaponTags = loadout.weaponItemId === null ? [] : (this.configRegistry.getItem(loadout.weaponItemId).tags ?? []);
+    const masterySkills = progression.skills.flatMap((entry) => {
+      const skill = this.configRegistry.getSkill(entry.skillId);
+      return skill.tags.includes('weapon_mastery') ? [{ tags: skill.tags, level: entry.level, attackBonusPerLevel: skill.attack_bonus_per_level }] : [];
+    });
+    const masteredWeaponAttack = applyWeaponMasteryAttack(weapon?.attack ?? 0, weaponTags, masterySkills);
+    const totalAttack = masteredWeaponAttack + (armor?.attack ?? 0) + (accessory?.attack ?? 0);
     const totalDefense = (weapon?.defense ?? 0) + (armor?.defense ?? 0) + (accessory?.defense ?? 0);
     const totalHp = (weapon?.hp ?? 0) + (armor?.hp ?? 0) + (accessory?.hp ?? 0);
     const totalSpeed = (weapon?.speed ?? 0) + (armor?.speed ?? 0) + (accessory?.speed ?? 0);
@@ -1093,11 +1114,15 @@ export class DungeonService {
     client: Pick<PoolClient, 'query'>,
     characterId: string,
     accountId: string,
-  ): Promise<{ readonly realmStageId: string } | null> {
-    const result = await client.query<{ readonly realm_stage_id: string }>(
-      `SELECT cp.realm_stage_id
+  ): Promise<{ readonly realmStageId: string; readonly skills: readonly { readonly skillId: string; readonly level: number; readonly xp: string }[] } | null> {
+    const result = await client.query<{ readonly realm_stage_id: string; readonly skill_id: string | null; readonly skill_level: number | null; readonly skill_xp: string | null }>(
+      `SELECT cp.realm_stage_id,
+              sp.skill_id,
+              sp.level AS skill_level,
+              sp.xp::text AS skill_xp
          FROM characters c
          INNER JOIN character_progression cp ON cp.character_id = c.id
+         LEFT JOIN skill_progression sp ON sp.character_id = c.id
         WHERE c.id = $1 AND c.account_id = $2`,
       [characterId, accountId],
     );
@@ -1105,7 +1130,10 @@ export class DungeonService {
     if (!row) {
       return null;
     }
-    return { realmStageId: row.realm_stage_id };
+    return {
+      realmStageId: row.realm_stage_id,
+      skills: result.rows.flatMap((skill) => skill.skill_id === null || skill.skill_level === null || skill.skill_xp === null ? [] : [{ skillId: skill.skill_id, level: skill.skill_level, xp: skill.skill_xp }]),
+    };
   }
 
   private async loadLoadoutPreset(

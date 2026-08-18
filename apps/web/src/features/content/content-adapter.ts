@@ -17,8 +17,16 @@ const ID_LABELS: Readonly<Record<string, string>> = {
   'skill.smithing': '炼器',
   'skill.forging': '锻造',
   'skill.tempering': '淬炼',
+  'skill.weapon_mastery.sword': '练剑',
+  'skill.weapon_mastery.blade': '练刀',
+  'skill.weapon_mastery.spear': '练枪',
+  'skill.weapon_mastery.staff': '练杖',
   'skill.tool': '制器',
   'action.cultivation.qi': '修炼灵气',
+  'action.weapon_mastery.sword': '练剑',
+  'action.weapon_mastery.blade': '练刀',
+  'action.weapon_mastery.spear': '练枪',
+  'action.weapon_mastery.staff': '练杖',
   'action.t1.herb_baicao_valley': '采药',
   'action.t1.herb_wuyin_slope': '雾隐坡采药',
   'action.t1.qi_gathering_powder': '炼制聚气散',
@@ -367,7 +375,7 @@ export function joinRoutePath(route: ContentRoute): string {
 }
 
 export function joinQueuePath(actionId: string): string {
-  return `/dashboard?action_id=${encodeURIComponent(actionId)}`;
+  return `/dashboard/queue?action_id=${encodeURIComponent(actionId)}`;
 }
 
 export function selectBestAction(actions: ReadonlyArray<ActionCatalogEntry>): ReadonlyMap<string, ActionCatalogEntry> {

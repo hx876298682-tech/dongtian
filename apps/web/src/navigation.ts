@@ -1,8 +1,16 @@
+export interface ShellChildRouteItem {
+  readonly id: string;
+  readonly label: string;
+  readonly path: string;
+  readonly description: string;
+}
+
 export interface ShellRouteItem {
   readonly id: string;
   readonly label: string;
   readonly path: string;
   readonly description: string;
+  readonly children?: readonly ShellChildRouteItem[];
 }
 
 export interface ShellFlowStep {
@@ -23,16 +31,27 @@ export const SHELL_BRAND_COPY = {
   draft: '快捷任务',
 } as const;
 
+export const SHELL_CRAFT_CHILDREN: readonly ShellChildRouteItem[] = [
+  { id: 'herbalism', label: '采集 / 采药', path: '/craft/herbalism', description: '选择区域和草药，开始采药挂机。' },
+  { id: 'mining', label: '采集 / 挖矿', path: '/craft/mining', description: '选择区域和矿石，开始挖矿挂机。' },
+  { id: 'alchemy', label: '炼丹', path: '/craft/alchemy', description: '按分类选择丹药配方，开始炼丹挂机。' },
+  { id: 'forging', label: '炼器', path: '/craft/forging', description: '按分类选择炼器配方，开始炼器挂机。' },
+] as const;
+
+export const SHELL_CULTIVATION_CHILDREN: readonly ShellChildRouteItem[] = [
+  { id: 'breakthrough', label: '突破', path: '/cultivation/breakthrough', description: '检查境界门槛并发起突破试炼。' },
+] as const;
+
 export const SHELL_ROUTES: readonly ShellRouteItem[] = [
   { id: 'shops', label: '市场', path: '/shops', description: '资源兑换与秘境补给。' },
   { id: 'store', label: '商店', path: '/store', description: '洞天商店与系统兑换入口。' },
   { id: 'cowbell-shop', label: '牛铃商店', path: '/cowbell-shop', description: '牛铃兑换与特殊补给入口。' },
   { id: 'tasks', label: '任务', path: '/tasks', description: '当前目标、完成记录和修行计划。' },
   { id: 'maze', label: '迷宫', path: '/maze', description: '房间、路线和自动化探险。' },
-  { id: 'dashboard', label: '洞府', path: '/dashboard', description: '当前行动、回流摘要和目标追踪。' },
-  { id: 'cultivation', label: '修炼', path: '/cultivation', description: '境界、修为和突破项目。' },
-  { id: 'craft', label: '百艺', path: '/craft', description: '采药、挖矿、炼丹、炼器和淬炼。' },
-  { id: 'expedition', label: '历练', path: '/expedition', description: '青蛇洞机会、准备、运行与恢复。' },
+  { id: 'dashboard', label: '洞府', path: '/dashboard/cave', description: '修建和升级练功房、炼丹炉、锻造炉。' },
+  { id: 'cultivation', label: '修炼', path: '/cultivation', description: '选择修炼方向并安排挂机。', children: SHELL_CULTIVATION_CHILDREN },
+  { id: 'craft', label: '百艺', path: '/craft', description: '采药、挖矿、炼丹、炼器和淬炼。', children: SHELL_CRAFT_CHILDREN },
+  { id: 'expedition', label: '历练', path: '/expedition', description: '选择地图区域、怪物与秘境路线。' },
   { id: 'character', label: '角色', path: '/character', description: '装备整理、比较、保留和淬炼。' },
   { id: 'inventory', label: '背包', path: '/inventory', description: '材料、丹药、装备和分页筛选。' },
   { id: 'guild', label: '宗门', path: '/guild', description: '宗门与多人协作入口。' },
@@ -59,10 +78,10 @@ export const SHELL_ROUTE_ALIASES: readonly ShellRouteAlias[] = [
 
 /** The smallest playable loop, kept as navigation metadata so it never invents authority. */
 export const SHELL_FLOW_STEPS: readonly ShellFlowStep[] = [
-  { id: 'dashboard', label: '洞府首页', path: '/dashboard', description: '查看修为、库存和当前行动。' },
-  { id: 'cave', label: '洞府设施', path: '/dashboard/cave', description: '管理聚灵室、炼丹房和炼器房。' },
+  { id: 'dashboard', label: '洞府首页', path: '/dashboard/cave', description: '修建和升级洞府设施。' },
+  { id: 'cave', label: '洞府设施', path: '/dashboard/cave', description: '管理练功房、炼丹炉和锻造炉。' },
   { id: 'cultivation', label: '修炼 / 筑基', path: '/cultivation', description: '检查境界门槛并发起筑基。' },
-  { id: 'queue', label: '挂机计划', path: '/dashboard#queue', description: '调整任务顺序和材料条件。' },
+  { id: 'queue', label: '挂机计划', path: '/dashboard/queue', description: '调整任务顺序和材料条件。' },
   { id: 'inventory', label: '背包', path: '/inventory', description: '确认材料、丹药和装备回流。' },
   { id: 'expedition', label: '秘境历练', path: '/expedition', description: '准备并进入青蛇洞秘境。' },
 ];

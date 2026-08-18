@@ -99,6 +99,7 @@ export class CharacterService {
       efficiency_modifier: progress.efficiencyModifier,
       stage_node: progress.stageNode,
       realm_required: skill.realm_required,
+      ...(skill.attack_bonus_per_level === undefined ? {} : { attack_bonus_per_level: skill.attack_bonus_per_level }),
       character_state_version: stateVersionAsNumber(character.stateVersion),
     };
   }

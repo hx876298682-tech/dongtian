@@ -81,10 +81,10 @@ export function CaveLoading(): ReactElement {
   return (
     <section className="cave-layout">
       <div className="cave-panel cave-panel--hero">
-        <LoadingStateScreen title="正在查看洞天设施" description="正在读取聚灵室、炼丹房和炼器房。" />
+        <LoadingStateScreen title="正在查看洞天设施" description="正在读取练功房、炼丹炉和锻造炉。" />
       </div>
       <div className="cave-panel">
-        <LoadingStateScreen title="设施列表" description="等待聚灵室、炼丹房和炼器房数据。" />
+        <LoadingStateScreen title="设施列表" description="等待练功房、炼丹炉和锻造炉数据。" />
       </div>
       <div className="cave-panel">
         <LoadingStateScreen title="设施详情" description="等待选中的设施与下级成本。" />
@@ -198,7 +198,7 @@ function CaveDetailPanel({
   readonly onRetry: () => void;
 }): ReactElement {
   if (view === null) {
-    return <EmptyStateScreen title="未选择设施" description="从左侧选择聚灵室、炼丹房或炼器房。" />;
+    return <EmptyStateScreen title="未选择设施" description="从左侧选择练功房、炼丹炉或锻造炉。" />;
   }
 
   const detailLines = [
@@ -454,7 +454,7 @@ export function CavePage(): ReactElement {
         <div className="cave-panel__header">
           <div>
             <p className="page-card__eyebrow">三项设施</p>
-            <h4 className="cave-panel__title">点击卡片切换聚灵室、炼丹房与炼器房</h4>
+            <h4 className="cave-panel__title">点击卡片切换练功房、炼丹炉与锻造炉</h4>
           </div>
           <div className="cave-panel__meta">
             <span>{caveView.activeFacilityState}</span>

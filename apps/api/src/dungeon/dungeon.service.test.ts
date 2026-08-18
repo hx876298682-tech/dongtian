@@ -17,7 +17,7 @@ import type { CombatantInput } from '@dongtian/game-rules';
 
 import type { AuthService } from '../auth/auth.service.js';
 import type { SettlementService } from '../settlement/settlement.service.js';
-import { DungeonService } from './dungeon.service.js';
+import { applyWeaponMasteryAttack, DungeonService } from './dungeon.service.js';
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -26,6 +26,19 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
+});
+
+describe('weapon mastery combat bonus', () => {
+  const swordMastery = { tags: ['weapon_mastery', 'sword'], level: 3, attackBonusPerLevel: '0.02' };
+
+  it('applies a matching sword mastery multiplier to weapon attack', () => {
+    expect(applyWeaponMasteryAttack(12, ['equipment', 'weapon', 'sword'], [swordMastery])).toBeCloseTo(12.72);
+  });
+
+  it('keeps zero-level and nonmatching weapon attacks unchanged', () => {
+    expect(applyWeaponMasteryAttack(12, ['equipment', 'weapon', 'sword'], [{ ...swordMastery, level: 0 }])).toBe(12);
+    expect(applyWeaponMasteryAttack(12, ['equipment', 'weapon', 'blade'], [swordMastery])).toBe(12);
+  });
 });
 
 function makeSnapshot(state: {

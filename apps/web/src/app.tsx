@@ -19,8 +19,13 @@ import { CavePage } from './features/cave/cave-page.js';
 import { CharacterEquipmentPage } from './features/character/equipment-page.js';
 import { CharacterToolAssignmentsPage } from './features/character/tool-assignments-page.js';
 import { CraftPage, InventoryPage } from './features/content/content-page.js';
+import { HerbalismPage } from './features/behavior/herbalism-page.js';
+import { MiningPage } from './features/behavior/mining-page.js';
+import { AlchemyPage } from './features/behavior/alchemy-page.js';
+import { ForgingPage } from './features/behavior/forging-page.js';
 import { ExpeditionPage } from './features/expedition/expedition-page.js';
 import { BreakthroughPage } from './features/breakthrough/breakthrough-page.js';
+import { CultivationPage } from './features/cultivation/cultivation-page.js';
 import { SettingsPage } from './features/system/settings-page.js';
 import { ReferencePage } from './features/system/reference-pages.js';
 import { DEFAULT_SHELL_ROUTE, SHELL_BRAND_COPY, SHELL_ROUTES, SHELL_ROUTE_ALIASES } from './navigation.js';
@@ -371,7 +376,8 @@ function AppFrame({
 
   const currentRoute = useMemo(
     () => {
-      const directRoute = SHELL_ROUTES.find((route) => location.pathname === route.path || location.pathname.startsWith(`${route.path}/`));
+      const directRoute = SHELL_ROUTES.find((route) => location.pathname === route.path || location.pathname.startsWith(`${route.path}/`))
+        ?? (location.pathname === '/dashboard/queue' ? SHELL_ROUTES.find((route) => route.id === 'dashboard') : undefined);
       if (directRoute !== undefined) return directRoute;
       const alias = SHELL_ROUTE_ALIASES.find((candidate) => location.pathname === candidate.path || location.pathname.startsWith(`${candidate.path}/`));
       return SHELL_ROUTES.find((route) => route.id === alias?.kind) ?? DEFAULT_SHELL_ROUTE;
@@ -467,10 +473,18 @@ function AppFrame({
 
           <nav className="shell-nav__groups shell-nav__list" id="shell-nav-groups" aria-label="主导航">
             {SHELL_ROUTES.map((route) => (
-              <NavLink key={route.id} className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
-                <span className="shell-nav__link-icon" aria-hidden="true">{routeGlyph(route.id)}</span>
-                <span className="shell-nav__link-label">{route.label}</span>
-              </NavLink>
+              <div className="shell-nav__route-group" key={route.id}>
+                <NavLink className={({ isActive }) => `shell-nav__link ${isActive ? 'shell-nav__link--active' : ''}`} to={route.path}>
+                  <span className="shell-nav__link-icon" aria-hidden="true">{routeGlyph(route.id)}</span>
+                  <span className="shell-nav__link-label">{route.label}</span>
+                </NavLink>
+                {route.children?.map((child) => (
+                  <NavLink className={({ isActive }) => `shell-nav__skill-link shell-nav__skill-link--child ${isActive ? 'shell-nav__skill-link--active' : ''}`} key={child.id} to={child.path} end>
+                    <span>{child.label}</span>
+                    <strong>进入</strong>
+                  </NavLink>
+                ))}
+              </div>
             ))}
           </nav>
 
@@ -619,7 +633,7 @@ function AppRoutes(): ReactElement {
   useEffect(() => {
     if (auth.status === 'authenticated' && (location.pathname === '/' || location.pathname === '')) {
       startTransition(() => {
-        navigate('/dashboard', { replace: true });
+        navigate('/dashboard/cave', { replace: true });
       });
     }
   }, [auth.status, location.pathname, navigate]);
@@ -710,11 +724,17 @@ const router = createBrowserRouter([
     path: '/',
     element: <AppRoutes />,
     children: [
-      { index: true, element: <Navigate to="/dashboard" replace /> },
-      { path: 'dashboard', element: <DashboardPage /> },
+      { index: true, element: <Navigate to="/dashboard/cave" replace /> },
+      { path: 'dashboard', element: <Navigate to="/dashboard/cave" replace /> },
+      { path: 'dashboard/queue', element: <DashboardPage /> },
       { path: 'dashboard/cave', element: <CavePage /> },
-      { path: 'cultivation', element: <BreakthroughPage /> },
+      { path: 'cultivation', element: <CultivationPage /> },
+      { path: 'cultivation/breakthrough', element: <BreakthroughPage /> },
       { path: 'craft', element: <CraftPage /> },
+      { path: 'craft/herbalism', element: <HerbalismPage /> },
+      { path: 'craft/mining', element: <MiningPage /> },
+      { path: 'craft/alchemy', element: <AlchemyPage /> },
+      { path: 'craft/forging', element: <ForgingPage /> },
       { path: 'expedition', element: <ExpeditionPage /> },
       { path: 'character', element: <CharacterEquipmentPage /> },
       { path: 'character/tools', element: <CharacterToolAssignmentsPage /> },

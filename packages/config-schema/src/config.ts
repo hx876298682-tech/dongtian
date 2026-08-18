@@ -297,6 +297,7 @@ export const FeatureUnlockConfigSchema = z.object({
 export const SkillConfigSchema = z.object({
   ...CommonContentShape,
   max_level: z.number().int().positive(),
+  attack_bonus_per_level: NonNegativeDecimalStringSchema.optional(),
   scope: ScopeSchema,
 });
 

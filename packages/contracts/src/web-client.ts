@@ -233,6 +233,7 @@ export interface SkillProgression {
   readonly efficiency_modifier: string;
   readonly stage_node: boolean;
   readonly realm_required: string;
+  readonly attack_bonus_per_level?: string | null;
   readonly character_state_version: number;
 }
 

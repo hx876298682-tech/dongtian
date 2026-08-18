@@ -4033,6 +4033,3233 @@
       }
     ],
     "source_note": "04_百艺XP:技能成长"
+  },
+  {
+    "curve_id": "xp.skill.mvp.weapon_mastery.sword",
+    "skill_id": "skill.weapon_mastery.sword",
+    "levels": [
+      {
+        "level": 1,
+        "xp_to_next": "20",
+        "cumulative_xp": "20",
+        "speed_modifier": "0.004",
+        "efficiency_modifier": "0.006",
+        "stage_node": true
+      },
+      {
+        "level": 2,
+        "xp_to_next": "63",
+        "cumulative_xp": "83",
+        "speed_modifier": "0.008",
+        "efficiency_modifier": "0.012",
+        "stage_node": false
+      },
+      {
+        "level": 3,
+        "xp_to_next": "123",
+        "cumulative_xp": "206",
+        "speed_modifier": "0.012",
+        "efficiency_modifier": "0.018000000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 4,
+        "xp_to_next": "197",
+        "cumulative_xp": "403",
+        "speed_modifier": "0.016",
+        "efficiency_modifier": "0.024",
+        "stage_node": false
+      },
+      {
+        "level": 5,
+        "xp_to_next": "285",
+        "cumulative_xp": "688",
+        "speed_modifier": "0.02",
+        "efficiency_modifier": "0.03",
+        "stage_node": false
+      },
+      {
+        "level": 6,
+        "xp_to_next": "385",
+        "cumulative_xp": "1073",
+        "speed_modifier": "0.024",
+        "efficiency_modifier": "0.036000000000000004",
+        "stage_node": false
+      },
+      {
+        "level": 7,
+        "xp_to_next": "496",
+        "cumulative_xp": "1569",
+        "speed_modifier": "0.028",
+        "efficiency_modifier": "0.042",
+        "stage_node": false
+      },
+      {
+        "level": 8,
+        "xp_to_next": "618",
+        "cumulative_xp": "2187",
+        "speed_modifier": "0.032",
+        "efficiency_modifier": "0.048",
+        "stage_node": false
+      },
+      {
+        "level": 9,
+        "xp_to_next": "751",
+        "cumulative_xp": "2938",
+        "speed_modifier": "0.036000000000000004",
+        "efficiency_modifier": "0.054",
+        "stage_node": false
+      },
+      {
+        "level": 10,
+        "xp_to_next": "893",
+        "cumulative_xp": "3831",
+        "speed_modifier": "0.04",
+        "efficiency_modifier": "0.06",
+        "stage_node": true
+      },
+      {
+        "level": 11,
+        "xp_to_next": "1046",
+        "cumulative_xp": "4877",
+        "speed_modifier": "0.044",
+        "efficiency_modifier": "0.066",
+        "stage_node": false
+      },
+      {
+        "level": 12,
+        "xp_to_next": "1207",
+        "cumulative_xp": "6084",
+        "speed_modifier": "0.048",
+        "efficiency_modifier": "0.07200000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 13,
+        "xp_to_next": "1377",
+        "cumulative_xp": "7461",
+        "speed_modifier": "0.052000000000000005",
+        "efficiency_modifier": "0.078",
+        "stage_node": false
+      },
+      {
+        "level": 14,
+        "xp_to_next": "1556",
+        "cumulative_xp": "9017",
+        "speed_modifier": "0.056",
+        "efficiency_modifier": "0.084",
+        "stage_node": false
+      },
+      {
+        "level": 15,
+        "xp_to_next": "1744",
+        "cumulative_xp": "10761",
+        "speed_modifier": "0.06",
+        "efficiency_modifier": "0.09",
+        "stage_node": false
+      },
+      {
+        "level": 16,
+        "xp_to_next": "1940",
+        "cumulative_xp": "12701",
+        "speed_modifier": "0.064",
+        "efficiency_modifier": "0.096",
+        "stage_node": false
+      },
+      {
+        "level": 17,
+        "xp_to_next": "2144",
+        "cumulative_xp": "14845",
+        "speed_modifier": "0.068",
+        "efficiency_modifier": "0.10200000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 18,
+        "xp_to_next": "2356",
+        "cumulative_xp": "17201",
+        "speed_modifier": "0.07200000000000001",
+        "efficiency_modifier": "0.108",
+        "stage_node": false
+      },
+      {
+        "level": 19,
+        "xp_to_next": "2576",
+        "cumulative_xp": "19777",
+        "speed_modifier": "0.076",
+        "efficiency_modifier": "0.114",
+        "stage_node": false
+      },
+      {
+        "level": 20,
+        "xp_to_next": "2804",
+        "cumulative_xp": "22581",
+        "speed_modifier": "0.08",
+        "efficiency_modifier": "0.12",
+        "stage_node": true
+      },
+      {
+        "level": 21,
+        "xp_to_next": "3039",
+        "cumulative_xp": "25620",
+        "speed_modifier": "0.084",
+        "efficiency_modifier": "0.126",
+        "stage_node": false
+      },
+      {
+        "level": 22,
+        "xp_to_next": "3281",
+        "cumulative_xp": "28901",
+        "speed_modifier": "0.088",
+        "efficiency_modifier": "0.132",
+        "stage_node": false
+      },
+      {
+        "level": 23,
+        "xp_to_next": "3531",
+        "cumulative_xp": "32432",
+        "speed_modifier": "0.092",
+        "efficiency_modifier": "0.138",
+        "stage_node": false
+      },
+      {
+        "level": 24,
+        "xp_to_next": "3788",
+        "cumulative_xp": "36220",
+        "speed_modifier": "0.096",
+        "efficiency_modifier": "0.14400000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 25,
+        "xp_to_next": "4052",
+        "cumulative_xp": "40272",
+        "speed_modifier": "0.1",
+        "efficiency_modifier": "0.15",
+        "stage_node": true
+      },
+      {
+        "level": 26,
+        "xp_to_next": "4323",
+        "cumulative_xp": "44595",
+        "speed_modifier": "0.10400000000000001",
+        "efficiency_modifier": "0.156",
+        "stage_node": false
+      },
+      {
+        "level": 27,
+        "xp_to_next": "4600",
+        "cumulative_xp": "49195",
+        "speed_modifier": "0.108",
+        "efficiency_modifier": "0.162",
+        "stage_node": false
+      },
+      {
+        "level": 28,
+        "xp_to_next": "4885",
+        "cumulative_xp": "54080",
+        "speed_modifier": "0.112",
+        "efficiency_modifier": "0.168",
+        "stage_node": false
+      },
+      {
+        "level": 29,
+        "xp_to_next": "5176",
+        "cumulative_xp": "59256",
+        "speed_modifier": "0.116",
+        "efficiency_modifier": "0.17400000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 30,
+        "xp_to_next": "5474",
+        "cumulative_xp": "64730",
+        "speed_modifier": "0.12",
+        "efficiency_modifier": "0.18",
+        "stage_node": false
+      },
+      {
+        "level": 31,
+        "xp_to_next": "5778",
+        "cumulative_xp": "70508",
+        "speed_modifier": "0.124",
+        "efficiency_modifier": "0.186",
+        "stage_node": false
+      },
+      {
+        "level": 32,
+        "xp_to_next": "6089",
+        "cumulative_xp": "76597",
+        "speed_modifier": "0.128",
+        "efficiency_modifier": "0.192",
+        "stage_node": false
+      },
+      {
+        "level": 33,
+        "xp_to_next": "6406",
+        "cumulative_xp": "83003",
+        "speed_modifier": "0.132",
+        "efficiency_modifier": "0.198",
+        "stage_node": false
+      },
+      {
+        "level": 34,
+        "xp_to_next": "6729",
+        "cumulative_xp": "89732",
+        "speed_modifier": "0.136",
+        "efficiency_modifier": "0.20400000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 35,
+        "xp_to_next": "7059",
+        "cumulative_xp": "96791",
+        "speed_modifier": "0.14",
+        "efficiency_modifier": "0.21",
+        "stage_node": true
+      },
+      {
+        "level": 36,
+        "xp_to_next": "7395",
+        "cumulative_xp": "104186",
+        "speed_modifier": "0.14400000000000002",
+        "efficiency_modifier": "0.216",
+        "stage_node": false
+      },
+      {
+        "level": 37,
+        "xp_to_next": "7737",
+        "cumulative_xp": "111923",
+        "speed_modifier": "0.148",
+        "efficiency_modifier": "0.222",
+        "stage_node": false
+      },
+      {
+        "level": 38,
+        "xp_to_next": "8085",
+        "cumulative_xp": "120008",
+        "speed_modifier": "0.152",
+        "efficiency_modifier": "0.228",
+        "stage_node": false
+      },
+      {
+        "level": 39,
+        "xp_to_next": "8439",
+        "cumulative_xp": "128447",
+        "speed_modifier": "0.156",
+        "efficiency_modifier": "0.234",
+        "stage_node": false
+      },
+      {
+        "level": 40,
+        "xp_to_next": "8799",
+        "cumulative_xp": "137246",
+        "speed_modifier": "0.16",
+        "efficiency_modifier": "0.24",
+        "stage_node": false
+      },
+      {
+        "level": 41,
+        "xp_to_next": "9165",
+        "cumulative_xp": "146411",
+        "speed_modifier": "0.164",
+        "efficiency_modifier": "0.246",
+        "stage_node": false
+      },
+      {
+        "level": 42,
+        "xp_to_next": "9537",
+        "cumulative_xp": "155948",
+        "speed_modifier": "0.168",
+        "efficiency_modifier": "0.252",
+        "stage_node": false
+      },
+      {
+        "level": 43,
+        "xp_to_next": "9914",
+        "cumulative_xp": "165862",
+        "speed_modifier": "0.17200000000000001",
+        "efficiency_modifier": "0.258",
+        "stage_node": false
+      },
+      {
+        "level": 44,
+        "xp_to_next": "10297",
+        "cumulative_xp": "176159",
+        "speed_modifier": "0.176",
+        "efficiency_modifier": "0.264",
+        "stage_node": false
+      },
+      {
+        "level": 45,
+        "xp_to_next": "10686",
+        "cumulative_xp": "186845",
+        "speed_modifier": "0.18",
+        "efficiency_modifier": "0.27",
+        "stage_node": false
+      },
+      {
+        "level": 46,
+        "xp_to_next": "11081",
+        "cumulative_xp": "197926",
+        "speed_modifier": "0.184",
+        "efficiency_modifier": "0.276",
+        "stage_node": false
+      },
+      {
+        "level": 47,
+        "xp_to_next": "11481",
+        "cumulative_xp": "209407",
+        "speed_modifier": "0.188",
+        "efficiency_modifier": "0.28200000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 48,
+        "xp_to_next": "11887",
+        "cumulative_xp": "221294",
+        "speed_modifier": "0.192",
+        "efficiency_modifier": "0.28800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 49,
+        "xp_to_next": "12299",
+        "cumulative_xp": "233593",
+        "speed_modifier": "0.196",
+        "efficiency_modifier": "0.294",
+        "stage_node": false
+      },
+      {
+        "level": 50,
+        "xp_to_next": "12715",
+        "cumulative_xp": "246308",
+        "speed_modifier": "0.2",
+        "efficiency_modifier": "0.3",
+        "stage_node": true
+      },
+      {
+        "level": 51,
+        "xp_to_next": "13138",
+        "cumulative_xp": "259446",
+        "speed_modifier": "0.20400000000000001",
+        "efficiency_modifier": "0.306",
+        "stage_node": false
+      },
+      {
+        "level": 52,
+        "xp_to_next": "13565",
+        "cumulative_xp": "273011",
+        "speed_modifier": "0.20800000000000002",
+        "efficiency_modifier": "0.312",
+        "stage_node": false
+      },
+      {
+        "level": 53,
+        "xp_to_next": "13999",
+        "cumulative_xp": "287010",
+        "speed_modifier": "0.212",
+        "efficiency_modifier": "0.318",
+        "stage_node": false
+      },
+      {
+        "level": 54,
+        "xp_to_next": "14437",
+        "cumulative_xp": "301447",
+        "speed_modifier": "0.216",
+        "efficiency_modifier": "0.324",
+        "stage_node": false
+      },
+      {
+        "level": 55,
+        "xp_to_next": "14881",
+        "cumulative_xp": "316328",
+        "speed_modifier": "0.22",
+        "efficiency_modifier": "0.33",
+        "stage_node": false
+      },
+      {
+        "level": 56,
+        "xp_to_next": "15330",
+        "cumulative_xp": "331658",
+        "speed_modifier": "0.224",
+        "efficiency_modifier": "0.336",
+        "stage_node": false
+      },
+      {
+        "level": 57,
+        "xp_to_next": "15784",
+        "cumulative_xp": "347442",
+        "speed_modifier": "0.228",
+        "efficiency_modifier": "0.342",
+        "stage_node": false
+      },
+      {
+        "level": 58,
+        "xp_to_next": "16244",
+        "cumulative_xp": "363686",
+        "speed_modifier": "0.232",
+        "efficiency_modifier": "0.34800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 59,
+        "xp_to_next": "16708",
+        "cumulative_xp": "380394",
+        "speed_modifier": "0.23600000000000002",
+        "efficiency_modifier": "0.354",
+        "stage_node": false
+      },
+      {
+        "level": 60,
+        "xp_to_next": "17178",
+        "cumulative_xp": "397572",
+        "speed_modifier": "0.24",
+        "efficiency_modifier": "0.36",
+        "stage_node": false
+      },
+      {
+        "level": 61,
+        "xp_to_next": "17653",
+        "cumulative_xp": "415225",
+        "speed_modifier": "0.244",
+        "efficiency_modifier": "0.366",
+        "stage_node": false
+      },
+      {
+        "level": 62,
+        "xp_to_next": "18133",
+        "cumulative_xp": "433358",
+        "speed_modifier": "0.248",
+        "efficiency_modifier": "0.372",
+        "stage_node": false
+      },
+      {
+        "level": 63,
+        "xp_to_next": "18618",
+        "cumulative_xp": "451976",
+        "speed_modifier": "0.252",
+        "efficiency_modifier": "0.378",
+        "stage_node": false
+      },
+      {
+        "level": 64,
+        "xp_to_next": "19109",
+        "cumulative_xp": "471085",
+        "speed_modifier": "0.256",
+        "efficiency_modifier": "0.384",
+        "stage_node": false
+      },
+      {
+        "level": 65,
+        "xp_to_next": "19604",
+        "cumulative_xp": "490689",
+        "speed_modifier": "0.26",
+        "efficiency_modifier": "0.39",
+        "stage_node": false
+      },
+      {
+        "level": 66,
+        "xp_to_next": "20104",
+        "cumulative_xp": "510793",
+        "speed_modifier": "0.264",
+        "efficiency_modifier": "0.396",
+        "stage_node": false
+      },
+      {
+        "level": 67,
+        "xp_to_next": "20609",
+        "cumulative_xp": "531402",
+        "speed_modifier": "0.268",
+        "efficiency_modifier": "0.402",
+        "stage_node": false
+      },
+      {
+        "level": 68,
+        "xp_to_next": "21119",
+        "cumulative_xp": "552521",
+        "speed_modifier": "0.272",
+        "efficiency_modifier": "0.40800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 69,
+        "xp_to_next": "21634",
+        "cumulative_xp": "574155",
+        "speed_modifier": "0.276",
+        "efficiency_modifier": "0.41400000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 70,
+        "xp_to_next": "22153",
+        "cumulative_xp": "596308",
+        "speed_modifier": "0.28",
+        "efficiency_modifier": "0.42",
+        "stage_node": false
+      },
+      {
+        "level": 71,
+        "xp_to_next": "22678",
+        "cumulative_xp": "618986",
+        "speed_modifier": "0.28400000000000003",
+        "efficiency_modifier": "0.426",
+        "stage_node": false
+      },
+      {
+        "level": 72,
+        "xp_to_next": "23208",
+        "cumulative_xp": "642194",
+        "speed_modifier": "0.28800000000000003",
+        "efficiency_modifier": "0.432",
+        "stage_node": false
+      },
+      {
+        "level": 73,
+        "xp_to_next": "23742",
+        "cumulative_xp": "665936",
+        "speed_modifier": "0.292",
+        "efficiency_modifier": "0.438",
+        "stage_node": false
+      },
+      {
+        "level": 74,
+        "xp_to_next": "24281",
+        "cumulative_xp": "690217",
+        "speed_modifier": "0.296",
+        "efficiency_modifier": "0.444",
+        "stage_node": false
+      },
+      {
+        "level": 75,
+        "xp_to_next": "24825",
+        "cumulative_xp": "715042",
+        "speed_modifier": "0.3",
+        "efficiency_modifier": "0.45",
+        "stage_node": false
+      },
+      {
+        "level": 76,
+        "xp_to_next": "25373",
+        "cumulative_xp": "740415",
+        "speed_modifier": "0.304",
+        "efficiency_modifier": "0.456",
+        "stage_node": false
+      },
+      {
+        "level": 77,
+        "xp_to_next": "25926",
+        "cumulative_xp": "766341",
+        "speed_modifier": "0.308",
+        "efficiency_modifier": "0.462",
+        "stage_node": false
+      },
+      {
+        "level": 78,
+        "xp_to_next": "26484",
+        "cumulative_xp": "792825",
+        "speed_modifier": "0.312",
+        "efficiency_modifier": "0.468",
+        "stage_node": false
+      },
+      {
+        "level": 79,
+        "xp_to_next": "27047",
+        "cumulative_xp": "819872",
+        "speed_modifier": "0.316",
+        "efficiency_modifier": "0.47400000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 80,
+        "xp_to_next": "27614",
+        "cumulative_xp": "847486",
+        "speed_modifier": "0.32",
+        "efficiency_modifier": "0.48",
+        "stage_node": false
+      },
+      {
+        "level": 81,
+        "xp_to_next": "28186",
+        "cumulative_xp": "875672",
+        "speed_modifier": "0.324",
+        "efficiency_modifier": "0.486",
+        "stage_node": false
+      },
+      {
+        "level": 82,
+        "xp_to_next": "28762",
+        "cumulative_xp": "904434",
+        "speed_modifier": "0.328",
+        "efficiency_modifier": "0.492",
+        "stage_node": false
+      },
+      {
+        "level": 83,
+        "xp_to_next": "29343",
+        "cumulative_xp": "933777",
+        "speed_modifier": "0.332",
+        "efficiency_modifier": "0.498",
+        "stage_node": false
+      },
+      {
+        "level": 84,
+        "xp_to_next": "29929",
+        "cumulative_xp": "963706",
+        "speed_modifier": "0.336",
+        "efficiency_modifier": "0.504",
+        "stage_node": false
+      },
+      {
+        "level": 85,
+        "xp_to_next": "30519",
+        "cumulative_xp": "994225",
+        "speed_modifier": "0.34",
+        "efficiency_modifier": "0.51",
+        "stage_node": false
+      },
+      {
+        "level": 86,
+        "xp_to_next": "31114",
+        "cumulative_xp": "1025339",
+        "speed_modifier": "0.34400000000000003",
+        "efficiency_modifier": "0.516",
+        "stage_node": false
+      },
+      {
+        "level": 87,
+        "xp_to_next": "31713",
+        "cumulative_xp": "1057052",
+        "speed_modifier": "0.34800000000000003",
+        "efficiency_modifier": "0.522",
+        "stage_node": false
+      },
+      {
+        "level": 88,
+        "xp_to_next": "32317",
+        "cumulative_xp": "1089369",
+        "speed_modifier": "0.352",
+        "efficiency_modifier": "0.528",
+        "stage_node": false
+      },
+      {
+        "level": 89,
+        "xp_to_next": "32925",
+        "cumulative_xp": "1122294",
+        "speed_modifier": "0.356",
+        "efficiency_modifier": "0.534",
+        "stage_node": false
+      },
+      {
+        "level": 90,
+        "xp_to_next": "33537",
+        "cumulative_xp": "1155831",
+        "speed_modifier": "0.36",
+        "efficiency_modifier": "0.54",
+        "stage_node": false
+      },
+      {
+        "level": 91,
+        "xp_to_next": "34155",
+        "cumulative_xp": "1189986",
+        "speed_modifier": "0.364",
+        "efficiency_modifier": "0.546",
+        "stage_node": false
+      },
+      {
+        "level": 92,
+        "xp_to_next": "34776",
+        "cumulative_xp": "1224762",
+        "speed_modifier": "0.368",
+        "efficiency_modifier": "0.552",
+        "stage_node": false
+      },
+      {
+        "level": 93,
+        "xp_to_next": "35402",
+        "cumulative_xp": "1260164",
+        "speed_modifier": "0.372",
+        "efficiency_modifier": "0.558",
+        "stage_node": false
+      },
+      {
+        "level": 94,
+        "xp_to_next": "36032",
+        "cumulative_xp": "1296196",
+        "speed_modifier": "0.376",
+        "efficiency_modifier": "0.5640000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 95,
+        "xp_to_next": "36667",
+        "cumulative_xp": "1332863",
+        "speed_modifier": "0.38",
+        "efficiency_modifier": "0.5700000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 96,
+        "xp_to_next": "37306",
+        "cumulative_xp": "1370169",
+        "speed_modifier": "0.384",
+        "efficiency_modifier": "0.5760000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 97,
+        "xp_to_next": "37949",
+        "cumulative_xp": "1408118",
+        "speed_modifier": "0.388",
+        "efficiency_modifier": "0.582",
+        "stage_node": false
+      },
+      {
+        "level": 98,
+        "xp_to_next": "38597",
+        "cumulative_xp": "1446715",
+        "speed_modifier": "0.392",
+        "efficiency_modifier": "0.588",
+        "stage_node": false
+      },
+      {
+        "level": 99,
+        "xp_to_next": "39249",
+        "cumulative_xp": "1485964",
+        "speed_modifier": "0.396",
+        "efficiency_modifier": "0.594",
+        "stage_node": false
+      },
+      {
+        "level": 100,
+        "xp_to_next": "39905",
+        "cumulative_xp": "1525869",
+        "speed_modifier": "0.4",
+        "efficiency_modifier": "0.6",
+        "stage_node": false
+      }
+    ],
+    "source_note": "武器专精:技能成长"
+  },
+  {
+    "curve_id": "xp.skill.mvp.weapon_mastery.blade",
+    "skill_id": "skill.weapon_mastery.blade",
+    "levels": [
+      {
+        "level": 1,
+        "xp_to_next": "20",
+        "cumulative_xp": "20",
+        "speed_modifier": "0.004",
+        "efficiency_modifier": "0.006",
+        "stage_node": true
+      },
+      {
+        "level": 2,
+        "xp_to_next": "63",
+        "cumulative_xp": "83",
+        "speed_modifier": "0.008",
+        "efficiency_modifier": "0.012",
+        "stage_node": false
+      },
+      {
+        "level": 3,
+        "xp_to_next": "123",
+        "cumulative_xp": "206",
+        "speed_modifier": "0.012",
+        "efficiency_modifier": "0.018000000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 4,
+        "xp_to_next": "197",
+        "cumulative_xp": "403",
+        "speed_modifier": "0.016",
+        "efficiency_modifier": "0.024",
+        "stage_node": false
+      },
+      {
+        "level": 5,
+        "xp_to_next": "285",
+        "cumulative_xp": "688",
+        "speed_modifier": "0.02",
+        "efficiency_modifier": "0.03",
+        "stage_node": false
+      },
+      {
+        "level": 6,
+        "xp_to_next": "385",
+        "cumulative_xp": "1073",
+        "speed_modifier": "0.024",
+        "efficiency_modifier": "0.036000000000000004",
+        "stage_node": false
+      },
+      {
+        "level": 7,
+        "xp_to_next": "496",
+        "cumulative_xp": "1569",
+        "speed_modifier": "0.028",
+        "efficiency_modifier": "0.042",
+        "stage_node": false
+      },
+      {
+        "level": 8,
+        "xp_to_next": "618",
+        "cumulative_xp": "2187",
+        "speed_modifier": "0.032",
+        "efficiency_modifier": "0.048",
+        "stage_node": false
+      },
+      {
+        "level": 9,
+        "xp_to_next": "751",
+        "cumulative_xp": "2938",
+        "speed_modifier": "0.036000000000000004",
+        "efficiency_modifier": "0.054",
+        "stage_node": false
+      },
+      {
+        "level": 10,
+        "xp_to_next": "893",
+        "cumulative_xp": "3831",
+        "speed_modifier": "0.04",
+        "efficiency_modifier": "0.06",
+        "stage_node": true
+      },
+      {
+        "level": 11,
+        "xp_to_next": "1046",
+        "cumulative_xp": "4877",
+        "speed_modifier": "0.044",
+        "efficiency_modifier": "0.066",
+        "stage_node": false
+      },
+      {
+        "level": 12,
+        "xp_to_next": "1207",
+        "cumulative_xp": "6084",
+        "speed_modifier": "0.048",
+        "efficiency_modifier": "0.07200000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 13,
+        "xp_to_next": "1377",
+        "cumulative_xp": "7461",
+        "speed_modifier": "0.052000000000000005",
+        "efficiency_modifier": "0.078",
+        "stage_node": false
+      },
+      {
+        "level": 14,
+        "xp_to_next": "1556",
+        "cumulative_xp": "9017",
+        "speed_modifier": "0.056",
+        "efficiency_modifier": "0.084",
+        "stage_node": false
+      },
+      {
+        "level": 15,
+        "xp_to_next": "1744",
+        "cumulative_xp": "10761",
+        "speed_modifier": "0.06",
+        "efficiency_modifier": "0.09",
+        "stage_node": false
+      },
+      {
+        "level": 16,
+        "xp_to_next": "1940",
+        "cumulative_xp": "12701",
+        "speed_modifier": "0.064",
+        "efficiency_modifier": "0.096",
+        "stage_node": false
+      },
+      {
+        "level": 17,
+        "xp_to_next": "2144",
+        "cumulative_xp": "14845",
+        "speed_modifier": "0.068",
+        "efficiency_modifier": "0.10200000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 18,
+        "xp_to_next": "2356",
+        "cumulative_xp": "17201",
+        "speed_modifier": "0.07200000000000001",
+        "efficiency_modifier": "0.108",
+        "stage_node": false
+      },
+      {
+        "level": 19,
+        "xp_to_next": "2576",
+        "cumulative_xp": "19777",
+        "speed_modifier": "0.076",
+        "efficiency_modifier": "0.114",
+        "stage_node": false
+      },
+      {
+        "level": 20,
+        "xp_to_next": "2804",
+        "cumulative_xp": "22581",
+        "speed_modifier": "0.08",
+        "efficiency_modifier": "0.12",
+        "stage_node": true
+      },
+      {
+        "level": 21,
+        "xp_to_next": "3039",
+        "cumulative_xp": "25620",
+        "speed_modifier": "0.084",
+        "efficiency_modifier": "0.126",
+        "stage_node": false
+      },
+      {
+        "level": 22,
+        "xp_to_next": "3281",
+        "cumulative_xp": "28901",
+        "speed_modifier": "0.088",
+        "efficiency_modifier": "0.132",
+        "stage_node": false
+      },
+      {
+        "level": 23,
+        "xp_to_next": "3531",
+        "cumulative_xp": "32432",
+        "speed_modifier": "0.092",
+        "efficiency_modifier": "0.138",
+        "stage_node": false
+      },
+      {
+        "level": 24,
+        "xp_to_next": "3788",
+        "cumulative_xp": "36220",
+        "speed_modifier": "0.096",
+        "efficiency_modifier": "0.14400000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 25,
+        "xp_to_next": "4052",
+        "cumulative_xp": "40272",
+        "speed_modifier": "0.1",
+        "efficiency_modifier": "0.15",
+        "stage_node": true
+      },
+      {
+        "level": 26,
+        "xp_to_next": "4323",
+        "cumulative_xp": "44595",
+        "speed_modifier": "0.10400000000000001",
+        "efficiency_modifier": "0.156",
+        "stage_node": false
+      },
+      {
+        "level": 27,
+        "xp_to_next": "4600",
+        "cumulative_xp": "49195",
+        "speed_modifier": "0.108",
+        "efficiency_modifier": "0.162",
+        "stage_node": false
+      },
+      {
+        "level": 28,
+        "xp_to_next": "4885",
+        "cumulative_xp": "54080",
+        "speed_modifier": "0.112",
+        "efficiency_modifier": "0.168",
+        "stage_node": false
+      },
+      {
+        "level": 29,
+        "xp_to_next": "5176",
+        "cumulative_xp": "59256",
+        "speed_modifier": "0.116",
+        "efficiency_modifier": "0.17400000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 30,
+        "xp_to_next": "5474",
+        "cumulative_xp": "64730",
+        "speed_modifier": "0.12",
+        "efficiency_modifier": "0.18",
+        "stage_node": false
+      },
+      {
+        "level": 31,
+        "xp_to_next": "5778",
+        "cumulative_xp": "70508",
+        "speed_modifier": "0.124",
+        "efficiency_modifier": "0.186",
+        "stage_node": false
+      },
+      {
+        "level": 32,
+        "xp_to_next": "6089",
+        "cumulative_xp": "76597",
+        "speed_modifier": "0.128",
+        "efficiency_modifier": "0.192",
+        "stage_node": false
+      },
+      {
+        "level": 33,
+        "xp_to_next": "6406",
+        "cumulative_xp": "83003",
+        "speed_modifier": "0.132",
+        "efficiency_modifier": "0.198",
+        "stage_node": false
+      },
+      {
+        "level": 34,
+        "xp_to_next": "6729",
+        "cumulative_xp": "89732",
+        "speed_modifier": "0.136",
+        "efficiency_modifier": "0.20400000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 35,
+        "xp_to_next": "7059",
+        "cumulative_xp": "96791",
+        "speed_modifier": "0.14",
+        "efficiency_modifier": "0.21",
+        "stage_node": true
+      },
+      {
+        "level": 36,
+        "xp_to_next": "7395",
+        "cumulative_xp": "104186",
+        "speed_modifier": "0.14400000000000002",
+        "efficiency_modifier": "0.216",
+        "stage_node": false
+      },
+      {
+        "level": 37,
+        "xp_to_next": "7737",
+        "cumulative_xp": "111923",
+        "speed_modifier": "0.148",
+        "efficiency_modifier": "0.222",
+        "stage_node": false
+      },
+      {
+        "level": 38,
+        "xp_to_next": "8085",
+        "cumulative_xp": "120008",
+        "speed_modifier": "0.152",
+        "efficiency_modifier": "0.228",
+        "stage_node": false
+      },
+      {
+        "level": 39,
+        "xp_to_next": "8439",
+        "cumulative_xp": "128447",
+        "speed_modifier": "0.156",
+        "efficiency_modifier": "0.234",
+        "stage_node": false
+      },
+      {
+        "level": 40,
+        "xp_to_next": "8799",
+        "cumulative_xp": "137246",
+        "speed_modifier": "0.16",
+        "efficiency_modifier": "0.24",
+        "stage_node": false
+      },
+      {
+        "level": 41,
+        "xp_to_next": "9165",
+        "cumulative_xp": "146411",
+        "speed_modifier": "0.164",
+        "efficiency_modifier": "0.246",
+        "stage_node": false
+      },
+      {
+        "level": 42,
+        "xp_to_next": "9537",
+        "cumulative_xp": "155948",
+        "speed_modifier": "0.168",
+        "efficiency_modifier": "0.252",
+        "stage_node": false
+      },
+      {
+        "level": 43,
+        "xp_to_next": "9914",
+        "cumulative_xp": "165862",
+        "speed_modifier": "0.17200000000000001",
+        "efficiency_modifier": "0.258",
+        "stage_node": false
+      },
+      {
+        "level": 44,
+        "xp_to_next": "10297",
+        "cumulative_xp": "176159",
+        "speed_modifier": "0.176",
+        "efficiency_modifier": "0.264",
+        "stage_node": false
+      },
+      {
+        "level": 45,
+        "xp_to_next": "10686",
+        "cumulative_xp": "186845",
+        "speed_modifier": "0.18",
+        "efficiency_modifier": "0.27",
+        "stage_node": false
+      },
+      {
+        "level": 46,
+        "xp_to_next": "11081",
+        "cumulative_xp": "197926",
+        "speed_modifier": "0.184",
+        "efficiency_modifier": "0.276",
+        "stage_node": false
+      },
+      {
+        "level": 47,
+        "xp_to_next": "11481",
+        "cumulative_xp": "209407",
+        "speed_modifier": "0.188",
+        "efficiency_modifier": "0.28200000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 48,
+        "xp_to_next": "11887",
+        "cumulative_xp": "221294",
+        "speed_modifier": "0.192",
+        "efficiency_modifier": "0.28800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 49,
+        "xp_to_next": "12299",
+        "cumulative_xp": "233593",
+        "speed_modifier": "0.196",
+        "efficiency_modifier": "0.294",
+        "stage_node": false
+      },
+      {
+        "level": 50,
+        "xp_to_next": "12715",
+        "cumulative_xp": "246308",
+        "speed_modifier": "0.2",
+        "efficiency_modifier": "0.3",
+        "stage_node": true
+      },
+      {
+        "level": 51,
+        "xp_to_next": "13138",
+        "cumulative_xp": "259446",
+        "speed_modifier": "0.20400000000000001",
+        "efficiency_modifier": "0.306",
+        "stage_node": false
+      },
+      {
+        "level": 52,
+        "xp_to_next": "13565",
+        "cumulative_xp": "273011",
+        "speed_modifier": "0.20800000000000002",
+        "efficiency_modifier": "0.312",
+        "stage_node": false
+      },
+      {
+        "level": 53,
+        "xp_to_next": "13999",
+        "cumulative_xp": "287010",
+        "speed_modifier": "0.212",
+        "efficiency_modifier": "0.318",
+        "stage_node": false
+      },
+      {
+        "level": 54,
+        "xp_to_next": "14437",
+        "cumulative_xp": "301447",
+        "speed_modifier": "0.216",
+        "efficiency_modifier": "0.324",
+        "stage_node": false
+      },
+      {
+        "level": 55,
+        "xp_to_next": "14881",
+        "cumulative_xp": "316328",
+        "speed_modifier": "0.22",
+        "efficiency_modifier": "0.33",
+        "stage_node": false
+      },
+      {
+        "level": 56,
+        "xp_to_next": "15330",
+        "cumulative_xp": "331658",
+        "speed_modifier": "0.224",
+        "efficiency_modifier": "0.336",
+        "stage_node": false
+      },
+      {
+        "level": 57,
+        "xp_to_next": "15784",
+        "cumulative_xp": "347442",
+        "speed_modifier": "0.228",
+        "efficiency_modifier": "0.342",
+        "stage_node": false
+      },
+      {
+        "level": 58,
+        "xp_to_next": "16244",
+        "cumulative_xp": "363686",
+        "speed_modifier": "0.232",
+        "efficiency_modifier": "0.34800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 59,
+        "xp_to_next": "16708",
+        "cumulative_xp": "380394",
+        "speed_modifier": "0.23600000000000002",
+        "efficiency_modifier": "0.354",
+        "stage_node": false
+      },
+      {
+        "level": 60,
+        "xp_to_next": "17178",
+        "cumulative_xp": "397572",
+        "speed_modifier": "0.24",
+        "efficiency_modifier": "0.36",
+        "stage_node": false
+      },
+      {
+        "level": 61,
+        "xp_to_next": "17653",
+        "cumulative_xp": "415225",
+        "speed_modifier": "0.244",
+        "efficiency_modifier": "0.366",
+        "stage_node": false
+      },
+      {
+        "level": 62,
+        "xp_to_next": "18133",
+        "cumulative_xp": "433358",
+        "speed_modifier": "0.248",
+        "efficiency_modifier": "0.372",
+        "stage_node": false
+      },
+      {
+        "level": 63,
+        "xp_to_next": "18618",
+        "cumulative_xp": "451976",
+        "speed_modifier": "0.252",
+        "efficiency_modifier": "0.378",
+        "stage_node": false
+      },
+      {
+        "level": 64,
+        "xp_to_next": "19109",
+        "cumulative_xp": "471085",
+        "speed_modifier": "0.256",
+        "efficiency_modifier": "0.384",
+        "stage_node": false
+      },
+      {
+        "level": 65,
+        "xp_to_next": "19604",
+        "cumulative_xp": "490689",
+        "speed_modifier": "0.26",
+        "efficiency_modifier": "0.39",
+        "stage_node": false
+      },
+      {
+        "level": 66,
+        "xp_to_next": "20104",
+        "cumulative_xp": "510793",
+        "speed_modifier": "0.264",
+        "efficiency_modifier": "0.396",
+        "stage_node": false
+      },
+      {
+        "level": 67,
+        "xp_to_next": "20609",
+        "cumulative_xp": "531402",
+        "speed_modifier": "0.268",
+        "efficiency_modifier": "0.402",
+        "stage_node": false
+      },
+      {
+        "level": 68,
+        "xp_to_next": "21119",
+        "cumulative_xp": "552521",
+        "speed_modifier": "0.272",
+        "efficiency_modifier": "0.40800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 69,
+        "xp_to_next": "21634",
+        "cumulative_xp": "574155",
+        "speed_modifier": "0.276",
+        "efficiency_modifier": "0.41400000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 70,
+        "xp_to_next": "22153",
+        "cumulative_xp": "596308",
+        "speed_modifier": "0.28",
+        "efficiency_modifier": "0.42",
+        "stage_node": false
+      },
+      {
+        "level": 71,
+        "xp_to_next": "22678",
+        "cumulative_xp": "618986",
+        "speed_modifier": "0.28400000000000003",
+        "efficiency_modifier": "0.426",
+        "stage_node": false
+      },
+      {
+        "level": 72,
+        "xp_to_next": "23208",
+        "cumulative_xp": "642194",
+        "speed_modifier": "0.28800000000000003",
+        "efficiency_modifier": "0.432",
+        "stage_node": false
+      },
+      {
+        "level": 73,
+        "xp_to_next": "23742",
+        "cumulative_xp": "665936",
+        "speed_modifier": "0.292",
+        "efficiency_modifier": "0.438",
+        "stage_node": false
+      },
+      {
+        "level": 74,
+        "xp_to_next": "24281",
+        "cumulative_xp": "690217",
+        "speed_modifier": "0.296",
+        "efficiency_modifier": "0.444",
+        "stage_node": false
+      },
+      {
+        "level": 75,
+        "xp_to_next": "24825",
+        "cumulative_xp": "715042",
+        "speed_modifier": "0.3",
+        "efficiency_modifier": "0.45",
+        "stage_node": false
+      },
+      {
+        "level": 76,
+        "xp_to_next": "25373",
+        "cumulative_xp": "740415",
+        "speed_modifier": "0.304",
+        "efficiency_modifier": "0.456",
+        "stage_node": false
+      },
+      {
+        "level": 77,
+        "xp_to_next": "25926",
+        "cumulative_xp": "766341",
+        "speed_modifier": "0.308",
+        "efficiency_modifier": "0.462",
+        "stage_node": false
+      },
+      {
+        "level": 78,
+        "xp_to_next": "26484",
+        "cumulative_xp": "792825",
+        "speed_modifier": "0.312",
+        "efficiency_modifier": "0.468",
+        "stage_node": false
+      },
+      {
+        "level": 79,
+        "xp_to_next": "27047",
+        "cumulative_xp": "819872",
+        "speed_modifier": "0.316",
+        "efficiency_modifier": "0.47400000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 80,
+        "xp_to_next": "27614",
+        "cumulative_xp": "847486",
+        "speed_modifier": "0.32",
+        "efficiency_modifier": "0.48",
+        "stage_node": false
+      },
+      {
+        "level": 81,
+        "xp_to_next": "28186",
+        "cumulative_xp": "875672",
+        "speed_modifier": "0.324",
+        "efficiency_modifier": "0.486",
+        "stage_node": false
+      },
+      {
+        "level": 82,
+        "xp_to_next": "28762",
+        "cumulative_xp": "904434",
+        "speed_modifier": "0.328",
+        "efficiency_modifier": "0.492",
+        "stage_node": false
+      },
+      {
+        "level": 83,
+        "xp_to_next": "29343",
+        "cumulative_xp": "933777",
+        "speed_modifier": "0.332",
+        "efficiency_modifier": "0.498",
+        "stage_node": false
+      },
+      {
+        "level": 84,
+        "xp_to_next": "29929",
+        "cumulative_xp": "963706",
+        "speed_modifier": "0.336",
+        "efficiency_modifier": "0.504",
+        "stage_node": false
+      },
+      {
+        "level": 85,
+        "xp_to_next": "30519",
+        "cumulative_xp": "994225",
+        "speed_modifier": "0.34",
+        "efficiency_modifier": "0.51",
+        "stage_node": false
+      },
+      {
+        "level": 86,
+        "xp_to_next": "31114",
+        "cumulative_xp": "1025339",
+        "speed_modifier": "0.34400000000000003",
+        "efficiency_modifier": "0.516",
+        "stage_node": false
+      },
+      {
+        "level": 87,
+        "xp_to_next": "31713",
+        "cumulative_xp": "1057052",
+        "speed_modifier": "0.34800000000000003",
+        "efficiency_modifier": "0.522",
+        "stage_node": false
+      },
+      {
+        "level": 88,
+        "xp_to_next": "32317",
+        "cumulative_xp": "1089369",
+        "speed_modifier": "0.352",
+        "efficiency_modifier": "0.528",
+        "stage_node": false
+      },
+      {
+        "level": 89,
+        "xp_to_next": "32925",
+        "cumulative_xp": "1122294",
+        "speed_modifier": "0.356",
+        "efficiency_modifier": "0.534",
+        "stage_node": false
+      },
+      {
+        "level": 90,
+        "xp_to_next": "33537",
+        "cumulative_xp": "1155831",
+        "speed_modifier": "0.36",
+        "efficiency_modifier": "0.54",
+        "stage_node": false
+      },
+      {
+        "level": 91,
+        "xp_to_next": "34155",
+        "cumulative_xp": "1189986",
+        "speed_modifier": "0.364",
+        "efficiency_modifier": "0.546",
+        "stage_node": false
+      },
+      {
+        "level": 92,
+        "xp_to_next": "34776",
+        "cumulative_xp": "1224762",
+        "speed_modifier": "0.368",
+        "efficiency_modifier": "0.552",
+        "stage_node": false
+      },
+      {
+        "level": 93,
+        "xp_to_next": "35402",
+        "cumulative_xp": "1260164",
+        "speed_modifier": "0.372",
+        "efficiency_modifier": "0.558",
+        "stage_node": false
+      },
+      {
+        "level": 94,
+        "xp_to_next": "36032",
+        "cumulative_xp": "1296196",
+        "speed_modifier": "0.376",
+        "efficiency_modifier": "0.5640000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 95,
+        "xp_to_next": "36667",
+        "cumulative_xp": "1332863",
+        "speed_modifier": "0.38",
+        "efficiency_modifier": "0.5700000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 96,
+        "xp_to_next": "37306",
+        "cumulative_xp": "1370169",
+        "speed_modifier": "0.384",
+        "efficiency_modifier": "0.5760000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 97,
+        "xp_to_next": "37949",
+        "cumulative_xp": "1408118",
+        "speed_modifier": "0.388",
+        "efficiency_modifier": "0.582",
+        "stage_node": false
+      },
+      {
+        "level": 98,
+        "xp_to_next": "38597",
+        "cumulative_xp": "1446715",
+        "speed_modifier": "0.392",
+        "efficiency_modifier": "0.588",
+        "stage_node": false
+      },
+      {
+        "level": 99,
+        "xp_to_next": "39249",
+        "cumulative_xp": "1485964",
+        "speed_modifier": "0.396",
+        "efficiency_modifier": "0.594",
+        "stage_node": false
+      },
+      {
+        "level": 100,
+        "xp_to_next": "39905",
+        "cumulative_xp": "1525869",
+        "speed_modifier": "0.4",
+        "efficiency_modifier": "0.6",
+        "stage_node": false
+      }
+    ],
+    "source_note": "武器专精:技能成长"
+  },
+  {
+    "curve_id": "xp.skill.mvp.weapon_mastery.spear",
+    "skill_id": "skill.weapon_mastery.spear",
+    "levels": [
+      {
+        "level": 1,
+        "xp_to_next": "20",
+        "cumulative_xp": "20",
+        "speed_modifier": "0.004",
+        "efficiency_modifier": "0.006",
+        "stage_node": true
+      },
+      {
+        "level": 2,
+        "xp_to_next": "63",
+        "cumulative_xp": "83",
+        "speed_modifier": "0.008",
+        "efficiency_modifier": "0.012",
+        "stage_node": false
+      },
+      {
+        "level": 3,
+        "xp_to_next": "123",
+        "cumulative_xp": "206",
+        "speed_modifier": "0.012",
+        "efficiency_modifier": "0.018000000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 4,
+        "xp_to_next": "197",
+        "cumulative_xp": "403",
+        "speed_modifier": "0.016",
+        "efficiency_modifier": "0.024",
+        "stage_node": false
+      },
+      {
+        "level": 5,
+        "xp_to_next": "285",
+        "cumulative_xp": "688",
+        "speed_modifier": "0.02",
+        "efficiency_modifier": "0.03",
+        "stage_node": false
+      },
+      {
+        "level": 6,
+        "xp_to_next": "385",
+        "cumulative_xp": "1073",
+        "speed_modifier": "0.024",
+        "efficiency_modifier": "0.036000000000000004",
+        "stage_node": false
+      },
+      {
+        "level": 7,
+        "xp_to_next": "496",
+        "cumulative_xp": "1569",
+        "speed_modifier": "0.028",
+        "efficiency_modifier": "0.042",
+        "stage_node": false
+      },
+      {
+        "level": 8,
+        "xp_to_next": "618",
+        "cumulative_xp": "2187",
+        "speed_modifier": "0.032",
+        "efficiency_modifier": "0.048",
+        "stage_node": false
+      },
+      {
+        "level": 9,
+        "xp_to_next": "751",
+        "cumulative_xp": "2938",
+        "speed_modifier": "0.036000000000000004",
+        "efficiency_modifier": "0.054",
+        "stage_node": false
+      },
+      {
+        "level": 10,
+        "xp_to_next": "893",
+        "cumulative_xp": "3831",
+        "speed_modifier": "0.04",
+        "efficiency_modifier": "0.06",
+        "stage_node": true
+      },
+      {
+        "level": 11,
+        "xp_to_next": "1046",
+        "cumulative_xp": "4877",
+        "speed_modifier": "0.044",
+        "efficiency_modifier": "0.066",
+        "stage_node": false
+      },
+      {
+        "level": 12,
+        "xp_to_next": "1207",
+        "cumulative_xp": "6084",
+        "speed_modifier": "0.048",
+        "efficiency_modifier": "0.07200000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 13,
+        "xp_to_next": "1377",
+        "cumulative_xp": "7461",
+        "speed_modifier": "0.052000000000000005",
+        "efficiency_modifier": "0.078",
+        "stage_node": false
+      },
+      {
+        "level": 14,
+        "xp_to_next": "1556",
+        "cumulative_xp": "9017",
+        "speed_modifier": "0.056",
+        "efficiency_modifier": "0.084",
+        "stage_node": false
+      },
+      {
+        "level": 15,
+        "xp_to_next": "1744",
+        "cumulative_xp": "10761",
+        "speed_modifier": "0.06",
+        "efficiency_modifier": "0.09",
+        "stage_node": false
+      },
+      {
+        "level": 16,
+        "xp_to_next": "1940",
+        "cumulative_xp": "12701",
+        "speed_modifier": "0.064",
+        "efficiency_modifier": "0.096",
+        "stage_node": false
+      },
+      {
+        "level": 17,
+        "xp_to_next": "2144",
+        "cumulative_xp": "14845",
+        "speed_modifier": "0.068",
+        "efficiency_modifier": "0.10200000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 18,
+        "xp_to_next": "2356",
+        "cumulative_xp": "17201",
+        "speed_modifier": "0.07200000000000001",
+        "efficiency_modifier": "0.108",
+        "stage_node": false
+      },
+      {
+        "level": 19,
+        "xp_to_next": "2576",
+        "cumulative_xp": "19777",
+        "speed_modifier": "0.076",
+        "efficiency_modifier": "0.114",
+        "stage_node": false
+      },
+      {
+        "level": 20,
+        "xp_to_next": "2804",
+        "cumulative_xp": "22581",
+        "speed_modifier": "0.08",
+        "efficiency_modifier": "0.12",
+        "stage_node": true
+      },
+      {
+        "level": 21,
+        "xp_to_next": "3039",
+        "cumulative_xp": "25620",
+        "speed_modifier": "0.084",
+        "efficiency_modifier": "0.126",
+        "stage_node": false
+      },
+      {
+        "level": 22,
+        "xp_to_next": "3281",
+        "cumulative_xp": "28901",
+        "speed_modifier": "0.088",
+        "efficiency_modifier": "0.132",
+        "stage_node": false
+      },
+      {
+        "level": 23,
+        "xp_to_next": "3531",
+        "cumulative_xp": "32432",
+        "speed_modifier": "0.092",
+        "efficiency_modifier": "0.138",
+        "stage_node": false
+      },
+      {
+        "level": 24,
+        "xp_to_next": "3788",
+        "cumulative_xp": "36220",
+        "speed_modifier": "0.096",
+        "efficiency_modifier": "0.14400000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 25,
+        "xp_to_next": "4052",
+        "cumulative_xp": "40272",
+        "speed_modifier": "0.1",
+        "efficiency_modifier": "0.15",
+        "stage_node": true
+      },
+      {
+        "level": 26,
+        "xp_to_next": "4323",
+        "cumulative_xp": "44595",
+        "speed_modifier": "0.10400000000000001",
+        "efficiency_modifier": "0.156",
+        "stage_node": false
+      },
+      {
+        "level": 27,
+        "xp_to_next": "4600",
+        "cumulative_xp": "49195",
+        "speed_modifier": "0.108",
+        "efficiency_modifier": "0.162",
+        "stage_node": false
+      },
+      {
+        "level": 28,
+        "xp_to_next": "4885",
+        "cumulative_xp": "54080",
+        "speed_modifier": "0.112",
+        "efficiency_modifier": "0.168",
+        "stage_node": false
+      },
+      {
+        "level": 29,
+        "xp_to_next": "5176",
+        "cumulative_xp": "59256",
+        "speed_modifier": "0.116",
+        "efficiency_modifier": "0.17400000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 30,
+        "xp_to_next": "5474",
+        "cumulative_xp": "64730",
+        "speed_modifier": "0.12",
+        "efficiency_modifier": "0.18",
+        "stage_node": false
+      },
+      {
+        "level": 31,
+        "xp_to_next": "5778",
+        "cumulative_xp": "70508",
+        "speed_modifier": "0.124",
+        "efficiency_modifier": "0.186",
+        "stage_node": false
+      },
+      {
+        "level": 32,
+        "xp_to_next": "6089",
+        "cumulative_xp": "76597",
+        "speed_modifier": "0.128",
+        "efficiency_modifier": "0.192",
+        "stage_node": false
+      },
+      {
+        "level": 33,
+        "xp_to_next": "6406",
+        "cumulative_xp": "83003",
+        "speed_modifier": "0.132",
+        "efficiency_modifier": "0.198",
+        "stage_node": false
+      },
+      {
+        "level": 34,
+        "xp_to_next": "6729",
+        "cumulative_xp": "89732",
+        "speed_modifier": "0.136",
+        "efficiency_modifier": "0.20400000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 35,
+        "xp_to_next": "7059",
+        "cumulative_xp": "96791",
+        "speed_modifier": "0.14",
+        "efficiency_modifier": "0.21",
+        "stage_node": true
+      },
+      {
+        "level": 36,
+        "xp_to_next": "7395",
+        "cumulative_xp": "104186",
+        "speed_modifier": "0.14400000000000002",
+        "efficiency_modifier": "0.216",
+        "stage_node": false
+      },
+      {
+        "level": 37,
+        "xp_to_next": "7737",
+        "cumulative_xp": "111923",
+        "speed_modifier": "0.148",
+        "efficiency_modifier": "0.222",
+        "stage_node": false
+      },
+      {
+        "level": 38,
+        "xp_to_next": "8085",
+        "cumulative_xp": "120008",
+        "speed_modifier": "0.152",
+        "efficiency_modifier": "0.228",
+        "stage_node": false
+      },
+      {
+        "level": 39,
+        "xp_to_next": "8439",
+        "cumulative_xp": "128447",
+        "speed_modifier": "0.156",
+        "efficiency_modifier": "0.234",
+        "stage_node": false
+      },
+      {
+        "level": 40,
+        "xp_to_next": "8799",
+        "cumulative_xp": "137246",
+        "speed_modifier": "0.16",
+        "efficiency_modifier": "0.24",
+        "stage_node": false
+      },
+      {
+        "level": 41,
+        "xp_to_next": "9165",
+        "cumulative_xp": "146411",
+        "speed_modifier": "0.164",
+        "efficiency_modifier": "0.246",
+        "stage_node": false
+      },
+      {
+        "level": 42,
+        "xp_to_next": "9537",
+        "cumulative_xp": "155948",
+        "speed_modifier": "0.168",
+        "efficiency_modifier": "0.252",
+        "stage_node": false
+      },
+      {
+        "level": 43,
+        "xp_to_next": "9914",
+        "cumulative_xp": "165862",
+        "speed_modifier": "0.17200000000000001",
+        "efficiency_modifier": "0.258",
+        "stage_node": false
+      },
+      {
+        "level": 44,
+        "xp_to_next": "10297",
+        "cumulative_xp": "176159",
+        "speed_modifier": "0.176",
+        "efficiency_modifier": "0.264",
+        "stage_node": false
+      },
+      {
+        "level": 45,
+        "xp_to_next": "10686",
+        "cumulative_xp": "186845",
+        "speed_modifier": "0.18",
+        "efficiency_modifier": "0.27",
+        "stage_node": false
+      },
+      {
+        "level": 46,
+        "xp_to_next": "11081",
+        "cumulative_xp": "197926",
+        "speed_modifier": "0.184",
+        "efficiency_modifier": "0.276",
+        "stage_node": false
+      },
+      {
+        "level": 47,
+        "xp_to_next": "11481",
+        "cumulative_xp": "209407",
+        "speed_modifier": "0.188",
+        "efficiency_modifier": "0.28200000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 48,
+        "xp_to_next": "11887",
+        "cumulative_xp": "221294",
+        "speed_modifier": "0.192",
+        "efficiency_modifier": "0.28800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 49,
+        "xp_to_next": "12299",
+        "cumulative_xp": "233593",
+        "speed_modifier": "0.196",
+        "efficiency_modifier": "0.294",
+        "stage_node": false
+      },
+      {
+        "level": 50,
+        "xp_to_next": "12715",
+        "cumulative_xp": "246308",
+        "speed_modifier": "0.2",
+        "efficiency_modifier": "0.3",
+        "stage_node": true
+      },
+      {
+        "level": 51,
+        "xp_to_next": "13138",
+        "cumulative_xp": "259446",
+        "speed_modifier": "0.20400000000000001",
+        "efficiency_modifier": "0.306",
+        "stage_node": false
+      },
+      {
+        "level": 52,
+        "xp_to_next": "13565",
+        "cumulative_xp": "273011",
+        "speed_modifier": "0.20800000000000002",
+        "efficiency_modifier": "0.312",
+        "stage_node": false
+      },
+      {
+        "level": 53,
+        "xp_to_next": "13999",
+        "cumulative_xp": "287010",
+        "speed_modifier": "0.212",
+        "efficiency_modifier": "0.318",
+        "stage_node": false
+      },
+      {
+        "level": 54,
+        "xp_to_next": "14437",
+        "cumulative_xp": "301447",
+        "speed_modifier": "0.216",
+        "efficiency_modifier": "0.324",
+        "stage_node": false
+      },
+      {
+        "level": 55,
+        "xp_to_next": "14881",
+        "cumulative_xp": "316328",
+        "speed_modifier": "0.22",
+        "efficiency_modifier": "0.33",
+        "stage_node": false
+      },
+      {
+        "level": 56,
+        "xp_to_next": "15330",
+        "cumulative_xp": "331658",
+        "speed_modifier": "0.224",
+        "efficiency_modifier": "0.336",
+        "stage_node": false
+      },
+      {
+        "level": 57,
+        "xp_to_next": "15784",
+        "cumulative_xp": "347442",
+        "speed_modifier": "0.228",
+        "efficiency_modifier": "0.342",
+        "stage_node": false
+      },
+      {
+        "level": 58,
+        "xp_to_next": "16244",
+        "cumulative_xp": "363686",
+        "speed_modifier": "0.232",
+        "efficiency_modifier": "0.34800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 59,
+        "xp_to_next": "16708",
+        "cumulative_xp": "380394",
+        "speed_modifier": "0.23600000000000002",
+        "efficiency_modifier": "0.354",
+        "stage_node": false
+      },
+      {
+        "level": 60,
+        "xp_to_next": "17178",
+        "cumulative_xp": "397572",
+        "speed_modifier": "0.24",
+        "efficiency_modifier": "0.36",
+        "stage_node": false
+      },
+      {
+        "level": 61,
+        "xp_to_next": "17653",
+        "cumulative_xp": "415225",
+        "speed_modifier": "0.244",
+        "efficiency_modifier": "0.366",
+        "stage_node": false
+      },
+      {
+        "level": 62,
+        "xp_to_next": "18133",
+        "cumulative_xp": "433358",
+        "speed_modifier": "0.248",
+        "efficiency_modifier": "0.372",
+        "stage_node": false
+      },
+      {
+        "level": 63,
+        "xp_to_next": "18618",
+        "cumulative_xp": "451976",
+        "speed_modifier": "0.252",
+        "efficiency_modifier": "0.378",
+        "stage_node": false
+      },
+      {
+        "level": 64,
+        "xp_to_next": "19109",
+        "cumulative_xp": "471085",
+        "speed_modifier": "0.256",
+        "efficiency_modifier": "0.384",
+        "stage_node": false
+      },
+      {
+        "level": 65,
+        "xp_to_next": "19604",
+        "cumulative_xp": "490689",
+        "speed_modifier": "0.26",
+        "efficiency_modifier": "0.39",
+        "stage_node": false
+      },
+      {
+        "level": 66,
+        "xp_to_next": "20104",
+        "cumulative_xp": "510793",
+        "speed_modifier": "0.264",
+        "efficiency_modifier": "0.396",
+        "stage_node": false
+      },
+      {
+        "level": 67,
+        "xp_to_next": "20609",
+        "cumulative_xp": "531402",
+        "speed_modifier": "0.268",
+        "efficiency_modifier": "0.402",
+        "stage_node": false
+      },
+      {
+        "level": 68,
+        "xp_to_next": "21119",
+        "cumulative_xp": "552521",
+        "speed_modifier": "0.272",
+        "efficiency_modifier": "0.40800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 69,
+        "xp_to_next": "21634",
+        "cumulative_xp": "574155",
+        "speed_modifier": "0.276",
+        "efficiency_modifier": "0.41400000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 70,
+        "xp_to_next": "22153",
+        "cumulative_xp": "596308",
+        "speed_modifier": "0.28",
+        "efficiency_modifier": "0.42",
+        "stage_node": false
+      },
+      {
+        "level": 71,
+        "xp_to_next": "22678",
+        "cumulative_xp": "618986",
+        "speed_modifier": "0.28400000000000003",
+        "efficiency_modifier": "0.426",
+        "stage_node": false
+      },
+      {
+        "level": 72,
+        "xp_to_next": "23208",
+        "cumulative_xp": "642194",
+        "speed_modifier": "0.28800000000000003",
+        "efficiency_modifier": "0.432",
+        "stage_node": false
+      },
+      {
+        "level": 73,
+        "xp_to_next": "23742",
+        "cumulative_xp": "665936",
+        "speed_modifier": "0.292",
+        "efficiency_modifier": "0.438",
+        "stage_node": false
+      },
+      {
+        "level": 74,
+        "xp_to_next": "24281",
+        "cumulative_xp": "690217",
+        "speed_modifier": "0.296",
+        "efficiency_modifier": "0.444",
+        "stage_node": false
+      },
+      {
+        "level": 75,
+        "xp_to_next": "24825",
+        "cumulative_xp": "715042",
+        "speed_modifier": "0.3",
+        "efficiency_modifier": "0.45",
+        "stage_node": false
+      },
+      {
+        "level": 76,
+        "xp_to_next": "25373",
+        "cumulative_xp": "740415",
+        "speed_modifier": "0.304",
+        "efficiency_modifier": "0.456",
+        "stage_node": false
+      },
+      {
+        "level": 77,
+        "xp_to_next": "25926",
+        "cumulative_xp": "766341",
+        "speed_modifier": "0.308",
+        "efficiency_modifier": "0.462",
+        "stage_node": false
+      },
+      {
+        "level": 78,
+        "xp_to_next": "26484",
+        "cumulative_xp": "792825",
+        "speed_modifier": "0.312",
+        "efficiency_modifier": "0.468",
+        "stage_node": false
+      },
+      {
+        "level": 79,
+        "xp_to_next": "27047",
+        "cumulative_xp": "819872",
+        "speed_modifier": "0.316",
+        "efficiency_modifier": "0.47400000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 80,
+        "xp_to_next": "27614",
+        "cumulative_xp": "847486",
+        "speed_modifier": "0.32",
+        "efficiency_modifier": "0.48",
+        "stage_node": false
+      },
+      {
+        "level": 81,
+        "xp_to_next": "28186",
+        "cumulative_xp": "875672",
+        "speed_modifier": "0.324",
+        "efficiency_modifier": "0.486",
+        "stage_node": false
+      },
+      {
+        "level": 82,
+        "xp_to_next": "28762",
+        "cumulative_xp": "904434",
+        "speed_modifier": "0.328",
+        "efficiency_modifier": "0.492",
+        "stage_node": false
+      },
+      {
+        "level": 83,
+        "xp_to_next": "29343",
+        "cumulative_xp": "933777",
+        "speed_modifier": "0.332",
+        "efficiency_modifier": "0.498",
+        "stage_node": false
+      },
+      {
+        "level": 84,
+        "xp_to_next": "29929",
+        "cumulative_xp": "963706",
+        "speed_modifier": "0.336",
+        "efficiency_modifier": "0.504",
+        "stage_node": false
+      },
+      {
+        "level": 85,
+        "xp_to_next": "30519",
+        "cumulative_xp": "994225",
+        "speed_modifier": "0.34",
+        "efficiency_modifier": "0.51",
+        "stage_node": false
+      },
+      {
+        "level": 86,
+        "xp_to_next": "31114",
+        "cumulative_xp": "1025339",
+        "speed_modifier": "0.34400000000000003",
+        "efficiency_modifier": "0.516",
+        "stage_node": false
+      },
+      {
+        "level": 87,
+        "xp_to_next": "31713",
+        "cumulative_xp": "1057052",
+        "speed_modifier": "0.34800000000000003",
+        "efficiency_modifier": "0.522",
+        "stage_node": false
+      },
+      {
+        "level": 88,
+        "xp_to_next": "32317",
+        "cumulative_xp": "1089369",
+        "speed_modifier": "0.352",
+        "efficiency_modifier": "0.528",
+        "stage_node": false
+      },
+      {
+        "level": 89,
+        "xp_to_next": "32925",
+        "cumulative_xp": "1122294",
+        "speed_modifier": "0.356",
+        "efficiency_modifier": "0.534",
+        "stage_node": false
+      },
+      {
+        "level": 90,
+        "xp_to_next": "33537",
+        "cumulative_xp": "1155831",
+        "speed_modifier": "0.36",
+        "efficiency_modifier": "0.54",
+        "stage_node": false
+      },
+      {
+        "level": 91,
+        "xp_to_next": "34155",
+        "cumulative_xp": "1189986",
+        "speed_modifier": "0.364",
+        "efficiency_modifier": "0.546",
+        "stage_node": false
+      },
+      {
+        "level": 92,
+        "xp_to_next": "34776",
+        "cumulative_xp": "1224762",
+        "speed_modifier": "0.368",
+        "efficiency_modifier": "0.552",
+        "stage_node": false
+      },
+      {
+        "level": 93,
+        "xp_to_next": "35402",
+        "cumulative_xp": "1260164",
+        "speed_modifier": "0.372",
+        "efficiency_modifier": "0.558",
+        "stage_node": false
+      },
+      {
+        "level": 94,
+        "xp_to_next": "36032",
+        "cumulative_xp": "1296196",
+        "speed_modifier": "0.376",
+        "efficiency_modifier": "0.5640000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 95,
+        "xp_to_next": "36667",
+        "cumulative_xp": "1332863",
+        "speed_modifier": "0.38",
+        "efficiency_modifier": "0.5700000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 96,
+        "xp_to_next": "37306",
+        "cumulative_xp": "1370169",
+        "speed_modifier": "0.384",
+        "efficiency_modifier": "0.5760000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 97,
+        "xp_to_next": "37949",
+        "cumulative_xp": "1408118",
+        "speed_modifier": "0.388",
+        "efficiency_modifier": "0.582",
+        "stage_node": false
+      },
+      {
+        "level": 98,
+        "xp_to_next": "38597",
+        "cumulative_xp": "1446715",
+        "speed_modifier": "0.392",
+        "efficiency_modifier": "0.588",
+        "stage_node": false
+      },
+      {
+        "level": 99,
+        "xp_to_next": "39249",
+        "cumulative_xp": "1485964",
+        "speed_modifier": "0.396",
+        "efficiency_modifier": "0.594",
+        "stage_node": false
+      },
+      {
+        "level": 100,
+        "xp_to_next": "39905",
+        "cumulative_xp": "1525869",
+        "speed_modifier": "0.4",
+        "efficiency_modifier": "0.6",
+        "stage_node": false
+      }
+    ],
+    "source_note": "武器专精:技能成长"
+  },
+  {
+    "curve_id": "xp.skill.mvp.weapon_mastery.staff",
+    "skill_id": "skill.weapon_mastery.staff",
+    "levels": [
+      {
+        "level": 1,
+        "xp_to_next": "20",
+        "cumulative_xp": "20",
+        "speed_modifier": "0.004",
+        "efficiency_modifier": "0.006",
+        "stage_node": true
+      },
+      {
+        "level": 2,
+        "xp_to_next": "63",
+        "cumulative_xp": "83",
+        "speed_modifier": "0.008",
+        "efficiency_modifier": "0.012",
+        "stage_node": false
+      },
+      {
+        "level": 3,
+        "xp_to_next": "123",
+        "cumulative_xp": "206",
+        "speed_modifier": "0.012",
+        "efficiency_modifier": "0.018000000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 4,
+        "xp_to_next": "197",
+        "cumulative_xp": "403",
+        "speed_modifier": "0.016",
+        "efficiency_modifier": "0.024",
+        "stage_node": false
+      },
+      {
+        "level": 5,
+        "xp_to_next": "285",
+        "cumulative_xp": "688",
+        "speed_modifier": "0.02",
+        "efficiency_modifier": "0.03",
+        "stage_node": false
+      },
+      {
+        "level": 6,
+        "xp_to_next": "385",
+        "cumulative_xp": "1073",
+        "speed_modifier": "0.024",
+        "efficiency_modifier": "0.036000000000000004",
+        "stage_node": false
+      },
+      {
+        "level": 7,
+        "xp_to_next": "496",
+        "cumulative_xp": "1569",
+        "speed_modifier": "0.028",
+        "efficiency_modifier": "0.042",
+        "stage_node": false
+      },
+      {
+        "level": 8,
+        "xp_to_next": "618",
+        "cumulative_xp": "2187",
+        "speed_modifier": "0.032",
+        "efficiency_modifier": "0.048",
+        "stage_node": false
+      },
+      {
+        "level": 9,
+        "xp_to_next": "751",
+        "cumulative_xp": "2938",
+        "speed_modifier": "0.036000000000000004",
+        "efficiency_modifier": "0.054",
+        "stage_node": false
+      },
+      {
+        "level": 10,
+        "xp_to_next": "893",
+        "cumulative_xp": "3831",
+        "speed_modifier": "0.04",
+        "efficiency_modifier": "0.06",
+        "stage_node": true
+      },
+      {
+        "level": 11,
+        "xp_to_next": "1046",
+        "cumulative_xp": "4877",
+        "speed_modifier": "0.044",
+        "efficiency_modifier": "0.066",
+        "stage_node": false
+      },
+      {
+        "level": 12,
+        "xp_to_next": "1207",
+        "cumulative_xp": "6084",
+        "speed_modifier": "0.048",
+        "efficiency_modifier": "0.07200000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 13,
+        "xp_to_next": "1377",
+        "cumulative_xp": "7461",
+        "speed_modifier": "0.052000000000000005",
+        "efficiency_modifier": "0.078",
+        "stage_node": false
+      },
+      {
+        "level": 14,
+        "xp_to_next": "1556",
+        "cumulative_xp": "9017",
+        "speed_modifier": "0.056",
+        "efficiency_modifier": "0.084",
+        "stage_node": false
+      },
+      {
+        "level": 15,
+        "xp_to_next": "1744",
+        "cumulative_xp": "10761",
+        "speed_modifier": "0.06",
+        "efficiency_modifier": "0.09",
+        "stage_node": false
+      },
+      {
+        "level": 16,
+        "xp_to_next": "1940",
+        "cumulative_xp": "12701",
+        "speed_modifier": "0.064",
+        "efficiency_modifier": "0.096",
+        "stage_node": false
+      },
+      {
+        "level": 17,
+        "xp_to_next": "2144",
+        "cumulative_xp": "14845",
+        "speed_modifier": "0.068",
+        "efficiency_modifier": "0.10200000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 18,
+        "xp_to_next": "2356",
+        "cumulative_xp": "17201",
+        "speed_modifier": "0.07200000000000001",
+        "efficiency_modifier": "0.108",
+        "stage_node": false
+      },
+      {
+        "level": 19,
+        "xp_to_next": "2576",
+        "cumulative_xp": "19777",
+        "speed_modifier": "0.076",
+        "efficiency_modifier": "0.114",
+        "stage_node": false
+      },
+      {
+        "level": 20,
+        "xp_to_next": "2804",
+        "cumulative_xp": "22581",
+        "speed_modifier": "0.08",
+        "efficiency_modifier": "0.12",
+        "stage_node": true
+      },
+      {
+        "level": 21,
+        "xp_to_next": "3039",
+        "cumulative_xp": "25620",
+        "speed_modifier": "0.084",
+        "efficiency_modifier": "0.126",
+        "stage_node": false
+      },
+      {
+        "level": 22,
+        "xp_to_next": "3281",
+        "cumulative_xp": "28901",
+        "speed_modifier": "0.088",
+        "efficiency_modifier": "0.132",
+        "stage_node": false
+      },
+      {
+        "level": 23,
+        "xp_to_next": "3531",
+        "cumulative_xp": "32432",
+        "speed_modifier": "0.092",
+        "efficiency_modifier": "0.138",
+        "stage_node": false
+      },
+      {
+        "level": 24,
+        "xp_to_next": "3788",
+        "cumulative_xp": "36220",
+        "speed_modifier": "0.096",
+        "efficiency_modifier": "0.14400000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 25,
+        "xp_to_next": "4052",
+        "cumulative_xp": "40272",
+        "speed_modifier": "0.1",
+        "efficiency_modifier": "0.15",
+        "stage_node": true
+      },
+      {
+        "level": 26,
+        "xp_to_next": "4323",
+        "cumulative_xp": "44595",
+        "speed_modifier": "0.10400000000000001",
+        "efficiency_modifier": "0.156",
+        "stage_node": false
+      },
+      {
+        "level": 27,
+        "xp_to_next": "4600",
+        "cumulative_xp": "49195",
+        "speed_modifier": "0.108",
+        "efficiency_modifier": "0.162",
+        "stage_node": false
+      },
+      {
+        "level": 28,
+        "xp_to_next": "4885",
+        "cumulative_xp": "54080",
+        "speed_modifier": "0.112",
+        "efficiency_modifier": "0.168",
+        "stage_node": false
+      },
+      {
+        "level": 29,
+        "xp_to_next": "5176",
+        "cumulative_xp": "59256",
+        "speed_modifier": "0.116",
+        "efficiency_modifier": "0.17400000000000002",
+        "stage_node": false
+      },
+      {
+        "level": 30,
+        "xp_to_next": "5474",
+        "cumulative_xp": "64730",
+        "speed_modifier": "0.12",
+        "efficiency_modifier": "0.18",
+        "stage_node": false
+      },
+      {
+        "level": 31,
+        "xp_to_next": "5778",
+        "cumulative_xp": "70508",
+        "speed_modifier": "0.124",
+        "efficiency_modifier": "0.186",
+        "stage_node": false
+      },
+      {
+        "level": 32,
+        "xp_to_next": "6089",
+        "cumulative_xp": "76597",
+        "speed_modifier": "0.128",
+        "efficiency_modifier": "0.192",
+        "stage_node": false
+      },
+      {
+        "level": 33,
+        "xp_to_next": "6406",
+        "cumulative_xp": "83003",
+        "speed_modifier": "0.132",
+        "efficiency_modifier": "0.198",
+        "stage_node": false
+      },
+      {
+        "level": 34,
+        "xp_to_next": "6729",
+        "cumulative_xp": "89732",
+        "speed_modifier": "0.136",
+        "efficiency_modifier": "0.20400000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 35,
+        "xp_to_next": "7059",
+        "cumulative_xp": "96791",
+        "speed_modifier": "0.14",
+        "efficiency_modifier": "0.21",
+        "stage_node": true
+      },
+      {
+        "level": 36,
+        "xp_to_next": "7395",
+        "cumulative_xp": "104186",
+        "speed_modifier": "0.14400000000000002",
+        "efficiency_modifier": "0.216",
+        "stage_node": false
+      },
+      {
+        "level": 37,
+        "xp_to_next": "7737",
+        "cumulative_xp": "111923",
+        "speed_modifier": "0.148",
+        "efficiency_modifier": "0.222",
+        "stage_node": false
+      },
+      {
+        "level": 38,
+        "xp_to_next": "8085",
+        "cumulative_xp": "120008",
+        "speed_modifier": "0.152",
+        "efficiency_modifier": "0.228",
+        "stage_node": false
+      },
+      {
+        "level": 39,
+        "xp_to_next": "8439",
+        "cumulative_xp": "128447",
+        "speed_modifier": "0.156",
+        "efficiency_modifier": "0.234",
+        "stage_node": false
+      },
+      {
+        "level": 40,
+        "xp_to_next": "8799",
+        "cumulative_xp": "137246",
+        "speed_modifier": "0.16",
+        "efficiency_modifier": "0.24",
+        "stage_node": false
+      },
+      {
+        "level": 41,
+        "xp_to_next": "9165",
+        "cumulative_xp": "146411",
+        "speed_modifier": "0.164",
+        "efficiency_modifier": "0.246",
+        "stage_node": false
+      },
+      {
+        "level": 42,
+        "xp_to_next": "9537",
+        "cumulative_xp": "155948",
+        "speed_modifier": "0.168",
+        "efficiency_modifier": "0.252",
+        "stage_node": false
+      },
+      {
+        "level": 43,
+        "xp_to_next": "9914",
+        "cumulative_xp": "165862",
+        "speed_modifier": "0.17200000000000001",
+        "efficiency_modifier": "0.258",
+        "stage_node": false
+      },
+      {
+        "level": 44,
+        "xp_to_next": "10297",
+        "cumulative_xp": "176159",
+        "speed_modifier": "0.176",
+        "efficiency_modifier": "0.264",
+        "stage_node": false
+      },
+      {
+        "level": 45,
+        "xp_to_next": "10686",
+        "cumulative_xp": "186845",
+        "speed_modifier": "0.18",
+        "efficiency_modifier": "0.27",
+        "stage_node": false
+      },
+      {
+        "level": 46,
+        "xp_to_next": "11081",
+        "cumulative_xp": "197926",
+        "speed_modifier": "0.184",
+        "efficiency_modifier": "0.276",
+        "stage_node": false
+      },
+      {
+        "level": 47,
+        "xp_to_next": "11481",
+        "cumulative_xp": "209407",
+        "speed_modifier": "0.188",
+        "efficiency_modifier": "0.28200000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 48,
+        "xp_to_next": "11887",
+        "cumulative_xp": "221294",
+        "speed_modifier": "0.192",
+        "efficiency_modifier": "0.28800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 49,
+        "xp_to_next": "12299",
+        "cumulative_xp": "233593",
+        "speed_modifier": "0.196",
+        "efficiency_modifier": "0.294",
+        "stage_node": false
+      },
+      {
+        "level": 50,
+        "xp_to_next": "12715",
+        "cumulative_xp": "246308",
+        "speed_modifier": "0.2",
+        "efficiency_modifier": "0.3",
+        "stage_node": true
+      },
+      {
+        "level": 51,
+        "xp_to_next": "13138",
+        "cumulative_xp": "259446",
+        "speed_modifier": "0.20400000000000001",
+        "efficiency_modifier": "0.306",
+        "stage_node": false
+      },
+      {
+        "level": 52,
+        "xp_to_next": "13565",
+        "cumulative_xp": "273011",
+        "speed_modifier": "0.20800000000000002",
+        "efficiency_modifier": "0.312",
+        "stage_node": false
+      },
+      {
+        "level": 53,
+        "xp_to_next": "13999",
+        "cumulative_xp": "287010",
+        "speed_modifier": "0.212",
+        "efficiency_modifier": "0.318",
+        "stage_node": false
+      },
+      {
+        "level": 54,
+        "xp_to_next": "14437",
+        "cumulative_xp": "301447",
+        "speed_modifier": "0.216",
+        "efficiency_modifier": "0.324",
+        "stage_node": false
+      },
+      {
+        "level": 55,
+        "xp_to_next": "14881",
+        "cumulative_xp": "316328",
+        "speed_modifier": "0.22",
+        "efficiency_modifier": "0.33",
+        "stage_node": false
+      },
+      {
+        "level": 56,
+        "xp_to_next": "15330",
+        "cumulative_xp": "331658",
+        "speed_modifier": "0.224",
+        "efficiency_modifier": "0.336",
+        "stage_node": false
+      },
+      {
+        "level": 57,
+        "xp_to_next": "15784",
+        "cumulative_xp": "347442",
+        "speed_modifier": "0.228",
+        "efficiency_modifier": "0.342",
+        "stage_node": false
+      },
+      {
+        "level": 58,
+        "xp_to_next": "16244",
+        "cumulative_xp": "363686",
+        "speed_modifier": "0.232",
+        "efficiency_modifier": "0.34800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 59,
+        "xp_to_next": "16708",
+        "cumulative_xp": "380394",
+        "speed_modifier": "0.23600000000000002",
+        "efficiency_modifier": "0.354",
+        "stage_node": false
+      },
+      {
+        "level": 60,
+        "xp_to_next": "17178",
+        "cumulative_xp": "397572",
+        "speed_modifier": "0.24",
+        "efficiency_modifier": "0.36",
+        "stage_node": false
+      },
+      {
+        "level": 61,
+        "xp_to_next": "17653",
+        "cumulative_xp": "415225",
+        "speed_modifier": "0.244",
+        "efficiency_modifier": "0.366",
+        "stage_node": false
+      },
+      {
+        "level": 62,
+        "xp_to_next": "18133",
+        "cumulative_xp": "433358",
+        "speed_modifier": "0.248",
+        "efficiency_modifier": "0.372",
+        "stage_node": false
+      },
+      {
+        "level": 63,
+        "xp_to_next": "18618",
+        "cumulative_xp": "451976",
+        "speed_modifier": "0.252",
+        "efficiency_modifier": "0.378",
+        "stage_node": false
+      },
+      {
+        "level": 64,
+        "xp_to_next": "19109",
+        "cumulative_xp": "471085",
+        "speed_modifier": "0.256",
+        "efficiency_modifier": "0.384",
+        "stage_node": false
+      },
+      {
+        "level": 65,
+        "xp_to_next": "19604",
+        "cumulative_xp": "490689",
+        "speed_modifier": "0.26",
+        "efficiency_modifier": "0.39",
+        "stage_node": false
+      },
+      {
+        "level": 66,
+        "xp_to_next": "20104",
+        "cumulative_xp": "510793",
+        "speed_modifier": "0.264",
+        "efficiency_modifier": "0.396",
+        "stage_node": false
+      },
+      {
+        "level": 67,
+        "xp_to_next": "20609",
+        "cumulative_xp": "531402",
+        "speed_modifier": "0.268",
+        "efficiency_modifier": "0.402",
+        "stage_node": false
+      },
+      {
+        "level": 68,
+        "xp_to_next": "21119",
+        "cumulative_xp": "552521",
+        "speed_modifier": "0.272",
+        "efficiency_modifier": "0.40800000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 69,
+        "xp_to_next": "21634",
+        "cumulative_xp": "574155",
+        "speed_modifier": "0.276",
+        "efficiency_modifier": "0.41400000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 70,
+        "xp_to_next": "22153",
+        "cumulative_xp": "596308",
+        "speed_modifier": "0.28",
+        "efficiency_modifier": "0.42",
+        "stage_node": false
+      },
+      {
+        "level": 71,
+        "xp_to_next": "22678",
+        "cumulative_xp": "618986",
+        "speed_modifier": "0.28400000000000003",
+        "efficiency_modifier": "0.426",
+        "stage_node": false
+      },
+      {
+        "level": 72,
+        "xp_to_next": "23208",
+        "cumulative_xp": "642194",
+        "speed_modifier": "0.28800000000000003",
+        "efficiency_modifier": "0.432",
+        "stage_node": false
+      },
+      {
+        "level": 73,
+        "xp_to_next": "23742",
+        "cumulative_xp": "665936",
+        "speed_modifier": "0.292",
+        "efficiency_modifier": "0.438",
+        "stage_node": false
+      },
+      {
+        "level": 74,
+        "xp_to_next": "24281",
+        "cumulative_xp": "690217",
+        "speed_modifier": "0.296",
+        "efficiency_modifier": "0.444",
+        "stage_node": false
+      },
+      {
+        "level": 75,
+        "xp_to_next": "24825",
+        "cumulative_xp": "715042",
+        "speed_modifier": "0.3",
+        "efficiency_modifier": "0.45",
+        "stage_node": false
+      },
+      {
+        "level": 76,
+        "xp_to_next": "25373",
+        "cumulative_xp": "740415",
+        "speed_modifier": "0.304",
+        "efficiency_modifier": "0.456",
+        "stage_node": false
+      },
+      {
+        "level": 77,
+        "xp_to_next": "25926",
+        "cumulative_xp": "766341",
+        "speed_modifier": "0.308",
+        "efficiency_modifier": "0.462",
+        "stage_node": false
+      },
+      {
+        "level": 78,
+        "xp_to_next": "26484",
+        "cumulative_xp": "792825",
+        "speed_modifier": "0.312",
+        "efficiency_modifier": "0.468",
+        "stage_node": false
+      },
+      {
+        "level": 79,
+        "xp_to_next": "27047",
+        "cumulative_xp": "819872",
+        "speed_modifier": "0.316",
+        "efficiency_modifier": "0.47400000000000003",
+        "stage_node": false
+      },
+      {
+        "level": 80,
+        "xp_to_next": "27614",
+        "cumulative_xp": "847486",
+        "speed_modifier": "0.32",
+        "efficiency_modifier": "0.48",
+        "stage_node": false
+      },
+      {
+        "level": 81,
+        "xp_to_next": "28186",
+        "cumulative_xp": "875672",
+        "speed_modifier": "0.324",
+        "efficiency_modifier": "0.486",
+        "stage_node": false
+      },
+      {
+        "level": 82,
+        "xp_to_next": "28762",
+        "cumulative_xp": "904434",
+        "speed_modifier": "0.328",
+        "efficiency_modifier": "0.492",
+        "stage_node": false
+      },
+      {
+        "level": 83,
+        "xp_to_next": "29343",
+        "cumulative_xp": "933777",
+        "speed_modifier": "0.332",
+        "efficiency_modifier": "0.498",
+        "stage_node": false
+      },
+      {
+        "level": 84,
+        "xp_to_next": "29929",
+        "cumulative_xp": "963706",
+        "speed_modifier": "0.336",
+        "efficiency_modifier": "0.504",
+        "stage_node": false
+      },
+      {
+        "level": 85,
+        "xp_to_next": "30519",
+        "cumulative_xp": "994225",
+        "speed_modifier": "0.34",
+        "efficiency_modifier": "0.51",
+        "stage_node": false
+      },
+      {
+        "level": 86,
+        "xp_to_next": "31114",
+        "cumulative_xp": "1025339",
+        "speed_modifier": "0.34400000000000003",
+        "efficiency_modifier": "0.516",
+        "stage_node": false
+      },
+      {
+        "level": 87,
+        "xp_to_next": "31713",
+        "cumulative_xp": "1057052",
+        "speed_modifier": "0.34800000000000003",
+        "efficiency_modifier": "0.522",
+        "stage_node": false
+      },
+      {
+        "level": 88,
+        "xp_to_next": "32317",
+        "cumulative_xp": "1089369",
+        "speed_modifier": "0.352",
+        "efficiency_modifier": "0.528",
+        "stage_node": false
+      },
+      {
+        "level": 89,
+        "xp_to_next": "32925",
+        "cumulative_xp": "1122294",
+        "speed_modifier": "0.356",
+        "efficiency_modifier": "0.534",
+        "stage_node": false
+      },
+      {
+        "level": 90,
+        "xp_to_next": "33537",
+        "cumulative_xp": "1155831",
+        "speed_modifier": "0.36",
+        "efficiency_modifier": "0.54",
+        "stage_node": false
+      },
+      {
+        "level": 91,
+        "xp_to_next": "34155",
+        "cumulative_xp": "1189986",
+        "speed_modifier": "0.364",
+        "efficiency_modifier": "0.546",
+        "stage_node": false
+      },
+      {
+        "level": 92,
+        "xp_to_next": "34776",
+        "cumulative_xp": "1224762",
+        "speed_modifier": "0.368",
+        "efficiency_modifier": "0.552",
+        "stage_node": false
+      },
+      {
+        "level": 93,
+        "xp_to_next": "35402",
+        "cumulative_xp": "1260164",
+        "speed_modifier": "0.372",
+        "efficiency_modifier": "0.558",
+        "stage_node": false
+      },
+      {
+        "level": 94,
+        "xp_to_next": "36032",
+        "cumulative_xp": "1296196",
+        "speed_modifier": "0.376",
+        "efficiency_modifier": "0.5640000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 95,
+        "xp_to_next": "36667",
+        "cumulative_xp": "1332863",
+        "speed_modifier": "0.38",
+        "efficiency_modifier": "0.5700000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 96,
+        "xp_to_next": "37306",
+        "cumulative_xp": "1370169",
+        "speed_modifier": "0.384",
+        "efficiency_modifier": "0.5760000000000001",
+        "stage_node": false
+      },
+      {
+        "level": 97,
+        "xp_to_next": "37949",
+        "cumulative_xp": "1408118",
+        "speed_modifier": "0.388",
+        "efficiency_modifier": "0.582",
+        "stage_node": false
+      },
+      {
+        "level": 98,
+        "xp_to_next": "38597",
+        "cumulative_xp": "1446715",
+        "speed_modifier": "0.392",
+        "efficiency_modifier": "0.588",
+        "stage_node": false
+      },
+      {
+        "level": 99,
+        "xp_to_next": "39249",
+        "cumulative_xp": "1485964",
+        "speed_modifier": "0.396",
+        "efficiency_modifier": "0.594",
+        "stage_node": false
+      },
+      {
+        "level": 100,
+        "xp_to_next": "39905",
+        "cumulative_xp": "1525869",
+        "speed_modifier": "0.4",
+        "efficiency_modifier": "0.6",
+        "stage_node": false
+      }
+    ],
+    "source_note": "武器专精:技能成长"
   }
 ]
-

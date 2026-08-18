@@ -274,7 +274,7 @@ function UnlockResult({
         </div>
       </div>
       <nav className="breakthrough-success__links" aria-label="筑基后导航">
-        <Link className="chip-button" to="/dashboard">
+        <Link className="chip-button" to="/cultivation">
           打开三槽条件队列
         </Link>
         <Link className="chip-button" to="/craft">

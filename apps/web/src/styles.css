@@ -4466,6 +4466,11 @@ body::before {
   gap: 4px;
 }
 
+.shell-nav__route-group {
+  display: grid;
+  gap: 2px;
+}
+
 .shell-nav__group {
   gap: 2px;
 }
@@ -4913,6 +4918,23 @@ body::before {
   background: rgba(94, 105, 185, 0.22);
 }
 
+.shell-nav__skill-link--child {
+  margin-left: 8px;
+  padding-left: 10px;
+  border-left: 2px solid rgba(110, 224, 204, 0.28);
+  color: var(--muted);
+}
+
+.shell-nav__skill-link--child.shell-nav__skill-link--active {
+  border-left-color: var(--accent-strong);
+  color: var(--text);
+  background: rgba(94, 105, 185, 0.3);
+}
+
+.shell-nav--collapsed .shell-nav__skill-link--child {
+  display: none;
+}
+
 .shell-nav__skill-link span {
   min-width: 0;
   overflow: hidden;
@@ -5098,6 +5120,1281 @@ body::before {
   padding: 10px;
 }
 
+/* Region-first behavior surfaces share the compact, fixed-viewport game shell. */
+.behavior-layout {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.72fr) minmax(0, 1.45fr);
+  gap: 10px;
+  min-height: 0;
+}
+
+.behavior-panel {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(28, 30, 48, 0.86);
+}
+
+.behavior-panel--hero {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.behavior-panel__realm,
+.behavior-panel__heading > span,
+.behavior-resource__status {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.behavior-panel__heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.behavior-panel__heading h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.behavior-panel__heading p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.behavior-region-list,
+.behavior-resource-list {
+  display: grid;
+  gap: 7px;
+}
+
+.behavior-section-heading {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 20px;
+}
+
+.behavior-region {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  text-align: left;
+  background: rgba(2, 6, 23, 0.48);
+  cursor: pointer;
+}
+
+.behavior-region:hover:not(:disabled) {
+  border-color: rgba(110, 224, 204, 0.55);
+}
+
+.behavior-region--selected {
+  border-color: rgba(110, 224, 204, 0.8);
+  box-shadow: inset 3px 0 0 rgba(110, 224, 204, 0.85);
+  background: rgba(74, 91, 166, 0.55);
+}
+
+.behavior-region--locked,
+.behavior-region:disabled {
+  cursor: default;
+  opacity: 0.62;
+}
+
+.behavior-region__header,
+.behavior-resource__header,
+.behavior-resource__facts,
+.behavior-resource__outputs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.behavior-region__header strong {
+  font-size: 14px;
+}
+
+.behavior-region__header small,
+.behavior-region__description,
+.behavior-resource__facts,
+.behavior-resource__outputs span,
+.behavior-resource__lock-copy {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.behavior-region__description {
+  line-height: 1.45;
+}
+
+.behavior-resource {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(2, 6, 23, 0.48);
+}
+
+.behavior-resource--locked {
+  border-color: rgba(251, 191, 36, 0.32);
+}
+
+.behavior-resource__header {
+  align-items: start;
+}
+
+.behavior-resource__header h4 {
+  margin: 4px 0 0;
+  font-size: 15px;
+}
+
+.behavior-resource__status {
+  color: var(--accent-strong);
+}
+
+.behavior-resource--locked .behavior-resource__status {
+  color: var(--warning);
+}
+
+.behavior-resource__outputs {
+  justify-content: start;
+  flex-wrap: wrap;
+}
+
+.behavior-resource__materials {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.behavior-resource__materials > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.behavior-resource__materials strong {
+  padding: 4px 7px;
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  border-radius: 4px;
+  color: #fcd34d;
+  font-size: 12px;
+}
+
+.behavior-resource__outputs strong {
+  padding: 4px 7px;
+  border: 1px solid rgba(110, 224, 204, 0.3);
+  border-radius: 4px;
+  color: var(--accent-strong);
+  font-size: 12px;
+}
+
+.behavior-resource__facts {
+  justify-content: start;
+  gap: 12px;
+}
+
+.behavior-resource__lock-copy,
+.behavior-feedback {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.behavior-resource__lock-copy {
+  color: var(--warning);
+}
+
+.behavior-resource__start {
+  justify-self: start;
+  min-width: 112px;
+  border-radius: 4px;
+}
+
+.behavior-feedback {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--accent);
+  color: var(--accent-strong);
+  background: rgba(34, 197, 94, 0.08);
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .behavior-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .behavior-panel--hero {
+    grid-column: auto;
+    align-items: start;
+    flex-direction: column;
+  }
+}
+
+/* Cultivation is one peer-level catalog: qi, body, and weapon training share
+   one panel rather than presenting a duplicate mastery column. */
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource-list,
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .behavior-resource-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.behavior-layout--cultivation {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource {
+  min-height: 0;
+  padding: 5px 6px;
+  gap: 2px;
+  align-content: start;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource > .page-card__copy,
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource__header .page-card__eyebrow {
+  display: none !important;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource__header {
+  min-height: 14px;
+  height: 14px;
+  overflow: hidden;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource__header h4 {
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource__status {
+  font-size: 9px;
+  line-height: 14px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource__outputs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, auto));
+  justify-content: start;
+  gap: 2px 4px;
+  min-height: 12px;
+  font-size: 9px;
+  line-height: 12px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource__meta,
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource__lock-copy {
+  overflow: hidden;
+  margin: 0;
+  font-size: 9px;
+  line-height: 11px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource__lock-copy {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource__start {
+  min-height: 18px;
+  height: 18px;
+  padding: 1px 5px;
+  font-size: 9px;
+}
+
+.expedition-layout--active {
+  grid-template-columns: minmax(250px, 1fr) repeat(2, minmax(0, 1fr)) !important;
+}
+
+.expedition-layout--active .expedition-catalog {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.expedition-layout--active > .expedition-catalog {
+  grid-row: 1 / 4 !important;
+}
+
+.expedition-layout--active .expedition-catalog > .behavior-region-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.expedition-layout--active .expedition-catalog .expedition-monster-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-height: 0;
+  overflow: hidden;
+}
+
+.expedition-layout--active .expedition-monster .behavior-resource__header strong {
+  min-width: 0;
+  max-width: 7em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.expedition-layout--active .expedition-monster .behavior-resource__facts {
+  max-height: 16px;
+  overflow: hidden;
+  font-size: 10px;
+}
+
+.behavior-layout--cultivation .behavior-resource {
+  gap: 3px;
+  padding: 6px;
+}
+
+.behavior-layout--cultivation .behavior-resource__lock-copy {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  max-height: 16px;
+  overflow: hidden;
+  line-height: 1.25;
+}
+
+.behavior-layout--cultivation .behavior-resource__outputs,
+.behavior-layout--cultivation .behavior-resource__facts {
+  min-width: 0;
+  max-height: 18px;
+  overflow: hidden;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.behavior-layout--cultivation .behavior-resource__start {
+  min-height: 22px;
+  padding: 2px 5px;
+  font-size: 10px;
+}
+
+/* Last-order viewport contracts. Keep these after the legacy responsive
+   blocks above so the shell and page roots share the same available track. */
+.shell-main {
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.shell-main__content {
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.shell-main__content .status-screen {
+  min-height: 0;
+  padding: 8px;
+  gap: 5px;
+  border-radius: 6px;
+}
+
+.shell-main__content .status-screen__title {
+  font-size: 14px;
+}
+
+.shell-main__content .status-screen__description,
+.shell-main__content .status-screen__footnote {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.35;
+}
+
+.behavior-layout--cultivation {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.behavior-layout--cultivation .behavior-panel--hero {
+  grid-column: 1 / -1;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions {
+  grid-column: 1;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+  grid-column: 2;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource-list,
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .behavior-resource-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.behavior-layout--cultivation .behavior-panel--resources {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 5px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+}
+
+.behavior-layout--cultivation .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.behavior-layout--cultivation .behavior-panel__compact-copy {
+  min-width: 0;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.behavior-layout--cultivation .behavior-panel__heading {
+  margin: 0;
+}
+
+.behavior-layout--cultivation .behavior-panel__heading h4 {
+  font-size: 14px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__lock-copy {
+  -webkit-line-clamp: 1;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource {
+  min-width: 0;
+  padding: 5px;
+  gap: 3px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource .page-card__eyebrow,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__lock-copy,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__facts {
+  display: none !important;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__header h4 {
+  font-size: 9px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__header {
+  min-height: 13px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__materials,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__outputs {
+  max-height: 10px;
+  overflow: hidden;
+  gap: 2px;
+  line-height: 1;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__materials strong,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__outputs strong {
+  padding: 1px 2px;
+  font-size: 8px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__materials > span,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__outputs > span {
+  display: none;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__facts {
+  gap: 2px;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__start {
+  min-height: 11px;
+  padding: 0 3px;
+  font-size: 8px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions > .behavior-resource-list,
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery > .behavior-resource-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .behavior-resource__lock-copy,
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .behavior-resource__facts,
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .page-card__eyebrow {
+  display: none !important;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .behavior-resource__header h4 {
+  font-size: 11px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .behavior-resource__header {
+  min-height: 14px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .behavior-resource__outputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+  gap: 2px;
+  font-size: 10px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .behavior-resource__start {
+  min-height: 18px;
+  padding: 1px 4px;
+  font-size: 10px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+.content-workbench .content-card--compact {
+  min-height: 40px;
+  padding: 4px 5px;
+  gap: 1px;
+}
+
+.content-workbench .content-card--compact .content-card__title-row strong {
+  font-size: 11px;
+}
+
+.content-workbench .content-card--compact .content-card__subtitle,
+.content-workbench .content-card--compact .content-card__meta,
+.content-workbench .content-card--compact .content-card__unlock {
+  font-size: 9px;
+  line-height: 1.15;
+}
+
+.content-workbench .content-card--compact .content-card__meta {
+  max-height: 12px;
+  gap: 2px 5px;
+}
+
+.content-workbench .content-card--compact .ghost-button--compact {
+  min-height: 20px;
+  padding: 2px 5px;
+  font-size: 9px;
+}
+
+.content-workbench .content-list,
+.content-workbench .content-list > [role='tabpanel'] {
+  grid-template-columns: repeat(auto-fit, minmax(82px, 1fr)) !important;
+}
+
+.content-workbench .content-list {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.content-workbench__panel {
+  padding: 4px !important;
+  display: grid !important;
+  grid-template-rows: 30px minmax(0, 1fr);
+}
+
+.content-workbench .content-tabs {
+  margin-bottom: 3px;
+}
+
+.content-workbench .content-tabs .chip-button {
+  min-height: 24px;
+  padding: 3px 7px;
+  font-size: 10px;
+}
+
+.content-workbench .content-list {
+  height: auto !important;
+  min-height: 0;
+}
+
+.content-workbench [role='tabpanel'][hidden] {
+  display: none !important;
+}
+
+.content-workbench .content-card--compact {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto;
+  min-height: 0;
+  padding: 3px;
+  gap: 2px;
+}
+
+.content-workbench .content-card--compact .content-card__subtitle,
+.content-workbench .content-card--compact .content-card__unlock {
+  display: none;
+}
+
+.content-workbench .content-card--compact .content-card__title-button,
+.content-workbench .content-card--compact .content-card__meta,
+.content-workbench .content-card--compact .content-card__actions {
+  grid-column: 1;
+  grid-row: auto;
+  min-width: 0;
+}
+
+.content-workbench .content-card--compact .content-card__title-button {
+  min-height: 15px;
+}
+
+.content-workbench .content-card--compact .content-card__actions {
+  display: flex;
+  width: 100%;
+  gap: 2px;
+}
+
+.content-workbench .content-card--compact .content-card__actions .ghost-button:first-child {
+  display: none;
+}
+
+.content-workbench .content-card--compact .content-card__actions .ghost-button:last-child {
+  width: 100%;
+  min-width: 0;
+}
+
+.expedition-layout--active {
+  grid-template-rows: auto minmax(0, 1fr) minmax(32px, auto);
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) {
+  min-height: 32px;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .status-screen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 0;
+  padding: 4px 7px;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .status-screen__description,
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .status-screen__footnote {
+  display: none;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) {
+  display: flex !important;
+  align-items: center;
+  min-height: 34px;
+  padding: 5px;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .expedition-links {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  gap: 5px;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .expedition-links .status-screen {
+  flex: 0 0 auto;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .expedition-link-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  min-height: 0;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .expedition-link-row > *,
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .expedition-inline-note {
+  min-width: 0;
+  padding: 4px 6px;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .expedition-inline-note {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 150px;
+  max-height: 30px;
+  overflow: hidden;
+}
+
+.expedition-layout--active > .expedition-panel--hero .status-screen {
+  padding: 6px;
+  gap: 3px;
+}
+
+.expedition-layout--active > .expedition-panel--hero .status-screen__description {
+  -webkit-line-clamp: 1;
+}
+
+.expedition-layout--active > .expedition-panel--hero .status-screen__footnote {
+  display: none;
+}
+
+.expedition-layout--active .expedition-form {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.expedition-layout--active .expedition-fact,
+.expedition-layout--active .expedition-inline-note {
+  padding: 5px;
+}
+
+.expedition-layout--active .expedition-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.expedition-layout--active .expedition-actions > * {
+  min-width: 0;
+  min-height: 24px;
+  height: 24px;
+  padding: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.expedition-layout--active .expedition-prepare > .status-screen--empty {
+  display: none;
+}
+
+.expedition-layout--active .expedition-prepare .dashboard-panel__header {
+  min-height: 0;
+  gap: 3px;
+}
+
+.expedition-layout--active .expedition-prepare .dashboard-panel__title {
+  font-size: 12px;
+}
+
+.expedition-layout--active .expedition-prepare .dashboard-panel__meta {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.expedition-layout--active .equipment-form__field {
+  min-width: 0;
+  gap: 2px;
+}
+
+.expedition-layout--active .equipment-form__field .equipment-form__label {
+  overflow: hidden;
+  font-size: 8px;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.expedition-layout--active .equipment-form__field .equipment-form__input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 21px !important;
+  padding: 3px 4px !important;
+  font-size: 9px !important;
+}
+
+.expedition-layout--active .equipment-form__field select.equipment-form__input {
+  height: 22px !important;
+  max-height: 22px !important;
+}
+
+.expedition-layout--active .equipment-form__field .expedition-inline-note {
+  display: block !important;
+  height: 22px !important;
+  max-height: 22px !important;
+  overflow: hidden !important;
+  padding: 3px 4px !important;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.expedition-layout--active .expedition-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: max-content;
+  align-content: start;
+}
+
+/* The opportunity facts are already visible in the hero. Keep the compact
+   prepare card on deterministic rows so its title cannot collide with the
+   first form field at the single-viewport breakpoint. */
+.expedition-layout--active .expedition-prepare {
+  grid-template-rows: 30px 67px 24px;
+  align-content: start;
+  gap: 4px;
+}
+
+.expedition-layout--active .expedition-prepare > .expedition-facts {
+  display: none;
+}
+
+.expedition-layout--active .expedition-prepare .dashboard-panel__header {
+  min-height: 30px;
+  overflow: hidden;
+}
+
+.expedition-layout--active .equipment-form__field {
+  align-content: start;
+}
+
+.expedition-layout--active .expedition-facts {
+  min-height: 0;
+}
+
+.expedition-layout--active .expedition-fact {
+  min-height: 0;
+  padding: 3px;
+  gap: 2px;
+}
+
+.expedition-layout--active .expedition-fact span,
+.expedition-layout--active .expedition-fact strong {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.expedition-catalog > .behavior-region-list,
+.expedition-catalog .expedition-monster-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.equipment-layout {
+  grid-template-rows: auto repeat(2, minmax(0, 1fr));
+}
+
+.character-screen {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.character-screen .equipment-panel:nth-child(2) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.character-screen .equipment-panel:nth-child(3) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.character-screen .equipment-panel:nth-child(4) {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.character-screen .equipment-panel:nth-child(5) {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.character-screen .equipment-panel--hero .equipment-hero {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, .9fr) minmax(0, 1.15fr);
+  align-items: start;
+}
+
+.character-screen .equipment-panel--hero .equipment-hero__controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 3px;
+}
+
+.character-screen .equipment-panel--hero .equipment-form__field {
+  min-width: 0;
+  gap: 2px;
+}
+
+.character-screen .equipment-panel--hero .equipment-form__label {
+  font-size: 8px;
+  line-height: 1;
+}
+
+.character-screen .equipment-panel--hero .equipment-form__input {
+  min-height: 21px;
+  padding: 3px 4px;
+  font-size: 9px;
+}
+
+.character-screen .equipment-panel--hero .equipment-hero__actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 3px;
+}
+
+.character-screen .equipment-panel--hero .equipment-hero__actions .ghost-button {
+  min-width: 0;
+  padding: 3px 4px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.character-screen .equipment-panel--hero .equipment-hero > div:first-child .page-card__copy {
+  display: none;
+}
+
+.character-screen .equipment-panel--hero .dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.character-screen .equipment-panel--hero .metric-chip {
+  min-width: 0;
+  padding: 4px;
+  gap: 2px;
+}
+
+.character-screen .equipment-panel--hero .metric-chip__label,
+.character-screen .equipment-panel--hero .metric-chip__value {
+  overflow: hidden;
+  font-size: 9px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.behavior-layout--cultivation .behavior-panel--hero {
+  padding: 7px 10px;
+}
+
+.behavior-layout--cultivation .behavior-panel--hero .page-card__copy {
+  display: none;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions > .behavior-resource-list,
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery > .behavior-resource-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+.behavior-layout--cultivation .behavior-resource {
+  padding: 6px;
+  gap: 3px;
+}
+
+.behavior-layout--cultivation .behavior-resource__lock-copy {
+  -webkit-line-clamp: 1;
+  line-height: 1.2;
+}
+
+.behavior-layout--cultivation .behavior-resource__facts,
+.behavior-layout--cultivation .behavior-resource__outputs {
+  gap: 3px;
+  line-height: 1.2;
+}
+
+.behavior-layout--cultivation .behavior-resource__start {
+  min-height: 22px;
+  padding: 2px 5px;
+}
+
+@media (max-width: 760px) {
+  .behavior-layout--cultivation {
+    grid-template-columns: 1fr;
+  }
+
+  .behavior-layout--cultivation .behavior-panel--hero {
+    grid-column: 1;
+  }
+
+  .behavior-layout--cultivation .behavior-panel--cultivation-directions,
+  .behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .behavior-layout--cultivation .behavior-panel--resources .behavior-resource-list,
+  .behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list,
+  .expedition-catalog > .behavior-region-list,
+  .expedition-catalog .expedition-monster-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .equipment-layout {
+    grid-template-rows: auto repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Final craft-density override: later shared card rules intentionally keep
+   larger defaults, while this overview must fit 39 actions without overlap. */
+.content-workbench--craft .content-card--compact {
+  height: 35px;
+  min-height: 0 !important;
+  box-sizing: border-box;
+  padding: 1px 3px !important;
+}
+
+.content-workbench--craft .content-card--compact .content-card__meta {
+  max-height: 8px;
+  gap: 0 4px;
+}
+
+.content-workbench--craft .content-card--compact .ghost-button--compact {
+  min-height: 13px !important;
+  height: 13px !important;
+  padding: 0 3px !important;
+  font-size: 8px !important;
+}
+
+/* Keep cultivation cards readable when both tracks share the viewport. */
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource-list,
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery .behavior-resource-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+@media (max-width: 760px) {
+  .behavior-layout--cultivation .behavior-panel--cultivation-directions,
+  .behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+/* The activity log occupies the final shell row. Keep the page track from
+   growing underneath it when the log is expanded. */
+.shell-main {
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.shell-main__content {
+  height: auto;
+  min-height: 0;
+}
+
+/* Final viewport tuning for the dense, data-heavy routes. */
+.shell-main__content .status-screen {
+  min-height: 0;
+  padding: 8px;
+  gap: 5px;
+  border-radius: 6px;
+}
+
+.shell-main__content .status-screen__title {
+  font-size: 14px;
+}
+
+.shell-main__content .status-screen__description,
+.shell-main__content .status-screen__footnote {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.35;
+}
+
+.behavior-layout--cultivation {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.behavior-layout--cultivation .behavior-panel--hero {
+  grid-column: 1 / -1;
+}
+
+.behavior-layout--cultivation .behavior-panel--resources {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 5px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+}
+
+.behavior-layout--cultivation .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.behavior-layout--cultivation .behavior-panel__compact-copy {
+  min-width: 0;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.behavior-layout--cultivation .behavior-panel__heading {
+  margin: 0;
+}
+
+.behavior-layout--cultivation .behavior-panel__heading h4 {
+  font-size: 14px;
+}
+
+.behavior-layout--cultivation .behavior-resource {
+  min-height: 0;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__lock-copy {
+  -webkit-line-clamp: 1;
+}
+
+.content-workbench .content-card--compact {
+  min-height: 40px;
+  padding: 4px 5px;
+  gap: 1px;
+}
+
+.content-workbench .content-card--compact .content-card__title-row strong {
+  font-size: 11px;
+}
+
+.content-workbench .content-card--compact .content-card__subtitle,
+.content-workbench .content-card--compact .content-card__meta,
+.content-workbench .content-card--compact .content-card__unlock {
+  font-size: 9px;
+  line-height: 1.15;
+}
+
+.content-workbench .content-card--compact .content-card__meta {
+  max-height: 12px;
+  gap: 2px 5px;
+}
+
+.content-workbench .content-card--compact .ghost-button--compact {
+  min-height: 20px;
+  padding: 2px 5px;
+  font-size: 9px;
+}
+
+.expedition-layout--active {
+  grid-template-rows: auto minmax(0, 1fr) minmax(32px, auto);
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) {
+  min-height: 32px;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .status-screen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 0;
+  padding: 4px 7px;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .status-screen__description,
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .status-screen__footnote {
+  display: none;
+}
+
+.expedition-catalog > .behavior-region-list,
+.expedition-catalog .expedition-monster-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.equipment-layout {
+  grid-template-rows: auto repeat(2, minmax(0, 1fr));
+}
+
+.equipment-panel--hero .equipment-hero {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 10px;
+}
+
+.equipment-panel--hero .equipment-hero__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.equipment-panel--hero .equipment-form__field {
+  min-width: 120px;
+}
+
+.equipment-panel .equipment-panel__header {
+  gap: 7px;
+}
+
+.equipment-panel .equipment-panel__header .page-card__title {
+  font-size: 15px;
+}
+
+.equipment-panel .equipment-panel__header .page-card__copy {
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+@media (max-width: 760px) {
+  .behavior-layout--cultivation {
+    grid-template-columns: 1fr;
+  }
+
+  .behavior-layout--cultivation .behavior-panel--hero {
+    grid-column: 1;
+  }
+
+  .behavior-layout--cultivation .behavior-panel--resources .behavior-resource-list,
+  .behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list,
+  .expedition-catalog > .behavior-region-list,
+  .expedition-catalog .expedition-monster-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .equipment-layout {
+    grid-template-rows: auto repeat(4, minmax(0, 1fr));
+  }
+}
+
 .content-workbench .content-tabs {
   margin: 0 0 8px;
   padding: 3px;
@@ -5260,5 +6557,990 @@ body::before {
 
   .content-detail__facts {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Single-viewport work surfaces. Core page content is laid out as grids so the
+   center pane never becomes a second document; dialogs remain the place for
+   detail that genuinely needs more room. */
+.shell-main__content {
+  height: 100%;
+  min-height: 0;
+  align-content: stretch;
+  overflow: hidden;
+  scrollbar-width: none;
+}
+
+.shell-main__content > * {
+  min-height: 0;
+  height: 100%;
+}
+
+.behavior-layout,
+.content-workbench,
+.dashboard-layout,
+.equipment-layout,
+.expedition-layout,
+.cave-layout,
+.breakthrough-layout {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.behavior-layout {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.behavior-panel {
+  min-height: 0;
+  overflow: hidden;
+  padding: 9px;
+}
+
+.behavior-panel--hero {
+  min-height: 0;
+  padding: 9px 12px;
+}
+
+.behavior-panel--hero .page-card__copy {
+  max-width: 68ch;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+
+.behavior-panel--regions,
+.behavior-panel--resources {
+  min-width: 0;
+}
+
+.behavior-region-list,
+.behavior-resource-list {
+  min-width: 0;
+  min-height: 0;
+  align-content: start;
+}
+
+.behavior-region-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.behavior-resource-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.behavior-region {
+  min-width: 0;
+  padding: 7px;
+  gap: 3px;
+}
+
+.behavior-region__header strong,
+.behavior-resource__header h4 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.behavior-region__description,
+.behavior-resource__lock-copy {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+
+.behavior-resource {
+  min-width: 0;
+  padding: 8px;
+  gap: 5px;
+}
+
+.behavior-resource__header h4 {
+  font-size: 13px;
+}
+
+.behavior-resource__facts,
+.behavior-resource__outputs,
+.behavior-resource__materials {
+  min-width: 0;
+  gap: 5px;
+}
+
+.behavior-resource__facts span,
+.behavior-resource__outputs span,
+.behavior-resource__outputs strong,
+.behavior-resource__materials strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.behavior-resource__outputs strong,
+.behavior-resource__materials strong {
+  padding: 3px 5px;
+  font-size: 11px;
+}
+
+.behavior-resource__start {
+  min-width: 0;
+  min-height: 26px;
+  padding: 4px 7px;
+  font-size: 11px;
+}
+
+.behavior-layout--cultivation {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.behavior-layout--cultivation .behavior-panel--resources {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 5px;
+  grid-column: 1;
+}
+
+.behavior-layout--cultivation .behavior-panel--resources > .behavior-resource-list:first-child {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.behavior-layout--cultivation .behavior-section-heading {
+  margin: 2px 0 0;
+  padding: 5px 0 0;
+}
+
+.behavior-layout--cultivation .behavior-section-heading .page-card__title {
+  display: inline;
+  margin: 0 8px 0 0;
+  font-size: 14px;
+}
+
+.behavior-layout--cultivation .behavior-section-heading .page-card__copy {
+  display: inline;
+  font-size: 11px;
+}
+
+.behavior-layout--cultivation .behavior-panel--resources > .behavior-resource-list:nth-of-type(2) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.behavior-layout--cultivation .behavior-feedback,
+.behavior-layout--cultivation .behavior-panel--resources > .ghost-button {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.expedition-layout {
+  gap: 8px;
+}
+
+.expedition-panel {
+  min-height: 0;
+  overflow: hidden;
+  padding: 9px;
+  gap: 7px;
+}
+
+.expedition-layout--active {
+  grid-template-columns: minmax(150px, .72fr) repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 7px;
+}
+
+.expedition-layout--active > .expedition-catalog {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+
+.expedition-layout--active > .expedition-panel--hero {
+  grid-column: 2 / 4;
+  grid-row: 1;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(3) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(4) {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) {
+  grid-column: 2 / 4;
+  grid-row: 3;
+}
+
+.expedition-catalog > .behavior-region-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.expedition-catalog .expedition-monster-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.expedition-catalog .behavior-region,
+.expedition-catalog .behavior-resource {
+  padding: 6px;
+}
+
+.expedition-monster .behavior-resource__outputs strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  white-space: normal;
+}
+
+.expedition-prepare,
+.expedition-runtime,
+.expedition-links {
+  min-height: 0;
+  gap: 6px;
+}
+
+.expedition-facts,
+.expedition-form,
+.expedition-mini-grid {
+  gap: 5px;
+}
+
+.expedition-fact,
+.expedition-inline-note,
+.expedition-mini-card,
+.expedition-choice {
+  min-width: 0;
+  padding: 7px;
+  border-radius: 5px;
+}
+
+.expedition-fact span,
+.expedition-fact strong,
+.expedition-choice__copy,
+.expedition-choice__note,
+.expedition-mini-card p,
+.expedition-mini-card li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.expedition-actions,
+.expedition-link-row {
+  gap: 5px;
+}
+
+.cave-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.cave-panel {
+  min-height: 0;
+  overflow: hidden;
+  padding: 9px;
+  gap: 7px;
+}
+
+.cave-panel--hero {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+}
+
+.cave-hero,
+.cave-detail {
+  min-height: 0;
+  gap: 6px;
+}
+
+.cave-hero__header {
+  gap: 3px;
+}
+
+.cave-hero__copy,
+.cave-panel__meta,
+.cave-detail__lines,
+.cave-gap p {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.cave-metrics {
+  gap: 5px;
+}
+
+.cave-facility-list,
+.cave-gap-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.cave-facility,
+.cave-gap {
+  min-width: 0;
+  padding: 7px;
+  border-radius: 5px;
+}
+
+.cave-facility__title,
+.cave-facility__copy,
+.cave-gap strong,
+.cave-gap p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-layout {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.dashboard-panel {
+  min-height: 0;
+  overflow: hidden;
+  padding: 9px;
+  gap: 7px;
+}
+
+.dashboard-panel--hero {
+  grid-column: 1 / -1;
+  padding: 10px;
+}
+
+.dashboard-hero,
+.settlement-summary,
+.dashboard-settings__content {
+  min-height: 0;
+  gap: 6px;
+}
+
+.quick-task-grid {
+  gap: 5px;
+}
+
+.quick-task-card {
+  min-height: 48px;
+  padding: 6px 8px;
+  gap: 5px;
+}
+
+.dashboard-settings {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dashboard-settings__content {
+  display: grid;
+}
+
+/* Keep the queue workspace useful at the baseline 960px viewport. The three
+   quick actions become compact tiles, leaving a real second row for settlement
+   status and the collapsed advanced settings entry. */
+.dashboard-layout {
+  grid-template-rows: minmax(0, 1fr) 96px;
+}
+
+.dashboard-layout .quick-task-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dashboard-layout .quick-task-card {
+  min-height: 62px;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  gap: 2px;
+  padding: 5px 7px;
+}
+
+.dashboard-layout .quick-task-card span:not(.quick-task-card__tag) {
+  display: none;
+}
+
+.dashboard-layout .quick-task-card strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-layout .quick-task-card em {
+  overflow: hidden;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-layout .dashboard-hero {
+  gap: 6px;
+}
+
+.dashboard-settings:not([open]) > .dashboard-settings__content {
+  display: none;
+}
+
+.dashboard-layout > .dashboard-panel:not(.dashboard-panel--hero) {
+  min-height: 0;
+  padding: 6px;
+  gap: 4px;
+}
+
+.dashboard-layout > .dashboard-panel:not(.dashboard-panel--hero) .status-screen {
+  min-height: 0;
+  padding: 5px;
+  gap: 3px;
+}
+
+.dashboard-layout > .dashboard-panel:not(.dashboard-panel--hero) .status-screen__description,
+.dashboard-layout > .dashboard-panel:not(.dashboard-panel--hero) .status-screen__footnote {
+  display: none;
+}
+
+.dashboard-layout > .dashboard-panel:not(.dashboard-panel--hero) .status-screen__actions,
+.dashboard-layout > .dashboard-panel:not(.dashboard-panel--hero) .status-screen__action,
+.dashboard-layout > .dashboard-panel:not(.dashboard-panel--hero) > .ghost-button {
+  min-height: 24px;
+  height: 24px;
+  padding: 3px 6px;
+  font-size: 10px;
+}
+
+.cave-layout .status-screen__actions,
+.cave-layout .status-screen__action {
+  min-height: 22px;
+  height: 22px;
+}
+
+.cave-layout .status-screen__action {
+  padding: 3px 6px;
+  font-size: 10px;
+}
+
+.content-workbench--craft .content-list > [role='tabpanel'] {
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  grid-auto-rows: 35px;
+  gap: 3px;
+  align-content: start;
+}
+
+.content-workbench--craft .content-card--compact {
+  height: 35px;
+  box-sizing: border-box;
+  min-height: 0;
+  grid-template-rows: 10px 8px 13px;
+  gap: 0;
+  overflow: hidden;
+  padding: 1px 3px;
+}
+
+.content-workbench--craft .content-card--compact .content-card__title-button,
+.content-workbench--craft .content-card--compact .content-card__title-row,
+.content-workbench--craft .content-card--compact .content-card__meta {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.content-workbench--craft .content-card--compact .content-card__title-button {
+  height: 10px;
+  min-height: 10px;
+}
+
+.content-workbench--craft .content-card--compact .content-card__title-row strong {
+  max-width: 100%;
+  font-size: 10px;
+}
+
+.content-workbench--craft .content-card--compact .content-card__status {
+  min-height: 12px;
+  padding: 1px 3px;
+  font-size: 8px;
+}
+
+.content-workbench--craft .content-card--compact .content-card__meta {
+  display: flex;
+  gap: 0 4px;
+  max-height: 10px;
+  font-size: 8px;
+  line-height: 8px;
+  white-space: nowrap;
+}
+
+.content-workbench--craft .content-card--compact .content-card__meta span:nth-child(n + 2) {
+  display: none;
+}
+
+.content-workbench--craft .content-card--compact .content-card__actions {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.content-workbench--craft .content-card--compact .content-card__actions .ghost-button {
+  width: 100%;
+  min-width: 0;
+  min-height: 13px;
+  height: 13px;
+  padding: 0 3px;
+  font-size: 8px;
+}
+
+.queue-editor__list,
+.dashboard-preview__list,
+.settlement-summary__sections {
+  min-height: 0;
+  gap: 4px;
+}
+
+.queue-editor__row {
+  padding: 6px;
+  gap: 5px;
+  border-radius: 5px;
+}
+
+.queue-editor__row-main {
+  gap: 4px;
+}
+
+.queue-editor__input {
+  min-height: 26px;
+  padding: 4px 6px;
+  font-size: 11px;
+}
+
+.content-workbench {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 6px;
+  align-content: stretch;
+}
+
+.content-workbench__header {
+  min-height: 0;
+  padding: 5px 2px 6px;
+}
+
+.content-workbench__panel {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 7px;
+}
+
+.content-workbench .content-tabs {
+  margin: 0 0 5px;
+}
+
+.content-workbench .content-list {
+  min-height: 0;
+  height: calc(100% - 35px);
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  align-content: start;
+  gap: 4px;
+}
+
+.content-workbench .content-list > [role='tabpanel'] {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  align-content: start;
+  gap: 4px;
+}
+
+.content-card--compact {
+  min-width: 0;
+  min-height: 0;
+  padding: 6px;
+  gap: 3px;
+  border-radius: 4px;
+}
+
+.content-card--compact .content-card__title-button,
+.content-card--compact .content-card__meta,
+.content-card--compact .content-card__copy,
+.content-card--compact .content-card__unlock {
+  grid-column: 1 / -1;
+}
+
+.content-card--compact .content-card__title-row strong,
+.content-card--compact .content-card__subtitle,
+.content-card--compact .content-card__meta,
+.content-card--compact .content-card__copy,
+.content-card--compact .content-card__unlock {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content-card--compact .content-card__actions {
+  grid-column: 1 / -1;
+  grid-row: auto;
+  justify-content: flex-start;
+}
+
+.equipment-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 7px;
+}
+
+.equipment-panel {
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px;
+  gap: 6px;
+}
+
+.equipment-panel--hero {
+  grid-column: 1 / -1;
+  padding: 9px;
+}
+
+.equipment-hero,
+.equipment-editor,
+.equipment-form,
+.equipment-list,
+.equipment-compare {
+  min-height: 0;
+  gap: 5px;
+}
+
+.equipment-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.equipment-instance,
+.equipment-slot,
+.equipment-compare__row {
+  min-width: 0;
+  padding: 6px;
+  gap: 3px;
+  border-radius: 4px;
+}
+
+.equipment-instance__subtitle,
+.equipment-instance__copy,
+.equipment-slot__copy,
+.equipment-compare__copy {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.equipment-slot-grid,
+.tempering-ladder {
+  gap: 4px;
+}
+
+.tempering-ladder {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.breakthrough-layout {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 7px;
+}
+
+.breakthrough-panel {
+  min-height: 0;
+  overflow: hidden;
+  padding: 9px;
+  gap: 6px;
+}
+
+.breakthrough-panel--hero {
+  grid-column: 1 / -1;
+  padding: 10px;
+}
+
+.breakthrough-requirements,
+.breakthrough-group,
+.breakthrough-runtime,
+.breakthrough-success,
+.breakthrough-queue {
+  min-height: 0;
+  gap: 5px;
+}
+
+.breakthrough-requirements {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.breakthrough-group {
+  align-content: start;
+}
+
+.breakthrough-requirement,
+.breakthrough-choice,
+.breakthrough-unlock-grid > div,
+.breakthrough-queue__list li {
+  min-width: 0;
+  padding: 6px;
+  gap: 3px;
+  border-radius: 4px;
+}
+
+.breakthrough-requirement p,
+.breakthrough-runtime p,
+.breakthrough-queue p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+@media (max-width: 760px) {
+  .behavior-layout--cultivation .behavior-panel--cultivation-directions,
+  .behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+    grid-column: 1;
+  }
+
+  .shell-main__content > * {
+    height: auto;
+    min-height: 0;
+  }
+
+  .behavior-layout,
+  .content-workbench,
+  .dashboard-layout,
+  .equipment-layout,
+  .expedition-layout,
+  .cave-layout,
+  .breakthrough-layout {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .behavior-layout,
+  .expedition-layout--active,
+  .cave-layout,
+  .dashboard-layout,
+  .equipment-layout,
+  .breakthrough-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .behavior-layout--cultivation .behavior-panel--resources > .behavior-resource-list:first-child,
+  .behavior-layout--cultivation .behavior-panel--resources > .behavior-resource-list:nth-of-type(2),
+  .behavior-region-list,
+  .behavior-resource-list,
+  .expedition-catalog > .behavior-region-list,
+  .expedition-catalog .expedition-monster-list,
+  .cave-facility-list,
+  .cave-gap-list,
+  .content-workbench .content-list,
+  .content-workbench .content-list > [role='tabpanel'],
+  .equipment-list,
+  .breakthrough-requirements {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .expedition-layout--active > .expedition-catalog,
+  .expedition-layout--active > .expedition-panel--hero,
+  .expedition-layout--active > .expedition-panel:nth-of-type(3),
+  .expedition-layout--active > .expedition-panel:nth-of-type(4),
+  .expedition-layout--active > .expedition-panel:nth-of-type(5),
+  .cave-panel--hero,
+  .dashboard-panel--hero,
+  .equipment-panel--hero,
+  .breakthrough-panel--hero {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .expedition-layout--active > .expedition-catalog {
+    grid-row: auto;
+  }
+
+  .dashboard-layout,
+  .equipment-layout,
+  .breakthrough-layout {
+    grid-auto-rows: minmax(0, 1fr);
+  }
+}
+
+/* Final ordering pass: the log is a real shell row, not an overlay. */
+.shell-main {
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.shell-main__content {
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.behavior-layout--cultivation {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.behavior-layout--cultivation .behavior-panel--hero {
+  grid-column: 1 / -1;
+}
+
+.behavior-layout--cultivation .behavior-panel--resources {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 5px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+}
+
+.behavior-layout--cultivation .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-mastery {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.behavior-layout--cultivation .behavior-panel__compact-copy {
+  min-width: 0;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.behavior-layout--cultivation .behavior-panel__heading {
+  margin: 0;
+}
+
+.behavior-layout--cultivation .behavior-panel__heading h4 {
+  font-size: 14px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__lock-copy {
+  -webkit-line-clamp: 1;
+}
+
+.shell-main__content .status-screen {
+  min-height: 0;
+  padding: 8px;
+  gap: 5px;
+  border-radius: 6px;
+}
+
+.shell-main__content .status-screen__title {
+  font-size: 14px;
+}
+
+.shell-main__content .status-screen__description,
+.shell-main__content .status-screen__footnote {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.35;
+}
+
+.content-workbench .content-card--compact {
+  min-height: 40px;
+  padding: 4px 5px;
+  gap: 1px;
+}
+
+.content-workbench .content-card--compact .content-card__title-row strong {
+  font-size: 11px;
+}
+
+.content-workbench .content-card--compact .content-card__subtitle,
+.content-workbench .content-card--compact .content-card__meta,
+.content-workbench .content-card--compact .content-card__unlock {
+  font-size: 9px;
+  line-height: 1.15;
+}
+
+.content-workbench .content-card--compact .content-card__meta {
+  max-height: 12px;
+  gap: 2px 5px;
+}
+
+.content-workbench .content-card--compact .ghost-button--compact {
+  min-height: 20px;
+  padding: 2px 5px;
+  font-size: 9px;
+}
+
+.expedition-layout--active {
+  grid-template-rows: auto minmax(0, 1fr) minmax(32px, auto);
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) {
+  min-height: 32px;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .status-screen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 0;
+  padding: 4px 7px;
+}
+
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .status-screen__description,
+.expedition-layout--active > .expedition-panel:nth-of-type(5) .status-screen__footnote {
+  display: none;
+}
+
+.expedition-catalog > .behavior-region-list,
+.expedition-catalog .expedition-monster-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.equipment-layout {
+  grid-template-rows: auto repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+  .behavior-layout--cultivation {
+    grid-template-columns: 1fr;
+  }
+
+  .behavior-layout--cultivation .behavior-panel--hero {
+    grid-column: 1;
+  }
+
+  .behavior-layout--cultivation .behavior-panel--resources .behavior-resource-list,
+  .behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list,
+  .expedition-catalog > .behavior-region-list,
+  .expedition-catalog .expedition-monster-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .equipment-layout {
+    grid-template-rows: auto repeat(4, minmax(0, 1fr));
   }
 }

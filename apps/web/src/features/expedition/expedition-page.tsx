@@ -40,10 +40,22 @@ import {
   QINGSHE_SAFE_CHOICE_ID,
   QINGSHE_SAFE_ROUTE_ID,
 } from './expedition-reducer.js';
+import { findExpeditionMonster, getExpeditionRegions, getMonsterDungeon, type ExpeditionRegionCatalogEntry } from './expedition-catalog.js';
 
 const EXPEDITION_QUERY_PREFIX = 'expedition';
 
 export const EXPEDITION_PRESET_GUIDANCE = '先在角色页准备一套装备；新手可以直接使用稳妥探险。';
+
+function defaultRouteForDungeon(dungeonId: string): string {
+  if (dungeonId === 'dungeon.t1.xuantie_cavern') return 'route.t1.xuantie_cavern.safe_route';
+  if (dungeonId === 'dungeon.t1.heifeng_mijing') return 'route.t1.heifeng_mijing.safe_route';
+  return QINGSHE_SAFE_ROUTE_ID;
+}
+
+function ExpeditionCatalogSelector({ regions, selectedRegionId, selectedMonsterId, onRegion, onMonster }: { readonly regions: readonly ExpeditionRegionCatalogEntry[]; readonly selectedRegionId: string; readonly selectedMonsterId: string; readonly onRegion: (region: ExpeditionRegionCatalogEntry) => void; readonly onMonster: (monsterId: string) => void }): ReactElement {
+  const selectedRegion = regions.find((region) => region.id === selectedRegionId) ?? regions[0];
+  return <div className="expedition-panel expedition-catalog" aria-label="历练地图与怪物"><div className="dashboard-panel__header"><div><p className="page-card__eyebrow">历练目录</p><h4 className="dashboard-panel__title">先选地图，再选怪物</h4></div><span className="dashboard-panel__meta">六个区域 · 十一只怪物</span></div><div className="behavior-region-list">{regions.map((region) => <button key={region.id} type="button" className={`behavior-region ${region.id === selectedRegion?.id ? 'behavior-region--selected' : ''}`} aria-pressed={region.id === selectedRegion?.id} onClick={() => onRegion(region)}><span className="behavior-region__header"><strong>{region.label}</strong><small>{region.stageLabel}</small></span><span className="behavior-region__description">{region.description}</span></button>)}</div>{selectedRegion !== undefined ? <div className="behavior-resource-list expedition-monster-list">{selectedRegion.monsterIds.map((monsterId) => { const monster = findExpeditionMonster(monsterId); if (monster === null) return null; const supported = getMonsterDungeon(monster.id) !== null; return <button key={monster.id} type="button" className={`behavior-resource expedition-monster ${monster.id === selectedMonsterId ? 'behavior-resource--selected' : ''} ${supported ? '' : 'behavior-resource--locked'}`} aria-pressed={monster.id === selectedMonsterId} onClick={() => onMonster(monster.id)}><span className="behavior-resource__header"><strong>{monster.label}</strong><span className="behavior-resource__status">{supported ? '可进入秘境' : '暂未开放'}</span></span><span className="behavior-resource__facts"><span>战力 {monster.recommendedPower}</span><span>生命 {monster.hp}</span><span>攻击 {monster.attack}</span><span>防御 {monster.defense}</span></span><span className="behavior-resource__outputs"><span>可能掉落</span><strong>{monster.loot.join('、')}</strong></span></button>; })}</div> : null}</div>;
+}
 
 function describeStrategy(strategyId: string): string {
   return strategyId === 'strategy.safe' ? '稳妥探险' : strategyId === 'strategy.risk' ? '大胆探险' : '默认策略';
@@ -110,6 +122,8 @@ function routeLabel(routeId: string): string {
     case QINGSHE_HIGH_RISK_ROUTE_ID:
       return '右侧妖巢';
     default:
+      if (routeId.includes('.safe_') || routeId.includes('.safe_exit')) return '稳妥路线';
+      if (routeId.includes('.deep_') || routeId.includes('.deep_den')) return '深入路线';
       return routeId;
   }
 }
@@ -121,7 +135,7 @@ function choiceLabel(choiceId: string): string {
     case QINGSHE_HIGH_RISK_CHOICE_ID:
       return '高风险深入';
     default:
-      return choiceId;
+      return choiceId.includes('.safe_') || choiceId.includes('.safe_exit') ? '安全路线' : choiceId.includes('.deep_') || choiceId.includes('.deep_den') ? '高风险深入' : choiceId;
   }
 }
 
@@ -141,7 +155,7 @@ export function DungeonRoomDialog({
   const routeLabelText = routeId === QINGSHE_SAFE_ROUTE_ID ? '稳妥路线' : routeId === QINGSHE_HIGH_RISK_ROUTE_ID ? '高风险路线' : '尚未选择';
   const body = <><div className="game-dialog__facts"><span>房间</span><strong>{roomLabel}</strong></div><div className="game-dialog__facts"><span>路线</span><strong>{routeLabelText}</strong></div></>;
   if (typeof window === 'undefined') return <div role="dialog"><h2>房间详情</h2>{body}</div>;
-  return <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="青蛇洞" title="房间详情">{body}</GameDialog>;
+  return <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="秘境" title="房间详情">{body}</GameDialog>;
 }
 
 export function AutomationDialog({
@@ -157,7 +171,7 @@ export function AutomationDialog({
   const strategyLabel = strategyId === DEFAULT_DUNGEON_STRATEGY_ID ? '稳妥路线' : strategyId === 'strategy.risk' ? '大胆路线' : '未设置';
   const body = <><p className="game-dialog__copy">当前仅展示已提交策略，未开放的自动化配置不会在前端伪造。</p><div className="game-dialog__facts"><span>策略</span><strong>{strategyLabel}</strong></div></>;
   if (typeof window === 'undefined') return <div role="dialog"><h2>自动化策略</h2>{body}</div>;
-  return <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="青蛇洞" title="自动化策略">{body}</GameDialog>;
+  return <GameDialog open={open} onOpenChange={onOpenChange} eyebrow="秘境" title="自动化策略">{body}</GameDialog>;
 }
 
 function useExpeditionQueries(session: AuthActiveSession, loadoutPresetId: string, runId: string | null) {
@@ -207,7 +221,7 @@ export function ExpeditionLoading(): ReactElement {
   return (
     <section className="expedition-layout">
       <div className="expedition-panel expedition-panel--hero">
-        <LoadingStateScreen title="正在查看青蛇洞" description="正在准备秘境、修为和背包信息。" />
+        <LoadingStateScreen title="正在查看历练" description="正在准备秘境、修为和背包信息。" />
       </div>
       <div className="expedition-panel">
         <LoadingStateScreen title="准备进入秘境" description="正在读取装备和路线。" />
@@ -314,6 +328,7 @@ function ExpeditionPrepareCard({
   enterPending,
   canPreview,
   canEnter,
+  routeOptions,
 }: {
   readonly opportunityView: ReturnType<typeof summarizeDungeonOpportunity>;
   readonly loadoutPreset: LoadoutPreset | null;
@@ -332,12 +347,13 @@ function ExpeditionPrepareCard({
   readonly enterPending: boolean;
   readonly canPreview: boolean;
   readonly canEnter: boolean;
+  readonly routeOptions: ReadonlyArray<{ readonly value: string; readonly label: string }>;
 }): ReactElement {
   return (
     <div className="expedition-prepare">
       <div className="dashboard-panel__header">
         <div>
-          <p className="page-card__eyebrow">青蛇洞 · 准备页</p>
+          <p className="page-card__eyebrow">秘境 · 准备页</p>
           <h4 className="dashboard-panel__title">{opportunityView.title}</h4>
         </div>
         <div className="dashboard-panel__meta">
@@ -383,8 +399,7 @@ function ExpeditionPrepareCard({
         <label className="equipment-form__field">
           <span className="equipment-form__label" id="initial_route_id-label">进入路线</span>
           <select id="initial_route_id" aria-labelledby="initial_route_id-label" className="equipment-form__input" value={draftInitialRouteId} onChange={(event) => onInitialRouteIdChange(event.target.value)}>
-            <option value={QINGSHE_SAFE_ROUTE_ID}>左侧矿脉 / 安全</option>
-            <option value={QINGSHE_HIGH_RISK_ROUTE_ID}>右侧妖巢 / 高风险</option>
+            {routeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
         <div className="equipment-form__field">
@@ -501,7 +516,7 @@ function ExpeditionRuntimeCard({
     <div className="expedition-runtime">
       <div className="dashboard-panel__header">
         <div>
-          <p className="page-card__eyebrow">青蛇洞 · 运行页</p>
+          <p className="page-card__eyebrow">秘境 · 运行页</p>
           <h4 className="dashboard-panel__title">{runView.headline}</h4>
         </div>
         <div className="dashboard-panel__meta">
@@ -605,7 +620,7 @@ function ExpeditionReadOnlyLinks({
         <Link className="ghost-button" to="/inventory?category=equipment">
           背包
         </Link>
-        <Link className="ghost-button" to="/dashboard">
+        <Link className="ghost-button" to="/dashboard/queue">
           重新安排闭关
         </Link>
         <Link className="ghost-button" to={`/character?preset_id=${encodeURIComponent(loadoutPresetId)}`}>
@@ -661,7 +676,12 @@ export function ExpeditionPage(): ReactElement {
   const [roomDialogOpen, setRoomDialogOpen] = useState(false);
   const [automationDialogOpen, setAutomationDialogOpen] = useState(false);
   const [finalizeConfirmationOpen, setFinalizeConfirmationOpen] = useState(false);
+  const regions = getExpeditionRegions();
+  const [selectedRegionId, setSelectedRegionId] = useState(regions[0]?.id ?? '');
+  const [selectedMonsterId, setSelectedMonsterId] = useState('monster.t1.qingshe');
   const activePresetHydratedRef = useRef(false);
+  const selectedMonster = findExpeditionMonster(selectedMonsterId);
+  const selectedDungeonId = selectedMonster?.dungeonId ?? QINGSHE_DUNGEON_ID;
 
   useEffect(() => {
     if (runIdFromSearch !== null) {
@@ -683,11 +703,26 @@ export function ExpeditionPage(): ReactElement {
     });
   }, [draft.initialRouteId, draft.loadoutPresetId, draft.strategyPresetId, location.pathname, location.search, navigate, runIdFromSearch, storedRunId]);
 
+  useEffect(() => {
+    const region = regions.find((candidate) => candidate.id === selectedRegionId);
+    if (region !== undefined && !region.monsterIds.includes(selectedMonsterId)) {
+      setSelectedMonsterId(region.monsterIds[0] ?? '');
+    }
+  }, [regions, selectedMonsterId, selectedRegionId]);
+
+  useEffect(() => {
+    const dungeonId = getMonsterDungeon(selectedMonsterId);
+    if (dungeonId !== null && dungeonId !== selectedDungeonId) {
+      dispatch({ type: 'set-initial-route-id', initialRouteId: defaultRouteForDungeon(dungeonId) });
+    }
+  }, [selectedDungeonId, selectedMonsterId]);
+
   const { progressionQuery, opportunityQuery, inventoryQuery, queueQuery, loadoutQuery, runQuery } = useExpeditionQueries(
     session,
     draft.loadoutPresetId,
     activeRunId,
   );
+  const effectiveDungeonId = runQuery.data?.run.dungeon_id ?? selectedDungeonId;
 
   useEffect(() => {
     if (activePresetHydratedRef.current || opportunityQuery.data === undefined) {
@@ -702,7 +737,7 @@ export function ExpeditionPage(): ReactElement {
   }, [draft, opportunityQuery.data]);
 
   const previewMutation = useMutation({
-    mutationFn: () => apiClient.previewDungeon(QINGSHE_DUNGEON_ID, createDungeonPreviewRequest(session.character_id, draft)),
+    mutationFn: () => apiClient.previewDungeon(effectiveDungeonId, createDungeonPreviewRequest(session.character_id, draft)),
   });
   const enterMutation = useMutation({
     mutationFn: async () => {
@@ -717,7 +752,7 @@ export function ExpeditionPage(): ReactElement {
       return apiClient.enterDungeonRun(
         session.character_id,
         {
-          dungeon_id: QINGSHE_DUNGEON_ID,
+          dungeon_id: effectiveDungeonId,
           loadout_preset_id: draft.loadoutPresetId,
           strategy_preset_id: draft.strategyPresetId,
           initial_route_id: draft.initialRouteId,
@@ -805,22 +840,29 @@ export function ExpeditionPage(): ReactElement {
     return <ExpeditionError error="" onRetry={async () => queryClient.invalidateQueries({ queryKey: [EXPEDITION_QUERY_PREFIX, session.character_id] })} />;
   }
 
-  const opportunityView = summarizeDungeonOpportunity(opportunityQuery.data as DungeonOpportunityResponse, '青蛇洞');
+  const opportunityView = summarizeDungeonOpportunity(opportunityQuery.data as DungeonOpportunityResponse, selectedMonster?.label ?? '秘境');
   const previewView = previewMutation.data === undefined ? null : summarizeDungeonPreview(previewMutation.data as DungeonPreviewResponse);
   const runResponse = runQuery.data ?? null;
   const runView = runResponse === null ? null : summarizeDungeonRun(runResponse);
   const queue = queueQuery.data ?? null;
   const loadoutPreset = loadoutQuery.data ?? null;
-  const canPreview = isExpeditionDraftReady(draft);
+  const canPreview = isExpeditionDraftReady(draft) && selectedMonster?.dungeonId !== null;
   const canEnter = canPreview && progressionQuery.data !== undefined && opportunityQuery.data !== undefined;
+  const routeOptions = effectiveDungeonId === 'dungeon.t1.xuantie_cavern'
+    ? [{ value: 'route.t1.xuantie_cavern.safe_route', label: '安全路线' }, { value: 'route.t1.xuantie_cavern.deep_route', label: '深入路线' }]
+    : effectiveDungeonId === 'dungeon.t1.heifeng_mijing'
+      ? [{ value: 'route.t1.heifeng_mijing.safe_route', label: '安全路线' }, { value: 'route.t1.heifeng_mijing.deep_route', label: '深入路线' }]
+      : [{ value: QINGSHE_SAFE_ROUTE_ID, label: '左侧矿脉 / 安全' }, { value: QINGSHE_HIGH_RISK_ROUTE_ID, label: '右侧妖巢 / 高风险' }];
   const currentPreview = previewView ?? null;
 
   return (
-    <section className="expedition-layout">
+    <section className="expedition-layout expedition-layout--active">
+      <ExpeditionCatalogSelector regions={regions} selectedRegionId={selectedRegionId} selectedMonsterId={selectedMonsterId} onRegion={(region) => { setSelectedRegionId(region.id); setSelectedMonsterId(region.monsterIds[0] ?? ''); }} onMonster={setSelectedMonsterId} />
+
       <div className="expedition-panel expedition-panel--hero">
         <NormalStateScreen
-          title="青蛇洞秘境"
-          description="选择装备和路线，深入青蛇洞寻找修炼资源。"
+          title={`${selectedMonster?.label ?? '秘境'} · 历练`}
+          description={selectedMonster?.dungeonId === null ? '该怪物的属性与掉落已公开，当前尚未配置可进入的秘境。' : '选择装备和路线，进入对应秘境寻找修炼资源。'}
           highlight={`机会 ${opportunityQuery.data?.opportunity.current_opportunities ?? 0}/${opportunityQuery.data?.opportunity.opportunity_cap ?? 0}`}
           footnote={`今日可探险 ${opportunityQuery.data?.opportunity.current_opportunities ?? 0} 次`}
         />
@@ -844,7 +886,8 @@ export function ExpeditionPage(): ReactElement {
           previewError={previewMutation.error === null ? null : '预览暂时无法完成，请稍后重试。'}
           enterPending={enterMutation.isPending}
           canPreview={canPreview}
-          canEnter={canEnter}
+          canEnter={canEnter && selectedMonster?.dungeonId !== null}
+          routeOptions={routeOptions}
         />
       </div>
 

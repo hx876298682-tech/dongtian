@@ -80,7 +80,7 @@ function describeTaskTarget(entry: QueueEntry): string | null {
   return `目标 ${entry.target_value}`;
 }
 
-function queueEntryToItem(entry: QueueEntry, title = describeAction(entry.action_id), href = '/dashboard#queue'): ReferenceItem {
+function queueEntryToItem(entry: QueueEntry, title = describeAction(entry.action_id), href = '/dashboard/queue'): ReferenceItem {
   const target = describeTaskTarget(entry);
   return { title, copy: `${target === null ? '' : `${target}，`}已完成 ${entry.completed_cycles} 轮。`, state: statusLabel[entry.status] ?? '待执行', href };
 }
@@ -166,7 +166,7 @@ export function buildTaskRow(entry: QueueEntry, queue: Queue, nowMs = Date.now()
     progress,
     progressLabel,
     rewardLabel: describeTaskRewardState(entry.status),
-    href: entry.entry_id === queue.current?.entry_id ? '/dashboard' : '/dashboard#queue',
+    href: entry.entry_id === queue.current?.entry_id ? '/dashboard/queue' : '/dashboard/queue',
   };
 }
 

@@ -37,7 +37,7 @@ const preset: LoadoutPreset = {
 const cave: CaveResponse = {
   character: { character_id: 'character-1', state_version: 3, active_config_version: 'config.internal' },
   cave: { as_of: '2026-08-17T00:00:00Z', config_version: 'config.internal', facilities: [
-    { facility_config_id: 'facility.juling', facility_kind: 'JULING_ROOM', name_key: '聚灵室', description_key: 'desc', level: 2, current_modifier: { stat: 'cultivation_xp', operation: 'MULTIPLY', value: '0.1' }, next_level_rule: null, build_task: null },
+    { facility_config_id: 'facility.juling', facility_kind: 'JULING_ROOM', name_key: '练功房', description_key: 'desc', level: 2, current_modifier: { stat: 'cultivation_xp', operation: 'MULTIPLY', value: '0.1' }, next_level_rule: null, build_task: null },
   ] },
 };
 
@@ -91,7 +91,7 @@ describe('right rail adapter', () => {
 
   it('summarizes cave facility state without config metadata', () => {
     const view = buildCaveRailSummary(cave);
-    expect(view.facilities).toEqual([{ label: '聚灵室', value: 'Lv.2 · 运行中' }]);
+    expect(view.facilities).toEqual([{ label: '练功房', value: 'Lv.2 · 运行中' }]);
     expect(JSON.stringify(view)).not.toContain('config');
   });
 
@@ -118,7 +118,7 @@ describe('right rail adapter', () => {
       { ...cave.cave.facilities[0]!, facility_kind: 'ALCHEMY_ROOM', facility_config_id: 'facility.alchemy', name_key: 'facility.alchemy.name' },
       { ...cave.cave.facilities[0]!, facility_kind: 'UNKNOWN_ROOM', facility_config_id: 'facility.secret', name_key: 'facility.secret.name' } as unknown as CaveFacility,
     ] } } as unknown as CaveResponse;
-    expect(buildCaveRailSummary(variedCave).facilities.map((facility) => facility.label)).toEqual(['聚灵室', '炼丹房', '未识别设施']);
+    expect(buildCaveRailSummary(variedCave).facilities.map((facility) => facility.label)).toEqual(['练功房', '炼丹炉', '未识别设施']);
   });
 
   it('summarizes the active loadout and preserves its navigation label', () => {

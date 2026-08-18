@@ -10,7 +10,7 @@ describe('expedition page components', () => {
     const maintenanceMarkup = renderToStaticMarkup(<ExpeditionMaintenance reason="maint" onRetry={() => undefined} />);
     const lockedMarkup = renderToStaticMarkup(<ExpeditionLocked reason="locked" onRetry={() => undefined} />);
 
-    expect(loadingMarkup).toContain('正在查看青蛇洞');
+    expect(loadingMarkup).toContain('正在查看历练');
     expect(errorMarkup).toContain('秘境暂时无法打开');
     expect(maintenanceMarkup).toContain('秘境服务维护中');
     expect(lockedMarkup).toContain('秘境功能受限');

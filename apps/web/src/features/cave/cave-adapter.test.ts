@@ -108,7 +108,7 @@ describe('cave adapter', () => {
 
     expect(view.title).toBe('洞府设施');
     expect(view.summary).not.toContain('状态版本');
-    expect(view.activeFacility?.facilityLabel).toBe('聚灵室');
+    expect(view.activeFacility?.facilityLabel).toBe('练功房');
     expect(view.facilities[0]?.buildStatus).toBe('RESOURCE_INSUFFICIENT');
     expect(view.facilities[1]?.buildStatus).toBe('LOCKED');
     expect(view.facilities[2]?.buildStatus).toBe('READY');

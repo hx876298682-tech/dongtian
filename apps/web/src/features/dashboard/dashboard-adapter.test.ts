@@ -230,6 +230,7 @@ describe('dashboard adapter', () => {
 
   it('uses player-facing labels for dashboard actions and preview entries', () => {
     expect(describeAction('action.cultivation.qi')).toBe('采气修炼');
+    expect(describeAction('action.weapon_mastery.sword')).toBe('练剑');
     expect(describeAction('action.t1.herb_baicao_valley')).toBe('百草谷采药');
     expect(describeQueuePreviewEntry({ action_id: 'action.t1.qi_gathering_pill', mode: 'INFINITE' })).toBe('炼制聚气丹');
     expect(describeQueuePreviewEntry({ action_id: 'action.t1.herb_baicao_valley', mode: 'COUNT', target_value: 3 })).toContain('百草谷采药');

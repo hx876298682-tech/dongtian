@@ -193,5 +193,57 @@
     "feature_flag": "feature.market",
     "locked_reason_key": "feature.locked.market",
     "source_note": "01_功能解锁矩阵:坊市（未来）"
+  },
+  {
+    "feature_id": "feature.weapon_mastery.sword",
+    "enabled": true,
+    "visible_stage": "realm.mortal.entry",
+    "usable_stage": "realm.mortal.entry",
+    "mastery_stage": "realm.mortal.entry",
+    "required_tutorial_ids": [],
+    "required_skill_id": null,
+    "required_skill_level": null,
+    "feature_flag": null,
+    "locked_reason_key": "feature.locked.realm",
+    "source_note": "01_功能解锁矩阵:剑术专精"
+  },
+  {
+    "feature_id": "feature.weapon_mastery.blade",
+    "enabled": true,
+    "visible_stage": "realm.mortal.entry",
+    "usable_stage": "realm.mortal.entry",
+    "mastery_stage": "realm.mortal.entry",
+    "required_tutorial_ids": [],
+    "required_skill_id": null,
+    "required_skill_level": null,
+    "feature_flag": null,
+    "locked_reason_key": "feature.locked.realm",
+    "source_note": "01_功能解锁矩阵:刀术专精"
+  },
+  {
+    "feature_id": "feature.weapon_mastery.spear",
+    "enabled": true,
+    "visible_stage": "realm.mortal.entry",
+    "usable_stage": "realm.mortal.entry",
+    "mastery_stage": "realm.mortal.entry",
+    "required_tutorial_ids": [],
+    "required_skill_id": null,
+    "required_skill_level": null,
+    "feature_flag": null,
+    "locked_reason_key": "feature.locked.realm",
+    "source_note": "01_功能解锁矩阵:枪术专精"
+  },
+  {
+    "feature_id": "feature.weapon_mastery.staff",
+    "enabled": true,
+    "visible_stage": "realm.mortal.entry",
+    "usable_stage": "realm.mortal.entry",
+    "mastery_stage": "realm.mortal.entry",
+    "required_tutorial_ids": [],
+    "required_skill_id": null,
+    "required_skill_level": null,
+    "feature_flag": null,
+    "locked_reason_key": "feature.locked.realm",
+    "source_note": "01_功能解锁矩阵:杖术专精"
   }
 ]

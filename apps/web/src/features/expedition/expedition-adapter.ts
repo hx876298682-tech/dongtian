@@ -263,5 +263,7 @@ export function dungeonRouteHint(choiceId: string): string {
   if (choiceId === QINGSHE_HIGH_RISK_CHOICE_ID) {
     return '高风险路线，战斗更激进，奖励预期更高。';
   }
-  return '未知路线。';
+  if (choiceId.includes('.safe_') || choiceId.includes('.safe_exit')) return '稳妥路线，适合先熟悉当前秘境。';
+  if (choiceId.includes('.deep_') || choiceId.includes('.deep_den')) return '高风险路线，战斗更激进，奖励预期更高。';
+  return '路线信息暂不可用。';
 }

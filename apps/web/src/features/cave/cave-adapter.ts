@@ -94,11 +94,11 @@ function formatCountdown(targetAt: string | null | undefined, now: Date): string
 function facilityKindLabel(kind: string): string {
   switch (kind) {
     case 'JULING_ROOM':
-      return '聚灵室';
+      return '练功房';
     case 'ALCHEMY_ROOM':
-      return '炼丹房';
+      return '炼丹炉';
     case 'FORGING_ROOM':
-      return '炼器房';
+      return '锻造炉';
     default:
       return kind;
   }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { SHELL_BRAND_COPY, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES, SHELL_ROUTE_ALIASES } from './navigation.js';
+import { SHELL_BRAND_COPY, SHELL_CRAFT_CHILDREN, SHELL_FLOW_STEPS, SHELL_PANELS, SHELL_ROUTES, SHELL_ROUTE_ALIASES } from './navigation.js';
 import { useUiDraftStore } from './state/ui-draft-store.js';
 
 describe('web shell scaffolding', () => {
@@ -27,6 +27,24 @@ describe('web shell scaffolding', () => {
     expect(routesById.get('cowbell-shop')).toMatchObject({ path: '/cowbell-shop', label: '牛铃商店' });
     expect(routesById.get('news')).toMatchObject({ path: '/news', label: '新闻' });
     expect(routesById.get('changelog')).toMatchObject({ path: '/changelog', label: '更新日志' });
+  });
+
+  it('exposes all behavior child routes directly under 百艺', () => {
+    expect(SHELL_CRAFT_CHILDREN).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'herbalism', label: '采集 / 采药', path: '/craft/herbalism' }),
+      expect.objectContaining({ id: 'mining', label: '采集 / 挖矿', path: '/craft/mining' }),
+      expect.objectContaining({ id: 'alchemy', label: '炼丹', path: '/craft/alchemy' }),
+      expect.objectContaining({ id: 'forging', label: '炼器', path: '/craft/forging' }),
+    ]));
+    expect(SHELL_CRAFT_CHILDREN).toHaveLength(4);
+    expect(SHELL_ROUTES.find((route) => route.id === 'craft')).toMatchObject({
+      children: SHELL_CRAFT_CHILDREN,
+    });
+  });
+
+  it('keeps the queue workbench within the 洞府 route family', () => {
+    expect(SHELL_ROUTES.find((route) => route.id === 'dashboard')).toMatchObject({ path: '/dashboard/cave' });
+    expect('/dashboard/queue').toMatch(/^\/dashboard\//);
   });
 
   it('keeps legacy and common reference deep links mapped to existing locked page kinds', () => {
@@ -60,10 +78,10 @@ describe('web shell scaffolding', () => {
       'expedition',
     ]);
     expect(SHELL_FLOW_STEPS.map((step) => step.path)).toEqual([
-      '/dashboard',
+      '/dashboard/cave',
       '/dashboard/cave',
       '/cultivation',
-      '/dashboard#queue',
+      '/dashboard/queue',
       '/inventory',
       '/expedition',
     ]);

@@ -53,12 +53,12 @@ export function buildSkillsRailSummary(progression: CharacterProgression, assign
 
 export function buildCaveRailSummary(response: CaveResponse): CaveRailSummary {
   const facilityLabels: Record<string, string> = {
-    JULING_ROOM: '聚灵室',
-    ALCHEMY_ROOM: '炼丹房',
-    FORGING_ROOM: '炼器房',
-    'facility.juling': '聚灵室',
-    'facility.alchemy': '炼丹房',
-    'facility.forging': '炼器房',
+    JULING_ROOM: '练功房',
+    ALCHEMY_ROOM: '炼丹炉',
+    FORGING_ROOM: '锻造炉',
+    'facility.juling': '练功房',
+    'facility.alchemy': '炼丹炉',
+    'facility.forging': '锻造炉',
   };
   return { facilities: response.cave.facilities.slice(0, 4).map((facility) => {
     const buildStatus = facility.build_task?.status;
