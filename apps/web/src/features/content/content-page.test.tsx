@@ -25,6 +25,8 @@ describe('content detail overlays', () => {
     const source = readFileSync(new URL('./content-page.tsx', import.meta.url), 'utf8');
 
     expect(source).toContain('content-workbench');
+    expect(source).toContain('aria-label="百艺总览"');
+    expect(source).toContain('aria-label="百艺内容"');
     expect(source).toContain('content-workbench__header');
     expect(source).toContain('content-card--compact');
     expect(source).toContain('content-detail__summary');

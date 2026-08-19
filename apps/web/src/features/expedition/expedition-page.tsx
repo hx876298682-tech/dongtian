@@ -856,10 +856,10 @@ export function ExpeditionPage(): ReactElement {
   const currentPreview = previewView ?? null;
 
   return (
-    <section className="expedition-layout expedition-layout--active">
+    <section className="expedition-layout expedition-layout--active" aria-label="历练总览">
       <ExpeditionCatalogSelector regions={regions} selectedRegionId={selectedRegionId} selectedMonsterId={selectedMonsterId} onRegion={(region) => { setSelectedRegionId(region.id); setSelectedMonsterId(region.monsterIds[0] ?? ''); }} onMonster={setSelectedMonsterId} />
 
-      <div className="expedition-panel expedition-panel--hero">
+      <div className="expedition-panel expedition-panel--hero" aria-label="历练目标">
         <NormalStateScreen
           title={`${selectedMonster?.label ?? '秘境'} · 历练`}
           description={selectedMonster?.dungeonId === null ? '该怪物的属性与掉落已公开，当前尚未配置可进入的秘境。' : '选择装备和路线，进入对应秘境寻找修炼资源。'}
@@ -868,7 +868,7 @@ export function ExpeditionPage(): ReactElement {
         />
       </div>
 
-      <div className="expedition-panel">
+      <div className="expedition-panel" aria-label="历练准备">
         <ExpeditionPrepareCard
           opportunityView={opportunityView}
           loadoutPreset={loadoutPreset}
@@ -891,7 +891,7 @@ export function ExpeditionPage(): ReactElement {
         />
       </div>
 
-      <div className="expedition-panel">
+      <div className="expedition-panel" aria-label="历练状态">
         <ExpeditionRuntimeCard
           runResponse={runResponse}
           runView={runView}

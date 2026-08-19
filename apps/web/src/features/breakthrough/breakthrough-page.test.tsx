@@ -6,11 +6,23 @@ import {
   BreakthroughLoading,
   BreakthroughLocked,
   BreakthroughMaintenance,
+  shouldShowBreakthroughLoading,
 } from './breakthrough-page.js';
 
 describe('breakthrough page states', () => {
+  it('ignores the pending state of a disabled run query', () => {
+    expect(shouldShowBreakthroughLoading(null, false, true)).toBe(false);
+    expect(shouldShowBreakthroughLoading('run-1', false, true)).toBe(true);
+    expect(shouldShowBreakthroughLoading(null, true, false)).toBe(true);
+  });
+
   it('renders explicit loading, maintenance, locked and error surfaces', () => {
-    expect(renderToStaticMarkup(<BreakthroughLoading />)).toContain('正在准备筑基');
+    const loadingMarkup = renderToStaticMarkup(<BreakthroughLoading />);
+
+    expect(loadingMarkup).toContain('正在准备筑基');
+    expect(loadingMarkup).toContain('aria-label="筑基总览"');
+    expect(loadingMarkup).toContain('aria-label="突破条件"');
+    expect(loadingMarkup).toContain('aria-label="试炼状态"');
     expect(
       renderToStaticMarkup(<BreakthroughMaintenance reason="maint" onRetry={() => undefined} />),
     ).toContain('筑基服务维护中');

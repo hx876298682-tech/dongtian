@@ -22,7 +22,7 @@ import {
 import { apiClient } from '../../lib/api.js';
 import { emitGameFeedback } from '../../lib/game-feedback.js';
 import { shouldConfirmImportantActions } from '../../lib/game-settings.js';
-import { buildCaveBuildRequest, buildCavePageView, summarizeCaveFacilitySubtitle, type CaveFacilityView } from './cave-adapter.js';
+import { buildCaveBuildRequest, buildCavePageView, type CaveFacilityView } from './cave-adapter.js';
 import { describeItemId } from '../content/content-adapter.js';
 import {
   cavePageReducer,
@@ -80,13 +80,13 @@ function useCaveQueries(characterId: string) {
 export function CaveLoading(): ReactElement {
   return (
     <section className="cave-layout">
-      <div className="cave-panel cave-panel--hero">
+      <div className="cave-panel cave-panel--hero" aria-label="洞府总览">
         <LoadingStateScreen title="正在查看洞天设施" description="正在读取练功房、炼丹炉和锻造炉。" />
       </div>
-      <div className="cave-panel">
+      <div className="cave-panel cave-panel--facilities" aria-label="洞府设施">
         <LoadingStateScreen title="设施列表" description="等待练功房、炼丹炉和锻造炉数据。" />
       </div>
-      <div className="cave-panel">
+      <div className="cave-panel cave-panel--upgrade" aria-label="设施升级">
         <LoadingStateScreen title="设施详情" description="等待选中的设施与下级成本。" />
       </div>
     </section>
@@ -159,17 +159,23 @@ export function CaveEmpty({ onRetry }: { readonly reason: string; readonly onRet
 
 function CaveFacilityCard({
   active,
-  subtitle,
+  facility,
   onSelect,
 }: {
   readonly active: boolean;
-  readonly subtitle: string;
+  readonly facility: CaveFacilityView;
   readonly onSelect: () => void;
 }): ReactElement {
+  const facilityMark = facility.facilityKind === 'JULING_ROOM' ? '聚' : facility.facilityKind === 'ALCHEMY_ROOM' ? '丹' : '锻';
   return (
-    <button className={`cave-facility ${active ? 'cave-facility--active' : ''}`} type="button" onClick={onSelect} aria-pressed={active}>
-      <strong className="cave-facility__title">{subtitle}</strong>
-      <span className="cave-facility__copy">点击查看详情与建造确认</span>
+    <button className={`cave-facility cave-facility--${facility.facilityKind.toLowerCase()} ${active ? 'cave-facility--active' : ''}`} type="button" onClick={onSelect} aria-pressed={active}>
+      <span className="cave-facility__visual" aria-hidden="true"><span>{facilityMark}</span></span>
+      <span className="cave-facility__heading">
+        <strong className="cave-facility__title">{facility.facilityLabel}</strong>
+        <span className="cave-facility__level">{facility.levelLabel}</span>
+      </span>
+      <span className="cave-facility__copy">{facility.currentModifierLabel}</span>
+      <span className="cave-facility__state">{facility.buildStatusLabel}</span>
     </button>
   );
 }
@@ -256,49 +262,40 @@ function CaveDetailPanel({
     );
   }
 
-  if (view.buildStatus === 'RESOURCE_INSUFFICIENT') {
-    return (
-      <NormalStateScreen
-        title={`${view.facilityLabel} · 资源不足`}
-        description={renderDetailDescription([
-          ...detailLines,
-          ...view.missingResources.map((gap) => `${gap.itemId === 'currency.spirit_stone' ? '灵石' : describeItemId(gap.itemId)} 缺 ${gap.missing} · 持有 ${gap.owned} / ${gap.required}`),
-        ])}
-        highlight="先补齐缺口"
-        footnote={view.nextLevelRuleLabel}
-        actions={[{ label: '刷新库存', onClick: onRefresh }]}
-      />
-    );
-  }
-
   return (
     <div className="cave-detail">
-      <NormalStateScreen
-        title={`${view.facilityLabel} · ${view.buildStatusLabel}`}
-        description={renderDetailDescription([
-          ...detailLines,
-          `下级规则 ${view.nextLevelRuleLabel}`,
-        ])}
-        highlight={`完成耗时 ${view.nextBuildDuration}`}
-        footnote={view.buildTaskCostSummary ?? view.nextLevelRuleLabel}
-        actions={[{ label: '刷新洞府', onClick: onRefresh }]}
-      />
-      {view.missingResources.length > 0 ? (
-        <div className="cave-gap-list" aria-label="库存缺口">
-          {view.missingResources.map((gap) => (
-            <article key={gap.itemId} className="cave-gap">
-                    <strong>{gap.itemId === 'currency.spirit_stone' ? '灵石' : describeItemId(gap.itemId)}</strong>
-              <p>
-                需要 {gap.required}，持有 {gap.owned}，缺口 {gap.missing}
-              </p>
-            </article>
-          ))}
-        </div>
-      ) : null}
+      <div className="cave-detail__columns">
+        <section className="cave-detail__effect" aria-label="设施效果">
+          <p className="page-card__eyebrow">{view.facilityLabel}效果</p>
+          <h4>当前效果</h4>
+          <strong>{view.currentModifierLabel}</strong>
+          <span className="cave-detail__divider" />
+          <h4>下一级</h4>
+          <p>{view.nextLevelRuleLabel}</p>
+        </section>
+        <section className="cave-detail__cost" aria-label="升级成本">
+          <div className="cave-detail__cost-head">
+            <div><p className="page-card__eyebrow">升级成本</p><h4>{view.levelLabel} → {view.nextLevelRuleLevel === null ? '已达上限' : `Lv${view.nextLevelRuleLevel}`}</h4></div>
+            <span className={`cave-detail__status cave-detail__status--${view.buildStatus.toLowerCase()}`}>{view.buildStatusLabel}</span>
+          </div>
+          <p className="cave-detail__rule">{view.nextLevelRuleLabel}</p>
+          <div className="cave-gap-list" aria-label="库存缺口">
+            {view.missingResources.length > 0 ? view.missingResources.map((gap) => (
+              <article key={gap.itemId} className="cave-gap">
+                <strong>{gap.itemId === 'currency.spirit_stone' ? '灵石' : describeItemId(gap.itemId)}</strong>
+                <p>持有 {gap.owned} / 需要 {gap.required}</p>
+                <span>缺少 {gap.missing}</span>
+              </article>
+            )) : <p className="cave-detail__ready">材料齐备，可以开始升级</p>}
+          </div>
+          <p className="cave-detail__duration"><span>建造时间</span><strong>{view.nextBuildDuration}</strong></p>
+        </section>
+      </div>
       <div className="cave-detail__actions">
-        <button className="ghost-button" type="button" onClick={onBuild} disabled={!view.canBuild}>
-          开建确认
+        <button className="ghost-button cave-detail__primary" type="button" onClick={onBuild} disabled={!view.canBuild}>
+          {view.nextLevelRuleLevel === null ? '设施已达上限' : `升级到 Lv${view.nextLevelRuleLevel}`}
         </button>
+        {!view.canBuild && view.missingResources.length > 0 ? <span className="cave-detail__warning">尚有材料缺口</span> : null}
         {canRetry ? (
           <button className="ghost-button" type="button" onClick={onRetry}>
             沿用本次操作重试
@@ -426,11 +423,11 @@ export function CavePage(): ReactElement {
   };
 
   return (
-    <section className="cave-layout">
-      <div className="cave-panel cave-panel--hero">
+    <section className="cave-layout" aria-label="洞府设施管理">
+      <div className="cave-panel cave-panel--hero" aria-label="洞府总览">
         <div className="cave-hero">
           <div className="cave-hero__header">
-            <p className="cave-hero__eyebrow">洞府首页 / 设施管理</p>
+            <p className="cave-hero__eyebrow">洞府</p>
             <h3 className="cave-hero__title">{caveView.title}</h3>
             <p className="cave-hero__copy">{caveView.summary}</p>
           </div>
@@ -450,11 +447,11 @@ export function CavePage(): ReactElement {
         </div>
       </div>
 
-      <div className="cave-panel">
+      <div className="cave-panel cave-panel--facilities" aria-label="洞府设施">
         <div className="cave-panel__header">
           <div>
-            <p className="page-card__eyebrow">三项设施</p>
-            <h4 className="cave-panel__title">点击卡片切换练功房、炼丹炉与锻造炉</h4>
+            <p className="page-card__eyebrow">洞府设施</p>
+            <h4 className="cave-panel__title">选择设施查看当前加成与升级消耗</h4>
           </div>
           <div className="cave-panel__meta">
             <span>{caveView.activeFacilityState}</span>
@@ -466,14 +463,14 @@ export function CavePage(): ReactElement {
             <CaveFacilityCard
               key={facility.facilityConfigId}
               active={facility.facilityConfigId === caveView.activeFacility?.facilityConfigId}
-              subtitle={`${facility.facilityLabel} · ${summarizeCaveFacilitySubtitle(facility)}`}
+              facility={facility}
               onSelect={() => dispatch({ type: 'select-facility', facilityId: facility.facilityConfigId })}
             />
           ))}
         </div>
       </div>
 
-      <div className="cave-panel">
+      <div className="cave-panel cave-panel--upgrade" aria-label="设施升级">
         <div className="cave-panel__header">
           <div>
             <p className="page-card__eyebrow">设施详情</p>

@@ -18,5 +18,8 @@ describe('cave page states', () => {
     expect(emptyMarkup).toContain('洞府暂未发现设施');
     expect(emptyMarkup).not.toContain('服务端');
     expect(emptyMarkup).not.toContain('error');
+    expect(loadingMarkup).toContain('aria-label="洞府总览"');
+    expect(loadingMarkup).toContain('aria-label="洞府设施"');
+    expect(loadingMarkup).toContain('aria-label="设施升级"');
   });
 });

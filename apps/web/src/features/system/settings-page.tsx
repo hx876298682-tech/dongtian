@@ -81,15 +81,15 @@ export function SettingsPage(): ReactElement {
   };
 
   return (
-    <section className="settings-page">
-      <header className="settings-page__header">
+    <section className="settings-page" aria-label="设置总览">
+      <header className="settings-page__header" aria-label="设置标题">
         <div><p className="page-card__eyebrow">设置</p><h3>{SETTINGS_TITLES[activeTab]}</h3></div>
         <p>{SETTINGS_COPIES[activeTab]}</p>
       </header>
       <div className="settings-page__tabs" role="tablist" aria-label="设置分类" onKeyDown={handleTabKeyDown}>
         {SETTINGS_TABS.map((tab, index) => <button key={tab} ref={(element) => { settingsTabRefs.current[index] = element; }} id={`settings-tab-${tab}`} className={activeTab === tab ? 'settings-page__tab settings-page__tab--active' : 'settings-page__tab'} type="button" role="tab" aria-selected={activeTab === tab} aria-controls="settings-panel" tabIndex={activeTab === tab ? 0 : -1} onClick={() => setActiveTab(tab)}>{tab}</button>)}
       </div>
-      <div className="settings-page__list" id="settings-panel" role="tabpanel" aria-labelledby={`settings-tab-${activeTab}`}>
+      <div className="settings-page__list" id="settings-panel" role="tabpanel" aria-label={`${SETTINGS_TITLES[activeTab]}选项`} aria-labelledby={`settings-tab-${activeTab}`}>
         {activeTab === '个人资料' ? <DeferredOption title="个人资料" description="当前使用匿名角色，资料编辑功能暂未开放。" /> : null}
         {activeTab === '游戏' ? <><label className="settings-option">
           <span><strong>紧凑游戏面板</strong><small>减少卡片间距，在一屏中展示更多任务和物品。</small></span>

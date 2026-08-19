@@ -835,8 +835,8 @@ export function CharacterEquipmentPage(): ReactElement {
   const selectedAssignment = getSelectedInstanceAssignment(selectedInstanceId, currentPreset);
 
   return (
-    <section className="equipment-layout character-screen">
-      <div className="equipment-panel equipment-panel--hero">
+    <section className="equipment-layout character-screen" aria-label="角色总览">
+      <div className="equipment-panel equipment-panel--hero" aria-label="角色信息">
         <div className="equipment-hero">
           <div>
             <p className="page-card__eyebrow">角色</p>
@@ -904,7 +904,7 @@ export function CharacterEquipmentPage(): ReactElement {
         </div>
       </div>
 
-      <div className="equipment-panel">
+      <div className="equipment-panel" aria-label="装备背包">
         <EquipmentPanelHeader title="装备背包" copy="筛选、比较并选择适合当前修行路线的装备。" />
         <EquipmentFilterBar
           query={temperingState.query}
@@ -966,7 +966,7 @@ export function CharacterEquipmentPage(): ReactElement {
         </div>
       </div>
 
-      <div className="equipment-panel">
+      <div className="equipment-panel" aria-label="装备方案">
         <EquipmentPanelHeader title="装备方案" copy="搭配装备槽位，保存后可随时切换使用。" />
         {presetMissingInput ? (
           <EquipmentMissingPreset onOpenInventory={goToInventory} />
@@ -1030,7 +1030,7 @@ export function CharacterEquipmentPage(): ReactElement {
         )}
       </div>
 
-      <div className="equipment-panel" id="tempering-panel">
+      <div className="equipment-panel" id="tempering-panel" aria-label="淬炼台">
         <EquipmentPanelHeader title="淬炼台" copy="选择一件装备进行淬炼，提升它的基础属性。" />
         {selectedTemperingInstance === null ? (
           <EmptyStateScreen title="未选中淬炼目标" description="从左侧装备列表选择一件装备，或用下方下拉框指定要淬炼的装备。" />

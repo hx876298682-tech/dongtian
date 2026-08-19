@@ -11,6 +11,7 @@ import {
   startHerbalismAction,
 } from './herbalism-page.js';
 import herbalismSource from './herbalism-page.tsx?raw';
+import behaviorSource from './behavior-page.tsx?raw';
 
 function makeAction(overrides: Partial<ActionCatalogEntry> = {}): ActionCatalogEntry {
   return {
@@ -56,6 +57,8 @@ describe('herbalism page', () => {
     expect(herbalismSource).toContain('BehaviorPage');
     expect(herbalismSource).toContain('开始采集');
     expect(herbalismSource).toContain('startBehaviorAction');
+    expect(behaviorSource).toContain('behavior-layout--${definition.kind}');
+    expect(behaviorSource).toContain('aria-label={`${definition.title}总览`}');
   });
 
   it('writes one infinite entry, resumes a paused queue, invalidates global progress, and emits feedback', async () => {

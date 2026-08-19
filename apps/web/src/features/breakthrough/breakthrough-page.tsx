@@ -56,6 +56,14 @@ type BreakthroughOperationError = {
   readonly message: string;
 };
 
+export function shouldShowBreakthroughLoading(
+  activeRunId: string | null,
+  nextPending: boolean,
+  runPending: boolean,
+): boolean {
+  return nextPending || (activeRunId !== null && runPending);
+}
+
 function readStoredRunId(characterId: string): string | null {
   if (typeof window === 'undefined') return null;
   return window.localStorage.getItem(`${RUN_STORAGE_PREFIX}${characterId}`);
@@ -88,16 +96,16 @@ function syncRunSearch(
 export function BreakthroughLoading(): ReactElement {
   return (
     <section className="breakthrough-layout">
-      <div className="breakthrough-panel breakthrough-panel--hero">
+      <div className="breakthrough-panel breakthrough-panel--hero" aria-label="筑基总览">
         <LoadingStateScreen
           title="正在准备筑基"
           description="正在检查境界、修为、材料和试炼状态。"
         />
       </div>
-      <div className="breakthrough-panel">
+      <div className="breakthrough-panel breakthrough-panel--requirements" aria-label="突破条件">
         <LoadingStateScreen title="筑基门槛" description="正在准备突破所需条件。" />
       </div>
-      <div className="breakthrough-panel">
+      <div className="breakthrough-panel breakthrough-panel--trial" aria-label="试炼状态">
         <LoadingStateScreen title="试炼恢复" description="等待试炼状态。" />
       </div>
     </section>
@@ -694,7 +702,9 @@ export function BreakthroughPage(): ReactElement {
   });
 
   const firstError = nextQuery.error ?? runQuery.error;
-  if (nextQuery.isPending || runQuery.isPending) return <BreakthroughLoading />;
+  if (shouldShowBreakthroughLoading(activeRunId, nextQuery.isPending, runQuery.isPending)) {
+    return <BreakthroughLoading />;
+  }
   if (firstError !== null && firstError !== undefined) {
     const error = firstError instanceof ApiClientError;
     if (error && firstError.status === 503)
@@ -740,17 +750,16 @@ export function BreakthroughPage(): ReactElement {
   };
 
   return (
-    <section className="breakthrough-layout">
-      <div className="breakthrough-panel breakthrough-panel--hero">
-        <NormalStateScreen
-          title={`筑基 · ${view.targetRealmLabel}`}
-          description="先核对四类门槛，再确认预留；试炼状态会自动恢复。"
-          highlight={run === undefined ? view.successLabel : breakthroughRunStatusLabel(run.status)}
-          footnote="门槛与结果均以洞天规则为准。"
-          actions={run === undefined ? [{ label: '刷新条件', onClick: refreshAll }] : []}
-        />
+    <section className="breakthrough-layout" aria-label="筑基突破">
+      <div className="breakthrough-panel breakthrough-panel--hero" aria-label="筑基总览">
+        <div className="breakthrough-overview">
+          <div><p className="page-card__eyebrow">境界突破</p><h2>筑基突破</h2><p>满足条件后开始 15 分钟试炼</p></div>
+          <div className="breakthrough-overview__target"><span>目标境界</span><strong>{view.targetRealmLabel}</strong></div>
+          <div className="breakthrough-overview__chance"><span>成功率</span><strong>{view.successLabel.replace('条件满足后，', '')}</strong></div>
+          <button className="chip-button" type="button" onClick={refreshAll}>刷新条件</button>
+        </div>
       </div>
-      <div className="breakthrough-panel">
+      <div className="breakthrough-panel breakthrough-panel--requirements" aria-label="突破条件">
         <div className="breakthrough-panel__header">
           <div>
             <p className="page-card__eyebrow">目标与门槛</p>
@@ -812,7 +821,7 @@ export function BreakthroughPage(): ReactElement {
           </Dialog.Root>
         ) : null}
       </div>
-      <div className="breakthrough-panel">
+      <div className="breakthrough-panel breakthrough-panel--trial" aria-label="试炼状态">
         <div className="breakthrough-panel__header">
           <div>
             <p className="page-card__eyebrow">试炼节点与恢复</p>

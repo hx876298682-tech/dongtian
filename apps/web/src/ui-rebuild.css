@@ -1,0 +1,2043 @@
+/* Page-level reconstruction from the approved ink-and-bronze UI drafts. */
+.cave-layout,
+.behavior-layout--cultivation,
+.breakthrough-layout {
+  height: 100%;
+  min-height: 0;
+  letter-spacing: 0;
+}
+
+.cave-layout {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.cave-panel {
+  padding: 14px 18px;
+  border-color: rgba(179, 151, 96, 0.3);
+  background: rgba(8, 24, 20, 0.76);
+}
+
+.cave-panel--hero,
+.cave-panel--facilities,
+.cave-panel--upgrade {
+  grid-column: 1;
+  grid-row: auto;
+}
+
+.cave-panel--hero {
+  padding: 12px 18px;
+  background: rgba(12, 35, 28, 0.88);
+}
+
+.cave-hero {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.7fr) minmax(0, 1.3fr);
+  align-items: center;
+  gap: 22px;
+}
+
+.cave-hero__header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 4px 18px;
+}
+
+.cave-hero__eyebrow {
+  grid-row: 1 / 3;
+  margin: 0;
+  color: #8fe0bd;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 30px;
+}
+
+.cave-hero__title {
+  margin: 0;
+  color: #e1d0ae;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.cave-hero__copy {
+  margin: 0;
+  color: #8fa89c;
+}
+
+.cave-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid rgba(179, 151, 96, 0.22);
+  background: rgba(4, 15, 13, 0.42);
+}
+
+.cave-metrics .metric-chip {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 0;
+  border-right: 1px solid rgba(179, 151, 96, 0.22);
+  border-radius: 0;
+  background: transparent;
+}
+
+.cave-metrics .metric-chip:last-child {
+  border-right: 0;
+}
+
+.cave-metrics .metric-chip__value {
+  overflow: hidden;
+  color: #bdd8aa;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cave-panel--facilities {
+  overflow: visible;
+}
+
+.cave-panel--facilities .cave-panel__header {
+  margin-bottom: 10px;
+}
+
+.cave-facility-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cave-facility {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 92px auto auto;
+  min-height: 158px;
+  padding: 0 14px 10px;
+  overflow: hidden;
+  border-color: rgba(179, 151, 96, 0.36);
+  background: #091713;
+  text-align: left;
+}
+
+.cave-facility::after {
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  content: '';
+  pointer-events: none;
+}
+
+.cave-facility--active {
+  border-color: #65d7ae;
+  background: rgba(10, 31, 25, 0.98);
+  box-shadow: 0 0 0 2px rgba(67, 202, 157, 0.2), inset 0 -2px 0 rgba(101, 215, 174, 0.6);
+}
+
+.cave-facility__visual {
+  grid-column: 1 / -1;
+  display: grid;
+  place-items: center;
+  margin: 0 -14px 9px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(179, 151, 96, 0.24);
+  background-color: #101b17;
+  background-image:
+    radial-gradient(circle at center, rgba(189, 154, 84, 0.2), transparent 42%),
+    repeating-linear-gradient(90deg, transparent 0 31px, rgba(179, 151, 96, 0.06) 32px);
+}
+
+.cave-facility--juling_room .cave-facility__visual {
+  background-color: #14231e;
+}
+
+.cave-facility--alchemy_room .cave-facility__visual {
+  background-color: #1d2117;
+}
+
+.cave-facility--forging_room .cave-facility__visual {
+  background-color: #221b16;
+}
+
+.cave-facility__visual > span {
+  display: grid;
+  width: 58px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgba(205, 173, 107, 0.48);
+  border-radius: 50%;
+  color: rgba(223, 201, 157, 0.78);
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 27px;
+  box-shadow: inset 0 0 20px rgba(205, 173, 107, 0.13);
+}
+
+.cave-facility__heading {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cave-facility__title {
+  color: #e3d2af;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.cave-facility__level {
+  color: #96c695;
+  font-size: 14px;
+}
+
+.cave-facility__copy {
+  grid-column: 1 / -1;
+  color: #a6b3a7;
+}
+
+.cave-facility__state {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 6px;
+  border: 1px solid rgba(102, 204, 167, 0.28);
+  color: #81d4b2;
+  background: rgba(5, 20, 16, 0.76);
+  font-size: 10px;
+}
+
+.cave-panel--upgrade {
+  min-height: 0;
+  overflow: auto;
+}
+
+.cave-detail {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 100%;
+}
+
+.cave-detail__columns {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  min-height: 0;
+  border-top: 1px solid rgba(179, 151, 96, 0.24);
+}
+
+.cave-detail__effect,
+.cave-detail__cost {
+  min-width: 0;
+  padding: 14px 18px;
+}
+
+.cave-detail__effect {
+  border-right: 1px solid rgba(179, 151, 96, 0.24);
+}
+
+.cave-detail__effect h4,
+.cave-detail__cost h4 {
+  margin: 6px 0;
+  color: #c7b895;
+  font-family: Georgia, 'Songti SC', serif;
+  font-weight: 500;
+}
+
+.cave-detail__effect > strong {
+  color: #a5d59e;
+  font-size: 21px;
+}
+
+.cave-detail__divider {
+  display: block;
+  margin: 14px 0;
+  border-top: 1px solid rgba(179, 151, 96, 0.2);
+}
+
+.cave-detail__cost-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cave-detail__status {
+  padding: 4px 7px;
+  border: 1px solid rgba(105, 206, 168, 0.28);
+  color: #8ad7b7;
+  font-size: 11px;
+}
+
+.cave-detail__status--resource_insufficient,
+.cave-detail__warning,
+.cave-gap > span {
+  color: #e07862;
+}
+
+.cave-detail__rule {
+  margin: 4px 0 10px;
+  color: #aeb8aa;
+}
+
+.cave-gap-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.cave-gap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 7px 9px;
+  border: 1px solid rgba(179, 151, 96, 0.2);
+  background: rgba(3, 15, 12, 0.46);
+}
+
+.cave-gap p,
+.cave-gap > span {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  font-size: 11px;
+}
+
+.cave-detail__ready {
+  color: #89ccaa;
+}
+
+.cave-detail__duration {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0 0;
+  padding-top: 9px;
+  border-top: 1px solid rgba(179, 151, 96, 0.2);
+  color: #a9b4a8;
+}
+
+.cave-detail__duration strong {
+  color: #cdb17a;
+}
+
+.cave-detail__actions {
+  justify-content: center;
+  padding: 12px 0 2px;
+  border-top: 1px solid rgba(179, 151, 96, 0.24);
+}
+
+.cave-detail__primary {
+  min-width: 240px;
+  border-color: rgba(101, 215, 174, 0.54);
+  background: #185c49;
+  color: #e6d7b8;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 16px;
+}
+
+.behavior-layout--cultivation {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.behavior-layout--cultivation .cultivation-overview {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 20px;
+  border-color: rgba(179, 151, 96, 0.3);
+  background: rgba(8, 28, 23, 0.82);
+}
+
+.cultivation-overview__status {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #b9c3b6;
+}
+
+.cultivation-overview__status strong {
+  color: #d0ad68;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.cultivation-overview__link {
+  padding-left: 18px;
+  border-left: 1px solid rgba(179, 151, 96, 0.24);
+  color: #75d1af;
+  text-decoration: none;
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+  padding: 16px;
+  overflow: auto;
+  border-color: rgba(179, 151, 96, 0.3);
+  background: rgba(7, 23, 19, 0.78);
+}
+
+.behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(154px, 1fr);
+  align-content: start;
+  gap: 10px;
+}
+
+.behavior-layout--cultivation .cultivation-route {
+  position: relative;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto;
+  min-height: 154px;
+  padding: 13px 12px;
+  overflow: hidden;
+  border-color: rgba(179, 151, 96, 0.34);
+  background: rgba(5, 20, 16, 0.76);
+}
+
+.cultivation-route__mark {
+  grid-row: 1 / 5;
+  display: grid;
+  width: 58px;
+  aspect-ratio: 1;
+  place-items: center;
+  align-self: center;
+  border: 1px solid rgba(112, 208, 174, 0.35);
+  border-radius: 50%;
+  color: #86d4b5;
+  background: radial-gradient(circle, rgba(61, 166, 130, 0.22), rgba(4, 17, 14, 0.3) 68%);
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 24px;
+}
+
+.cultivation-route--sword .cultivation-route__mark,
+.cultivation-route--blade .cultivation-route__mark,
+.cultivation-route--spear .cultivation-route__mark,
+.cultivation-route--staff .cultivation-route__mark {
+  border-color: rgba(198, 158, 87, 0.38);
+  color: #d5b670;
+  background: radial-gradient(circle, rgba(177, 125, 43, 0.18), rgba(4, 17, 14, 0.3) 68%);
+}
+
+.behavior-layout--cultivation .cultivation-route > :not(.cultivation-route__mark) {
+  grid-column: 2;
+}
+
+.behavior-layout--cultivation .cultivation-route .behavior-resource__header {
+  align-items: flex-start;
+}
+
+.behavior-layout--cultivation .cultivation-route .behavior-resource__header h4 {
+  color: #dfcfad;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 17px;
+}
+
+.behavior-layout--cultivation .cultivation-route .behavior-resource__outputs {
+  grid-template-columns: auto minmax(0, 1fr);
+  margin-top: 5px;
+  border-top: 1px solid rgba(179, 151, 96, 0.16);
+}
+
+.behavior-layout--cultivation .cultivation-route .behavior-resource__outputs strong {
+  color: #b6d3a7;
+  background: transparent;
+}
+
+.behavior-layout--cultivation .cultivation-route .behavior-resource__start {
+  min-height: auto;
+  justify-self: end;
+  border: 0;
+  color: #6fd3ae;
+  background: transparent;
+}
+
+.breakthrough-layout {
+  grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.breakthrough-panel {
+  padding: 16px 18px;
+  border-color: rgba(179, 151, 96, 0.3);
+  background: rgba(7, 23, 19, 0.78);
+}
+
+.breakthrough-panel--hero {
+  grid-column: 1 / -1;
+  padding: 13px 18px;
+  background: rgba(8, 28, 23, 0.84);
+}
+
+.breakthrough-overview {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) repeat(2, minmax(150px, auto)) auto;
+  align-items: center;
+  gap: 22px;
+}
+
+.breakthrough-overview h2 {
+  margin: 2px 0 4px;
+  color: #e0ccaa;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 26px;
+  font-weight: 500;
+}
+
+.breakthrough-overview p,
+.breakthrough-overview span {
+  margin: 0;
+  color: #9aa99f;
+}
+
+.breakthrough-overview__target,
+.breakthrough-overview__chance {
+  display: grid;
+  gap: 3px;
+  padding-left: 18px;
+  border-left: 1px solid rgba(179, 151, 96, 0.24);
+}
+
+.breakthrough-overview__target strong {
+  color: #d6ab59;
+}
+
+.breakthrough-overview__chance strong {
+  color: #76d2ac;
+}
+
+.breakthrough-panel--requirements,
+.breakthrough-panel--trial {
+  min-height: 0;
+  overflow: auto;
+}
+
+.breakthrough-panel--requirements {
+  grid-column: 1;
+}
+
+.breakthrough-panel--trial {
+  grid-column: 2;
+}
+
+.breakthrough-requirements {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+}
+
+.breakthrough-group {
+  display: contents;
+}
+
+.breakthrough-group__title {
+  margin: 6px 0 0;
+  color: #b8a984;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.breakthrough-requirement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(179, 151, 96, 0.28);
+  background: rgba(3, 16, 13, 0.5);
+}
+
+.breakthrough-requirement__head {
+  grid-column: 1 / -1;
+}
+
+.breakthrough-requirement__head strong {
+  color: #decdaa;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.breakthrough-requirement--satisfied .breakthrough-requirement__head span {
+  color: #73d5ad;
+}
+
+.breakthrough-requirement .chip-button {
+  align-self: center;
+  padding: 3px 6px;
+  border: 0;
+  color: #79c8aa;
+  background: transparent;
+}
+
+.breakthrough-panel--requirements > .ghost-button {
+  width: min(100%, 420px);
+  min-height: 46px;
+  margin: 14px auto 0;
+  border-color: rgba(101, 215, 174, 0.54);
+  color: #ead9b8;
+  background: #185c49;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 17px;
+}
+
+.breakthrough-panel--trial .status-screen {
+  min-height: 220px;
+  align-content: center;
+  border-color: rgba(179, 151, 96, 0.2);
+  background: rgba(3, 16, 13, 0.45);
+  text-align: center;
+}
+
+.breakthrough-runtime {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(179, 151, 96, 0.24);
+  background: rgba(3, 16, 13, 0.45);
+}
+
+@media (max-width: 1120px) {
+  .cave-hero {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cultivation-overview__status {
+    gap: 10px;
+  }
+
+  .behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .breakthrough-overview {
+    grid-template-columns: minmax(220px, 1fr) repeat(2, minmax(130px, auto));
+  }
+
+  .breakthrough-overview > .chip-button {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .cave-layout,
+  .behavior-layout--cultivation,
+  .breakthrough-layout {
+    display: block;
+    height: 100%;
+    overflow: auto;
+  }
+
+  .cave-panel,
+  .behavior-layout--cultivation .behavior-panel,
+  .breakthrough-panel {
+    margin-bottom: 8px;
+  }
+
+  .cave-hero__header {
+    grid-template-columns: 1fr;
+  }
+
+  .cave-hero__eyebrow {
+    grid-row: auto;
+  }
+
+  .cave-metrics,
+  .cave-facility-list,
+  .cave-detail__columns,
+  .behavior-layout--cultivation .behavior-panel--cultivation-directions .behavior-resource-list,
+  .breakthrough-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cave-metrics .metric-chip {
+    border-right: 0;
+    border-bottom: 1px solid rgba(179, 151, 96, 0.18);
+  }
+
+  .cave-detail__effect {
+    border-right: 0;
+    border-bottom: 1px solid rgba(179, 151, 96, 0.24);
+  }
+
+  .behavior-layout--cultivation .cultivation-overview,
+  .cultivation-overview__status {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cultivation-overview__link {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .breakthrough-overview__target,
+  .breakthrough-overview__chance {
+    padding: 8px 0 0;
+    border-top: 1px solid rgba(179, 151, 96, 0.2);
+    border-left: 0;
+  }
+
+  .breakthrough-panel--requirements,
+  .breakthrough-panel--trial {
+    overflow: visible;
+  }
+}
+
+/* Keep the expedition screen above the shared behavior defaults. */
+.behavior-layout.behavior-layout--expedition {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.behavior-layout.behavior-layout--expedition .behavior-panel--regions .behavior-region-list {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.behavior-layout.behavior-layout--expedition .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 900px) {
+  .behavior-layout.behavior-layout--expedition .behavior-panel--regions .behavior-region-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .behavior-layout.behavior-layout--expedition .behavior-panel--resources .behavior-resource-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .behavior-layout.behavior-layout--expedition .behavior-panel--regions .behavior-region-list,
+  .behavior-layout.behavior-layout--expedition .behavior-panel--resources .behavior-resource-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Final cascade guard: these rules must win over legacy compact-density rules. */
+.content-workbench--craft .content-list--compact > [role='tabpanel'] {
+  grid-column: 1 / -1 !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.content-workbench--craft .content-card--compact {
+  height: auto !important;
+  min-height: 120px !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.content-workbench--craft .content-card--compact .content-card__actions .ghost-button {
+  display: block !important;
+  height: auto !important;
+  min-height: 44px !important;
+}
+
+.settings-page__list {
+  min-height: 0 !important;
+  overflow: auto !important;
+}
+
+.breakthrough-requirement p,
+.breakthrough-runtime p,
+.breakthrough-queue p {
+  overflow: visible !important;
+  overflow-wrap: anywhere;
+  text-overflow: clip !important;
+  white-space: normal !important;
+}
+
+.behavior-layout--cultivation .cultivation-route {
+  min-height: 206px !important;
+  overflow: visible !important;
+}
+
+.behavior-layout--cultivation .behavior-resource__facts,
+.behavior-layout--cultivation .behavior-resource__outputs {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.character-screen .equipment-panel button {
+  min-height: 44px !important;
+}
+
+.game-log {
+  min-height: 0 !important;
+  max-height: 108px !important;
+}
+
+@media (max-width: 900px) {
+  .content-workbench--craft .content-list--compact > [role='tabpanel'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .content-workbench--craft .content-list--compact > [role='tabpanel'] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .content-workbench--craft .content-card--compact {
+    min-height: 174px !important;
+  }
+
+  .behavior-layout--cultivation .cultivation-route {
+    min-height: 220px !important;
+  }
+
+  .behavior-layout--cultivation .behavior-resource__facts,
+  .behavior-layout--cultivation .behavior-resource__outputs {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .game-log {
+    max-height: 84px !important;
+  }
+
+  .character-screen .equipment-hero {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .character-screen .equipment-hero .metric-chip__label {
+    overflow: visible;
+    white-space: normal;
+  }
+}
+
+/* Commercial usability corrections: preserve readable copy and reliable actions. */
+.content-workbench--craft .content-list--compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.content-workbench--craft .content-list--compact > [role='tabpanel'] {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.content-workbench--craft .content-card--compact {
+  height: auto !important;
+  min-height: 120px !important;
+  max-height: none;
+  padding: 12px !important;
+  overflow: visible;
+}
+
+.content-workbench--craft .content-card--compact .content-card__title-button {
+  min-height: 44px;
+  text-align: left;
+}
+
+.content-workbench--craft .content-card--compact .content-card__title-row,
+.content-workbench--craft .content-card--compact .content-card__meta {
+  min-width: 0;
+  white-space: normal;
+}
+
+.content-workbench--craft .content-card--compact .content-card__title-row strong,
+.content-workbench--craft .content-card--compact .content-card__subtitle,
+.content-workbench--craft .content-card--compact .content-card__meta span,
+.content-workbench--craft .content-card--compact .content-card__unlock {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.content-workbench--craft .content-card--compact .content-card__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.content-workbench--craft .content-card--compact .content-card__actions .ghost-button {
+  display: block !important;
+  min-height: 44px !important;
+  height: auto !important;
+  padding: 8px 10px;
+  font-size: 13px;
+  white-space: normal;
+}
+
+.settings-page__list {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.breakthrough-requirement p,
+.breakthrough-runtime p,
+.breakthrough-queue p {
+  max-width: none;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.breakthrough-requirement__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px 10px;
+}
+
+.breakthrough-requirement .chip-button {
+  min-height: 44px;
+  padding: 8px 10px;
+  text-align: left;
+  white-space: normal;
+}
+
+.behavior-layout--cultivation .cultivation-route {
+  min-height: 206px;
+  overflow: visible;
+}
+
+.behavior-layout--cultivation .behavior-resource__facts,
+.behavior-layout--cultivation .behavior-resource__outputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  white-space: normal;
+}
+
+.behavior-layout--cultivation .behavior-resource__facts span,
+.behavior-layout--cultivation .behavior-resource__outputs span,
+.behavior-layout--cultivation .behavior-resource__outputs strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.character-screen .equipment-panel button,
+.character-screen .equipment-panel .ghost-button,
+.character-screen .equipment-panel .chip-button {
+  min-height: 44px;
+}
+
+.character-screen .equipment-panel--hero .equipment-hero__actions {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.character-screen .equipment-panel--hero .equipment-hero__actions .ghost-button {
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 13px;
+  white-space: normal;
+}
+
+.game-log {
+  min-height: 0;
+  max-height: 108px;
+}
+
+.game-log__messages {
+  min-height: 0;
+}
+
+@media (max-width: 900px) {
+  .content-workbench--craft .content-list--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .content-workbench--craft .content-list--compact > [role='tabpanel'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .content-workbench--craft .content-list--compact {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .content-workbench--craft .content-list--compact > [role='tabpanel'] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .content-workbench--craft .content-card--compact {
+    min-height: 174px !important;
+  }
+
+  .content-workbench--craft .content-card--compact .content-card__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .behavior-layout--cultivation .cultivation-route {
+    min-height: 220px;
+  }
+
+  .behavior-layout--cultivation .behavior-resource__facts,
+  .behavior-layout--cultivation .behavior-resource__outputs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .breakthrough-requirement .chip-button {
+    width: 100%;
+  }
+
+  .game-log {
+    max-height: 84px;
+  }
+}
+
+.behavior-layout--expedition {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
+.behavior-layout--expedition .behavior-panel {
+  min-height: 0;
+  padding: 14px;
+  border: 1px solid rgba(179, 151, 96, 0.28);
+  border-radius: 3px;
+  background: rgba(7, 25, 20, 0.82);
+  box-shadow: none;
+}
+
+.behavior-layout--expedition .behavior-panel--hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 86px;
+  background: rgba(11, 36, 28, 0.9);
+}
+
+.behavior-layout--expedition .behavior-panel--hero .page-card__title {
+  color: #d9c69f;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 26px;
+}
+
+.behavior-layout--expedition .behavior-panel--regions {
+  overflow: hidden;
+}
+
+.behavior-layout--expedition .behavior-panel--regions .behavior-region-list {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.behavior-layout--expedition .behavior-region {
+  min-height: 86px;
+  padding: 10px;
+  border-radius: 2px;
+  border-color: rgba(179, 151, 96, 0.28);
+  background: rgba(4, 17, 14, 0.72);
+}
+
+.behavior-layout--expedition .behavior-region--selected {
+  border-color: #69d7ae;
+  background: rgba(29, 91, 69, 0.44);
+  box-shadow: inset 0 2px 0 #69d7ae;
+}
+
+.behavior-layout--expedition .behavior-region__header strong,
+.behavior-layout--expedition .behavior-panel--resources h4 {
+  color: #ddcba4;
+  font-family: Georgia, 'Songti SC', serif;
+}
+
+.behavior-layout--expedition .behavior-panel--resources {
+  overflow: auto;
+}
+
+.behavior-layout--expedition .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.behavior-layout--expedition .behavior-resource {
+  min-height: 154px;
+  padding: 12px;
+  border-radius: 2px;
+  border-color: rgba(179, 151, 96, 0.28);
+  background: rgba(4, 17, 14, 0.74);
+}
+
+.behavior-layout--expedition .behavior-resource--selected {
+  border-color: #69d7ae;
+  box-shadow: 0 0 0 1px rgba(105, 215, 174, 0.2);
+}
+
+.behavior-layout--expedition .expedition-monster__select {
+  min-height: 112px;
+}
+
+.behavior-layout--expedition .behavior-resource__header strong {
+  color: #e2d0a9;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 18px;
+}
+
+.behavior-layout--expedition .behavior-resource__facts,
+.behavior-layout--expedition .behavior-resource__outputs {
+  color: #aeb9ad;
+}
+
+.behavior-layout--expedition .behavior-resource__start {
+  color: #7de0b6;
+}
+
+@media (max-width: 900px) {
+  .behavior-layout--expedition .behavior-panel--regions .behavior-region-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .behavior-layout--expedition .behavior-panel--resources .behavior-resource-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .behavior-layout--expedition {
+    display: block;
+    height: 100%;
+    overflow: auto;
+  }
+
+  .behavior-layout--expedition .behavior-panel {
+    margin-bottom: 8px;
+  }
+
+  .behavior-layout--expedition .behavior-panel--hero {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .behavior-layout--expedition .behavior-panel--regions .behavior-region-list,
+  .behavior-layout--expedition .behavior-panel--resources .behavior-resource-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Final screen family: expedition, character inventory, storage, and settings. */
+.expedition-layout--active {
+  grid-template-columns: minmax(250px, 0.82fr) minmax(0, 1.1fr) minmax(0, 1.1fr) !important;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
+.expedition-layout--active .expedition-catalog {
+  grid-column: 1;
+  grid-row: 1 / -1 !important;
+  padding: 14px;
+  border: 1px solid rgba(179, 151, 96, 0.3);
+  border-radius: 3px;
+  background: rgba(5, 20, 16, 0.86);
+  box-shadow: inset 0 1px 0 rgba(220, 201, 163, 0.06);
+}
+
+.expedition-layout--active .expedition-panel {
+  min-height: 0;
+  padding: 14px;
+  border: 1px solid rgba(179, 151, 96, 0.28);
+  border-radius: 3px;
+  background: rgba(7, 25, 20, 0.82);
+  box-shadow: none;
+}
+
+.expedition-layout--active > .expedition-panel--hero {
+  grid-column: 2 / -1;
+  grid-row: 1;
+  min-height: 88px;
+  background: rgba(11, 36, 28, 0.9);
+}
+
+.expedition-layout--active > .expedition-panel[aria-label="历练准备"] {
+  grid-column: 2;
+  grid-row: 2 / -1;
+  overflow: auto;
+}
+
+.expedition-layout--active > .expedition-panel[aria-label="历练状态"] {
+  grid-column: 3;
+  grid-row: 2 / -1;
+  overflow: auto;
+}
+
+.expedition-layout--active .expedition-catalog .behavior-region-list {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 7px;
+}
+
+.expedition-layout--active .expedition-catalog .behavior-region {
+  min-height: 58px;
+  padding: 9px 10px;
+  border-radius: 2px;
+  border-color: rgba(179, 151, 96, 0.24);
+  background: rgba(4, 17, 14, 0.74);
+}
+
+.expedition-layout--active .expedition-catalog .behavior-region--selected {
+  border-color: #69d7ae;
+  background: rgba(29, 91, 69, 0.45);
+  box-shadow: inset 2px 0 0 #69d7ae;
+}
+
+.expedition-layout--active .expedition-monster-list {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 7px;
+  overflow: auto !important;
+}
+
+.expedition-layout--active .expedition-monster {
+  min-height: 98px;
+  padding: 10px;
+  border-radius: 2px;
+  border-color: rgba(179, 151, 96, 0.25);
+  background: rgba(4, 17, 14, 0.74);
+}
+
+.expedition-layout--active .expedition-monster--selected,
+.expedition-layout--active .expedition-monster[aria-pressed='true'] {
+  border-color: #69d7ae;
+  box-shadow: 0 0 0 1px rgba(105, 215, 174, 0.22);
+}
+
+.expedition-layout--active .expedition-panel--hero .normal-state-screen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 18px;
+}
+
+.expedition-layout--active .expedition-panel--hero .normal-state-screen__title {
+  color: #e1d0ae;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 22px;
+}
+
+.expedition-layout--active .expedition-prepare,
+.expedition-layout--active .expedition-runtime {
+  gap: 10px;
+}
+
+.expedition-layout--active .expedition-form {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.expedition-layout--active .expedition-fact,
+.expedition-layout--active .expedition-inline-note,
+.expedition-layout--active .expedition-choice,
+.expedition-layout--active .expedition-preview,
+.expedition-layout--active .expedition-mini-card {
+  border-radius: 2px;
+  border-color: rgba(179, 151, 96, 0.24);
+  background: rgba(4, 17, 14, 0.62);
+}
+
+.character-screen {
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1.32fr) !important;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
+.character-screen .equipment-panel {
+  min-height: 0;
+  padding: 14px;
+  border: 1px solid rgba(179, 151, 96, 0.28);
+  border-radius: 3px;
+  background: rgba(7, 25, 20, 0.82);
+  box-shadow: none;
+}
+
+.character-screen .equipment-panel--hero {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  background: rgba(11, 36, 28, 0.9);
+}
+
+.character-screen .equipment-panel[aria-label="装备背包"] {
+  grid-column: 1;
+  grid-row: 2;
+  overflow: auto;
+}
+
+.character-screen .equipment-panel[aria-label="装备方案"] {
+  grid-column: 2;
+  grid-row: 2;
+  overflow: auto;
+}
+
+.character-screen .equipment-panel[aria-label="淬炼台"] {
+  display: none;
+}
+
+.character-screen .equipment-hero {
+  grid-template-columns: minmax(210px, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.character-screen .equipment-hero__controls {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.character-screen .equipment-hero__actions {
+  grid-column: 1 / -1;
+}
+
+.character-screen .equipment-form,
+.character-screen .equipment-filterbar {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.character-screen .equipment-instance,
+.character-screen .equipment-slot,
+.character-screen .equipment-compare__row,
+.character-screen .tempering-ladder__row {
+  padding: 10px;
+  border-radius: 2px;
+  border-color: rgba(179, 151, 96, 0.24);
+  background: rgba(4, 17, 14, 0.66);
+}
+
+.character-screen .equipment-instance--selected {
+  border-color: #69d7ae;
+  box-shadow: inset 2px 0 0 #69d7ae;
+}
+
+.character-screen .equipment-chip {
+  min-height: 20px;
+  padding: 3px 7px;
+  border-radius: 2px;
+  color: #a7d9b0;
+  background: rgba(42, 104, 78, 0.35);
+}
+
+.inventory-screen {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
+.inventory-screen .content-workbench__header,
+.inventory-screen .content-workbench__panel {
+  border: 1px solid rgba(179, 151, 96, 0.28);
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.inventory-screen .content-workbench__header {
+  min-height: 86px;
+  padding: 14px 18px;
+  background: rgba(11, 36, 28, 0.9);
+}
+
+.inventory-screen .content-workbench__header .page-card__title {
+  color: #8fe0bd;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 28px;
+}
+
+.inventory-screen .content-workbench__summary {
+  color: #d6c49c;
+  font-family: Georgia, 'Songti SC', serif;
+}
+
+.inventory-screen .content-workbench__panel {
+  min-height: 0;
+  padding: 14px;
+  overflow: auto;
+  background: rgba(5, 20, 16, 0.76);
+}
+
+.inventory-screen .content-list--compact {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+
+.inventory-screen .content-card {
+  min-height: 116px;
+  padding: 9px;
+  border-radius: 2px;
+  border-color: rgba(179, 151, 96, 0.24);
+  background: rgba(4, 17, 14, 0.72);
+}
+
+.inventory-screen .content-card--selected {
+  border-color: #69d7ae;
+  box-shadow: inset 0 2px 0 #69d7ae;
+}
+
+.inventory-screen .inventory-item-card__icon {
+  border-radius: 2px;
+  border-color: rgba(179, 151, 96, 0.35);
+  background: rgba(29, 91, 69, 0.34);
+  color: #9be5c0;
+}
+
+.settings-page {
+  gap: 10px;
+  padding: 14px 18px;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
+.settings-page__header,
+.settings-page__tabs,
+.settings-page__list,
+.settings-option {
+  border-color: rgba(179, 151, 96, 0.28);
+  border-radius: 2px;
+}
+
+.settings-page__header {
+  min-height: 88px;
+  padding: 16px 18px;
+  background: rgba(11, 36, 28, 0.9);
+}
+
+.settings-page__header h3 {
+  color: #8fe0bd;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 30px;
+}
+
+.settings-page__tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 0;
+  background: rgba(4, 17, 14, 0.78);
+}
+
+.settings-page__tab {
+  min-height: 48px;
+  border-right: 1px solid rgba(179, 151, 96, 0.18);
+  color: #b9a982;
+  font-family: Georgia, 'Songti SC', serif;
+}
+
+.settings-page__tab:last-child {
+  border-right: 0;
+}
+
+.settings-page__tab--active {
+  color: #f0e2c0;
+  background: rgba(45, 113, 83, 0.72);
+  box-shadow: inset 0 2px 0 #72d9b3;
+}
+
+.settings-page__list {
+  overflow: hidden;
+  background: rgba(4, 17, 14, 0.78);
+}
+
+.settings-option {
+  min-height: 88px;
+  padding: 17px 20px;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  background: transparent;
+}
+
+.settings-option:last-child {
+  border-bottom: 0;
+}
+
+.settings-option strong {
+  color: #e0cfaa;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 17px;
+}
+
+.settings-option small {
+  color: #9eada1;
+}
+
+.settings-option input[type='checkbox'] {
+  width: 42px;
+  height: 24px;
+  accent-color: #61d5aa;
+}
+
+@media (max-width: 1100px) {
+  .inventory-screen .content-list--compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .expedition-layout--active {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    overflow: auto;
+  }
+
+  .expedition-layout--active .expedition-catalog {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .expedition-layout--active > .expedition-panel--hero,
+  .expedition-layout--active > .expedition-panel[aria-label='历练准备'],
+  .expedition-layout--active > .expedition-panel[aria-label='历练状态'] {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .character-screen {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto;
+    overflow: auto;
+  }
+
+  .character-screen .equipment-panel--hero,
+  .character-screen .equipment-panel[aria-label='装备背包'],
+  .character-screen .equipment-panel[aria-label='装备方案'] {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .inventory-screen .content-list--compact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .expedition-layout--active,
+  .character-screen,
+  .inventory-screen,
+  .settings-page {
+    display: block;
+    height: 100%;
+    overflow: auto;
+  }
+
+  .expedition-layout--active > .expedition-panel,
+  .expedition-layout--active .expedition-catalog,
+  .character-screen .equipment-panel,
+  .inventory-screen .content-workbench__header,
+  .inventory-screen .content-workbench__panel {
+    margin-bottom: 8px;
+  }
+
+  .expedition-layout--active .expedition-catalog .behavior-region-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .character-screen .equipment-hero,
+  .character-screen .equipment-hero__controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .inventory-screen .content-list--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-page {
+    padding: 10px;
+  }
+
+  .settings-page__header {
+    display: grid;
+    gap: 8px;
+  }
+
+  .settings-page__tabs {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .settings-page__tab {
+    min-width: 88px;
+  }
+}
+
+/* 百艺 / 采集 / 生产页：先选分类，再在同一工作面选择行动。 */
+.behavior-layout:not(.behavior-layout--cultivation) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--hero,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--regions,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources {
+  grid-column: 1;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 82px;
+  padding: 14px 20px;
+  border-color: rgba(179, 151, 96, 0.3);
+  background: rgba(8, 28, 23, 0.84);
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--hero .page-card__title {
+  margin: 2px 0 3px;
+  color: #d8c59d;
+  font-size: 27px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--hero .page-card__copy {
+  margin: 0;
+  color: #9eac9f;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--regions {
+  min-height: 0;
+  padding: 12px 14px;
+  overflow: hidden;
+  border-color: rgba(179, 151, 96, 0.28);
+  background: rgba(7, 23, 19, 0.72);
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--regions .behavior-panel__heading {
+  margin-bottom: 8px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-region-list {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-region {
+  min-height: 78px;
+  padding: 10px 12px;
+  border-color: rgba(179, 151, 96, 0.3);
+  background: rgba(4, 18, 15, 0.66);
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-region--selected {
+  border-color: #6bd6b0;
+  background: rgba(24, 77, 59, 0.42);
+  box-shadow: inset 0 2px 0 rgba(106, 214, 176, 0.65);
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-region__header strong {
+  color: #dbc9a3;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 16px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-region__header small,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-region__description {
+  color: #98a99e;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+  padding: 14px;
+  overflow: auto;
+  border-color: rgba(179, 151, 96, 0.28);
+  background: rgba(5, 20, 16, 0.76);
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-panel__heading {
+  margin-bottom: 10px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-panel__heading h4 {
+  color: #ddcaa5;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 20px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 9px;
+}
+
+.behavior-layout--alchemy .behavior-resource-list,
+.behavior-layout--forging .behavior-resource-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource {
+  min-height: 132px;
+  padding: 12px;
+  border-color: rgba(179, 151, 96, 0.3);
+  background: rgba(4, 18, 15, 0.74);
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource--clickable:hover,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource--clickable:focus-visible {
+  border-color: #71d8b2;
+  box-shadow: 0 0 0 1px rgba(113, 216, 178, 0.24);
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__header h4 {
+  color: #dcc9a3;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 17px;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__materials,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__outputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(179, 151, 96, 0.16);
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__materials strong,
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__outputs strong {
+  color: #b6d5a7;
+  background: transparent;
+}
+
+.behavior-layout:not(.behavior-layout--cultivation) .behavior-resource__start {
+  justify-self: end;
+  min-height: auto;
+  border: 0;
+  color: #73d5ae;
+  background: transparent;
+}
+
+.content-workbench--craft {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.content-workbench--craft .content-workbench__header {
+  align-items: center;
+  min-height: 84px;
+  padding: 14px 20px;
+  border-color: rgba(179, 151, 96, 0.3);
+  background: rgba(8, 28, 23, 0.84);
+}
+
+.content-workbench--craft .content-workbench__header .page-card__title {
+  margin: 2px 0 3px;
+  color: #d8c59d;
+  font-size: 27px;
+}
+
+.content-workbench--craft .content-workbench__panel {
+  min-height: 0;
+  padding: 14px;
+  overflow: auto;
+  border-color: rgba(179, 151, 96, 0.28);
+  background: rgba(5, 20, 16, 0.76);
+}
+
+.content-workbench--craft .content-tabs {
+  width: min(100%, 560px);
+  margin: 0 auto 12px;
+  border-color: rgba(179, 151, 96, 0.28);
+  background: rgba(4, 18, 15, 0.66);
+}
+
+.content-workbench--craft .content-tabs .chip-button {
+  flex: 1;
+  min-height: 38px;
+  color: #cbb890;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 15px;
+}
+
+.content-workbench--craft .content-tabs .chip-button--active {
+  color: #e7d9b9;
+  border-color: #7bd8b3;
+  background: rgba(37, 105, 79, 0.62);
+}
+
+.content-workbench--craft .content-list > [role='tabpanel'] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.content-workbench--craft .content-card--compact {
+  min-height: 76px;
+  padding: 10px 12px;
+  border-color: rgba(179, 151, 96, 0.28);
+  background: rgba(4, 18, 15, 0.74);
+}
+
+.content-workbench--craft .content-card--compact .content-card__title-row strong {
+  color: #dbc9a3;
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 16px;
+}
+
+.content-workbench--craft .content-card--compact .content-card__actions .ghost-button {
+  border-color: rgba(113, 216, 178, 0.3);
+  color: #83d6b4;
+}
+
+@media (max-width: 900px) {
+  .behavior-layout:not(.behavior-layout--cultivation) .behavior-region-list,
+  .behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .behavior-layout:not(.behavior-layout--cultivation) {
+    display: block;
+    height: 100%;
+    overflow: auto;
+  }
+
+  .behavior-layout:not(.behavior-layout--cultivation) .behavior-panel,
+  .content-workbench--craft .content-workbench__header,
+  .content-workbench--craft .content-workbench__panel {
+    margin-bottom: 8px;
+  }
+
+  .behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .behavior-layout:not(.behavior-layout--cultivation) .behavior-region-list,
+  .behavior-layout:not(.behavior-layout--cultivation) .behavior-panel--resources .behavior-resource-list,
+  .behavior-layout--alchemy .behavior-resource-list,
+  .behavior-layout--forging .behavior-resource-list {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .content-workbench--craft {
+    display: block;
+    height: 100%;
+    overflow: auto;
+  }
+}
+
+/* Expedition overrides follow the shared behavior rules so the six-map layout remains intentional. */
+.behavior-layout.behavior-layout--expedition .behavior-panel--regions .behavior-region-list {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.behavior-layout.behavior-layout--expedition .behavior-panel--resources .behavior-resource-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .behavior-layout.behavior-layout--expedition .behavior-panel--regions .behavior-region-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .behavior-layout.behavior-layout--expedition .behavior-panel--resources .behavior-resource-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .behavior-layout.behavior-layout--expedition .behavior-panel--regions .behavior-region-list,
+  .behavior-layout.behavior-layout--expedition .behavior-panel--resources .behavior-resource-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Final cascade guard: these rules must win over legacy compact-density rules. */
+.content-workbench--craft .content-list--compact > [role='tabpanel'] {
+  grid-column: 1 / -1 !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.content-workbench--craft .content-card--compact {
+  height: auto !important;
+  min-height: 120px !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.content-workbench--craft .content-card--compact .content-card__actions .ghost-button {
+  display: block !important;
+  height: auto !important;
+  min-height: 44px !important;
+}
+
+.settings-page__list {
+  min-height: 0 !important;
+  overflow: auto !important;
+}
+
+.breakthrough-requirement p,
+.breakthrough-runtime p,
+.breakthrough-queue p {
+  overflow: visible !important;
+  overflow-wrap: anywhere;
+  text-overflow: clip !important;
+  white-space: normal !important;
+}
+
+/* Undo the legacy 35px craft matrix so cards participate in normal document flow. */
+.content-workbench--craft .content-list--compact > [role='tabpanel'] {
+  grid-auto-rows: auto !important;
+  gap: 12px !important;
+}
+
+.content-workbench--craft .content-card--compact {
+  grid-template-rows: auto auto auto auto !important;
+  align-content: start;
+  min-height: 204px !important;
+  gap: 8px !important;
+  padding: 12px !important;
+}
+
+.content-workbench--craft .content-card--compact .content-card__title-button {
+  grid-row: auto !important;
+  height: auto !important;
+  min-height: 44px !important;
+  overflow: visible !important;
+}
+
+.content-workbench--craft .content-card--compact .content-card__title-row,
+.content-workbench--craft .content-card--compact .content-card__meta,
+.content-workbench--craft .content-card--compact .content-card__unlock {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+.content-workbench--craft .content-card--compact .content-card__meta {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 4px 10px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.content-workbench--craft .content-card--compact .content-card__meta span,
+.content-workbench--craft .content-card--compact .content-card__unlock {
+  display: block !important;
+}
+
+.content-workbench--craft .content-card--compact .content-card__actions {
+  position: static !important;
+  grid-column: 1 / -1 !important;
+  grid-row: auto !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  width: 100% !important;
+  height: auto !important;
+  margin-top: auto;
+}
+
+@media (max-width: 760px) {
+  .content-workbench--craft .content-card--compact {
+    min-height: 220px !important;
+  }
+}
+
+.behavior-layout--cultivation .cultivation-route {
+  min-height: 206px !important;
+  overflow: visible !important;
+}
+
+.behavior-layout--cultivation .behavior-resource__facts,
+.behavior-layout--cultivation .behavior-resource__outputs {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.character-screen .equipment-panel button {
+  min-height: 44px !important;
+}
+
+.game-log {
+  min-height: 0 !important;
+  max-height: 108px !important;
+}
+
+@media (max-width: 900px) {
+  .content-workbench--craft .content-list--compact > [role='tabpanel'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .content-workbench--craft .content-list--compact > [role='tabpanel'] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .content-workbench--craft .content-card--compact {
+    min-height: 174px !important;
+  }
+
+  .behavior-layout--cultivation .cultivation-route {
+    min-height: 220px !important;
+  }
+
+  .behavior-layout--cultivation .behavior-resource__facts,
+  .behavior-layout--cultivation .behavior-resource__outputs {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .game-log {
+    max-height: 84px !important;
+  }
+}
+
+/* Last-mile accessibility guard: keep settings reachable and mobile equipment labels readable. */
+.settings-page__list {
+  overflow: auto !important;
+}
+
+@media (max-width: 760px) {
+  .character-screen .equipment-hero {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .character-screen .equipment-hero .metric-chip__label {
+    overflow: visible !important;
+    white-space: normal !important;
+  }
+}
+
+/* Preserve both lines of cultivation facts at narrow widths. */
+.behavior-layout--cultivation .behavior-resource__facts,
+.behavior-layout--cultivation .behavior-resource__outputs {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 28px;
+  overflow: visible !important;
+  align-content: start;
+}
+
+.behavior-layout--cultivation .behavior-resource__facts span,
+.behavior-layout--cultivation .behavior-resource__outputs span,
+.behavior-layout--cultivation .behavior-resource__outputs strong {
+  min-width: 0;
+  overflow: visible !important;
+  overflow-wrap: anywhere;
+  text-overflow: clip !important;
+  white-space: normal !important;
+}
+
+@media (max-width: 760px) {
+  .content-workbench--craft .content-card--compact {
+    min-height: 220px !important;
+  }
+}

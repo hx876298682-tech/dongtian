@@ -639,8 +639,8 @@ export function CraftPage(): ReactElement {
   }
 
   return (
-    <section className="content-layout content-screen content-screen--single content-workbench content-workbench--craft">
-      <header className="content-workbench__header">
+    <section className="content-layout content-screen content-screen--single content-workbench content-workbench--craft" aria-label="百艺总览">
+      <header className="content-workbench__header" aria-label="百艺标题">
         <div>
           <p className="page-card__eyebrow">百艺</p>
           <h3 className="page-card__title">修行技能</h3>
@@ -651,7 +651,7 @@ export function CraftPage(): ReactElement {
         </p>
       </header>
 
-      <div className="content-panel content-workbench__panel">
+      <div className="content-panel content-workbench__panel" aria-label="百艺内容">
         <div className="content-tabs" role="tablist" aria-label="百艺分类" onKeyDown={handleTabKeyDown}>
           <button
             id="content-tab-actions"
@@ -791,7 +791,7 @@ export function InventoryPage(): ReactElement {
   }
 
   return (
-    <section className="content-layout inventory-screen content-screen--single content-workbench content-workbench--inventory">
+    <section className="content-layout inventory-screen content-screen--single content-workbench content-workbench--inventory" aria-label="背包总览">
       <header className="content-workbench__header">
         <div>
           <p className="page-card__eyebrow">背包</p>
@@ -803,7 +803,7 @@ export function InventoryPage(): ReactElement {
         </p>
       </header>
 
-      <div className="content-panel content-workbench__panel">
+      <div className="content-panel content-workbench__panel" aria-label="背包物品">
         <div className="content-list content-list--compact">
           {inventoryData.items.length === 0 ? <EmptyStateScreen title="背包为空" description="当前没有可展示的库存物品。" /> : null}
           {inventoryData.items.map((item) => (
