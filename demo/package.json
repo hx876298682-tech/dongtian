@@ -1,0 +1,48 @@
+{
+  "name": "demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "generate:game-config": "node scripts/generate-game-config.mjs",
+    "audit:release-inputs": "node --experimental-strip-types scripts/audit-release-inputs.mjs",
+    "test:game": "node --experimental-strip-types --test src/game/engine.test.ts",
+    "test:config-tools": "node --test scripts/*.test.mjs",
+    "test:server": "node --experimental-strip-types --test --test-concurrency=1 src/server/*.test.ts",
+    "test:integration:postgres": "node --experimental-strip-types --test src/server/postgres.integration.test.ts",
+    "test:integration:routing": "node --experimental-strip-types --test src/server/config-release-routing.integration.test.ts",
+    "test:integration:reliability": "node --experimental-strip-types --test src/server/postgres-reliability.integration.test.ts",
+    "test:integration:process": "node --experimental-strip-types --test src/server/process-restart.integration.test.ts",
+    "test:integration": "npm run test:integration:postgres && npm run test:integration:routing && npm run test:integration:reliability && npm run test:integration:process",
+    "benchmark:capacity": "node --experimental-strip-types src/server/capacity-harness.ts",
+    "test": "npm run test:config-tools && npm run test:game && npm run test:server",
+    "typecheck:server": "tsc --ignoreConfig --noEmit --target es2023 --module nodenext --moduleResolution nodenext --allowImportingTsExtensions --verbatimModuleSyntax --skipLibCheck --erasableSyntaxOnly --types node src/server/*.ts",
+    "preflight:deployment": "node --experimental-strip-types src/server/deployment-preflight.ts",
+    "acceptance:production": "node --experimental-strip-types src/server/production-acceptance.ts",
+    "server": "node --experimental-strip-types src/server/main.ts",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide-react": "^1.34.0",
+    "pg": "^8.23.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.13.3",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "autoprefixer": "^10.5.4",
+    "oxlint": "^1.79.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.2"
+  }
+}

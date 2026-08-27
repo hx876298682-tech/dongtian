@@ -1,0 +1,8 @@
+parameter_id,domain,parameter_name,value,unit,value_type,status,source,reference_source,formula_or_rule,rounding,notes
+dungeon.qing_feng.equipment_drop_chance,dungeon,qing_feng equipment drop chance,5,percent,probability,proposal_v1,洞天正式输入设计总草案V1,docs/洞天正式输入设计草案_FI01_FI02.md,independent per-clear equipment roll,integer,待主代理批准后转入冻结参数表；不继承普通地图或Boss掉率
+dungeon.qing_feng.equipment_quality_normal_chance,dungeon,qing_feng normal equipment quality weight,50,percent,probability,proposal_v1,洞天正式输入设计总草案V1,docs/洞天正式输入设计草案_FI01_FI02.md,"quality pool weight,total=100",integer,清风装备品质池候选值
+dungeon.qing_feng.equipment_quality_fine_chance,dungeon,qing_feng fine equipment quality weight,30,percent,probability,proposal_v1,洞天正式输入设计总草案V1,docs/洞天正式输入设计草案_FI01_FI02.md,"quality pool weight,total=100",integer,清风装备品质池候选值
+dungeon.qing_feng.equipment_quality_rare_chance,dungeon,qing_feng rare equipment quality weight,15,percent,probability,proposal_v1,洞天正式输入设计总草案V1,docs/洞天正式输入设计草案_FI01_FI02.md,"quality pool weight,total=100",integer,清风装备品质池候选值
+dungeon.qing_feng.equipment_quality_epic_chance,dungeon,qing_feng epic equipment quality weight,4,percent,probability,proposal_v1,洞天正式输入设计总草案V1,docs/洞天正式输入设计草案_FI01_FI02.md,"quality pool weight,total=100",integer,清风装备品质池候选值
+dungeon.qing_feng.equipment_quality_legendary_chance,dungeon,qing_feng legendary equipment quality weight,1,percent,probability,proposal_v1,洞天正式输入设计总草案V1,docs/洞天正式输入设计草案_FI01_FI02.md,"quality pool weight,total=100",integer,清风装备品质池候选值
+dungeon.qing_feng.equipment_quality_immortal_chance,dungeon,qing_feng immortal equipment quality weight,0,percent,probability,proposal_v1,洞天正式输入设计总草案V1,docs/洞天正式输入设计草案_FI01_FI02.md,"quality pool weight,total=100",integer,保留正式字段但候选首发权重为0

@@ -1,0 +1,16 @@
+/* 全局基线：字体栈按设计规范走系统衬线/黑体回退，不引外网字体（离线友好）。
+   设计令牌与组件样式统一在 src/ui/tokens/theme.css。 */
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-width: 320px;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--gold-light, #c9933b);
+  outline-offset: 2px;
+}

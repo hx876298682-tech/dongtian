@@ -1,0 +1,2394 @@
+[
+  {
+    "id": "equip.bai_cao_valley.weapon.normal.001",
+    "display_name": "凡剑",
+    "name_pool_id": "name_pool.bai_cao_valley.weapon.normal",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.weapon.normal",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "weapon",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_1.normal.001",
+    "display_name": "凡护肩",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_1.normal",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_1.normal",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_1",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_2.normal.001",
+    "display_name": "凡护甲",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_2.normal",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_2.normal",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_2",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_3.normal.001",
+    "display_name": "凡护腕",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_3.normal",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_3.normal",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_3",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_4.normal.001",
+    "display_name": "凡战靴",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_4.normal",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_4.normal",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_4",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.accessory.normal.001",
+    "display_name": "凡玉佩",
+    "name_pool_id": "name_pool.bai_cao_valley.accessory.normal",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.accessory.normal",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "accessory",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.weapon.fine.001",
+    "display_name": "精剑",
+    "name_pool_id": "name_pool.bai_cao_valley.weapon.fine",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.weapon.fine",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "weapon",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_1.fine.001",
+    "display_name": "精护肩",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_1.fine",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_1.fine",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_1",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_2.fine.001",
+    "display_name": "精护甲",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_2.fine",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_2.fine",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_2",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_3.fine.001",
+    "display_name": "精护腕",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_3.fine",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_3.fine",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_3",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_4.fine.001",
+    "display_name": "精战靴",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_4.fine",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_4.fine",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_4",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.accessory.fine.001",
+    "display_name": "精玉佩",
+    "name_pool_id": "name_pool.bai_cao_valley.accessory.fine",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.accessory.fine",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "accessory",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.weapon.rare.001",
+    "display_name": "稀剑",
+    "name_pool_id": "name_pool.bai_cao_valley.weapon.rare",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.weapon.rare",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "weapon",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_1.rare.001",
+    "display_name": "稀护肩",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_1.rare",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_1.rare",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_1",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_2.rare.001",
+    "display_name": "稀护甲",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_2.rare",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_2.rare",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_2",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_3.rare.001",
+    "display_name": "稀护腕",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_3.rare",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_3.rare",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_3",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_4.rare.001",
+    "display_name": "稀战靴",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_4.rare",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_4.rare",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_4",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.accessory.rare.001",
+    "display_name": "稀玉佩",
+    "name_pool_id": "name_pool.bai_cao_valley.accessory.rare",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.accessory.rare",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "accessory",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.weapon.epic.001",
+    "display_name": "史剑",
+    "name_pool_id": "name_pool.bai_cao_valley.weapon.epic",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.weapon.epic",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "weapon",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_1.epic.001",
+    "display_name": "史护肩",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_1.epic",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_1.epic",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_1",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_2.epic.001",
+    "display_name": "史护甲",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_2.epic",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_2.epic",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_2",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_3.epic.001",
+    "display_name": "史护腕",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_3.epic",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_3.epic",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_3",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.armor_4.epic.001",
+    "display_name": "史战靴",
+    "name_pool_id": "name_pool.bai_cao_valley.armor_4.epic",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.armor_4.epic",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "armor_4",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.bai_cao_valley.accessory.epic.001",
+    "display_name": "史玉佩",
+    "name_pool_id": "name_pool.bai_cao_valley.accessory.epic",
+    "icon_asset_id": "asset.placeholder.equipment.bai_cao_valley.accessory.epic",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "accessory",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.weapon.normal.001",
+    "display_name": "凡剑",
+    "name_pool_id": "name_pool.black_wind_valley.weapon.normal",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.weapon.normal",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "weapon",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_1.normal.001",
+    "display_name": "凡护肩",
+    "name_pool_id": "name_pool.black_wind_valley.armor_1.normal",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_1.normal",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_1",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_2.normal.001",
+    "display_name": "凡护甲",
+    "name_pool_id": "name_pool.black_wind_valley.armor_2.normal",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_2.normal",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_2",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_3.normal.001",
+    "display_name": "凡护腕",
+    "name_pool_id": "name_pool.black_wind_valley.armor_3.normal",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_3.normal",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_3",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_4.normal.001",
+    "display_name": "凡战靴",
+    "name_pool_id": "name_pool.black_wind_valley.armor_4.normal",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_4.normal",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_4",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.accessory.normal.001",
+    "display_name": "凡玉佩",
+    "name_pool_id": "name_pool.black_wind_valley.accessory.normal",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.accessory.normal",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "accessory",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.weapon.fine.001",
+    "display_name": "精剑",
+    "name_pool_id": "name_pool.black_wind_valley.weapon.fine",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.weapon.fine",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "weapon",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_1.fine.001",
+    "display_name": "精护肩",
+    "name_pool_id": "name_pool.black_wind_valley.armor_1.fine",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_1.fine",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_1",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_2.fine.001",
+    "display_name": "精护甲",
+    "name_pool_id": "name_pool.black_wind_valley.armor_2.fine",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_2.fine",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_2",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_3.fine.001",
+    "display_name": "精护腕",
+    "name_pool_id": "name_pool.black_wind_valley.armor_3.fine",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_3.fine",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_3",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_4.fine.001",
+    "display_name": "精战靴",
+    "name_pool_id": "name_pool.black_wind_valley.armor_4.fine",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_4.fine",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_4",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.accessory.fine.001",
+    "display_name": "精玉佩",
+    "name_pool_id": "name_pool.black_wind_valley.accessory.fine",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.accessory.fine",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "accessory",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.weapon.rare.001",
+    "display_name": "稀剑",
+    "name_pool_id": "name_pool.black_wind_valley.weapon.rare",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.weapon.rare",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "weapon",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_1.rare.001",
+    "display_name": "稀护肩",
+    "name_pool_id": "name_pool.black_wind_valley.armor_1.rare",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_1.rare",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_1",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_2.rare.001",
+    "display_name": "稀护甲",
+    "name_pool_id": "name_pool.black_wind_valley.armor_2.rare",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_2.rare",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_2",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_3.rare.001",
+    "display_name": "稀护腕",
+    "name_pool_id": "name_pool.black_wind_valley.armor_3.rare",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_3.rare",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_3",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_4.rare.001",
+    "display_name": "稀战靴",
+    "name_pool_id": "name_pool.black_wind_valley.armor_4.rare",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_4.rare",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_4",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.accessory.rare.001",
+    "display_name": "稀玉佩",
+    "name_pool_id": "name_pool.black_wind_valley.accessory.rare",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.accessory.rare",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "accessory",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.weapon.epic.001",
+    "display_name": "史剑",
+    "name_pool_id": "name_pool.black_wind_valley.weapon.epic",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.weapon.epic",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "weapon",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_1.epic.001",
+    "display_name": "史护肩",
+    "name_pool_id": "name_pool.black_wind_valley.armor_1.epic",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_1.epic",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_1",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_2.epic.001",
+    "display_name": "史护甲",
+    "name_pool_id": "name_pool.black_wind_valley.armor_2.epic",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_2.epic",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_2",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_3.epic.001",
+    "display_name": "史护腕",
+    "name_pool_id": "name_pool.black_wind_valley.armor_3.epic",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_3.epic",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_3",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_4.epic.001",
+    "display_name": "史战靴",
+    "name_pool_id": "name_pool.black_wind_valley.armor_4.epic",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_4.epic",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_4",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.accessory.epic.001",
+    "display_name": "史玉佩",
+    "name_pool_id": "name_pool.black_wind_valley.accessory.epic",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.accessory.epic",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "accessory",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.weapon.legendary.001",
+    "display_name": "传剑",
+    "name_pool_id": "name_pool.black_wind_valley.weapon.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.weapon.legendary",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "weapon",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_1.legendary.001",
+    "display_name": "传护肩",
+    "name_pool_id": "name_pool.black_wind_valley.armor_1.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_1.legendary",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_1",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_2.legendary.001",
+    "display_name": "传护甲",
+    "name_pool_id": "name_pool.black_wind_valley.armor_2.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_2.legendary",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_2",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_3.legendary.001",
+    "display_name": "传护腕",
+    "name_pool_id": "name_pool.black_wind_valley.armor_3.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_3.legendary",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_3",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.armor_4.legendary.001",
+    "display_name": "传战靴",
+    "name_pool_id": "name_pool.black_wind_valley.armor_4.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.armor_4.legendary",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "armor_4",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.black_wind_valley.accessory.legendary.001",
+    "display_name": "传玉佩",
+    "name_pool_id": "name_pool.black_wind_valley.accessory.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.black_wind_valley.accessory.legendary",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "accessory",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.weapon.normal.001",
+    "display_name": "凡剑",
+    "name_pool_id": "name_pool.red_flame_cave.weapon.normal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.weapon.normal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "weapon",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_1.normal.001",
+    "display_name": "凡护肩",
+    "name_pool_id": "name_pool.red_flame_cave.armor_1.normal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_1.normal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_1",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_2.normal.001",
+    "display_name": "凡护甲",
+    "name_pool_id": "name_pool.red_flame_cave.armor_2.normal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_2.normal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_2",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_3.normal.001",
+    "display_name": "凡护腕",
+    "name_pool_id": "name_pool.red_flame_cave.armor_3.normal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_3.normal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_3",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_4.normal.001",
+    "display_name": "凡战靴",
+    "name_pool_id": "name_pool.red_flame_cave.armor_4.normal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_4.normal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_4",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.accessory.normal.001",
+    "display_name": "凡玉佩",
+    "name_pool_id": "name_pool.red_flame_cave.accessory.normal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.accessory.normal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "accessory",
+    "quality": "normal",
+    "quality_parameter": "loot.equipment.quality.multiplier.normal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.weapon.fine.001",
+    "display_name": "精剑",
+    "name_pool_id": "name_pool.red_flame_cave.weapon.fine",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.weapon.fine",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "weapon",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_1.fine.001",
+    "display_name": "精护肩",
+    "name_pool_id": "name_pool.red_flame_cave.armor_1.fine",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_1.fine",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_1",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_2.fine.001",
+    "display_name": "精护甲",
+    "name_pool_id": "name_pool.red_flame_cave.armor_2.fine",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_2.fine",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_2",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_3.fine.001",
+    "display_name": "精护腕",
+    "name_pool_id": "name_pool.red_flame_cave.armor_3.fine",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_3.fine",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_3",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_4.fine.001",
+    "display_name": "精战靴",
+    "name_pool_id": "name_pool.red_flame_cave.armor_4.fine",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_4.fine",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_4",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.accessory.fine.001",
+    "display_name": "精玉佩",
+    "name_pool_id": "name_pool.red_flame_cave.accessory.fine",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.accessory.fine",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "accessory",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.weapon.rare.001",
+    "display_name": "稀剑",
+    "name_pool_id": "name_pool.red_flame_cave.weapon.rare",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.weapon.rare",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "weapon",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_1.rare.001",
+    "display_name": "稀护肩",
+    "name_pool_id": "name_pool.red_flame_cave.armor_1.rare",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_1.rare",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_1",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_2.rare.001",
+    "display_name": "稀护甲",
+    "name_pool_id": "name_pool.red_flame_cave.armor_2.rare",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_2.rare",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_2",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_3.rare.001",
+    "display_name": "稀护腕",
+    "name_pool_id": "name_pool.red_flame_cave.armor_3.rare",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_3.rare",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_3",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_4.rare.001",
+    "display_name": "稀战靴",
+    "name_pool_id": "name_pool.red_flame_cave.armor_4.rare",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_4.rare",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_4",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.accessory.rare.001",
+    "display_name": "稀玉佩",
+    "name_pool_id": "name_pool.red_flame_cave.accessory.rare",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.accessory.rare",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "accessory",
+    "quality": "rare",
+    "quality_parameter": "loot.equipment.quality.multiplier.rare",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.weapon.epic.001",
+    "display_name": "史剑",
+    "name_pool_id": "name_pool.red_flame_cave.weapon.epic",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.weapon.epic",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "weapon",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_1.epic.001",
+    "display_name": "史护肩",
+    "name_pool_id": "name_pool.red_flame_cave.armor_1.epic",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_1.epic",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_1",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_2.epic.001",
+    "display_name": "史护甲",
+    "name_pool_id": "name_pool.red_flame_cave.armor_2.epic",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_2.epic",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_2",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_3.epic.001",
+    "display_name": "史护腕",
+    "name_pool_id": "name_pool.red_flame_cave.armor_3.epic",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_3.epic",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_3",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_4.epic.001",
+    "display_name": "史战靴",
+    "name_pool_id": "name_pool.red_flame_cave.armor_4.epic",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_4.epic",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_4",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.accessory.epic.001",
+    "display_name": "史玉佩",
+    "name_pool_id": "name_pool.red_flame_cave.accessory.epic",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.accessory.epic",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "accessory",
+    "quality": "epic",
+    "quality_parameter": "loot.equipment.quality.multiplier.epic",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.weapon.legendary.001",
+    "display_name": "传剑",
+    "name_pool_id": "name_pool.red_flame_cave.weapon.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.weapon.legendary",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "weapon",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_1.legendary.001",
+    "display_name": "传护肩",
+    "name_pool_id": "name_pool.red_flame_cave.armor_1.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_1.legendary",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_1",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_2.legendary.001",
+    "display_name": "传护甲",
+    "name_pool_id": "name_pool.red_flame_cave.armor_2.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_2.legendary",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_2",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_3.legendary.001",
+    "display_name": "传护腕",
+    "name_pool_id": "name_pool.red_flame_cave.armor_3.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_3.legendary",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_3",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_4.legendary.001",
+    "display_name": "传战靴",
+    "name_pool_id": "name_pool.red_flame_cave.armor_4.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_4.legendary",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_4",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.accessory.legendary.001",
+    "display_name": "传玉佩",
+    "name_pool_id": "name_pool.red_flame_cave.accessory.legendary",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.accessory.legendary",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "accessory",
+    "quality": "legendary",
+    "quality_parameter": "loot.equipment.quality.multiplier.legendary",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.weapon.immortal.001",
+    "display_name": "仙剑",
+    "name_pool_id": "name_pool.red_flame_cave.weapon.immortal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.weapon.immortal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "weapon",
+    "quality": "immortal",
+    "quality_parameter": "loot.equipment.quality.multiplier.immortal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_1.immortal.001",
+    "display_name": "仙护肩",
+    "name_pool_id": "name_pool.red_flame_cave.armor_1.immortal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_1.immortal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_1",
+    "quality": "immortal",
+    "quality_parameter": "loot.equipment.quality.multiplier.immortal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_2.immortal.001",
+    "display_name": "仙护甲",
+    "name_pool_id": "name_pool.red_flame_cave.armor_2.immortal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_2.immortal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_2",
+    "quality": "immortal",
+    "quality_parameter": "loot.equipment.quality.multiplier.immortal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_3.immortal.001",
+    "display_name": "仙护腕",
+    "name_pool_id": "name_pool.red_flame_cave.armor_3.immortal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_3.immortal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_3",
+    "quality": "immortal",
+    "quality_parameter": "loot.equipment.quality.multiplier.immortal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.armor_4.immortal.001",
+    "display_name": "仙战靴",
+    "name_pool_id": "name_pool.red_flame_cave.armor_4.immortal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.armor_4.immortal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.armor.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "armor_4",
+    "quality": "immortal",
+    "quality_parameter": "loot.equipment.quality.multiplier.immortal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "equip.red_flame_cave.accessory.immortal.001",
+    "display_name": "仙玉佩",
+    "name_pool_id": "name_pool.red_flame_cave.accessory.immortal",
+    "icon_asset_id": "asset.placeholder.equipment.red_flame_cave.accessory.immortal",
+    "appearance_tag_ids": [
+      "appearance.red_flame_cave"
+    ],
+    "stat_template_id": "stat_template.accessory.v1",
+    "source_map_ids": [
+      "red_flame_cave"
+    ],
+    "slot": "accessory",
+    "quality": "immortal",
+    "quality_parameter": "loot.equipment.quality.multiplier.immortal",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "iron_saber",
+    "display_name": "玄铁剑",
+    "name_pool_id": "name_pool.legacy.iron_saber",
+    "icon_asset_id": "asset.placeholder.legacy.iron_saber",
+    "appearance_tag_ids": [
+      "appearance.bai_cao_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "bai_cao_valley"
+    ],
+    "slot": "weapon",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  },
+  {
+    "id": "cloud_blade",
+    "display_name": "流云刃",
+    "name_pool_id": "name_pool.legacy.cloud_blade",
+    "icon_asset_id": "asset.placeholder.legacy.cloud_blade",
+    "appearance_tag_ids": [
+      "appearance.black_wind_valley"
+    ],
+    "stat_template_id": "stat_template.weapon.v1",
+    "source_map_ids": [
+      "black_wind_valley"
+    ],
+    "slot": "weapon",
+    "quality": "fine",
+    "quality_parameter": "loot.equipment.quality.multiplier.fine",
+    "reinforcement": {
+      "max_level_parameter": "loot.equipment.enhancement.max_level",
+      "stat_multiplier_parameter": "loot.equipment.enhancement.stat_multiplier_per_level",
+      "spirit_stone_base_parameter": "loot.equipment.enhancement.spirit_stone_base_cost",
+      "spirit_stone_growth_parameter": "loot.equipment.enhancement.spirit_stone_growth",
+      "spirit_ore_base_parameter": "loot.equipment.enhancement.spirit_ore_base_cost",
+      "spirit_wood_base_parameter": "loot.equipment.enhancement.spirit_wood_base_cost",
+      "material_growth_parameter": "loot.equipment.enhancement.material_growth"
+    },
+    "status": "released"
+  }
+]

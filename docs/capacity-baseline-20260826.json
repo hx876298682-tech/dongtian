@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-08-25T16:53:53.241Z",
+  "players": 64,
+  "rounds": 24,
+  "settlements": 1536,
+  "successfulSettlements": 1536,
+  "failedSettlements": 0,
+  "elapsedMs": 1418.279,
+  "throughputPerSecond": 1083.003,
+  "latencyMs": {
+    "p50": 39.849,
+    "p95": 53.234,
+    "p99": 61.62,
+    "max": 63.695
+  },
+  "errors": []
+}

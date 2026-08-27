@@ -1,0 +1,71 @@
+name: server-validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    env:
+      # Keep the ordinary server test suite connected to the same ephemeral
+      # PostgreSQL service as the dedicated integration steps. Without this,
+      # database-backed tests silently skip and CI can report a partial pass.
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/dongtian_ci
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dongtian_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d dongtian_ci"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    defaults:
+      run:
+        working-directory: demo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: demo/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck:server
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run audit:release-inputs
+      - run: ruby docs/洞天全量审计V1.rb
+        working-directory: .
+      - run: npm run preflight:deployment
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/dongtian_ci
+          DONGTIAN_AUTH_BACKEND: hs256
+          DONGTIAN_JWT_SECRET: ci-only-secret-that-is-at-least-32-characters
+          DONGTIAN_JWT_ISSUER: https://ci.invalid/issuer
+          DONGTIAN_JWT_AUDIENCE: dongtian-ci
+          DONGTIAN_METRICS_BACKEND: postgres
+          DONGTIAN_ALERT_BACKEND: webhook
+          DONGTIAN_ALERT_WEBHOOK_URL: https://alerts.invalid/dongtian
+          DONGTIAN_ALERT_WEBHOOK_TOKEN: ci-only-token
+          DONGTIAN_PENDING_SCANNER_ENABLED: 1
+          DONGTIAN_DB_POOL_MAX: 16
+          DONGTIAN_DB_CONNECT_TIMEOUT_MS: 5000
+          DONGTIAN_DB_STATEMENT_TIMEOUT_MS: 30000
+          DONGTIAN_DB_QUERY_TIMEOUT_MS: 35000
+          DONGTIAN_DB_IDLE_TIMEOUT_MS: 30000
+          DONGTIAN_DB_SSL_MODE: verify-full
+      - run: npm run test:integration
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/dongtian_ci
+      - run: node --experimental-strip-types --test src/server/metrics-runtime.test.ts
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/dongtian_ci

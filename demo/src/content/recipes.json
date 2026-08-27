@@ -1,0 +1,25 @@
+[
+  {
+    "id": "alchemy_basic",
+    "building_id": "alchemy_room",
+    "interval_parameter": "building.alchemy_room.base_interval",
+    "output_resource": "pill",
+    "output_parameter": "recipe.alchemy_basic.output",
+    "input_parameters": {
+      "spirit_herb": "recipe.alchemy_basic.herb_cost",
+      "spirit_stone": "recipe.alchemy_basic.stone_cost"
+    }
+  },
+  {
+    "id": "forge_basic",
+    "building_id": "forge_room",
+    "interval_parameter": "building.forge_room.base_interval",
+    "output_resource": "equipment",
+    "output_parameter": "recipe.forge_basic.output",
+    "input_parameters": {
+      "spirit_ore": "recipe.forge_basic.ore_cost",
+      "spirit_wood": "recipe.forge_basic.wood_cost",
+      "spirit_stone": "recipe.forge_basic.stone_cost"
+    }
+  }
+]

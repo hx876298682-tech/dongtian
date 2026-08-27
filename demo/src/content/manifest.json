@@ -1,0 +1,762 @@
+{
+  "config_version": "1.0.0-frozen",
+  "parameter_sha256": "7113fe72dd40ed36869408551f5f20a9e72e83af519b4a03d657296ed4987f75",
+  "schema_version": "1.1",
+  "status": "frozen_v1",
+  "content_files": [
+    "maps.json",
+    "equipment.json",
+    "recipes.json"
+  ],
+  "content_sha256": "463e0e839708aec0ac1b3f3d808ad4210799a8b60be94962611e4b0322fef264",
+  "asset_manifest": [
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.weapon.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_1.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_2.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_3.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_4.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.accessory.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.weapon.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_1.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_2.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_3.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_4.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.accessory.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.weapon.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_1.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_2.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_3.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_4.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.accessory.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.weapon.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_1.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_2.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_3.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.armor_4.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.bai_cao_valley.accessory.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.weapon.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_1.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_2.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_3.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_4.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.accessory.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.weapon.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_1.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_2.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_3.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_4.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.accessory.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.weapon.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_1.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_2.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_3.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_4.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.accessory.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.weapon.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_1.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_2.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_3.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_4.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.accessory.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.weapon.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_1.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_2.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_3.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.armor_4.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.black_wind_valley.accessory.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.weapon.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_1.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_2.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_3.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_4.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.accessory.normal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.weapon.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_1.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_2.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_3.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_4.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.accessory.fine",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.weapon.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_1.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_2.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_3.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_4.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.accessory.rare",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.weapon.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_1.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_2.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_3.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_4.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.accessory.epic",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.weapon.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_1.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_2.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_3.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_4.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.accessory.legendary",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.weapon.immortal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_1.immortal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_2.immortal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_3.immortal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.armor_4.immortal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.equipment.red_flame_cave.accessory.immortal",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.legacy.iron_saber",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "id": "asset.placeholder.legacy.cloud_blade",
+      "kind": "equipment_icon",
+      "status": "placeholder_v1",
+      "source": "mvp-placeholder-no-ui-default",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "name_pool_ids": [
+    "name_pool.bai_cao_valley.weapon.normal",
+    "name_pool.bai_cao_valley.armor_1.normal",
+    "name_pool.bai_cao_valley.armor_2.normal",
+    "name_pool.bai_cao_valley.armor_3.normal",
+    "name_pool.bai_cao_valley.armor_4.normal",
+    "name_pool.bai_cao_valley.accessory.normal",
+    "name_pool.bai_cao_valley.weapon.fine",
+    "name_pool.bai_cao_valley.armor_1.fine",
+    "name_pool.bai_cao_valley.armor_2.fine",
+    "name_pool.bai_cao_valley.armor_3.fine",
+    "name_pool.bai_cao_valley.armor_4.fine",
+    "name_pool.bai_cao_valley.accessory.fine",
+    "name_pool.bai_cao_valley.weapon.rare",
+    "name_pool.bai_cao_valley.armor_1.rare",
+    "name_pool.bai_cao_valley.armor_2.rare",
+    "name_pool.bai_cao_valley.armor_3.rare",
+    "name_pool.bai_cao_valley.armor_4.rare",
+    "name_pool.bai_cao_valley.accessory.rare",
+    "name_pool.bai_cao_valley.weapon.epic",
+    "name_pool.bai_cao_valley.armor_1.epic",
+    "name_pool.bai_cao_valley.armor_2.epic",
+    "name_pool.bai_cao_valley.armor_3.epic",
+    "name_pool.bai_cao_valley.armor_4.epic",
+    "name_pool.bai_cao_valley.accessory.epic",
+    "name_pool.black_wind_valley.weapon.normal",
+    "name_pool.black_wind_valley.armor_1.normal",
+    "name_pool.black_wind_valley.armor_2.normal",
+    "name_pool.black_wind_valley.armor_3.normal",
+    "name_pool.black_wind_valley.armor_4.normal",
+    "name_pool.black_wind_valley.accessory.normal",
+    "name_pool.black_wind_valley.weapon.fine",
+    "name_pool.black_wind_valley.armor_1.fine",
+    "name_pool.black_wind_valley.armor_2.fine",
+    "name_pool.black_wind_valley.armor_3.fine",
+    "name_pool.black_wind_valley.armor_4.fine",
+    "name_pool.black_wind_valley.accessory.fine",
+    "name_pool.black_wind_valley.weapon.rare",
+    "name_pool.black_wind_valley.armor_1.rare",
+    "name_pool.black_wind_valley.armor_2.rare",
+    "name_pool.black_wind_valley.armor_3.rare",
+    "name_pool.black_wind_valley.armor_4.rare",
+    "name_pool.black_wind_valley.accessory.rare",
+    "name_pool.black_wind_valley.weapon.epic",
+    "name_pool.black_wind_valley.armor_1.epic",
+    "name_pool.black_wind_valley.armor_2.epic",
+    "name_pool.black_wind_valley.armor_3.epic",
+    "name_pool.black_wind_valley.armor_4.epic",
+    "name_pool.black_wind_valley.accessory.epic",
+    "name_pool.black_wind_valley.weapon.legendary",
+    "name_pool.black_wind_valley.armor_1.legendary",
+    "name_pool.black_wind_valley.armor_2.legendary",
+    "name_pool.black_wind_valley.armor_3.legendary",
+    "name_pool.black_wind_valley.armor_4.legendary",
+    "name_pool.black_wind_valley.accessory.legendary",
+    "name_pool.red_flame_cave.weapon.normal",
+    "name_pool.red_flame_cave.armor_1.normal",
+    "name_pool.red_flame_cave.armor_2.normal",
+    "name_pool.red_flame_cave.armor_3.normal",
+    "name_pool.red_flame_cave.armor_4.normal",
+    "name_pool.red_flame_cave.accessory.normal",
+    "name_pool.red_flame_cave.weapon.fine",
+    "name_pool.red_flame_cave.armor_1.fine",
+    "name_pool.red_flame_cave.armor_2.fine",
+    "name_pool.red_flame_cave.armor_3.fine",
+    "name_pool.red_flame_cave.armor_4.fine",
+    "name_pool.red_flame_cave.accessory.fine",
+    "name_pool.red_flame_cave.weapon.rare",
+    "name_pool.red_flame_cave.armor_1.rare",
+    "name_pool.red_flame_cave.armor_2.rare",
+    "name_pool.red_flame_cave.armor_3.rare",
+    "name_pool.red_flame_cave.armor_4.rare",
+    "name_pool.red_flame_cave.accessory.rare",
+    "name_pool.red_flame_cave.weapon.epic",
+    "name_pool.red_flame_cave.armor_1.epic",
+    "name_pool.red_flame_cave.armor_2.epic",
+    "name_pool.red_flame_cave.armor_3.epic",
+    "name_pool.red_flame_cave.armor_4.epic",
+    "name_pool.red_flame_cave.accessory.epic",
+    "name_pool.red_flame_cave.weapon.legendary",
+    "name_pool.red_flame_cave.armor_1.legendary",
+    "name_pool.red_flame_cave.armor_2.legendary",
+    "name_pool.red_flame_cave.armor_3.legendary",
+    "name_pool.red_flame_cave.armor_4.legendary",
+    "name_pool.red_flame_cave.accessory.legendary",
+    "name_pool.red_flame_cave.weapon.immortal",
+    "name_pool.red_flame_cave.armor_1.immortal",
+    "name_pool.red_flame_cave.armor_2.immortal",
+    "name_pool.red_flame_cave.armor_3.immortal",
+    "name_pool.red_flame_cave.armor_4.immortal",
+    "name_pool.red_flame_cave.accessory.immortal",
+    "name_pool.legacy.iron_saber",
+    "name_pool.legacy.cloud_blade"
+  ],
+  "appearance_tag_ids": [
+    "appearance.bai_cao_valley",
+    "appearance.black_wind_valley",
+    "appearance.red_flame_cave"
+  ],
+  "stat_template_ids": [
+    "stat_template.weapon.v1",
+    "stat_template.armor.v1",
+    "stat_template.accessory.v1"
+  ]
+}

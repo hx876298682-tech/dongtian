@@ -1,0 +1,270 @@
+/** 历练主页：斩妖 / 采药 / 挖矿 三分段 + 秘境区块（准备面板内嵌 combat/preview 只读预览） */
+import { useEffect, useState } from 'react';
+import { Trophy } from 'lucide-react';
+import { useGame } from '../../store/GameStore';
+import { deriveActionView } from '../../store/actionView';
+import { useShell } from '../../app/shell';
+import { useActionFlow } from '../../flows/useActionFlow';
+import { ConfirmSheet, SwitchWarnBlock } from '../../components/sheets';
+import { SectionHead, RevealCard, SkeletonCard, EmptyHint } from '../../components/primitives';
+import { mapPresentation, DUNGEONS, realmLabel, elementMeta } from '../../content/meta';
+import { fmtNum, fmtSpan } from '../../api/format';
+import type { ActionView } from '../../store/actionView';
+import type { CombatPreviewData } from '../../api/client';
+
+type Segment = 'hunt' | 'herb' | 'mine';
+
+export function JourneyPage() {
+  const { player, catalog, now } = useGame();
+  const shell = useShell();
+  const flow = useActionFlow(shell.showToast);
+  const [segment, setSegment] = useState<Segment>('hunt');
+  if (!player || !catalog) return null;
+
+  const action = deriveActionView(player, catalog);
+  const releasedMaps = catalog.maps.filter((m) => m.status === 'released');
+
+  return (
+    <div className="pad">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div className="segmented" style={{ flex: 1 }}>
+          <button className={`seg-btn${segment === 'hunt' ? ' active' : ''}`} onClick={() => setSegment('hunt')}>斩妖</button>
+          <button className={`seg-btn${segment === 'herb' ? ' active' : ''}`} onClick={() => setSegment('herb')}>采药</button>
+          <button className={`seg-btn${segment === 'mine' ? ' active' : ''}`} onClick={() => setSegment('mine')}>挖矿</button>
+        </div>
+        <span className="icon-btn" title="排行榜尚待开放"><Trophy size={17} /></span>
+      </div>
+
+      {segment === 'hunt' ? (
+        <>
+          <MapList />
+          <SectionHead title="秘境" sub="筑基开启 · 高收益挑战" />
+          <DungeonBlock />
+        </>
+      ) : (
+        <>
+          <SectionHead title={segment === 'herb' ? '采集灵草' : '开采灵矿'} sub="提案玩法 · 以服务端结算为准" />
+          <GatherList segment={segment} />
+        </>
+      )}
+    </div>
+  );
+
+  function MapList() {
+    if (releasedMaps.length === 0) return <SkeletonCard height={130} />;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {releasedMaps.map((map) => {
+          const pres = mapPresentation(map.id);
+          const isCurrent = action?.home === 'map' && action.refId === map.id;
+          if (!map.unlocked) {
+            return (
+              <RevealCard
+                key={map.id}
+                glyph={pres.glyph}
+                title={map.displayName}
+                desc={`${pres.flavor} · ${realmLabel(map.unlockRealmId)}开启`}
+              />
+            );
+          }
+          const cycles = isCurrent && action && map.targetKillTimeSeconds > 0
+            ? Math.floor((now() - action.startedAtMs) / 1000 / map.targetKillTimeSeconds)
+            : null;
+          return (
+            <div key={map.id} className={`map-card${isCurrent ? ' current' : ''}`}>
+              <div className={`map-scene ${pres.sceneCls}`}>
+                <h3>{map.displayName}</h3>
+                <span className="glyph-seal">{pres.glyph}</span>
+                <span
+                  className="danger-tag"
+                  style={{ background: pres.danger === '高危' ? 'var(--cinnabar)' : pres.danger === '中危' ? '#8a6b42' : 'var(--jade)' }}
+                >
+                  {pres.danger}
+                </span>
+              </div>
+              <div className="map-body">
+                <p>{pres.flavor}</p>
+                <div className="drop-row">
+                  <span>产出：</span><span className="drop-chip">灵石</span><span className="drop-chip">材料</span>
+                  <span className="drop-chip">装备掉落</span><span className="drop-chip">残卷保底</span>
+                </div>
+                <div className="map-foot">
+                  <small>每场约 {fmtSpan(map.targetKillTimeSeconds)}</small>
+                  {isCurrent ? (
+                    <span className="badge-current">历练中{cycles !== null ? ` · ${fmtNum(cycles)} 场` : ''}</span>
+                  ) : (
+                    <button className="btn-go" disabled={flow.busy} onClick={() => openPrep(map.actionId, map.displayName)}>
+                      前往挂机
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  function DungeonBlock() {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {DUNGEONS.map((dungeon) => (
+          <button key={dungeon.id} className="option-row" onClick={() => openPrep(dungeon.id, dungeon.name)}>
+            <span className="option-main">
+              <b>{dungeon.name}</b>
+              <span className="option-sub">{dungeon.flavor}</span>
+            </span>
+            <span className="btn-mini">探入</span>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  function GatherList({ segment }: { segment: 'herb' | 'mine' }) {
+    if (!catalog) return null;
+    const wanted = segment === 'herb' ? 'herbalism' : 'mining';
+    const maps = catalog.gatheringMaps.filter((g) => g.actionId === wanted && g.status !== 'content_pending');
+    if (maps.length === 0) return <EmptyHint text="此地尚未开垦。" />;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {maps.map((g) => {
+          const isCurrent = action?.home === 'gather' && action.refId === g.id;
+          const gateClosed = g.status === 'proposal_v1';
+          return (
+            <div key={g.id} className={`map-card${isCurrent ? ' current' : ''}`}>
+              <div className={`map-scene ${segment === 'herb' ? 'scene-baicao' : 'scene-heifeng'}`}>
+                <h3>{g.displayName}</h3>
+                <span className="danger-tag" style={{ background: 'var(--jade)' }}>资源区</span>
+              </div>
+              <div className="map-body">
+                <p>{segment === 'herb' ? '灵气滋养的天然药圃，可直接入篮。' : '灵脉纵横，矿石随手可拾，偶有妖物骚扰。'}</p>
+                <div className="drop-row">
+                  <span>产出：</span><span className="drop-chip">每轮 ×{fmtNum(g.yieldPerCompletion)}</span>
+                  {gateClosed && <span style={{ fontSize: 10.5, color: 'var(--gold)' }}>提案试玩 · 门禁未放行</span>}
+                </div>
+                <div className="map-foot">
+                  <small>每轮 {fmtSpan(g.intervalSeconds)}</small>
+                  {isCurrent ? (
+                    <span className="badge-current">进行中</span>
+                  ) : (
+                    <button
+                      className="btn-go"
+                      disabled={flow.busy || gateClosed}
+                      onClick={() => void beginGather(g.actionId, g.id, g.displayName)}
+                    >
+                      {gateClosed ? '待放行' : '前往采集'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  async function beginGather(actionId: 'herbalism' | 'mining', mapId: string, name: string): Promise<void> {
+    shell.closeSheet();
+    await flow.startAction({ actionId, mapId }, `采集·${name}`);
+  }
+
+  function openPrep(activityId: string, name: string): void {
+    shell.openSheet(
+      <PrepSheet
+        activityId={activityId}
+        name={name}
+        view={action}
+        busy={flow.busy}
+        onCancel={() => shell.closeSheet()}
+        onStart={async () => {
+          shell.closeSheet();
+          await flow.startAction({ actionId: activityId }, `历练·${name}`);
+        }}
+      />,
+    );
+  }
+}
+
+function PrepSheet({
+  activityId, name, view, busy, onCancel, onStart,
+}: {
+  activityId: string; name: string; view: ActionView | null; busy: boolean;
+  onCancel(): void; onStart(): Promise<void>;
+}) {
+  const { client, revision } = useGame();
+  const [preview, setPreview] = useState<CombatPreviewData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    setPreview(null);
+    setError(null);
+    client.combatPreview(activityId, revision())
+      .then((envelope) => { if (alive) setPreview(envelope.data); })
+      .catch((err: unknown) => { if (alive) setError(err instanceof Error ? err.message : '预估失败'); });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activityId]);
+
+  const blocked = preview?.gate.status === 'blocked';
+  const blockedReason = blocked
+    ? preview?.gate.reason === 'realm'
+      ? `${realmLabel(preview.gate.requiredRealm ?? '')}境界`
+      : '失败冷却'
+    : null;
+
+  return (
+    <ConfirmSheet title={`${name} · 战前整备`} onClose={onCancel}>
+      <div style={{ textAlign: 'center', padding: '4px 0 2px' }}>
+        <b style={{ fontFamily: 'var(--font-display)', fontSize: 17, letterSpacing: '.06em' }}>{name}</b>
+      </div>
+
+      {!preview && !error && <SkeletonCard height={116} />}
+      {error && <EmptyHint text={`无法获取战斗预估：${error}`} />}
+      {preview && (
+        <>
+          <div className={`gate-banner ${blocked ? 'gate-blocked' : 'gate-open'}`}>
+            {blocked ? `门槛不足：${blockedReason ?? ''}` : '门槛已过，可入此地历练。首败将中止后续场次并进入冷却，失败不发奖励。'}
+          </div>
+          <div className="prep-stats">
+            <Stat label="生命" value={preview.stats.health} />
+            <Stat label="攻击" value={preview.stats.attack} />
+            <Stat label="防御" value={preview.stats.defence} />
+            <Stat label="战力" value={preview.stats.battlePower} />
+            <Stat label="命中" value={preview.stats.accuracy} showDecimal />
+            <Stat label="闪避" value={preview.stats.evasion} showDecimal />
+          </div>
+          <div className="drop-row" style={{ paddingInline: 2 }}>
+            <span>预计清场 {fmtSpan(preview.targetClearTime)}</span>
+            {preview.pillBudget > 0 && <span className="drop-chip">丹药预算 ×{preview.pillBudget}</span>}
+            <ElementTag elementKey={preview.stats.element} />
+          </div>
+        </>
+      )}
+
+      <SwitchWarnBlock view={view} newLabel={`${name}历练`} />
+
+      <button className="btn-primary" disabled={busy || blocked || !preview} onClick={() => void onStart()}>
+        {busy ? '结算旧序列…' : blocked ? '造化未足' : '开始挂机'}
+      </button>
+    </ConfirmSheet>
+  );
+}
+
+function Stat({ label, value, showDecimal }: { label: string; value: number; showDecimal?: boolean }) {
+  return (
+    <div className="stat-block">
+      <span>{label}</span>
+      <b>{showDecimal ? Number(value).toFixed(3) : fmtNum(value)}</b>
+    </div>
+  );
+}
+
+export function ElementTag({ elementKey }: { elementKey: string }) {
+  if (!elementKey || /^(none|unknown|null|-)$/i.test(elementKey)) return null;
+  const meta = elementMeta(elementKey);
+  return <span className={`wx-tag ${meta.cls}`} title="五行">{meta.label}</span>;
+}

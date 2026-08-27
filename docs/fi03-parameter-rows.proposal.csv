@@ -1,0 +1,4 @@
+parameter_id,value,unit,value_type,status,source
+schedule.equipment.auto_promotion.enabled,1,boolean,constant,proposal_v1,approved-FI03-default
+schedule.equipment.auto_promotion.period_seconds,3600,seconds,policy,proposal_v1,approved-FI03-default
+schedule.equipment.auto_promotion.max_operations_per_cycle,10,operations,limit,proposal_v1,approved-FI03-default
