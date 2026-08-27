@@ -7,7 +7,8 @@ import { useShell } from '../../app/shell';
 import { useActionFlow } from '../../flows/useActionFlow';
 import { ConfirmSheet, SwitchWarnBlock } from '../../components/sheets';
 import { SectionHead, RevealCard, SkeletonCard, EmptyHint } from '../../components/primitives';
-import { mapPresentation, DUNGEONS, realmLabel, elementMeta } from '../../content/meta';
+import { ElementTag } from '../../components/ElementTag';
+import { mapPresentation, DUNGEONS, realmLabel } from '../../content/meta';
 import { fmtNum, fmtSpan } from '../../api/format';
 import type { ActionView } from '../../store/actionView';
 import type { CombatPreviewData } from '../../api/client';
@@ -267,8 +268,3 @@ function Stat({ label, value, showDecimal }: { label: string; value: number; sho
   );
 }
 
-export function ElementTag({ elementKey }: { elementKey: string }) {
-  if (!elementKey || /^(none|unknown|null|-)$/i.test(elementKey)) return null;
-  const meta = elementMeta(elementKey);
-  return <span className={`wx-tag ${meta.cls}`} title="五行">{meta.label}</span>;
-}

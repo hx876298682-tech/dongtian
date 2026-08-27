@@ -6,6 +6,7 @@ import { useActionFlow } from '../../flows/useActionFlow';
 import { ConfirmSheet, SwitchWarnBlock } from '../../components/sheets';
 import { QualityChip, SectionHead, EmptyHint, PageHeaderBack } from '../../components/primitives';
 import { techniqueName, qualityMeta } from '../../content/meta';
+import { techniqueGrowthLines } from '../../content/growth';
 
 export function TrainingPage() {
   const { player, catalog } = useGame();
@@ -31,6 +32,7 @@ export function TrainingPage() {
     shell.openSheet(
       <TechniqueSheet
         techniqueId={techniqueId}
+        quality={catalog.techniques.find((t) => t.id === techniqueId)?.quality ?? 'mortal'}
         view={action}
         busy={flow.busy}
         onCancel={() => shell.closeSheet()}
@@ -63,7 +65,7 @@ export function TrainingPage() {
               >
                 {lv !== null && <span className="mc-lv num">Lv.{lv}</span>}
                 <span className="mc-name">{techniqueName(tech.id)}</span>
-                <span className="mc-sub">修炼增进修为与专属属性</span>
+                <span className="mc-sub">{techniqueGrowthLines(tech.quality)}</span>
                 <span style={{ marginTop: 2 }}><QualityChip quality={meta.label} /></span>
                 <span style={{ fontSize: 10.5, color: isCurrent ? 'var(--jade)' : 'var(--gold)', fontWeight: 600 }}>
                   {isCurrent ? '研习中 · 点击收功后可换' : '点击研习'}
@@ -85,12 +87,14 @@ export function TrainingPage() {
 
 function TechniqueSheet({
   techniqueId,
+  quality,
   view,
   busy,
   onCancel,
   onStart,
 }: {
   techniqueId: string;
+  quality: string;
   view: ReturnType<typeof deriveActionView>;
   busy: boolean;
   onCancel(): void;
@@ -103,6 +107,9 @@ function TechniqueSheet({
         <b style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '.08em' }}>{label}</b>
         <div style={{ marginTop: 6, fontSize: 11.5, color: 'var(--ink-600)' }}>
           研习期间每轮同时获得修为与《{label}》对应属性
+        </div>
+        <div style={{ marginTop: 8, fontSize: 11.5, color: 'var(--ink-900)', background: 'var(--bg-page)', padding: '8px 10px', borderRadius: 4 }}>
+          {techniqueGrowthLines(quality)}
         </div>
       </div>
       <SwitchWarnBlock view={view} newLabel={`${label}研习`} />

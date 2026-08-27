@@ -5,6 +5,7 @@ import { useGame } from '../../store/GameStore';
 import { useShell } from '../../app/shell';
 import { QualityChip, PageHeaderBack, EmptyHint } from '../../components/primitives';
 import { techniqueName, qualityMeta } from '../../content/meta';
+import { techniqueGrowthLines } from '../../content/growth';
 
 const FILTERS: Array<{ key: string; label: string }> = [
   { key: 'all', label: '全部' },
@@ -75,9 +76,12 @@ export function PavilionPage() {
                   : <span className="mc-lv" style={{ color: 'var(--ink-600)', background: 'var(--bg-sunken)' }}>未获得</span>}
                 <span className="mc-name">{techniqueName(tech.id)}</span>
                 {owned ? (
-                  <span className="mc-sub">已研习 · 层数随修炼增长</span>
+                  <span className="mc-sub">{techniqueGrowthLines(tech.quality)}</span>
                 ) : (
-                  <span className="mc-sub" style={{ color: 'var(--gold)' }}>{acquireHint(tech.quality)}</span>
+                  <>
+                    <span className="mc-sub">每层成长见品阶（数值以冻结表为准）</span>
+                    <span className="mc-sub" style={{ color: 'var(--gold)' }}>{acquireHint(tech.quality)}</span>
+                  </>
                 )}
                 <span><QualityChip quality={meta.label} /></span>
               </div>

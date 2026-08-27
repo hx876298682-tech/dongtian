@@ -7,6 +7,7 @@ import { ConfirmSheet, SwitchWarnBlock } from '../../components/sheets';
 import { EmptyHint, PageHeaderBack, QualityChip } from '../../components/primitives';
 import { ItemGlyph } from '../../components/ItemGlyph';
 import { slotLabel, qualityMeta } from '../../content/meta';
+import { EQUIPMENT_DISPLAY } from '../../content/growth';
 import { fmtSpan } from '../../api/format';
 
 export function ForgePage() {
@@ -76,6 +77,9 @@ export function ForgePage() {
             <small style={{ color: 'var(--ink-600)' }}>
               {slotLabel(template.slot)}
               {forgeRecipes[0] ? ` · ${fmtSpan(forgeRecipes[0].intervalSeconds)}` : ''} · 锻成后自动入库
+            </small>
+            <small style={{ color: 'var(--ink-600)', fontSize: 10.5 }}>
+              基础属性预算 {EQUIPMENT_DISPLAY.slotBudget(template.slot)}（品阶倍率 {meta.label}）
             </small>
           </div>
         </div>

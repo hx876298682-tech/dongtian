@@ -7,7 +7,9 @@ import { useActionFlow } from '../../flows/useActionFlow';
 import { ConfirmSheet } from '../../components/sheets';
 import { EmptyHint, QualityChip } from '../../components/primitives';
 import { ItemGlyph } from '../../components/ItemGlyph';
+import { ElementTag } from '../../components/ElementTag';
 import { RESOURCE_META, RESOURCE_ORDER, qualityMeta, slotLabel } from '../../content/meta';
+import { EQUIPMENT_DISPLAY, parseAffixSlots, SPECIAL_AFFIX_NAMES, SPECIAL_AFFIX_HINTS, RESOURCE_USAGE } from '../../content/growth';
 import { fmtNum } from '../../api/format';
 
 export function BagPage() {
@@ -38,14 +40,33 @@ export function BagPage() {
           {RESOURCE_ORDER.map((id) => {
             const entry = player.resources[id];
             const meta = RESOURCE_META[id];
+            const usage = RESOURCE_USAGE[id];
             return (
-              <div key={id} className="inv-cell" title={meta.name}>
+              <button
+                key={id}
+                className="inv-cell"
+                title={meta.name}
+                onClick={() => shell.openSheet(
+                  <ConfirmSheet title={meta.name} onClose={() => shell.closeSheet()}>
+                    <div className="card card-padded" style={{ textAlign: 'center', paddingBlock: 14 }}>
+                      <b style={{ fontFamily: 'var(--font-display)', fontSize: 16 }}>{meta.name}</b>
+                      <p className="num" style={{ marginTop: 6, color: 'var(--ink-600)', fontSize: 12 }}>
+                        现有 {fmtNum(entry?.amount)} / 上限 {fmtNum(entry?.capacity)}
+                      </p>
+                    </div>
+                    <div className="journal-panel">
+                      <InfoLine label="用途" value={usage?.use ?? '待内容侧补充'} />
+                      <InfoLine label="来源" value={usage?.source ?? '待内容侧补充'} />
+                    </div>
+                  </ConfirmSheet>,
+                )}
+              >
                 <b className="num" style={{ fontSize: 12.5 }}>{fmtNum(entry?.amount)}</b>
                 <span className="cell-name">{meta.name}</span>
                 {entry && entry.capacity > 0 && entry.amount >= entry.capacity * 0.9 && (
                   <span className="cell-count" style={{ color: 'var(--cinnabar)' }}>近满</span>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
@@ -85,6 +106,34 @@ export function BagPage() {
 
 type ConfirmOp = { op: 'salvage'; note: string } | null;
 
+function InfoLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="option-row" style={{ borderRadius: 0, boxShadow: 'none', borderBottom: '1px dashed var(--line)', cursor: 'default' }}>
+      <span className="option-main"><span className="option-sub">{label}</span></span>
+      <b style={{ fontSize: 12, maxWidth: '70%', textAlign: 'right' }}>{value}</b>
+    </div>
+  );
+}
+
+/** 从实例 affixes 读取三维属性；旧格式（空对象）返回 null 触发容错文案。 */
+function readStats(affixes: Record<string, unknown> | undefined): { attack: number; defence: number; health: number } | null {
+  if (!affixes || typeof affixes.attack !== 'number') return null;
+  return { attack: affixes.attack, defence: Number(affixes.defence ?? 0), health: Number(affixes.health ?? 0) };
+}
+
+function sourceName(mapId: string): string {
+  return ({ bai_cao_valley: '百草谷', black_wind_valley: '黑风谷', red_flame_cave: '赤炎洞' } as Record<string, string>)[mapId] ?? mapId;
+}
+
+function StatCell({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="stat-block">
+      <span>{label}</span>
+      <b>{fmtNum(value)}</b>
+    </div>
+  );
+}
+
 function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onClose(): void }) {
   const { player, catalog, client } = useGame();
   const shell = useShell();
@@ -95,7 +144,9 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
   if (!instance || !player) return null;
   const template = catalog?.equipmentTemplates.find((t) => t.id === instance.templateId);
   const meta = qualityMeta(instance.quality);
-  const affixEntries = Object.entries(instance.affixes ?? {});
+  const stats = readStats(instance.affixes);
+  const hasStats = stats !== null;
+  const affixSlots = parseAffixSlots(instance.affixes);
   const pending = flow.busy;
   const revisionNow = player.stateRevision;
 
@@ -123,24 +174,51 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
             <small style={{ color: 'var(--ink-600)' }}>
               {slotLabel(instance.slot)}
               {instance.isEquipped ? ' · 已佩戴' : ' · 库中'}
-              {instance.reinforcementLevel > 0 ? ` · 强化 +${instance.reinforcementLevel}` : ''}
             </small>
           </div>
         </div>
 
-        <div className="affix-list" style={{ marginTop: 4 }}>
-          {affixEntries.length === 0 ? (
-            <span style={{ color: 'var(--ink-600)', fontSize: 11 }}>未开词条</span>
-          ) : (
-            affixEntries.map(([key, value]) => (
-              <span key={key} style={{ display: 'flex', gap: 6 }}>
-                <i style={{ fontStyle: 'normal' }}>◆</i>
-                <span className="num">{key}: {String(value)}</span>
-              </span>
-            ))
-          )}
+        {hasStats ? (
+          <>
+            <div className="stat-grid" style={{ marginBlock: 6 }}>
+              <StatCell label="攻击" value={stats.attack} />
+              <StatCell label="防御" value={stats.defence} />
+              <StatCell label="生命" value={stats.health} />
+            </div>
+            <small style={{ fontSize: 10.5, color: 'var(--ink-600)' }}>
+              强化 {instance.reinforcementLevel}/{EQUIPMENT_DISPLAY.reinforcementMaxLevel} 级 · 每级属性 +{Math.round(EQUIPMENT_DISPLAY.reinforcementPerLevel * 100)}%（最终值由服务端结算）
+            </small>
+          </>
+        ) : (
+          <small style={{ fontSize: 11, color: 'var(--ink-600)' }}>初始器物，无属性记录；属性在首次淬炼后生成。</small>
+        )}
+
+        <div className="affix-list" style={{ marginTop: 8 }}>
+          {affixSlots.map((slot, index) => (
+            <span key={index} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+              {slot.kind === 'empty' ? (
+                <><i style={{ fontStyle: 'normal', color: 'var(--ink-300)' }}>◇</i><span style={{ color: 'var(--ink-300)' }}>未激活词条</span></>
+              ) : (
+                <>
+                  <i style={{ fontStyle: 'normal', color: 'var(--jade)' }}>◆</i>
+                  {slot.kind === 'speed' && <span className="num">身法 +{fmtNum(slot.value)}</span>}
+                  {slot.kind === 'element' && <ElementTag elementKey={slot.value} />}
+                  {slot.kind === 'special' && (
+                    <span className="num">
+                      {SPECIAL_AFFIX_NAMES[slot.value] ?? slot.value}
+                      {slot.grade ? ` · ${slot.grade} 品` : ''}
+                      <small style={{ color: 'var(--ink-600)', marginLeft: 4 }}>{SPECIAL_AFFIX_HINTS[slot.value] ?? ''}</small>
+                    </span>
+                  )}
+                </>
+              )}
+            </span>
+          ))}
         </div>
-        <small style={{ fontSize: 10.5, color: 'var(--ink-600)' }}>实际属性与词条效果由服务端战斗结算实时取用。</small>
+
+        <small style={{ fontSize: 10.5, color: 'var(--ink-300)', display: 'block', marginTop: 6 }}>
+          来源：{(template?.sourceMapIds ?? []).map((id) => sourceName(id)).join('、') || '初始器物'}
+        </small>
       </div>
 
       {confirmOp ? (
