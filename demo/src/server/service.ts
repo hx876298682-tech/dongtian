@@ -283,7 +283,29 @@ export class GameService {
     validateContentPackage(this.content, context.configVersion ?? this.configVersion, this.parameterSha256);
     const player = await this.readOnlyPlayerConfig(playerId, context);
     const catalogStatus = (status?: string): 'released' | 'proposal_v1' | 'content_pending' => status === 'content_pending' ? 'content_pending' : status === 'content_spec_v1' ? 'proposal_v1' : 'released';
-    const techniques: ActionCatalogTechnique[] = this.techniquePool().map((entry) => ({ id: entry.id, quality: entry.quality, status: 'released', source: 'frozen_parameter_pool', supportsFocusCultivation: false }));
+    const growth = {
+      attackPerLayer: this.value('growth.technique.attack_per_layer'),
+      defencePerLayer: this.value('growth.technique.defence_per_layer'),
+      healthPerLayer: this.value('growth.technique.health_per_layer'),
+      cultivationRateBonusPerLayer: this.value('growth.technique.cultivation_rate_bonus_per_layer'),
+      maxLayer: this.value('growth.technique.max_layer'),
+    };
+    const techniques: ActionCatalogTechnique[] = this.techniquePool().map((entry) => ({
+      id: entry.id,
+      quality: entry.quality,
+      status: 'released' as const,
+      source: 'frozen_parameter_pool' as const,
+      supportsFocusCultivation: false,
+      element: String(this.rawValue(`growth.technique.pool.${entry.id.split('.')[2]}.element`) ?? ''),
+      growth: {
+        attackPerLayer: growth.attackPerLayer * this.value(`growth.technique.quality_multiplier.${entry.quality}`),
+        defencePerLayer: growth.defencePerLayer * this.value(`growth.technique.quality_multiplier.${entry.quality}`),
+        healthPerLayer: growth.healthPerLayer * this.value(`growth.technique.quality_multiplier.${entry.quality}`),
+        cultivationRateBonusPerLayer: growth.cultivationRateBonusPerLayer,
+        qualityMultiplier: this.value(`growth.technique.quality_multiplier.${entry.quality}`),
+        maxLayer: growth.maxLayer,
+      },
+    }));
     const recipes: ActionCatalogRecipe[] = this.content.recipes.map((recipe) => ({
       id: recipe.id,
       actionId: recipe.building_id === 'forge_room' ? 'forge' : 'alchemy',

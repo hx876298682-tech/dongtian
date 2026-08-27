@@ -158,3 +158,15 @@ export function awakenPreview(awakeningLevel: number): CostLine[] {
     { label: '天外陨铁', amount: c.meteorIron, resourceId: 'meteor_iron' },
   ];
 }
+
+/** 从 catalog technique 对象读取每层成长（服务端下发优先）；无 growth 时回退冻结参数 ×品阶倍率。 */
+export function techniqueGrowthFromCatalog(tech: { quality: string; growth?: {
+  attackPerLayer: number; defencePerLayer: number; healthPerLayer: number;
+  cultivationRateBonusPerLayer: number; qualityMultiplier: number; maxLayer: number;
+} }): string {
+  if (tech.growth) {
+    const g = tech.growth;
+    return `每层 攻+${g.attackPerLayer} 防+${g.defencePerLayer} 血+${g.healthPerLayer} · 修炼速率 +${(g.cultivationRateBonusPerLayer * 100).toFixed(2)}%/层（品阶 ×${g.qualityMultiplier}）`;
+  }
+  return techniqueGrowthLines(tech.quality);
+}

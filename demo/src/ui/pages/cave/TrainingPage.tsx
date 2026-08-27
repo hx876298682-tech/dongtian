@@ -6,7 +6,7 @@ import { useActionFlow } from '../../flows/useActionFlow';
 import { ConfirmSheet, SwitchWarnBlock } from '../../components/sheets';
 import { QualityChip, SectionHead, EmptyHint, PageHeaderBack } from '../../components/primitives';
 import { techniqueName, qualityMeta } from '../../content/meta';
-import { techniqueGrowthLines } from '../../content/growth';
+import { techniqueGrowthFromCatalog } from '../../content/growth';
 
 export function TrainingPage() {
   const { player, catalog } = useGame();
@@ -28,11 +28,12 @@ export function TrainingPage() {
     return typeof hit?.[1] === 'number' ? hit[1] : null;
   };
 
-  const openConfirm = (techniqueId: string) => {
+  const openConfirm = (technique: (typeof techniques)[number]) => {
+    const techniqueId = technique.id;
     shell.openSheet(
       <TechniqueSheet
         techniqueId={techniqueId}
-        quality={catalog.techniques.find((t) => t.id === techniqueId)?.quality ?? 'mortal'}
+        tech={technique}
         view={action}
         busy={flow.busy}
         onCancel={() => shell.closeSheet()}
@@ -61,11 +62,11 @@ export function TrainingPage() {
               <button
                 key={tech.id}
                 className={`mini-card${isCurrent ? ' selected' : ''}`}
-                onClick={() => !isCurrent && openConfirm(tech.id)}
+                onClick={() => !isCurrent && openConfirm(tech)}
               >
                 {lv !== null && <span className="mc-lv num">Lv.{lv}</span>}
                 <span className="mc-name">{techniqueName(tech.id)}</span>
-                <span className="mc-sub">{techniqueGrowthLines(tech.quality)}</span>
+                <span className="mc-sub">{techniqueGrowthFromCatalog(tech)}</span>
                 <span style={{ marginTop: 2 }}><QualityChip quality={meta.label} /></span>
                 <span style={{ fontSize: 10.5, color: isCurrent ? 'var(--jade)' : 'var(--gold)', fontWeight: 600 }}>
                   {isCurrent ? '研习中 · 点击收功后可换' : '点击研习'}
@@ -87,14 +88,14 @@ export function TrainingPage() {
 
 function TechniqueSheet({
   techniqueId,
-  quality,
+  tech,
   view,
   busy,
   onCancel,
   onStart,
 }: {
   techniqueId: string;
-  quality: string;
+  tech: Parameters<typeof techniqueGrowthFromCatalog>[0];
   view: ReturnType<typeof deriveActionView>;
   busy: boolean;
   onCancel(): void;
@@ -109,7 +110,7 @@ function TechniqueSheet({
           研习期间每轮同时获得修为与《{label}》对应属性
         </div>
         <div style={{ marginTop: 8, fontSize: 11.5, color: 'var(--ink-900)', background: 'var(--bg-page)', padding: '8px 10px', borderRadius: 4 }}>
-          {techniqueGrowthLines(quality)}
+          {techniqueGrowthFromCatalog(tech)}
         </div>
       </div>
       <SwitchWarnBlock view={view} newLabel={`${label}研习`} />

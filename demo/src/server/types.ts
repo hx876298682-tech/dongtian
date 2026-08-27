@@ -265,6 +265,15 @@ export type ActionCatalogTechnique = {
   status: ActionCatalogStatus;
   source: 'frozen_parameter_pool';
   supportsFocusCultivation: boolean;
+  element?: string;
+  growth: {
+    attackPerLayer: number;
+    defencePerLayer: number;
+    healthPerLayer: number;
+    cultivationRateBonusPerLayer: number;
+    qualityMultiplier: number;
+    maxLayer: number;
+  };
 };
 export type ActionCatalogRecipe = {
   id: string;
