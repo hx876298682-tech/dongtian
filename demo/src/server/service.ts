@@ -2088,9 +2088,14 @@ export class GameService {
       const cultivationDelta = techniqueTraining ? completedActions * this.value('building.training_room.base_cultivation_xp') * (targetId === 'focus_cultivation' ? 2 : 1) : 0;
       const skillXpDelta: SettlementData['skillXpDelta'] = {};
       if (techniqueTraining) {
-        draft.skillProgress.techniqueXp[targetId!] = (draft.skillProgress.techniqueXp[targetId!] ?? 0) + completedActions;
-        draft.skillProgress.techniqueAttributes[targetId!] = (draft.skillProgress.techniqueAttributes[targetId!] ?? 0) + completedActions;
-        skillXpDelta.technique = { [targetId!]: completedActions };
+        // 技能 XP 保持每 60 秒 +1 的既有速率（DT-NUM-20260827-01 将行动节拍改为 6s 后，按累计时长折算，避免技能升级 ×10）
+        const TECHNIQUE_XP_TICK_SECONDS = 60;
+        const xpActionsTotal = Math.floor(total / TECHNIQUE_XP_TICK_SECONDS);
+        const xpActionsBefore = Math.floor((total - Math.max(0, seconds)) / TECHNIQUE_XP_TICK_SECONDS);
+        const xpActions = Math.max(0, xpActionsTotal - xpActionsBefore);
+        draft.skillProgress.techniqueXp[targetId!] = (draft.skillProgress.techniqueXp[targetId!] ?? 0) + xpActions;
+        draft.skillProgress.techniqueAttributes[targetId!] = (draft.skillProgress.techniqueAttributes[targetId!] ?? 0) + xpActions;
+        skillXpDelta.technique = { [targetId!]: xpActions };
         draft.cultivationXp += cultivationDelta;
       } else {
         const amount = completedActions * gathering!.yield;

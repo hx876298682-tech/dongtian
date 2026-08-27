@@ -8,7 +8,7 @@
 
 - 参数表：`docs/洞天数值参数表.csv`
 - 参数行数/列数：`1143 / 12`
-- 参数表 SHA-256：`7113fe72dd40ed36869408551f5f20a9e72e83af519b4a03d657296ed4987f75`
+- 参数表 SHA-256：`944c1655e47999bc4405239836b2398749b169d21d61a1f32e20e88bb20f8c92`
 - 参数状态：`confirmed` 与 `frozen_v1`
 - 路线策略：`qing_90d_then_black`
 - 装备出口：`retain_rare`

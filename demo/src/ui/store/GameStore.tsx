@@ -4,8 +4,12 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 import { ApiError, GameClient } from '../api/client';
 import type { Catalog, CollectionEventItem, RemotePlayer } from '../api/client';
+import { RESOURCE_META } from '../content/meta';
 
 type Phase = 'connecting' | 'ready' | 'failed';
+
+/** 最近一次结算的收益摘要（供行动条"最近收获"展示）。 */
+export type GainLine = { label: string; amount: number };
 
 type StoreValue = {
   phase: Phase;
@@ -15,9 +19,12 @@ type StoreValue = {
   catalog: Catalog | null;
   configVersion: string | null;
   events: CollectionEventItem[];
+  lastGains: GainLine[];
   /** 以服务端时钟为准的当前时间 */
   now(): number;
   revision(): number;
+  /** 记录服务端返回的结算摘要（仅展示用） */
+  recordSettlement(data: { resourceDelta?: Partial<Record<string, number>>; cultivationDelta?: number }): void;
   refresh(silent?: boolean): Promise<void>;
   refreshEvents(silent?: boolean): Promise<void>;
 };
@@ -50,6 +57,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [configVersion, setConfigVersion] = useState<string | null>(null);
   const [events, setEvents] = useState<CollectionEventItem[]>([]);
+  const [lastGains, setLastGains] = useState<GainLine[]>([]);
+
+  const recordSettlement = useCallback((data: { resourceDelta?: Partial<Record<string, number>>; cultivationDelta?: number }) => {
+    const lines: GainLine[] = [];
+    for (const [resId, amount] of Object.entries(data.resourceDelta ?? {})) {
+      const meta = RESOURCE_META[resId as keyof typeof RESOURCE_META];
+      if (meta && typeof amount === 'number' && amount !== 0) lines.push({ label: meta.name, amount });
+    }
+    if (typeof data.cultivationDelta === 'number' && data.cultivationDelta !== 0) {
+      lines.push({ label: '修为', amount: data.cultivationDelta });
+    }
+    setLastGains(lines.slice(0, 4));
+  }, []);
 
   const refreshEvents = useCallback(async (silent = true) => {
     try {
@@ -88,11 +108,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     catalog,
     configVersion,
     events,
+    lastGains,
     now: () => client.now(),
     revision: () => player?.stateRevision ?? 0,
+    recordSettlement,
     refresh,
     refreshEvents,
-  }), [phase, connectError, client, player, catalog, configVersion, events, refresh, refreshEvents]);
+  }), [phase, connectError, client, player, catalog, configVersion, events, lastGains, recordSettlement, refresh, refreshEvents]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

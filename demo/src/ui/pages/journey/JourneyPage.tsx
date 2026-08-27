@@ -19,6 +19,7 @@ export function JourneyPage() {
   const shell = useShell();
   const flow = useActionFlow(shell.showToast);
   const [segment, setSegment] = useState<Segment>('hunt');
+  const [huntView, setHuntView] = useState<'wild' | 'dungeon'>('wild');
   if (!player || !catalog) return null;
 
   const action = deriveActionView(player, catalog);
@@ -35,12 +36,15 @@ export function JourneyPage() {
         <span className="icon-btn" title="排行榜尚待开放"><Trophy size={17} /></span>
       </div>
 
+      {segment === 'hunt' && (
+        <div className="sub-seg">
+          <button className={huntView === 'wild' ? 'active' : ''} onClick={() => setHuntView('wild')}>野外斩妖</button>
+          <button className={huntView === 'dungeon' ? 'active' : ''} onClick={() => setHuntView('dungeon')}>秘境</button>
+        </div>
+      )}
+
       {segment === 'hunt' ? (
-        <>
-          <MapList />
-          <SectionHead title="秘境" sub="筑基开启 · 高收益挑战" />
-          <DungeonBlock />
-        </>
+        huntView === 'wild' ? <MapList /> : <DungeonBlock />
       ) : (
         <>
           <SectionHead title={segment === 'herb' ? '采集灵草' : '开采灵矿'} sub="提案玩法 · 以服务端结算为准" />
@@ -53,7 +57,7 @@ export function JourneyPage() {
   function MapList() {
     if (releasedMaps.length === 0) return <SkeletonCard height={130} />;
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="map-grid">
         {releasedMaps.map((map) => {
           const pres = mapPresentation(map.id);
           const isCurrent = action?.home === 'map' && action.refId === map.id;
@@ -83,10 +87,9 @@ export function JourneyPage() {
                 </span>
               </div>
               <div className="map-body">
-                <p>{pres.flavor}</p>
                 <div className="drop-row">
                   <span>产出：</span><span className="drop-chip">灵石</span><span className="drop-chip">材料</span>
-                  <span className="drop-chip">装备掉落</span><span className="drop-chip">残卷保底</span>
+                  <span className="drop-chip">装备</span>
                 </div>
                 <div className="map-foot">
                   <small>每场约 {fmtSpan(map.targetKillTimeSeconds)}</small>
@@ -109,6 +112,7 @@ export function JourneyPage() {
   function DungeonBlock() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <p style={{ fontSize: 11, color: 'var(--ink-600)' }}>秘境为时刻型挑战：先在战前整备核对门槛，首败即止并进入冷却。</p>
         {DUNGEONS.map((dungeon) => (
           <button key={dungeon.id} className="option-row" onClick={() => openPrep(dungeon.id, dungeon.name)}>
             <span className="option-main">

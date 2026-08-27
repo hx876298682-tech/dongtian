@@ -14,7 +14,7 @@ test('claimTraining is one-shot and increments revision once', () => {
   const first = claimTraining(initial);
   assert.equal(first.summary.ok, true);
   assert.equal(first.state.revision, initial.revision + 1);
-  assert.equal(first.state.cultivation, 9870);
+  assert.equal(first.state.cultivation, 9807);
   assert.equal(first.state.resources.stones, INITIAL_STONES + TRAINING_CONFIG.resources.stones);
   const repeated = claimTraining(first.state);
   assert.equal(repeated.summary.ok, false);
@@ -32,14 +32,14 @@ test('production uses frozen interval, floors partial time, and clips carry', ()
 });
 
 test('production carries elapsed remainder into the next settlement', () => {
-  const first = claimTraining(createInitialState(), TRAINING_CONFIG.intervalSeconds + 30);
+  const first = claimTraining(createInitialState(), TRAINING_CONFIG.intervalSeconds + 4);
   assert.equal(first.summary.ok, true);
-  assert.equal(first.state.activity.carrySeconds, 30);
+  assert.equal(first.state.activity.carrySeconds, 4);
   assert.equal(first.state.activity.claimable, true);
-  const second = claimTraining(first.state, 30);
+  const second = claimTraining(first.state, 4);
   assert.equal(second.summary.ok, true);
-  assert.equal(second.state.activity.carrySeconds, 0);
-  assert.equal(second.state.activity.claimable, false);
+  assert.equal(second.state.activity.carrySeconds, 2);
+  assert.equal(second.state.activity.claimable, true);
   assert.equal(second.state.cultivation, 9800 + TRAINING_CONFIG.cultivation * 2);
 });
 

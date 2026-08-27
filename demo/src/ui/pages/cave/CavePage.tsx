@@ -1,31 +1,37 @@
-/** 洞府首页：修为摘要 · 主动之所 · 长养之所 · 最近入库 */
-import { Beaker, BookOpen, Hammer, Sparkles, Sprout } from 'lucide-react';
+/** 洞府首页：洞天卡（等级/加成/升级） · 主动之所 · 长养之所
+    突破入口已移至道途页；入库流水入口移至行囊页。 */
+import { useState } from 'react';
+import { Beaker, BookOpen, Hammer, Sprout, TrendingUp } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useGame } from '../../store/GameStore';
 import { deriveActionView } from '../../store/actionView';
 import { useShell, type PageId } from '../../app/shell';
-import { SectionHead, RevealCard } from '../../components/primitives';
-import { JournalList } from '../../components/JournalList';
+import { ConfirmSheet } from '../../components/sheets';
+import { RevealCard } from '../../components/primitives';
 import { realmLabel } from '../../content/meta';
 import { fmtNum } from '../../api/format';
 import { REALMS } from '../../../game/config';
 
 type BuildingKey = 'training' | 'alchemy' | 'forge';
 
+/** 洞天等级/升级属于待实装玩法（服务端 buildingIds 暂无 cave）：
+    交互先落地，数值与升级走 fail-closed 提示。 */
+const CAVE_LEVEL_PLACEHOLDER = 1;
+
 export function CavePage() {
-  const { player, catalog, events, now } = useGame();
+  const { player, catalog, now } = useGame();
   const shell = useShell();
+  const [upgradeSheet, setUpgradeSheet] = useState(false);
   const action = deriveActionView(player, catalog);
-  const nowMs = now();
 
   if (!player || !catalog) return null;
 
   const realmMax = (REALMS as Record<string, { cultivationMax: number }>)[player.realmId]?.cultivationMax ?? null;
   const farmPlots = Object.values(player.buildings?.spirit_farm?.spiritFarmPlots ?? {});
-  const growing = farmPlots.filter((p) => Date.parse(p.matureAt) > nowMs).length;
+  const growing = farmPlots.filter((p) => Date.parse(p.matureAt) > now()).length;
   const matured = farmPlots.length - growing;
 
-  const primaryBuildings: Array<{ key: PageId; bldKey?: BuildingKey; name: string; desc: string; Icon: LucideIcon; lockedRealm?: string }> = [
+  const primaryBuildings: Array<{ key: PageId; bldKey?: BuildingKey; name: string; desc: string; Icon: LucideIcon }> = [
     { key: 'training', bldKey: 'training', name: '练功房', desc: actionSummary(action, 'training'), Icon: BookOpen },
     { key: 'alchemy', bldKey: 'alchemy', name: '炼丹房', desc: actionSummary(action, 'alchemy'), Icon: Beaker },
     { key: 'forge', bldKey: 'forge', name: '炼器室', desc: actionSummary(action, 'forge'), Icon: Hammer },
@@ -33,18 +39,33 @@ export function CavePage() {
 
   return (
     <div className="pad">
-      {/* 洞府横幅：唯一的环境插画区 */}
-      <div className="map-scene scene-dongtian" style={{ borderRadius: 6, height: 108 }}>
-        <span className="glyph-seal">洞</span>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <h3>云岫洞天</h3>
-          <small style={{ color: 'rgba(247,245,236,.82)', fontSize: 11 }}>
-            {realmLabel(player.realmId)} · 战力由界域底蕴与装备淬炼而来
-          </small>
+      {/* ===== 洞天卡 ===== */}
+      <div className="cave-hero">
+        <div className="hero-top scene-dongtian">
+          <span className="hero-seal">洞</span>
+          <div style={{ flex: 1 }}>
+            <div className="hero-title">云岫洞天</div>
+            <div className="hero-sub">{realmLabel(player.realmId)} · 洞天 {CAVE_LEVEL_PLACEHOLDER} 级</div>
+          </div>
+          <button
+            className="btn-mini"
+            style={{ background: 'rgba(247,245,236,.16)', color: '#f2efe4', boxShadow: 'inset 0 0 0 1px rgba(242,239,228,.4)' }}
+            onClick={() => setUpgradeSheet(true)}
+          >
+            <TrendingUp size={11} style={{ verticalAlign: -1.5 }} /> 升级
+          </button>
+        </div>
+        <div className="hero-body">
+          <div className="bonus-line">
+            <b>当前加成</b><br />
+            灵田 Lv.1 · 生长速度 ×1.0
+            <span style={{ color: 'var(--ink-300)' }}> · 其余建筑加成待洞天等级开启</span>
+          </div>
         </div>
       </div>
 
-      <div className="card card-padded" style={{ marginTop: -26, marginInline: 10, position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 12 }}>
+      {/* ===== 修为摘要 ===== */}
+      <div className="card card-padded" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 11, color: 'var(--ink-600)', marginBottom: 4 }}>当前修为</div>
           <b className="num" style={{ fontSize: 20 }}>
@@ -52,12 +73,13 @@ export function CavePage() {
             {realmMax ? <span style={{ fontSize: 12, color: 'var(--ink-600)' }}> / {fmtNum(realmMax)}</span> : null}
           </b>
         </div>
-        <button className="btn-primary" style={{ height: 36, width: 96, fontSize: 13 }} onClick={() => shell.openPage('breakthrough')}>
-          <Sparkles size={13} style={{ verticalAlign: -2, marginRight: 4 }} />突破
-        </button>
+        <span style={{ fontSize: 10.5, color: 'var(--ink-300)' }}>突破入口见道途</span>
       </div>
 
-      <SectionHead title="主动之所" sub="共用一个当前行动" />
+      <h2 className="section-head" style={{ marginTop: 4 }}>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 700 }}>主动之所</span>
+        <small style={{ fontSize: 10.5, color: 'var(--ink-600)' }}>共用一个当前行动</small>
+      </h2>
       <div className="building-grid">
         {primaryBuildings.map(({ key, bldKey, name, desc, Icon }) => (
           <button key={key} className={`bld-card${action?.home === bldKey ? ' running' : ''}`} onClick={() => shell.openPage(key)}>
@@ -69,10 +91,19 @@ export function CavePage() {
             <span className="bld-desc">{desc}</span>
           </button>
         ))}
-        <RevealCard glyph="阁" title="功法阁" desc={`筑基开启 · 功法收藏与研习`} />
+        <button className="reveal-card" style={{ textAlign: 'left' }} onClick={() => shell.openPage('pavilion')}>
+          <span className="glyph">阁</span>
+          <div>
+            <b>功法阁</b>
+            <p>筑基正式开启 · 现可预览所藏</p>
+          </div>
+        </button>
       </div>
 
-      <SectionHead title="长养之所" sub="并行运转，不占行动" />
+      <h2 className="section-head" style={{ marginTop: 4 }}>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 700 }}>长养之所</span>
+        <small style={{ fontSize: 10.5, color: 'var(--ink-600)' }}>并行运转，不占行动</small>
+      </h2>
       <div className="building-grid">
         <button className="bld-card" onClick={() => shell.openPage('farm')}>
           <div className="bld-top">
@@ -85,12 +116,20 @@ export function CavePage() {
         <RevealCard glyph="宝" title="法宝阁" desc="金丹开启 · 收藏法宝与永久传承" />
       </div>
 
-      <SectionHead
-        title="最近入库"
-        sub="挂机产出实时记录"
-        tail={<button className="btn-mini" onClick={() => shell.openPage('journal')}>全部 ›</button>}
-      />
-      <JournalList events={events.slice(0, 5)} emptyText="尚无入库记录。指派一处行动后，产出会自动记入账册。" />
+      {upgradeSheet && (
+        <ConfirmSheet title="洞天升级" onClose={() => setUpgradeSheet(false)}>
+          <div className="card card-padded">
+            <b style={{ fontSize: 14 }}>洞天 {CAVE_LEVEL_PLACEHOLDER} 级 → 2 级</b>
+            <p style={{ fontSize: 11.5, color: 'var(--ink-600)', marginTop: 6, lineHeight: 1.7 }}>
+              升级条件与下一级加成数值需由服务端契约下发（洞天等级当前未实装，见运行时口径）。
+            </p>
+          </div>
+          <div className="gate-banner gate-blocked">
+            洞天升级通道尚未开启。已开放的建筑升级（灵田、练功房等）将随洞天等级一并接入。
+          </div>
+          <button className="btn-primary" disabled>暂不可升级</button>
+        </ConfirmSheet>
+      )}
     </div>
   );
 }

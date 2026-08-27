@@ -12,8 +12,12 @@ import { useTicker } from '../../hooks';
 
 const PLOT_COUNT = 4;
 
+const ALCHEMY_NAMES: Record<string, string> = {
+  alchemy_basic: '聚气丹',
+};
+
 export function FarmPage() {
-  const { player, client, now } = useGame();
+  const { player, catalog, client, now } = useGame();
   const shell = useShell();
   const flow = useActionFlow(shell.showToast);
   const [plantingPlot, setPlantingPlot] = useState<string | null>(null);
@@ -21,6 +25,11 @@ export function FarmPage() {
 
   if (!player) return null;
   const farm = player.buildings?.spirit_farm;
+  // 种子用途：从 catalog 中找以灵草为输入的丹方（仅展示名称，数值不在前端推算）
+  const herbUses = (catalog?.recipes ?? [])
+    .filter((r) => r.actionId === 'alchemy' && (r.inputCosts.spirit_herb ?? 0) > 0)
+    .map((r) => ALCHEMY_NAMES[r.id] ?? r.id)
+    .join('、') || '入库炼丹材料';
 
   const legacyBatch = farm?.plantedPlots !== undefined && farm.plantedPlots !== null && (farm.plantedPlots ?? 0) > 0
     ? farm.plantedPlots : 0;
@@ -79,6 +88,7 @@ export function FarmPage() {
           plotId={plantingPlot}
           busy={flow.busy}
           onClose={() => setPlantingPlot(null)}
+          herbUses={herbUses}
           onPick={async (plantId, name) => {
             try {
               await flow.runMutation(
@@ -95,8 +105,9 @@ export function FarmPage() {
     </div>
   );
 
-  function PlantSheet({ plotId, busy, onClose, onPick }: {
-    plotId: string; busy: boolean; onClose(): void; onPick(plantId: string, name: string): Promise<void>;
+  function PlantSheet({ plotId, busy, onClose, onPick, herbUses }: {
+    plotId: string; busy: boolean; onClose(): void; herbUses: string;
+    onPick(plantId: string, name: string): Promise<void>;
   }) {
     if (!FARM_PLANTS.length) return <EmptyHint text="暂无可种灵物" />;
     return (
@@ -105,7 +116,8 @@ export function FarmPage() {
           <button key={plant.id} className="option-row" disabled={busy} onClick={() => void onPick(plant.id, plant.name)}>
             <span className="option-main">
               <b>{plant.name}</b>
-              <span className="option-sub">成长时长由灵田等级决定；成熟自动入库</span>
+              <span className="option-sub">成熟时长由灵田等级决定；成熟自动入库</span>
+              <span className="option-sub" style={{ color: 'var(--gold)' }}>可用途：{herbUses}</span>
             </span>
             <span className="btn-mini">播种</span>
           </button>

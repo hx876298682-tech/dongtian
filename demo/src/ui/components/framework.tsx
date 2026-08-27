@@ -1,7 +1,6 @@
 /** 全局框架层：身份区 / 资源栏 / 行动条五态 / 底部导航 */
 import { Backpack, Check, ChevronRight, CircleAlert, Compass, Home, RefreshCw, Settings, UserRound } from 'lucide-react';
 import type { ActionView } from '../store/actionView';
-import { completedCycles } from '../store/actionView';
 import type { ResourceId } from '../content/meta';
 import { RESOURCE_META, RESOURCE_ORDER, realmLabel } from '../content/meta';
 import { clamp01, fmtNum, fmtSpan } from '../api/format';
@@ -75,6 +74,7 @@ export function ActionBar({
   view,
   nowMs,
   cooldownRemainSeconds,
+  lastGains,
   lastError,
   onStop,
   onGoAssign,
@@ -83,21 +83,23 @@ export function ActionBar({
   view: ActionView | null;
   nowMs: number;
   cooldownRemainSeconds: number;
+  lastGains: Array<{ label: string; amount: number }>;
   lastError: string | null;
   onStop(): void;
   onGoAssign(): void;
 }) {
   let progressPct = 0;
-  let cycleNote: string | null = null;
 
   if (phase === 'running' && view) {
     const elapsedSec = Math.max(0, (nowMs - view.startedAtMs) / 1000);
     if (view.intervalSeconds > 0) {
       progressPct = clamp01((elapsedSec % view.intervalSeconds) / view.intervalSeconds) * 100;
-      const done = completedCycles(view, nowMs);
-      cycleNote = `${ACTION_DONE_NOTE[view.kind] ?? '已完成'} ${done ?? '—'} 次`;
     }
   }
+
+  const gainsText = lastGains.length
+    ? '最近收获 ' + lastGains.map((g) => `${g.label} ${g.amount > 0 ? '+' : ''}${fmtNum(g.amount)}`).join(' · ')
+    : null;
 
   return (
     <section
@@ -112,7 +114,7 @@ export function ActionBar({
           <b>{phase === 'running' && view ? `${view.verb} · ${view.targetName}` : phase === 'settling' ? '旧序列结算中…' : PHASE_SUB[phase]}</b>
         </div>
         <div className="action-meta">
-          {cycleNote && <span className="count num">{cycleNote}</span>}
+          {gainsText && <span className="action-gain num">{gainsText}</span>}
           {phase === 'cooldown' && <span className="count num" style={{ color: 'var(--cinnabar)' }}>恢复 {Math.ceil(cooldownRemainSeconds)}s</span>}
           {phase === 'running' && view && (
             <button className="btn-mini danger" onClick={onStop}>收功</button>
@@ -145,16 +147,6 @@ const PHASE_SUB: Record<ActionBarPhase, string> = {
   running: '',
   settling: '',
   cooldown: '上一场折戟，稍候自动恢复',
-};
-
-const ACTION_DONE_NOTE: Record<string, string> = {
-  expedition: '已完成场次',
-  training: '已运行轮次',
-  technique_training: '已运行轮次',
-  alchemy: '已炼批次',
-  forge: '已锻批次',
-  herbalism: '已采轮次',
-  mining: '已采轮次',
 };
 
 /* ============ 底部导航 ============ */

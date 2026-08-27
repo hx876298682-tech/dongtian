@@ -1,4 +1,4 @@
-/** 炼丹房：配方账簿 + 批次说明 + 单序列起点。
+/** 炼丹房：丹方卡片墙。卡片 = 丹名 + 消耗/产出/耗时；点击出确认面板。
     运行时口径：暂无 quantity DTO，序列持续炼制直至材料耗尽或库存满。 */
 import { useGame } from '../../store/GameStore';
 import { deriveActionView } from '../../store/actionView';
@@ -9,6 +9,10 @@ import { EmptyHint, PageHeaderBack } from '../../components/primitives';
 import type { ResourceId } from '../../content/meta';
 import { RESOURCE_META } from '../../content/meta';
 import { fmtNum, fmtSpan } from '../../api/format';
+
+const RECIPE_DISPLAY: Record<string, string> = {
+  alchemy_basic: '聚气丹',
+};
 
 export function AlchemyPage() {
   const { player, catalog } = useGame();
@@ -28,50 +32,42 @@ export function AlchemyPage() {
       {recipes.length === 0 ? (
         <EmptyHint text="丹方尚未释出，待内容门禁开放后入驻。" />
       ) : (
-        recipes.map((recipe) => {
-          const costs = Object.entries(recipe.inputCosts) as Array<[ResourceId, number]>;
-          const isCurrent = runningThis && action?.refId === recipe.id;
-          return (
-            <div key={recipe.id} className={`map-card${isCurrent ? ' current' : ''}`}>
-              <div className="map-body">
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <b style={{ fontFamily: 'var(--font-display)', fontSize: 15.5 }}>{RECIPE_DISPLAY[recipe.id] ?? recipe.id}</b>
-                  <small style={{ color: 'var(--ink-600)' }}>单批 {fmtSpan(recipe.intervalSeconds)}</small>
-                  {isCurrent && <span className="badge-current" style={{ marginLeft: 'auto' }}>炼制中</span>}
-                </div>
-                <div className="drop-row">
-                  消耗：
-                  {costs.map(([resId, amount]) => {
-                    const have = player.resources[resId]?.amount ?? 0;
-                    const enough = have >= amount;
-                    return (
-                      <span key={resId} className="drop-chip" style={!enough ? { color: 'var(--cinnabar)' } : undefined}>
-                        {RESOURCE_META[resId].name} ×{fmtNum(amount)}（有 {fmtNum(have)}）
-                      </span>
-                    );
-                  })}
-                </div>
-                <div className="drop-row">
-                  产出：<span className="drop-chip">{RESOURCE_META[recipe.outputResource as ResourceId]?.name ?? recipe.outputResource} ×{fmtNum(recipe.outputAmount)}/批</span>
-                  <small style={{ color: 'var(--ink-600)' }}>完成后自动入库，直至材料耗尽或库存满</small>
-                </div>
-                <div className="map-foot">
-                  <small>丹炉等级加成由建筑决定</small>
-                  <button
-                    className="btn-go"
-                    disabled={isCurrent || flow.busy}
-                    onClick={() =>
-                      openAlchemyConfirm(recipe.id, RECIPE_DISPLAY[recipe.id] ?? recipe.id)
-                    }
-                  >
-                    {isCurrent ? '进行中' : '开炉'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })
+        <div className="card-grid">
+          {recipes.map((recipe) => {
+            const costs = Object.entries(recipe.inputCosts) as Array<[ResourceId, number]>;
+            const isCurrent = runningThis && action?.refId === recipe.id;
+            const label = RECIPE_DISPLAY[recipe.id] ?? recipe.id;
+            const lacking = costs.some(([resId, amount]) => (player.resources[resId]?.amount ?? 0) < amount);
+            return (
+              <button
+                key={recipe.id}
+                className={`mini-card${isCurrent ? ' selected' : ''}`}
+                onClick={() => !isCurrent && openAlchemyConfirm(recipe.id, label)}
+              >
+                {isCurrent && <span className="mc-lv" style={{ color: 'var(--jade)', background: 'var(--jade-bg)' }}>炼制中</span>}
+                <span className="mc-name">{label}</span>
+                {costs.map(([resId, amount]) => {
+                  const have = player.resources[resId]?.amount ?? 0;
+                  const enough = have >= amount;
+                  return (
+                    <span key={resId} className="mc-sub" style={{ color: enough ? undefined : 'var(--cinnabar)' }}>
+                      {RESOURCE_META[resId].name} {fmtNum(amount)} <span style={{ opacity: .7 }}>(有 {fmtNum(have)})</span>
+                    </span>
+                  );
+                })}
+                <span className="mc-sub">产出 {RESOURCE_META[recipe.outputResource as ResourceId]?.name ?? recipe.outputResource} ×{fmtNum(recipe.outputAmount)} · {fmtSpan(recipe.intervalSeconds)}/批</span>
+                <span style={{ fontSize: 10.5, color: isCurrent ? 'var(--jade)' : lacking ? 'var(--cinnabar)' : 'var(--gold)', fontWeight: 600 }}>
+                  {isCurrent ? '进行中' : lacking ? '材料不足' : '点击开炉'}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       )}
+
+      <p style={{ fontSize: 11, color: 'var(--ink-600)', lineHeight: 1.7 }}>
+        炼制占用当前行动；完成后持续炼制，产出自动入库，直至材料耗尽或库存满。
+      </p>
     </div>
   );
 
@@ -99,7 +95,3 @@ export function AlchemyPage() {
     );
   }
 }
-
-const RECIPE_DISPLAY: Record<string, string> = {
-  alchemy_basic: '聚气丹',
-};

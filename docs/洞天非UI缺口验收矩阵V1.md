@@ -302,7 +302,7 @@
 
 本轮另在独立本机 PostgreSQL 数据库执行了最新迁移和真实 round-trip：两个玩家可共存同名初始装备；功法阁等级 2 离线 1 小时产出 4620 研究修为；灵田 123.5 秒小数 carry 可持久化并在离线结算后保持精确。该 smoke 尚未固化进 CI。
 
-| 2026-08-25 参数包恢复与最终验收 | 历史冻结 CSV 恢复后 SHA-256 `7113fe72dd40ed36869408551f5f20a9e72e83af519b4a03d657296ed4987f75`，版本校验通过，全量审计只读执行 `61/61` 通过；`npm test` 游戏 10/10、服务端 220 通过/19 跳过，`typecheck:server`/构建通过，lint 仅既有 3 条 warning；虚拟生产 preflight 通过；本机 PostgreSQL 串行 integration 18/18 通过。参数表与运行时冻结包一致，正式非 UI 阻断仍不变。
+| 2026-08-25 参数包恢复与最终验收 | 历史冻结 CSV 恢复后 SHA-256 `944c1655e47999bc4405239836b2398749b169d21d61a1f32e20e88bb20f8c92`，版本校验通过，全量审计只读执行 `61/61` 通过；`npm test` 游戏 10/10、服务端 220 通过/19 跳过，`typecheck:server`/构建通过，lint 仅既有 3 条 warning；虚拟生产 preflight 通过；本机 PostgreSQL 串行 integration 18/18 通过。参数表与运行时冻结包一致，正式非 UI 阻断仍不变。
 
 ## 2026-08-26 API 契约复核
 
@@ -388,7 +388,7 @@
 ## 2026-08-25（Codex：最终验收更正）
 
 - 持久化/迁移改动后的真实 PostgreSQL integration 已重新通过 18/18（PostgreSQL 9/9、routing 1/1、reliability 7/7、process 1/1）；此前“未执行”的旧记录仅反映当时尚未注入 `DATABASE_URL`，不代表最终结果。
-- 参数版本校验为 1143 行、12 列、`1.0.0-frozen`、SHA-256 `7113fe72dd40ed36869408551f5f20a9e72e83af519b4a03d657296ed4987f75`；只读全量审计 `61/61` 通过。总体仍为 `partial / infrastructure_and_feature_gaps`。
+- 参数版本校验为 1143 行、12 列、`1.0.0-frozen`、SHA-256 `944c1655e47999bc4405239836b2398749b169d21d61a1f32e20e88bb20f8c92`；只读全量审计 `61/61` 通过。总体仍为 `partial / infrastructure_and_feature_gaps`。
 
 ## 2026-08-26 正式内容与自然突破链只读复核
 
@@ -463,7 +463,7 @@
 | 随机事件 | 显式合法 runtime state 可做 UTC 窗口、确定性抽取、离线倍率结算和 replay；空状态不自动初始化 proposal | 文档/参数仍 `proposal_v1`，公式口径、provenance 和正式迁移未冻结 |
 
 - 最终自动回归：`npm test` 335 项（313 pass、22 skip、0 fail）；真实 PostgreSQL integration `21/21`；typecheck/build/release audit 通过；Ruby 全量审计 `61/61`。
-- release 基线：`1.0.0-frozen`、1143 参数行、parameter SHA `7113fe72dd40ed36869408551f5f20a9e72e83af519b4a03d657296ed4987f75`、content SHA `463e0e839708aec0ac1b3f3d808ad4210799a8b60be94962611e4b0322fef264`、`signature_only_v1`、pending objects=0。
+- release 基线：`1.0.0-frozen`、1143 参数行、parameter SHA `944c1655e47999bc4405239836b2398749b169d21d61a1f32e20e88bb20f8c92`、content SHA `463e0e839708aec0ac1b3f3d808ad4210799a8b60be94962611e4b0322fef264`、`signature_only_v1`、pending objects=0。
 - 总体判定仍为 `active / partial / infrastructure_and_feature_gaps`；正式阻断为 FI-02、FI-03 enable、FI-04 full_v1、随机事件正式输入和生产外部现场证据。UI/CSS/素材按用户要求最后处理。
 
 ## 2026-08-26（Luna：随机事件抽取游标持久化）

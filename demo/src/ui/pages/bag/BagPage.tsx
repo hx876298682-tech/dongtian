@@ -13,7 +13,7 @@ import { fmtNum } from '../../api/format';
 export function BagPage() {
   const { player, catalog } = useGame();
   const shell = useShell();
-  const [segment, setSegment] = useState<'equip' | 'resource'>('equip');
+  const [filter, setFilter] = useState<'all' | 'equip' | 'resource'>('all');
 
   if (!player) return null;
   const instances = Object.values(player.equipmentInstances);
@@ -27,16 +27,35 @@ export function BagPage() {
         </small>
       </div>
 
-      <div className="segmented">
-        <button className={`seg-btn${segment === 'equip' ? ' active' : ''}`} onClick={() => setSegment('equip')}>法宝兵刃</button>
-        <button className={`seg-btn${segment === 'resource' ? ' active' : ''}`} onClick={() => setSegment('resource')}>天然资源</button>
+      <div className="filter-chips">
+        {[['all','全部'],['equip','装备'],['resource','资源']].map(([key,label]) => (
+          <button key={key} className={`f-chip${filter === key ? ' active' : ''}`} onClick={() => setFilter(key as typeof filter)}>{label}</button>
+        ))}
       </div>
 
-      {segment === 'equip' && (
-        instances.length === 0 ? (
+      {(filter === 'all' || filter === 'resource') && (
+        <div className="inv-cells">
+          {RESOURCE_ORDER.map((id) => {
+            const entry = player.resources[id];
+            const meta = RESOURCE_META[id];
+            return (
+              <div key={id} className="inv-cell" title={meta.name}>
+                <b className="num" style={{ fontSize: 12.5 }}>{fmtNum(entry?.amount)}</b>
+                <span className="cell-name">{meta.name}</span>
+                {entry && entry.capacity > 0 && entry.amount >= entry.capacity * 0.9 && (
+                  <span className="cell-count" style={{ color: 'var(--cinnabar)' }}>近满</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {(filter === 'all' || filter === 'equip') && (
+        instances.length === 0 && filter === 'equip' ? (
           <EmptyHint text="行囊清空。妖魔身上自有补足之道——去历练走一遭。" />
         ) : (
-          <div className="journal-panel">
+          <div className="inv-cells">
             {[...instances]
               .sort((a, b) => Number(b.isEquipped) - Number(a.isEquipped))
               .map((inst) => {
@@ -45,49 +64,20 @@ export function BagPage() {
                 return (
                   <button
                     key={inst.instanceId}
-                    className="option-row"
-                    style={{ borderRadius: 0, boxShadow: 'none', borderBottom: '1px dashed var(--line)' }}
+                    className={`inv-cell ${meta.cls}`}
+                    style={{ color: 'var(--ink-900)' }}
+                    title={`${template?.displayName ?? inst.templateId} · ${slotLabel(inst.slot)}`}
                     onClick={() => shell.openSheet(
                       <EquipmentDetailSheet instanceId={inst.instanceId} onClose={() => shell.closeSheet()} />,
                     )}
                   >
-                    <span className={`equip-frame ${meta.cls}`} style={{ width: 42, height: 42 }}>
-                      <ItemGlyph slot={inst.slot} size={22} />
-                    </span>
-                    <span className="option-main">
-                      <b>{template?.displayName ?? inst.templateId}{inst.isEquipped ? ' · 已佩戴' : ''}</b>
-                      <span className="option-sub">
-                        {slotLabel(inst.slot)}
-                        {inst.reinforcementLevel > 0 ? ` · 强化 +${inst.reinforcementLevel}` : ''}
-                      </span>
-                    </span>
-                    <QualityChip quality={meta.label} />
+                    <ItemGlyph slot={inst.slot} size={24} />
+                    {inst.isEquipped && <span className="cell-count" style={{ color: 'var(--jade)' }}>已穿</span>}
                   </button>
                 );
               })}
           </div>
         )
-      )}
-
-      {segment === 'resource' && (
-        <div className="journal-panel">
-          {RESOURCE_ORDER.map((id) => {
-            const entry = player.resources[id];
-            const meta = RESOURCE_META[id];
-            const nearCap = entry ? entry.capacity > 0 && entry.amount >= entry.capacity * 0.9 : false;
-            return (
-              <div key={id} className="option-row" style={{ borderRadius: 0, boxShadow: 'none', borderBottom: '1px dashed var(--line)', cursor: 'default' }}>
-                <span className="option-main">
-                  <b>{meta.name}</b>
-                  <span className="option-sub">上限 {fmtNum(entry?.capacity)}</span>
-                </span>
-                <b className="num" style={{ fontSize: 14.5, color: nearCap ? 'var(--cinnabar)' : undefined }}>
-                  {fmtNum(entry?.amount)}
-                </b>
-              </div>
-            );
-          })}
-        </div>
       )}
     </div>
   );

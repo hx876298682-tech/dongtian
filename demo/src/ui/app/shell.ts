@@ -9,6 +9,7 @@ export type PageId =
   | 'alchemy'
   | 'forge'
   | 'farm'
+  | 'pavilion'
   | 'journal'
   | 'breakthrough'
   | 'settings';

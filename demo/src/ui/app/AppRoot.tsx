@@ -15,6 +15,7 @@ import { TrainingPage } from '../pages/cave/TrainingPage';
 import { AlchemyPage } from '../pages/cave/AlchemyPage';
 import { ForgePage } from '../pages/cave/ForgePage';
 import { FarmPage } from '../pages/cave/FarmPage';
+import { PavilionPage } from '../pages/path/PavilionPage';
 import { JourneyPage } from '../pages/journey/JourneyPage';
 import { BagPage } from '../pages/bag/BagPage';
 import { PathPage } from '../pages/path/PathPage';
@@ -138,6 +139,7 @@ function Inner() {
     alchemy: <AlchemyPage />,
     forge: <ForgePage />,
     farm: <FarmPage />,
+    pavilion: <PavilionPage />,
     journal: <JournalPageShell />,
     breakthrough: <BreakthroughPage />,
     settings: <SettingsPageShell />,
@@ -161,6 +163,7 @@ function Inner() {
             view={view}
             nowMs={nowMs}
             cooldownRemainSeconds={cooldownRemainMs / 1000}
+            lastGains={game.lastGains}
             lastError={null}
             onStop={() => {
               if (!view) return;

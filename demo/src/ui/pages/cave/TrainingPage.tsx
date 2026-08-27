@@ -1,4 +1,4 @@
-/** 练功房：功法目录 + 确认面板。修炼任何功法同时增长修为与该功法属性（运行时口径）。 */
+/** 练功房：功法卡片墙。卡片 = 功法名 + 当前等级 + 属性方向；点击出确认面板。 */
 import { useGame } from '../../store/GameStore';
 import { deriveActionView } from '../../store/actionView';
 import { useShell } from '../../app/shell';
@@ -17,6 +17,15 @@ export function TrainingPage() {
 
   const techniques = catalog.techniques.filter((t) => t.status === 'released');
   const currentTechniqueId = action?.kind === 'technique_training' ? action.refId : null;
+  const techLevels = player.skillLevels?.technique ?? {};
+
+  const levelOf = (id: string): number | null => {
+    const direct = techLevels[id];
+    if (typeof direct === 'number') return direct;
+    const suffix = id.split('.').pop();
+    const hit = Object.entries(techLevels).find(([k]) => k.endsWith(`.${suffix}`) || k === suffix);
+    return typeof hit?.[1] === 'number' ? hit[1] : null;
+  };
 
   const openConfirm = (techniqueId: string) => {
     shell.openSheet(
@@ -27,7 +36,7 @@ export function TrainingPage() {
         onCancel={() => shell.closeSheet()}
         onStart={async () => {
           shell.closeSheet();
-          await flow.startAction({ actionId: 'technique_training', techniqueId }, `功法修炼`);
+          await flow.startAction({ actionId: 'technique_training', techniqueId }, '功法修炼');
         }}
       />,
     );
@@ -41,23 +50,24 @@ export function TrainingPage() {
       {techniques.length === 0 ? (
         <EmptyHint text="功法阁尚未收录任何可修习功法。" />
       ) : (
-        <div className="journal-panel">
+        <div className="card-grid">
           {techniques.map((tech) => {
             const meta = qualityMeta(tech.quality);
             const isCurrent = tech.id === currentTechniqueId;
+            const lv = levelOf(tech.id);
             return (
               <button
                 key={tech.id}
-                className={`option-row${isCurrent ? ' selected' : ''}`}
+                className={`mini-card${isCurrent ? ' selected' : ''}`}
                 onClick={() => !isCurrent && openConfirm(tech.id)}
-                style={{ borderRadius: 0, boxShadow: 'none', borderBottom: '1px dashed var(--line)' }}
               >
-                <span className="option-main">
-                  <b>{techniqueName(tech.id)}{isCurrent ? ' · 研习中' : ''}</b>
-                  <span className="option-sub">每轮推进修为与该功法专属属性</span>
+                {lv !== null && <span className="mc-lv num">Lv.{lv}</span>}
+                <span className="mc-name">{techniqueName(tech.id)}</span>
+                <span className="mc-sub">修炼增进修为与专属属性</span>
+                <span style={{ marginTop: 2 }}><QualityChip quality={meta.label} /></span>
+                <span style={{ fontSize: 10.5, color: isCurrent ? 'var(--jade)' : 'var(--gold)', fontWeight: 600 }}>
+                  {isCurrent ? '研习中 · 点击收功后可换' : '点击研习'}
                 </span>
-                <QualityChip quality={meta.label} />
-                {!isCurrent && <span className="btn-mini">研习</span>}
               </button>
             );
           })}

@@ -22,9 +22,9 @@ growth.cultivation.core_rate,growth,Core average cultivation rate,2083.3333333,c
 growth.cultivation.qi_segment_rate,growth,Qi segment cultivation rate,4166.6666667,cultivation_xp_per_hour,derived,frozen_v1,洞天设计,"","","",V1参数
 growth.cultivation.foundation_segment_rate,growth,Foundation segment gross rate,2916.6666667,cultivation_xp_per_hour,derived,frozen_v1,洞天设计,"","","",V1参数
 growth.cultivation.core_segment_rate,growth,Core segment gross rate,2250,cultivation_xp_per_hour,derived,frozen_v1,洞天设计,"","","",V1参数
-building.training_room.base_interval,building,Training base interval,60,seconds,scalar,frozen_v1,洞天设计,"","","",V1参数
-building.training_room.base_cultivation_xp,building,Training XP per action,70,cultivation_xp_per_action,scalar,frozen_v1,洞天设计,"","","",V1参数
-building.training_room.base_actions_per_hour,building,Training actions per hour,60,actions_per_hour,derived,frozen_v1,洞天设计,"",3600 / base_interval,integer,V1参数
+building.training_room.base_interval,building,Training base interval,6,seconds,scalar,frozen_v1,DT-NUM-20260827-01,"","","",V1参数
+building.training_room.base_cultivation_xp,building,Training XP per action,7,cultivation_xp_per_action,scalar,frozen_v1,DT-NUM-20260827-01,"","","",V1参数
+building.training_room.base_actions_per_hour,building,Training actions per hour,600,actions_per_hour,derived,frozen_v1,DT-NUM-20260827-01,"",3600 / base_interval,integer,V1参数
 building.training_room.base_cultivation_rate,building,Training cultivation rate,4200,cultivation_xp_per_hour,derived,frozen_v1,洞天设计,"",xp * actions,integer,V1参数
 building.training_room.level_speed_multiplier,building,Training room level speed multiplier,1.0,ratio,scalar,frozen_v1,洞天设计,"",level 1 baseline; higher levels use building.level.speed_multiplier,4dp,练功房等级基准倍率
 building.alchemy_room.failure_chance,building,Alchemy failure chance,0,percent,probability,frozen_v1,洞天设计,"",V1 production is deterministic; no hidden loss,integer,炼丹生产不引入隐式失败

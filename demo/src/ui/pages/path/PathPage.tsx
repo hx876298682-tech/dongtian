@@ -5,7 +5,7 @@ import { useGame } from '../../store/GameStore';
 import { useShell } from '../../app/shell';
 import { QualityChip, SectionHead } from '../../components/primitives';
 import { ItemGlyph } from '../../components/ItemGlyph';
-import { SLOT_LABELS, realmLabel, REALM_LADDER, qualityMeta, slotLabel } from '../../content/meta';
+import { SLOT_LABELS, realmLabel, qualityMeta, slotLabel } from '../../content/meta';
 import { fmtNum } from '../../api/format';
 import { REALMS } from '../../../game/config';
 import type { CombatPreviewData, EquipmentInstance } from '../../api/client';
@@ -33,7 +33,6 @@ export function PathPage() {
   const bySlot = (slot: string): EquipmentInstance | undefined =>
     equipped.find((e) => e.slot === slot);
   const realmMax = (REALMS as Record<string, { cultivationMax: number }>)[player.realmId]?.cultivationMax ?? null;
-  const currentRank = REALM_LADDER.findIndex((r) => r.id === player.realmId);
 
   return (
     <div className="pad">
@@ -90,7 +89,7 @@ export function PathPage() {
       {/* 真实属性（服务端 preview）+ 技艺等级 */}
       {preview && (
         <>
-          <SectionHead title="战斗底蕴" sub={`${firstMap ? `以${firstMap.displayName}为准的实战口径` : '服务端口径'} · 战力只是展示值`} />
+          <SectionHead title="属性" sub={`${firstMap ? `以${firstMap.displayName}为准的实战口径` : '服务端口径'} · 战力只是展示值`} />
           <div className="stat-grid">
             <AttrBlock label="生命" value={preview.stats.health} />
             <AttrBlock label="攻击" value={preview.stats.attack} />
@@ -114,35 +113,10 @@ export function PathPage() {
         </>
       )}
 
-      {/* 境界路线 */}
-      <SectionHead
-        title="境界路线"
-        sub="凡人 → 渡劫，步步玄关"
-        tail={
-          <button className="btn-mini" onClick={() => shell.openPage('breakthrough')}>
-            <Sparkles size={11} style={{ verticalAlign: -1.5 }} /> 叩问玄关
-          </button>
-        }
-      />
-      <div className="journal-panel" style={{ padding: '8px 12px' }}>
-        <div className="realm-ladder">
-          {REALM_LADDER.map((realm, index) => {
-            const stateCls =
-              index < currentRank ? 'passed' : index === currentRank ? 'current' : '';
-            return (
-              <div key={realm.id} style={{ display: 'flex', flexDirection: 'column' }}>
-                {index > 0 && <i className="ladder-link" />}
-                <div className={`ladder-node ${stateCls}`}>
-                  <i className="ladder-stone" />
-                  <span>{realm.label}</span>
-                  {index === currentRank && <small>当前 · 距突破以修为与材料为准</small>}
-                  {index > currentRank && <small>{realmLabelUnlockNote(realm.id)}</small>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/* 突破入口 */}
+      <button className="btn-ceremony" onClick={() => shell.openPage('breakthrough')}>
+        <Sparkles size={14} style={{ verticalAlign: -2, marginRight: 6 }} />叩问玄关 · 境界突破
+      </button>
 
       <small style={{ fontSize: 10.5, color: 'var(--ink-600)', textAlign: 'center' }}>
         {now() > 0 ? '洞天状态与天地同步中' : ''}
@@ -163,12 +137,4 @@ function AttrBlock({ label, value, showDecimal }: { label: string; value?: numbe
 function levelFromXp(xp: number | undefined): number | undefined {
   // 服务端已提供 skillLevels 时优先；此回退仅显示原始 XP 数量级，不推算等级
   return xp === undefined ? undefined : Math.max(1, Math.floor(Math.log2(xp + 1)) + 1);
-}
-
-function realmLabelUnlockNote(realmId: string): string {
-  switch (realmId) {
-    case 'foundation_establishment': return '开功法阁·清风秘境·黑风谷';
-    case 'core_formation': return '开法宝阁·炎狱秘境·赤炎洞';
-    default: return '';
-  }
 }

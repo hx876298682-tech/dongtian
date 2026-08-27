@@ -12,7 +12,7 @@ export type ToastTone = 'ok' | 'warn';
 export type ShowToast = (text: string, tone?: ToastTone) => void;
 
 export function useActionFlow(showToast: ShowToast) {
-  const { client, player, revision, refresh, refreshEvents } = useGame();
+  const { client, player, revision, refresh, refreshEvents, recordSettlement } = useGame();
   const [settling, setSettling] = useState(false);
 
   const run = useCallback(async <T,>(job: () => Promise<T>, okText: string): Promise<T | null> => {
@@ -38,22 +38,34 @@ export function useActionFlow(showToast: ShowToast) {
     }
   }, [refresh, refreshEvents, showToast, settling]);
 
+  /** 从 stop/switch 的响应里取出服务端结算摘要，供行动条"最近收获"展示。 */
+  const recordFromEnvelope = useCallback((data: unknown): void => {
+    if (!data || typeof data !== 'object') return;
+    const obj = data as Record<string, unknown>;
+    const settlement = (obj.settlement ?? (obj.stopped as Record<string, unknown> | undefined)?.settlement) as
+      | { data?: { resourceDelta?: Record<string, number>; cultivationDelta?: number } }
+      | undefined;
+    if (settlement?.data) recordSettlement(settlement.data);
+  }, [recordSettlement]);
+
   const startAction = useCallback((options: ActionOptions, label: string) =>
     run(() => client.startAction(options, revision()), `已开启${label}`), [run, client, revision]);
 
   const switchAction = useCallback((options: ActionOptions, startedAtIso: string, label: string) => {
     const primaryStartedAt = player?.primaryAction.startedAt ?? startedAtIso;
-    return run(
-      () => client.switchAction(options, revision(), primaryStartedAt),
-      `旧序列已结算 · 已切换至${label}`,
-    );
-  }, [run, client, revision, player]);
+    return run(async () => {
+      const envelope = await client.switchAction(options, revision(), primaryStartedAt);
+      recordFromEnvelope(envelope.data);
+      return envelope;
+    }, `旧序列已结算 · 已切换至${label}`);
+  }, [run, client, revision, player, recordFromEnvelope]);
 
   const stopAction = useCallback((startedAtIso: string) =>
-    run(
-      () => client.stopAction(revision(), startedAtIso),
-      '已收功，本轮收获已自动入库',
-    ), [run, client, revision]);
+    run(async () => {
+      const envelope = await client.stopAction(revision(), startedAtIso);
+      recordFromEnvelope(envelope.data);
+      return envelope;
+    }, '已收功，本轮收获已自动入库'), [run, client, revision, recordFromEnvelope]);
 
   return {
     settling,

@@ -38,7 +38,7 @@ game_data/
 {
   "config_version": "1.0.0-frozen",
   "parameter_table": "洞天数值参数表.csv",
-  "parameter_sha256": "7113fe72dd40ed36869408551f5f20a9e72e83af519b4a03d657296ed4987f75",
+  "parameter_sha256": "944c1655e47999bc4405239836b2398749b169d21d61a1f32e20e88bb20f8c92",
   "schema_version": "1.0",
   "status": "frozen_v1"
 }

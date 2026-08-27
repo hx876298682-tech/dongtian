@@ -1,5 +1,6 @@
 /** 底部确认面板与切换警告 */
 import { X } from 'lucide-react';
+import { useRef } from 'react';
 import type { ReactNode } from 'react';
 import type { ActionView } from '../store/actionView';
 
@@ -12,9 +13,19 @@ export function ConfirmSheet({
   onClose(): void;
   children: ReactNode;
 }) {
+  // 打开后短暂忽略遮罩点击：避免“点开面板的同一次点击”立即触发关闭（灵田等地块按钮场景）
+  const mountedAtRef = useRef<number | null>(null);
+  if (mountedAtRef.current === null) {
+    mountedAtRef.current = Date.now(); // 仅首次渲染赋值
+  }
+  const requestClose = (): void => {
+    if (Date.now() - (mountedAtRef.current ?? 0) < 350) return;
+    onClose();
+  };
+
   return (
     <>
-      <div className="overlay dim" onClick={onClose} />
+      <div className="overlay dim" onClick={requestClose} />
       <div className="overlay" style={{ pointerEvents: 'none' }}>
         <div className="sheet" style={{ pointerEvents: 'auto' }} role="dialog" aria-label={title}>
           <i className="sheet-grab" />
