@@ -1,6 +1,7 @@
 /** 应用壳：全局框架层 + 页面栈 + 浮层层 + 离线回归。 */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useTicker } from '../hooks';
 import { GameProvider, useGame } from '../store/GameStore';
 import { deriveActionView, shouldOfferOfflineSettlement } from '../store/actionView';
 import { useActionFlow } from '../flows/useActionFlow';
@@ -39,6 +40,7 @@ export default function AppRoot() {
 
 function Inner() {
   const game = useGame();
+  useTicker(1000); // 行动条进度/倒计时按秒推进
   const [tab, setTab] = useState<TabId>('cave');
   const [stack, setStack] = useState<PageId[]>([]);
   const [sheet, setSheet] = useState<ReactNode | null>(null);
