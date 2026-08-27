@@ -1,7 +1,7 @@
 /** UI 展示元数据：纯表现层文案与配色映射，不含任何玩法数值。
     数值一律来自服务端 bootstrap/catalog/preview；此处只决定“怎么画”。 */
 
-export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll';
+export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core';
 
 export const RESOURCE_META: Record<ResourceId, { name: string; short: string }> = {
   spirit_stone: { name: '灵石', short: '石' },
@@ -10,9 +10,12 @@ export const RESOURCE_META: Record<ResourceId, { name: string; short: string }> 
   spirit_ore: { name: '灵矿', short: '矿' },
   pill: { name: '丹药', short: '丹' },
   ancient_scroll: { name: '古修残卷', short: '卷' },
+  millennium_herb: { name: '千年灵药', short: '药' },
+  meteor_iron: { name: '天外陨铁', short: '铁' },
+  demon_core: { name: '妖丹', short: '妖' },
 };
 
-export const RESOURCE_ORDER: ResourceId[] = ['spirit_stone', 'spirit_wood', 'spirit_herb', 'spirit_ore', 'pill', 'ancient_scroll'];
+export const RESOURCE_ORDER: ResourceId[] = ['spirit_stone', 'spirit_wood', 'spirit_herb', 'spirit_ore', 'pill', 'ancient_scroll', 'millennium_herb', 'meteor_iron', 'demon_core'];
 
 export type QualityId = 'normal' | 'fine' | 'rare' | 'epic' | 'legendary' | 'immortal';
 

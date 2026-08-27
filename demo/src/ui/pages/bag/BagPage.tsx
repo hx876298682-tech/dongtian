@@ -9,7 +9,8 @@ import { EmptyHint, QualityChip } from '../../components/primitives';
 import { ItemGlyph } from '../../components/ItemGlyph';
 import { ElementTag } from '../../components/ElementTag';
 import { RESOURCE_META, RESOURCE_ORDER, qualityMeta, slotLabel } from '../../content/meta';
-import { EQUIPMENT_DISPLAY, parseAffixSlots, SPECIAL_AFFIX_NAMES, SPECIAL_AFFIX_HINTS, RESOURCE_USAGE } from '../../content/growth';
+import { EQUIPMENT_DISPLAY, EQUIPMENT_GROWTH_LIMITS, parseAffixSlots, SPECIAL_AFFIX_NAMES, SPECIAL_AFFIX_HINTS, RESOURCE_USAGE, reinforcePreview, promotePreview, awakenPreview } from '../../content/growth';
+import type { CostLine } from '../../content/growth';
 import { fmtNum } from '../../api/format';
 
 export function BagPage() {
@@ -139,6 +140,7 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
   const shell = useShell();
   const flow = useActionFlow(shell.showToast);
   const [confirmOp, setConfirmOp] = useState<ConfirmOp>(null);
+  const [growthOp, setGrowthOp] = useState<{ op: 'reinforce' | 'promote' | 'awaken'; title: string; costs: CostLine[] } | null>(null);
 
   const instance = player?.equipmentInstances[instanceId] ?? null;
   if (!instance || !player) return null;
@@ -151,6 +153,11 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
   const revisionNow = player.stateRevision;
 
   async function run(op: 'equip' | 'unequip' | 'reinforce' | 'lock'): Promise<void> {
+    const result = await flow.runMutation(() => client.equipmentAction(instanceId, op, revisionNow), OP_OK[op]);
+    if (result !== null) onClose();
+  }
+
+  async function runGrowth(op: 'reinforce' | 'promote' | 'awaken'): Promise<void> {
     const result = await flow.runMutation(() => client.equipmentAction(instanceId, op, revisionNow), OP_OK[op]);
     if (result !== null) onClose();
   }
@@ -229,29 +236,79 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
             <button className="btn-primary" disabled={pending} onClick={() => void runSalvage()}>确认分解</button>
           </div>
         </>
+      ) : growthOp ? (
+        <>
+          <div className="card card-padded">
+            <b style={{ fontSize: 13.5 }}>{GROWTH_LABEL[growthOp.op]} · {growthOp.title}</b>
+            <div className="journal-panel" style={{ marginTop: 8 }}>
+              {growthOp.costs.map((line) => {
+                const have = line.resourceId ? (player.resources[line.resourceId as keyof typeof player.resources]?.amount ?? 0) : null;
+                const enough = have === null || have >= line.amount;
+                return (
+                  <div key={line.label} className="journal-row">
+                    <span className="journal-text">{line.label}</span>
+                    <span className={`journal-gain num${enough ? ' loss' : ''}`} style={!enough ? { color: 'var(--cinnabar)' } : undefined}>
+                      -{fmtNum(line.amount)}{have !== null ? `（有 ${fmtNum(have)}）` : ''}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <small style={{ fontSize: 10.5, color: 'var(--ink-600)', display: 'block', marginTop: 6 }}>
+              预览取自公开冻结参数公式；提交后以服务端结算为准，材料不足时不扣分毫。
+            </small>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <button className="btn-danger-ghost" onClick={() => setGrowthOp(null)}>再想想</button>
+            <button
+              className="btn-primary"
+              disabled={pending}
+              onClick={() => {
+                const op = growthOp.op;
+                setGrowthOp(null);
+                void runGrowth(op);
+              }}
+            >
+              确认{GROWTH_LABEL[growthOp.op]}
+            </button>
+          </div>
+        </>
       ) : (
-        <div className="op-grid">
-          <button className="op-btn" disabled={pending} onClick={() => void run(instance.isEquipped ? 'unequip' : 'equip')}>
-            {instance.isEquipped ? '卸下' : '装备'}
-          </button>
-          <button className="op-btn" disabled={pending} onClick={() => void run('reinforce')}>强化</button>
-          <button className="op-btn" disabled={pending} onClick={() => void run('lock')}>
-            <Pin size={12} style={{ verticalAlign: -2 }} /> 锁定
-          </button>
-          <button
-            className="op-btn"
-            disabled={pending || instance.isEquipped}
-            title={instance.isEquipped ? '先卸下再分解' : undefined}
-            onClick={() => setConfirmOp({ op: 'salvage', note: '分解后器物化入炉中，返还材料由天道核算（服务端结算）。' })}
-          >
-            <Trash2 size={12} style={{ verticalAlign: -2 }} /> 分解
-          </button>
-        </div>
+        <>
+          <div className="op-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+            <button className="op-btn" disabled={pending} onClick={() => void run(instance.isEquipped ? 'unequip' : 'equip')}>
+              {instance.isEquipped ? '卸下' : '装备'}
+            </button>
+            <button className="op-btn" disabled={pending} onClick={() => setGrowthOp({ op: 'reinforce', title: `强化 +${instance.reinforcementLevel + 1}`, costs: reinforcePreview(instance.reinforcementLevel) })}>
+              强化
+            </button>
+            <button className="op-btn" disabled={pending} onClick={() => {
+              const next = promotePreview(instance.quality);
+              if (!next) return;
+              setGrowthOp({ op: 'promote', title: `升品 · ${instance.quality} → 下一阶`, costs: next });
+            }}>
+              升品
+            </button>
+            <button className="op-btn" disabled={pending} onClick={() => setGrowthOp({ op: 'awaken', title: `觉醒 ${instance.awakeningLevel ?? 0} → ${(instance.awakeningLevel ?? 0) + 1}`, costs: awakenPreview(instance.awakeningLevel ?? 0) })}>
+              觉醒
+            </button>
+            <button className="op-btn" disabled={pending} onClick={() => void run('lock')}>
+              <Pin size={12} style={{ verticalAlign: -2 }} /> 锁定
+            </button>
+            <button
+              className="op-btn"
+              disabled={pending || instance.isEquipped}
+              title={instance.isEquipped ? '先卸下再分解' : undefined}
+              onClick={() => setConfirmOp({ op: 'salvage', note: '分解后器物化入炉中，返还材料由天道核算（服务端结算）。' })}
+            >
+              <Trash2 size={12} style={{ verticalAlign: -2 }} /> 分解
+            </button>
+          </div>
+          <small style={{ fontSize: 10.5, color: 'var(--ink-600)', lineHeight: 1.7 }}>
+            洗练受词条门禁约束（需稀有以上并锁定词条），正式开放后此处点亮。强化上限 {EQUIPMENT_GROWTH_LIMITS.reinforcementMaxLevel} 级 · 觉醒上限 {EQUIPMENT_GROWTH_LIMITS.awakeningMaxLevel} 级。
+          </small>
+        </>
       )}
-
-      <p style={{ fontSize: 10.5, color: 'var(--ink-600)', lineHeight: 1.7 }}>
-        升品、洗练、觉醒诸道受产品门禁约束，正式开放后此处点亮。
-      </p>
     </ConfirmSheet>
   );
 }
@@ -260,5 +317,9 @@ const OP_OK: Record<string, string> = {
   equip: '已佩戴',
   unequip: '已卸下入囊',
   reinforce: '淬炼成功',
+  promote: '升品成功',
+  awaken: '觉醒成功',
   lock: '已标记锁定',
 };
+
+const GROWTH_LABEL: Record<string, string> = { reinforce: '强化', promote: '升品', awaken: '觉醒' };

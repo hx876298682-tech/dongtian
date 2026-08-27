@@ -11,7 +11,7 @@ import { ElementTag } from '../../components/ElementTag';
 import { mapPresentation, DUNGEONS, realmLabel } from '../../content/meta';
 import { fmtNum, fmtSpan } from '../../api/format';
 import type { ActionView } from '../../store/actionView';
-import type { DungeonSettlementData, CombatPreviewData } from '../../api/client';
+import type { CombatPreviewData, DungeonSettlementData, HighTierSettlementData } from '../../api/client';
 import { BattleLayer } from '../../layers/BattleLayer';
 
 type Segment = 'hunt' | 'herb' | 'mine';
@@ -23,7 +23,7 @@ export function JourneyPage() {
   const flow = useActionFlow(shell.showToast);
   const [segment, setSegment] = useState<Segment>('hunt');
   const [huntView, setHuntView] = useState<'wild' | 'dungeon'>('wild');
-  const [battle, setBattle] = useState<{ name: string; data: DungeonSettlementData } | null>(null);
+  const [battle, setBattle] = useState<{ name: string; data: DungeonSettlementData | HighTierSettlementData; retryRealm?: string } | null>(null);
   if (!player || !catalog) return null;
 
   const action = deriveActionView(player, catalog);
@@ -36,7 +36,11 @@ export function JourneyPage() {
           dungeonName={battle.name}
           data={battle.data}
           onClose={() => setBattle(null)}
-          onRetry={() => { const b = battle; setBattle(null); void openDungeon(b.data.dungeonId, b.name); }}
+          onRetry={() => {
+            const b = battle as { name: string; retryRealm?: string };
+            setBattle(null);
+            if (b.retryRealm) void openDungeon(b.retryRealm, b.name);
+          }}
           retryEnabled={!flow.busy}
         />
       )}
@@ -132,17 +136,45 @@ export function JourneyPage() {
     if (settled?.data) setBattle({ name, data: settled.data });
   }
 
+  async function openHighTier(realm: string, name: string): Promise<void> {
+    shell.closeSheet();
+    const preview = await game.client.highTierPreview(realm).catch(function () { return null; });
+    if (!preview) { shell.showToast('远征预览不可用，稍后再试', 'warn'); return; }
+    const gate = preview.data.gate;
+    if (gate.status === 'blocked') {
+      shell.showToast(gate.reason === 'collection' ? 'P10 构筑门槛未达' : '境界未至，暂不可远征', 'warn');
+      return;
+    }
+    const started = await flow.runMutation(function () { return game.client.startHighTier(realm, game.revision()); }, '');
+    if (!started) return;
+    const attemptId = (started.data as { attemptId?: string }).attemptId;
+    if (!attemptId) { shell.showToast('远征开启异常', 'warn'); return; }
+    const settled = await flow.runMutation(function () { return game.client.settleHighTier(attemptId, game.revision()); }, '');
+    if (settled?.data) setBattle({ name, data: settled.data, retryRealm: realm });
+  }
+
   function DungeonBlock() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <p style={{ fontSize: 11, color: 'var(--ink-600)' }}>秘境为时刻型挑战：先在战前整备核对门槛，首败即止并进入冷却。</p>
         {DUNGEONS.map((dungeon) => (
-          <button key={dungeon.id} className="option-row" onClick={() => openPrep(dungeon.id, dungeon.name)}>
+          <button key={dungeon.id} className="option-row" onClick={() => openDungeon(dungeon.id, dungeon.name)}>
             <span className="option-main">
               <b>{dungeon.name}</b>
               <span className="option-sub">{dungeon.flavor}</span>
             </span>
             <span className="btn-mini">探入</span>
+          </button>
+        ))}
+
+        <div style={{ fontSize: 11, color: 'var(--gold)', marginTop: 4 }}>‖ 高阶远征（P10 构筑门槛 · 独立奖励）</div>
+        {[{ realm: 'nascent_soul', name: '元婴远征' }, { realm: 'divine_transformation', name: '化神远征' }].map((ht) => (
+          <button key={ht.realm} className="option-row" onClick={() => void openHighTier(ht.realm, ht.name)}>
+            <span className="option-main">
+              <b>{ht.name}</b>
+              <span className="option-sub">高阶 Boss 专属技能 · 独立掉落 · 资源供给窗口另计</span>
+            </span>
+            <span className="btn-mini">远征</span>
           </button>
         ))}
       </div>

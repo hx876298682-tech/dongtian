@@ -2,7 +2,7 @@
     UI 不缓存第二份事实；所有结算/成本/门槛以服务端响应为准。 */
 import { uuid } from './format';
 
-export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll';
+export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core';
 
 type Envelope<T> = { requestId: string; configVersion: string; stateRevision: number; serverTime: string; data: T };
 
@@ -40,6 +40,7 @@ export type EquipmentInstance = {
   slot: string;
   quality: string;
   reinforcementLevel: number;
+  awakeningLevel?: number;
   affixes: Record<string, unknown>;
   isEquipped: boolean;
 };
@@ -148,6 +149,29 @@ export type DungeonSettlementData = {
   drops: { millenniumHerb: number; meteorIron: number; techniqueQuality: string | null; techniqueId?: string | null; treasureId: string | null };
 };
 
+export type HighTierPreviewData = {
+  realm: string;
+  currentRealm: string;
+  targetClearTime: number;
+  pillBudget: number;
+  bossHp: number;
+  recoverySeconds: number;
+  rewardOnFailure: boolean;
+  stats: CombatStats;
+  gate: { status: 'open' | 'blocked'; reason: 'realm' | 'collection' | null; profile?: string; requiredRealm?: string; required?: { attack: number; defence: number; health: number } };
+};
+
+export type HighTierSettlementData = {
+  realm: string;
+  status: 'succeeded' | 'failed';
+  elapsedSeconds: number;
+  bossHp: number;
+  combatSnapshot?: CombatStats;
+  combatEvents?: CombatEvent[];
+  resourceDelta?: Partial<Record<ResourceId, number>>;
+  drops?: Record<string, unknown>;
+};
+
 export type LeaderboardEntry = { rank: number; playerId: string; realmId: string; cultivationXp: number; equipmentCount: number; combatPower: number; skillXp?: number; skillLevel?: number };
 
 export class ApiError extends Error {
@@ -223,6 +247,15 @@ export class GameClient {
   }
   settleDungeon(attemptId: string, expectedRevision: number): Promise<Envelope<DungeonSettlementData>> {
     return this.mutate('/v1/dungeons/settle', { attemptId }, expectedRevision);
+  }
+  highTierPreview(realm: string): Promise<Envelope<HighTierPreviewData>> {
+    return this.request(`/v1/high-tier/${encodeURIComponent(realm)}/preview`);
+  }
+  startHighTier(realm: string, expectedRevision: number): Promise<Envelope<{ attemptId: string; realm: string; startedAt: string }>> {
+    return this.mutate('/v1/high-tier/start', { realm }, expectedRevision);
+  }
+  settleHighTier(attemptId: string, expectedRevision: number): Promise<Envelope<HighTierSettlementData>> {
+    return this.mutate('/v1/high-tier/settle', { attemptId }, expectedRevision);
   }
   leaderboard(type: string, limit = 20, offset = 0): Promise<Envelope<{ type: string; total: number; entries: LeaderboardEntry[] }>> {
     return this.request(`/v1/leaderboards/${encodeURIComponent(type)}?limit=${limit}&offset=${offset}`);

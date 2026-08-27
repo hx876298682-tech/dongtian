@@ -100,3 +100,53 @@ export function breakthroughRequirements(fromRealm: string): BreakthroughRequire
     { label: '古修残卷', kind: 'resource', resourceId: 'ancient_scroll', required: v('scroll_cost') },
   ];
 }
+
+export type CostLine = { label: string; amount: number; resourceId?: string };
+
+/** 强化到下一级的消耗预览（公式与服务端 service.ts 829-836 行一一对应）。 */
+export function reinforcePreview(reinforcementLevel: number): CostLine[] {
+  const stone = Math.ceil(num('loot.equipment.enhancement.spirit_stone_base_cost') * num('loot.equipment.enhancement.spirit_stone_growth') ** reinforcementLevel);
+  const ore = Math.ceil(num('loot.equipment.enhancement.spirit_ore_base_cost') * num('loot.equipment.enhancement.material_growth') ** reinforcementLevel);
+  const wood = Math.ceil(num('loot.equipment.enhancement.spirit_wood_base_cost') * num('loot.equipment.enhancement.material_growth') ** reinforcementLevel);
+  return [
+    { label: '灵石', amount: stone, resourceId: 'spirit_stone' },
+    { label: '灵矿', amount: ore, resourceId: 'spirit_ore' },
+    { label: '灵木', amount: wood, resourceId: 'spirit_wood' },
+  ];
+}
+
+/** 升品到下一品质的消耗预览（对应 service.ts promote 分支）。 */
+export function promotePreview(quality: string): CostLine[] | null {
+  const order = ['normal', 'fine', 'rare', 'epic', 'legendary', 'immortal'];
+  const i = order.indexOf(quality);
+  if (i < 0 || i >= order.length - 1) return null;
+  const pair = `${order[i]}_to_${order[i + 1]}`;
+  return [
+    { label: '灵石', amount: num(`loot.equipment.promotion.${pair}.spirit_stone_cost`), resourceId: 'spirit_stone' },
+    { label: '千年灵药', amount: num(`loot.equipment.promotion.${pair}.millennium_herb_cost`), resourceId: 'millennium_herb' },
+    { label: '天外陨铁', amount: num(`loot.equipment.promotion.${pair}.meteor_iron_cost`), resourceId: 'meteor_iron' },
+  ];
+}
+
+export const EQUIPMENT_GROWTH_LIMITS = {
+  reinforcementMaxLevel: num('loot.equipment.enhancement.max_level'),
+  awakeningMaxLevel: num('loot.equipment.awakening.max_level'),
+  awakeningPerLevel: {
+    stoneBase: num('loot.equipment.awakening.spirit_stone_base_cost'),
+    stoneGrowth: num('loot.equipment.awakening.spirit_stone_growth'),
+    demonCore: num('loot.equipment.awakening.demon_core_per_level'),
+    meteorIron: num('loot.equipment.awakening.meteor_iron_per_level'),
+  },
+  awakeningStatPerLevel: num('loot.equipment.awakening.stat_multiplier_per_level'),
+};
+
+/** 觉醒到下一级的消耗预览（对应 service.ts awaken 分支）。 */
+export function awakenPreview(awakeningLevel: number): CostLine[] {
+  const c = EQUIPMENT_GROWTH_LIMITS.awakeningPerLevel;
+  const stone = Math.ceil(c.stoneBase * c.stoneGrowth ** awakeningLevel);
+  return [
+    { label: '灵石', amount: stone, resourceId: 'spirit_stone' },
+    { label: '妖丹', amount: c.demonCore, resourceId: 'demon_core' },
+    { label: '天外陨铁', amount: c.meteorIron, resourceId: 'meteor_iron' },
+  ];
+}

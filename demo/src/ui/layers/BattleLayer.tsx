@@ -6,7 +6,19 @@ import { ElementTag } from '../components/ElementTag';
 import { fmtNum, fmtSpan } from '../api/format';
 import { RESOURCE_META, type ResourceId } from '../content/meta';
 
-type Props = { dungeonName: string; data: DungeonSettlementData; onClose(): void; onRetry(): void; retryEnabled: boolean };
+type BattleData = {
+  status: 'succeeded' | 'failed';
+  elapsedSeconds: number;
+  targetClearTime?: number;
+  bossMaxHp?: number;
+  phase?: number;
+  combatEvents?: Array<{ second: number; actor: 'player' | 'boss' | 'system'; kind: string; amount?: number; state?: Record<string, unknown> }>;
+  combatSnapshot?: { element?: string } | null;
+  resourceDelta?: Partial<Record<ResourceId, number>>;
+  drops?: { millenniumHerb?: number; meteorIron?: number; techniqueId?: string | null; treasureId?: string | null };
+  failed?: boolean;
+};
+type Props = { dungeonName: string; data: DungeonSettlementData | (BattleData & { dungeonId?: string }); onClose(): void; onRetry(): void; retryEnabled: boolean };
 
 const SPEEDS = [1, 2, 4];
 
@@ -16,11 +28,11 @@ export function BattleLayer({ dungeonName, data, onClose, onRetry, retryEnabled 
   const cursorRef = useRef(0);
   const [cursor, setCursor] = useState(0);
   const events = useMemo(
-    () => [...data.combatEvents].sort((a, b) => a.second - b.second),
+    () => [...(data.combatEvents ?? [])].sort((a, b) => a.second - b.second),
     [data.combatEvents],
   );
   const total = events.length;
-  const lastSecond = events.at(-1)?.second ?? data.elapsedSeconds;
+  const lastSecond = events.at(-1)?.second ?? data.elapsedSeconds ?? 0;
 
   // 播放推进：每 220ms/speed 前进一个事件
   const advance = (): void => {
@@ -36,7 +48,8 @@ export function BattleLayer({ dungeonName, data, onClose, onRetry, retryEnabled 
   const bossHpPct = (() => {
     for (let i = cursor - 1; i >= 0; i -= 1) {
       const hp = (events[i]?.state as Record<string, unknown> | undefined)?.bossHp;
-      if (typeof hp === 'number') return Math.max(0, Math.min(100, (hp / data.bossMaxHp) * 100));
+      const maxHp = typeof data.bossMaxHp === 'number' ? data.bossMaxHp : 0;
+      if (typeof hp === 'number' && maxHp > 0) return Math.max(0, Math.min(100, (hp / maxHp) * 100));
     }
     return 100;
   })();
@@ -94,24 +107,24 @@ export function BattleLayer({ dungeonName, data, onClose, onRetry, retryEnabled 
             <div className={`book-group ${won ? '' : 'fail'}`}>
               <span className="group-title">{won ? '⚔ 秘境告捷' : '✕ 征战失利'}</span>
               <span style={{ fontSize: 12, color: 'var(--ink-600)', lineHeight: 1.7 }}>
-                用时 {fmtSpan(data.elapsedSeconds)}（目标 {fmtSpan(data.targetClearTime)}）·
+                用时 {fmtSpan(data.elapsedSeconds)}{data.targetClearTime ? `（目标 ${fmtSpan(data.targetClearTime)}）` : ''} ·
                 {won ? ' 奖励已自动入库' : ' 本场奖励 0，丹药未扣除'}
               </span>
-              {Object.entries(data.resourceDelta ?? {}).map(([res, amount]) => (
-                typeof amount === 'number' && amount !== 0 ? (
+              {Object.entries(data.resourceDelta ?? {}).map(function ([res, amount]) {
+                if (!(typeof amount === 'number' && amount !== 0)) return null;
+                return (
                   <span key={res} className="gain-line">
                     {RESOURCE_META[res as ResourceId]?.name ?? res}
                     <b className="num">{amount > 0 ? `+${fmtNum(amount)}` : fmtNum(amount)}</b>
                   </span>
-                ) : null
-              ))}
-              {(data.drops.millenniumHerb > 0 || data.drops.meteorIron > 0 || data.drops.techniqueId || data.drops.treasureId) && (
+                );
+              })}              {(Number(data.drops?.millenniumHerb) > 0 || Number(data.drops?.meteorIron) > 0 || data.drops?.techniqueId || data.drops?.treasureId) && (
                 <span style={{ fontSize: 12 }}>
                   掉落：
-                  {data.drops.millenniumHerb > 0 && `千年灵药 ×${data.drops.millenniumHerb} `}
-                  {data.drops.meteorIron > 0 && `天外陨铁 ×${data.drops.meteorIron} `}
-                  {data.drops.techniqueId && `功法残页 `}
-                  {data.drops.treasureId && `法宝线索 `}
+                  {Number(data.drops?.millenniumHerb) > 0 && `千年灵药 ×${data.drops?.millenniumHerb} `}
+                  {Number(data.drops?.meteorIron) > 0 && `天外陨铁 ×${data.drops?.meteorIron} `}
+                  {data.drops?.techniqueId && '功法残页 '}
+                  {data.drops?.treasureId && '法宝线索 '}
                 </span>
               )}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

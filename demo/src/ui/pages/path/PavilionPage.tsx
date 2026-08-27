@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useGame } from '../../store/GameStore';
 import { useShell } from '../../app/shell';
+import { useActionFlow } from '../../flows/useActionFlow';
+import { ConfirmSheet, SwitchWarnBlock } from '../../components/sheets';
+import { useTicker } from '../../hooks';
 import { QualityChip, PageHeaderBack, EmptyHint } from '../../components/primitives';
 import { techniqueName, qualityMeta } from '../../content/meta';
 import { techniqueGrowthLines } from '../../content/growth';
@@ -33,11 +36,15 @@ function acquireHint(quality: string): string {
 export function PavilionPage() {
   const { player, catalog } = useGame();
   const shell = useShell();
+  const flow = useActionFlow(shell.showToast);
   const [filter, setFilter] = useState('all');
+  useTicker(1000);
 
   if (!player || !catalog) return null;
 
+  const [researchTarget, setResearchTarget] = useState<string | null>(null);
   const all = catalog.techniques.filter((t) => t.status !== 'content_pending');
+  // 研修研修中的功法（主行动 = technique_training）不能同时作为研究目标
   const shown = filter === 'all' ? all : all.filter((t) => t.quality === filter);
   const techLevels = player.skillLevels?.technique ?? {};
 
@@ -91,8 +98,45 @@ export function PavilionPage() {
       )}
 
       <p style={{ fontSize: 11, color: 'var(--ink-600)', lineHeight: 1.7 }}>
-        功法研究（长期挂机提升层数上限）与功法阁建筑升级将随境界与门禁开放逐步点亮。
+        点选功法卡可发起「研修」：研修占用当前行动，产出研修心得（technique_research_xp），心得用于解锁新功法与提升层数。解锁新功法另需古修残卷与灵石。
       </p>
+
+      {researchTarget && (
+        <ResearchSheet
+          techniqueId={researchTarget}
+          owned={levelOf(researchTarget) !== null}
+          busy={flow.busy}
+          onClose={() => setResearchTarget(null)}
+          onStart={async () => {
+            const id = researchTarget;
+            setResearchTarget(null);
+            await flow.startAction({ actionId: 'technique_research', techniqueId: id }, `研修·${techniqueName(id)}`);
+          }}
+        />
+      )}
     </div>
   );
 }
+
+function ResearchSheet({ techniqueId, owned, busy, onClose, onStart }: {
+  techniqueId: string; owned: boolean; busy: boolean; onClose(): void; onStart(): Promise<void>;
+}) {
+  const label = techniqueName(techniqueId);
+  return (
+    <ConfirmSheet title={`研修 · ${label}`} onClose={onClose}>
+      <div className="card card-padded" style={{ textAlign: 'center', paddingBlock: 14 }}>
+        <b style={{ fontFamily: 'var(--font-display)', fontSize: 17 }}>{label}</b>
+        <p style={{ fontSize: 11.5, color: 'var(--ink-600)', marginTop: 6, lineHeight: 1.7 }}>
+          {owned
+            ? '研修产出心得，逐层提升此功法层数（每层消耗按冻结公式递增）。'
+            : '首次解锁需消耗古修残卷与灵石（数量以服务端校验为准），解锁后再研修提升层数。'}
+        </p>
+      </div>
+      <SwitchWarnBlock view={null} newLabel={`研修·${label}`} />
+      <button className="btn-primary" disabled={busy} onClick={() => void onStart()}>
+        {busy ? '结算旧序列…' : '开始研修'}
+      </button>
+    </ConfirmSheet>
+  );
+}
+
