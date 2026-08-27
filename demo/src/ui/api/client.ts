@@ -29,6 +29,13 @@ export type RemotePlayer = {
   };
   skillLevels?: { technique: Record<string, number>; herbalism: number; mining: number; alchemy: number; forge: number };
   equipmentCount: number;
+  collection: {
+    techniqueLayers: Record<string, number>;
+    techniqueResearchXp: number;
+    treasureStars: Record<string, number>;
+    collectionMarks: number;
+    duplicateBalances: Record<string, number>;
+  };
   equipmentInstances: Record<string, EquipmentInstance>;
   failureCooldownUntil: string | null;
   buildings?: { spirit_farm?: { spiritFarmPlots?: Record<string, FarmPlot>; plantedPlots?: number | null; matureAt?: string | null } };
@@ -41,6 +48,7 @@ export type EquipmentInstance = {
   quality: string;
   reinforcementLevel: number;
   awakeningLevel?: number;
+  lockedSlots?: number[];
   affixes: Record<string, unknown>;
   isEquipped: boolean;
 };
@@ -231,6 +239,9 @@ export class GameClient {
 
   bootstrap(): Promise<Envelope<Bootstrap>> { return this.request('/v1/bootstrap'); }
   catalog(): Promise<Envelope<Catalog>> { return this.request('/v1/action-catalog'); }
+  collectionAction(action: 'research' | 'treasure_upgrade', target: { techniqueId?: string; quality?: string; treasureId?: string }, expectedRevision: number) {
+    return this.mutate('/v1/collection/actions', { action, ...target }, expectedRevision);
+  }
   collectionEvents(limit = 30, before?: string): Promise<Envelope<{ events: CollectionEventItem[]; nextBefore: string | null }>> {
     const q = new URLSearchParams({ limit: String(limit) });
     if (before) q.set('before', before);
@@ -283,7 +294,12 @@ export class GameClient {
     instanceId: string,
     action: 'equip' | 'unequip' | 'reinforce' | 'promote' | 'reroll' | 'lock' | 'awaken' | 'salvage' | 'sell',
     expectedRevision: number,
-  ): Promise<Envelope<unknown>> {
-    return this.mutate(`/v1/equipment/${encodeURIComponent(instanceId)}/actions`, { action }, expectedRevision);
+    options?: { lockSlots?: number[]; target?: boolean; targetAffix?: 'speed' | 'element' | 'special' },
+  ): Promise<Envelope<{ targetMatched?: boolean; rerollCount?: number }>> {
+    const payload: Record<string, unknown> = { action };
+    if (options?.lockSlots) payload.lockSlots = options.lockSlots;
+    if (options?.target !== undefined) payload.target = options.target;
+    if (options?.targetAffix) payload.targetAffix = options.targetAffix;
+    return this.mutate(`/v1/equipment/${encodeURIComponent(instanceId)}/actions`, payload, expectedRevision);
   }
 }

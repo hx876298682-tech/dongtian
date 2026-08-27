@@ -16,6 +16,7 @@ import { AlchemyPage } from '../pages/cave/AlchemyPage';
 import { ForgePage } from '../pages/cave/ForgePage';
 import { FarmPage } from '../pages/cave/FarmPage';
 import { PavilionPage } from '../pages/path/PavilionPage';
+import { TreasurePavilionPage } from '../pages/path/TreasurePavilionPage';
 import { LeaderboardPage } from '../pages/journey/LeaderboardPage';
 import { JourneyPage } from '../pages/journey/JourneyPage';
 import { BagPage } from '../pages/bag/BagPage';
@@ -141,6 +142,7 @@ function Inner() {
     forge: <ForgePage />,
     farm: <FarmPage />,
     pavilion: <PavilionPage />,
+    treasure_pavilion: <TreasurePavilionPage />,
     leaderboard: <LeaderboardPage />,
     journal: <JournalPageShell />,
     breakthrough: <BreakthroughPage />,

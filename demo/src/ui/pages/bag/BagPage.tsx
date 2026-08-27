@@ -141,6 +141,7 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
   const flow = useActionFlow(shell.showToast);
   const [confirmOp, setConfirmOp] = useState<ConfirmOp>(null);
   const [growthOp, setGrowthOp] = useState<{ op: 'reinforce' | 'promote' | 'awaken'; title: string; costs: CostLine[] } | null>(null);
+  const [rerollMode, setRerollMode] = useState<{ lockedSlots: number[]; targetAffix?: 'speed' | 'element' | 'special' } | null>(null);
 
   const instance = player?.equipmentInstances[instanceId] ?? null;
   if (!instance || !player) return null;
@@ -149,11 +150,23 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
   const stats = readStats(instance.affixes);
   const hasStats = stats !== null;
   const affixSlots = parseAffixSlots(instance.affixes);
+  const activeSlotCount = Math.max(0, Math.min(3, Math.floor(EQUIPMENT_GROWTH_LIMITS.utilitySlots[instance.quality] ?? 0)));
+  const isLegendaryPlus = instance.quality === 'legendary' || instance.quality === 'immortal';
+  const rerollBaseCost = 300;
+  const rerollPillCost = 1;
   const pending = flow.busy;
   const revisionNow = player.stateRevision;
 
   async function run(op: 'equip' | 'unequip' | 'reinforce' | 'lock'): Promise<void> {
     const result = await flow.runMutation(() => client.equipmentAction(instanceId, op, revisionNow), OP_OK[op]);
+    if (result !== null) onClose();
+  }
+
+  const lockedSlotsNow = instance.lockedSlots ?? [];
+
+  async function toggleSlotLock(index: number): Promise<void> {
+    const locked = lockedSlotsNow.includes(index) ? [index] : [];
+    const result = await flow.runMutation(() => client.equipmentAction(instanceId, 'lock', revisionNow, { lockSlots: locked }), locked.length ? '已锁定该词条' : '已解锁该词条');
     if (result !== null) onClose();
   }
 
@@ -201,26 +214,37 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
         )}
 
         <div className="affix-list" style={{ marginTop: 8 }}>
-          {affixSlots.map((slot, index) => (
-            <span key={index} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
-              {slot.kind === 'empty' ? (
-                <><i style={{ fontStyle: 'normal', color: 'var(--ink-300)' }}>◇</i><span style={{ color: 'var(--ink-300)' }}>未激活词条</span></>
-              ) : (
-                <>
-                  <i style={{ fontStyle: 'normal', color: 'var(--jade)' }}>◆</i>
-                  {slot.kind === 'speed' && <span className="num">身法 +{fmtNum(slot.value)}</span>}
-                  {slot.kind === 'element' && <ElementTag elementKey={slot.value} />}
-                  {slot.kind === 'special' && (
-                    <span className="num">
-                      {SPECIAL_AFFIX_NAMES[slot.value] ?? slot.value}
-                      {slot.grade ? ` · ${slot.grade} 品` : ''}
-                      <small style={{ color: 'var(--ink-600)', marginLeft: 4 }}>{SPECIAL_AFFIX_HINTS[slot.value] ?? ''}</small>
-                    </span>
-                  )}
-                </>
-              )}
-            </span>
-          ))}
+          {affixSlots.map((slot, index) => {
+            const locked = lockedSlotsNow.includes(index);
+            const canLock = activeSlotCount > 0 && slot.kind !== 'empty';
+            return (
+              <button
+                key={index}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, width: '100%', textAlign: 'left', padding: '3px 4px', borderRadius: 4, background: locked ? 'var(--gold-bg)' : undefined }}
+                disabled={!canLock || pending}
+                title={canLock ? '点击切换词条锁定（洗练时保留）' : '空槽不可锁定'}
+                onClick={() => toggleSlotLock(index)}
+              >
+                {slot.kind === 'empty' ? (
+                  <><i style={{ fontStyle: 'normal', color: 'var(--ink-300)' }}>◇</i><span style={{ color: 'var(--ink-300)' }}>未激活词条</span></>
+                ) : (
+                  <>
+                    <i style={{ fontStyle: 'normal', color: locked ? 'var(--gold)' : 'var(--jade)' }}>{locked ? '🔒' : '◆'}</i>
+                    {slot.kind === 'speed' && <span className="num">身法 +{fmtNum(slot.value)}</span>}
+                    {slot.kind === 'element' && <ElementTag elementKey={slot.value} />}
+                    {slot.kind === 'special' && (
+                      <span className="num">
+                        {SPECIAL_AFFIX_NAMES[slot.value] ?? slot.value}
+                        {slot.grade ? ` · ${slot.grade} 品` : ''}
+                        <small style={{ color: 'var(--ink-600)', marginLeft: 4 }}>{SPECIAL_AFFIX_HINTS[slot.value] ?? ''}</small>
+                      </span>
+                    )}
+                    {locked && <small style={{ color: 'var(--gold)', marginLeft: 'auto' }}>洗练保留</small>}
+                  </>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         <small style={{ fontSize: 10.5, color: 'var(--ink-300)', display: 'block', marginTop: 6 }}>
@@ -273,6 +297,38 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
             </button>
           </div>
         </>
+      ) : rerollMode ? (
+        <>
+          <div className="card card-padded">
+            <b style={{ fontSize: 13.5 }}>洗练 · 重掷未锁定词条</b>
+            <p style={{ fontSize: 11, color: 'var(--ink-600)', marginTop: 4, lineHeight: 1.6 }}>
+              每次消耗 灵石 ×{fmtNum(rerollBaseCost)} 与 丹药 ×{fmtNum(rerollPillCost)}；已锁定词条保留。
+              {isLegendaryPlus ? ' 传说/仙器可指定目标词条类别（多轮尝试直至命中，消耗递增）。' : ''}
+            </p>
+            {isLegendaryPlus && (
+              <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                {([['', '不限'], ['speed', '身法'], ['element', '五行'], ['special', '特殊']] as const).map(([key, label]) => (
+                  <button key={label} className={`f-chip${(rerollMode.targetAffix ?? '') === key ? ' active' : ''}`} onClick={() => setRerollMode({ ...rerollMode, targetAffix: key || undefined })}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <button className="btn-danger-ghost" onClick={() => setRerollMode(null)}>再想想</button>
+            <button className="btn-primary" disabled={pending} onClick={() => {
+              const opts = { lockSlots: rerollMode.lockedSlots, target: rerollMode.targetAffix ? true : undefined, targetAffix: rerollMode.targetAffix };
+              setRerollMode(null);
+              void (async () => {
+                const result = await flow.runMutation(() => client.equipmentAction(instanceId, 'reroll', revisionNow, opts), '洗练完成');
+                if (result?.data?.targetMatched) shell.showToast('目标词条已命中', 'ok');
+              })();
+            }}>
+              确认洗练
+            </button>
+          </div>
+        </>
       ) : (
         <>
           <div className="op-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
@@ -291,6 +347,10 @@ function EquipmentDetailSheet({ instanceId, onClose }: { instanceId: string; onC
             </button>
             <button className="op-btn" disabled={pending} onClick={() => setGrowthOp({ op: 'awaken', title: `觉醒 ${instance.awakeningLevel ?? 0} → ${(instance.awakeningLevel ?? 0) + 1}`, costs: awakenPreview(instance.awakeningLevel ?? 0) })}>
               觉醒
+            </button>
+            <button className="op-btn" disabled={pending || activeSlotCount === 0} title={activeSlotCount === 0 ? '该品质无可洗练词条' : undefined}
+              onClick={() => { setConfirmOp(null); setRerollMode({ lockedSlots: [] }); }}>
+              洗练
             </button>
             <button className="op-btn" disabled={pending} onClick={() => void run('lock')}>
               <Pin size={12} style={{ verticalAlign: -2 }} /> 锁定

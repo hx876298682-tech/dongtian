@@ -7,7 +7,6 @@ import { useGame } from '../../store/GameStore';
 import { deriveActionView } from '../../store/actionView';
 import { useShell, type PageId } from '../../app/shell';
 import { ConfirmSheet } from '../../components/sheets';
-import { RevealCard } from '../../components/primitives';
 import { realmLabel } from '../../content/meta';
 import { fmtNum } from '../../api/format';
 import { REALMS } from '../../../game/config';
@@ -113,7 +112,13 @@ export function CavePage() {
           <b className="bld-name">灵田药圃</b>
           <span className="bld-desc">{farmDesc(farmPlots.length, growing, matured)}</span>
         </button>
-        <RevealCard glyph="宝" title="法宝阁" desc="金丹开启 · 收藏法宝与永久传承" />
+        <button className="reveal-card" style={{ textAlign: 'left' }} onClick={() => shell.openPage('treasure_pavilion')}>
+          <span className="glyph">宝</span>
+          <div>
+            <b>法宝阁</b>
+            <p>金丹正式开启 · 现可预览所藏</p>
+          </div>
+        </button>
       </div>
 
       {upgradeSheet && (

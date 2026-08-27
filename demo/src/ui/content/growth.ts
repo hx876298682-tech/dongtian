@@ -130,6 +130,14 @@ export function promotePreview(quality: string): CostLine[] | null {
 
 export const EQUIPMENT_GROWTH_LIMITS = {
   reinforcementMaxLevel: num('loot.equipment.enhancement.max_level'),
+  utilitySlots: {
+    normal: num('loot.equipment.affix.utility_slots.normal'),
+    fine: num('loot.equipment.affix.utility_slots.fine'),
+    rare: num('loot.equipment.affix.utility_slots.rare'),
+    epic: num('loot.equipment.affix.utility_slots.epic'),
+    legendary: num('loot.equipment.affix.utility_slots.legendary'),
+    immortal: num('loot.equipment.affix.utility_slots.immortal'),
+  } as Record<string, number>,
   awakeningMaxLevel: num('loot.equipment.awakening.max_level'),
   awakeningPerLevel: {
     stoneBase: num('loot.equipment.awakening.spirit_stone_base_cost'),
