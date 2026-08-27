@@ -1,5 +1,13 @@
 # 工作记录
 
+## 2026-08-27（ZCode：物品/功法/装备详情信息实装）
+
+- 装备详情完整化：从实例 `affixes` 渲染攻击/防御/生命三维属性块、强化进度（0/10 级、每级 +6%，冻结参数）、三格词条槽（身法 +N / 五行印 / 特殊词条破甲·护体·生机·回春含品级与效果说明 / 未激活灰格）、来源地图与品质倍率；旧格式空 affixes（初始器物）容错为"属性在首次淬炼后生成"。实际属性仍标注由服务端结算取用。
+- 功法详情：练功房卡片副行与确认面板、功法阁卡片展示每层成长——直接展示冻结参数因子（每层 攻+0.5 防+0.25 血+5、修炼速率 +0.02%/层、品阶倍率 ×N），不在前端做结算乘法。新增 `src/ui/content/growth.ts` 展示助手（冻结参数只读翻译）与共享 `ElementTag` 组件。
+- 行囊资源格改为可点击，弹出资源详情（现有/上限/用途/来源文案，文案按运行时规则整理，属内容占位口径）；炼器预览新增基础属性预算行（slot budget 冻结值）。
+- 契约观察项：`action-catalog` 的 technique 对象仍不带每层数值（当前前端读冻结参数展示，长期应由 catalog 下发）；`collection/events` 不记录 settlement 事件的问题维持待定。
+- 验收：`tsc -b`、oxlint（0 警告）、`vite build`、`npm test` 361 项（339 pass、22 skip、0 fail）全绿；浏览器实测掉落装备详情（防御 56/生命 240、三空词条槽、来源百草谷）与离线修行录（27 分钟 27 次 +1890 修为）渲染正确。本轮未改服务端接口与冻结参数。
+
 ## 2026-08-27（ZCode：DT-NUM-20260827-01 练功房行动节拍 60s→6s，速率不变）
 
 - 依产品确认（方案 A）执行冻结数值变更：`building.training_room.base_interval` 60→6s、`base_cultivation_xp` 70→7、`base_actions_per_hour` 60→600；`base_cultivation_rate=4200/h` 与 GDD"第一天炼气圆满"节奏完全不变。同步 CSV、`generate:game-config` 重生成 frozen-parameters/manifest、内容包 `parameter_sha256` 更新（944c1655…），`generate-content-package` 重跑后 content SHA 不变。
