@@ -11,16 +11,19 @@ import { ElementTag } from '../../components/ElementTag';
 import { mapPresentation, DUNGEONS, realmLabel } from '../../content/meta';
 import { fmtNum, fmtSpan } from '../../api/format';
 import type { ActionView } from '../../store/actionView';
-import type { CombatPreviewData } from '../../api/client';
+import type { DungeonSettlementData, CombatPreviewData } from '../../api/client';
+import { BattleLayer } from '../../layers/BattleLayer';
 
 type Segment = 'hunt' | 'herb' | 'mine';
 
 export function JourneyPage() {
-  const { player, catalog, now } = useGame();
+  const game = useGame();
+  const { player, catalog, now } = game;
   const shell = useShell();
   const flow = useActionFlow(shell.showToast);
   const [segment, setSegment] = useState<Segment>('hunt');
   const [huntView, setHuntView] = useState<'wild' | 'dungeon'>('wild');
+  const [battle, setBattle] = useState<{ name: string; data: DungeonSettlementData } | null>(null);
   if (!player || !catalog) return null;
 
   const action = deriveActionView(player, catalog);
@@ -28,13 +31,22 @@ export function JourneyPage() {
 
   return (
     <div className="pad">
+      {battle && (
+        <BattleLayer
+          dungeonName={battle.name}
+          data={battle.data}
+          onClose={() => setBattle(null)}
+          onRetry={() => { const b = battle; setBattle(null); void openDungeon(b.data.dungeonId, b.name); }}
+          retryEnabled={!flow.busy}
+        />
+      )}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div className="segmented" style={{ flex: 1 }}>
           <button className={`seg-btn${segment === 'hunt' ? ' active' : ''}`} onClick={() => setSegment('hunt')}>斩妖</button>
           <button className={`seg-btn${segment === 'herb' ? ' active' : ''}`} onClick={() => setSegment('herb')}>采药</button>
           <button className={`seg-btn${segment === 'mine' ? ' active' : ''}`} onClick={() => setSegment('mine')}>挖矿</button>
         </div>
-        <span className="icon-btn" title="排行榜尚待开放"><Trophy size={17} /></span>
+        <button className="icon-btn" title="英雄榜" onClick={() => shell.openPage('leaderboard')}><Trophy size={17} /></button>
       </div>
 
       {segment === 'hunt' && (
@@ -108,6 +120,16 @@ export function JourneyPage() {
         })}
       </div>
     );
+  }
+
+  /** 秘境全链路：start（开启 attempt）→ settle（服务端确定性模拟，返回逐秒回放与奖励）→ BattleLayer 播放 */
+  async function openDungeon(dungeonId: string, name: string): Promise<void> {
+    shell.closeSheet();
+    const startResult = await flow.runMutation(() => game.client.startDungeon(dungeonId, game.revision()), '');
+    if (!startResult) return;
+    const attemptId = startResult.data.attemptId;
+    const settled = await flow.runMutation(() => game.client.settleDungeon(attemptId, game.revision()), '');
+    if (settled?.data) setBattle({ name, data: settled.data });
   }
 
   function DungeonBlock() {

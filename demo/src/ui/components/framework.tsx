@@ -1,5 +1,7 @@
 /** 全局框架层：身份区 / 资源栏 / 行动条五态 / 底部导航 */
 import { Backpack, Check, ChevronRight, CircleAlert, Compass, Home, RefreshCw, Settings, UserRound } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import type { ActionView } from '../store/actionView';
 import type { ResourceId } from '../content/meta';
 import { RESOURCE_META, RESOURCE_ORDER, realmLabel } from '../content/meta';
@@ -88,6 +90,8 @@ export function ActionBar({
   onStop(): void;
   onGoAssign(): void;
 }) {
+  // 进度条的秒级推进收殓到叶子组件 <LiveProgress>，避免每秒重渲染整个应用壳
+  // （每秒全树重渲染会让 IAB/合成点击在帧间隙被丢弃——本轮"点了没反应"的根因）。
   let progressPct = 0;
 
   if (phase === 'running' && view) {
@@ -115,7 +119,7 @@ export function ActionBar({
         </div>
         <div className="action-meta">
           {gainsText && <span className="action-gain num">{gainsText}</span>}
-          {phase === 'cooldown' && <span className="count num" style={{ color: 'var(--cinnabar)' }}>恢复 {Math.ceil(cooldownRemainSeconds)}s</span>}
+          {phase === 'cooldown' && <CooldownCount untilSeconds={cooldownRemainSeconds} />}
           {phase === 'running' && view && (
             <button className="btn-mini danger" onClick={onStop}>收功</button>
           )}
@@ -126,7 +130,7 @@ export function ActionBar({
           )}
         </div>
       </div>
-      <div className="track"><i style={{ width: `${progressPct}%` }} /></div>
+      <Track progressPct={phase === 'running' ? progressPct : phase === 'settling' ? 30 : 0} tone={phase === 'cooldown' ? 'danger' : 'jade'} />
       {(lastError || (view?.carrySeconds ?? 0) > 90) && (
         <span className="action-hint">
           {lastError ?? `含离线累计 ${fmtSpan(view?.carrySeconds ?? 0)}，结算后自动入库`}
@@ -134,6 +138,26 @@ export function ActionBar({
       )}
     </section>
   );
+}
+
+/** 进度条：由父级按结算节拍更新；CSS transition 负责平滑推进（无 JS tick）。 */
+function Track({ progressPct, tone }: { progressPct: number; tone: 'jade' | 'danger' }): ReactNode {
+  return (
+    <div className="track">
+      <i style={{ width: `${progressPct}%`, background: tone === 'danger' ? 'var(--cinnabar)' : undefined }} />
+    </div>
+  );
+}
+
+/** 冷却倒计时叶子组件（每秒自减，只在 cooldown 态挂载）。 */
+function CooldownCount({ untilSeconds }: { untilSeconds: number }): ReactNode {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = window.setInterval(() => setTick(function (t) { return t + 1; }), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  void setTick;
+  return <span className="count num" style={{ color: 'var(--cinnabar)' }}>恢复 {Math.ceil(untilSeconds)}s</span>;
 }
 
 const PHASE_TITLE: Record<ActionBarPhase, string> = {

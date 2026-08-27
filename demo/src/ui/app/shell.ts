@@ -10,6 +10,7 @@ export type PageId =
   | 'forge'
   | 'farm'
   | 'pavilion'
+  | 'leaderboard'
   | 'journal'
   | 'breakthrough'
   | 'settings';

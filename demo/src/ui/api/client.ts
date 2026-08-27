@@ -107,6 +107,49 @@ export type ActionOptions = {
   mapId?: string;
 };
 
+export type CombatEvent = { second: number; actor: 'player' | 'boss' | 'system'; kind: string; amount?: number; state?: Record<string, unknown> };
+
+export type DungeonPreviewData = {
+  dungeonId: string;
+  targetClearTime: number;
+  entryPillCost: number;
+  bossAutoPillCost: number;
+  pillCost: number;
+  bossMaxHp: number;
+  barrierPercent: number;
+  phaseTwoThresholdPercent: number;
+  bossAttack: number;
+  bossAccuracy: number;
+  bossElement: string;
+  bossDefence: number;
+  currentPity: { millenniumHerb: number; meteorIron: number; technique: number; treasure: number };
+  availablePill: number;
+  stats: CombatStats;
+  gate?: { status: 'open' | 'blocked'; reason?: string | null };
+};
+
+export type DungeonStartData = { attemptId: string; seed: number; dungeonId: string; startedAt: string; bossMaxHp: number; barrier: number; phase: 1 | 2 };
+
+export type DungeonSettlementData = {
+  attemptId: string;
+  dungeonId: string;
+  status: 'succeeded' | 'failed';
+  elapsedSeconds: number;
+  targetClearTime: number;
+  bossHp: number;
+  bossMaxHp: number;
+  barrier: number;
+  phase: 1 | 2;
+  combatSnapshot: CombatStats;
+  combatEvents: CombatEvent[];
+  entryPillCost: number;
+  pillCost: number;
+  resourceDelta: Partial<Record<ResourceId, number>>;
+  drops: { millenniumHerb: number; meteorIron: number; techniqueQuality: string | null; techniqueId?: string | null; treasureId: string | null };
+};
+
+export type LeaderboardEntry = { rank: number; playerId: string; realmId: string; cultivationXp: number; equipmentCount: number; combatPower: number; skillXp?: number; skillLevel?: number };
+
 export class ApiError extends Error {
   readonly code: string | undefined;
   readonly status: number;
@@ -169,14 +212,20 @@ export class GameClient {
     if (before) q.set('before', before);
     return this.request(`/v1/collection/events?${q.toString()}`);
   }
-  leaderboard(type: string, limit = 20, offset = 0): Promise<Envelope<{ entries: Array<{ playerId: string; score: number }> }>> {
-    return this.request(`/v1/leaderboards/${encodeURIComponent(type)}?limit=${limit}&offset=${offset}`);
-  }
   combatPreview(activityId: string, expectedRevision: number): Promise<Envelope<CombatPreviewData>> {
     return this.mutate('/v1/combat/preview', { activityId }, expectedRevision);
   }
-  dungeonPreview(dungeonId: string): Promise<Envelope<Record<string, unknown>>> {
+  dungeonPreview(dungeonId: string): Promise<Envelope<DungeonPreviewData>> {
     return this.request(`/v1/dungeons/${encodeURIComponent(dungeonId)}/preview`);
+  }
+  startDungeon(dungeonId: string, expectedRevision: number): Promise<Envelope<DungeonStartData>> {
+    return this.mutate('/v1/dungeons/start', { dungeonId }, expectedRevision);
+  }
+  settleDungeon(attemptId: string, expectedRevision: number): Promise<Envelope<DungeonSettlementData>> {
+    return this.mutate('/v1/dungeons/settle', { attemptId }, expectedRevision);
+  }
+  leaderboard(type: string, limit = 20, offset = 0): Promise<Envelope<{ type: string; total: number; entries: LeaderboardEntry[] }>> {
+    return this.request(`/v1/leaderboards/${encodeURIComponent(type)}?limit=${limit}&offset=${offset}`);
   }
 
   startAction(options: ActionOptions, expectedRevision: number): Promise<Envelope<{ actionId: string }>> {

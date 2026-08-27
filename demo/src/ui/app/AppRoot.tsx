@@ -1,7 +1,6 @@
 /** 应用壳：全局框架层 + 页面栈 + 浮层层 + 离线回归。 */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { useTicker } from '../hooks';
 import { GameProvider, useGame } from '../store/GameStore';
 import { deriveActionView, shouldOfferOfflineSettlement } from '../store/actionView';
 import { useActionFlow } from '../flows/useActionFlow';
@@ -17,6 +16,7 @@ import { AlchemyPage } from '../pages/cave/AlchemyPage';
 import { ForgePage } from '../pages/cave/ForgePage';
 import { FarmPage } from '../pages/cave/FarmPage';
 import { PavilionPage } from '../pages/path/PavilionPage';
+import { LeaderboardPage } from '../pages/journey/LeaderboardPage';
 import { JourneyPage } from '../pages/journey/JourneyPage';
 import { BagPage } from '../pages/bag/BagPage';
 import { PathPage } from '../pages/path/PathPage';
@@ -40,7 +40,6 @@ export default function AppRoot() {
 
 function Inner() {
   const game = useGame();
-  useTicker(1000); // 行动条进度/倒计时按秒推进
   const [tab, setTab] = useState<TabId>('cave');
   const [stack, setStack] = useState<PageId[]>([]);
   const [sheet, setSheet] = useState<ReactNode | null>(null);
@@ -142,6 +141,7 @@ function Inner() {
     forge: <ForgePage />,
     farm: <FarmPage />,
     pavilion: <PavilionPage />,
+    leaderboard: <LeaderboardPage />,
     journal: <JournalPageShell />,
     breakthrough: <BreakthroughPage />,
     settings: <SettingsPageShell />,

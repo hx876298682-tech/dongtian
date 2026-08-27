@@ -75,3 +75,28 @@ export function techniqueGrowthLines(quality: string): string {
   const g = TECHNIQUE_GROWTH;
   return `每层 攻+${g.attackPerLayer} 防+${g.defencePerLayer} 血+${g.healthPerLayer} · 修炼速率 +${(g.cultivationBonusPerLayer * 100).toFixed(2)}%/层（品阶 ×${mult}）`;
 }
+
+export type BreakthroughRequirement = {
+  label: string;
+  kind: 'cultivation' | 'resource';
+  resourceId?: string;
+  required: number;
+};
+
+/** 下一境界的突破条件（读公开冻结参数；当前值由调用方从 bootstrap 填充）。
+    仅覆盖冻结表中已登记的两个转阶；更高境界显示"未冻结"。 */
+export function breakthroughRequirements(fromRealm: string): BreakthroughRequirement[] | null {
+  const pairs: Record<string, string> = {
+    qi_refining: 'qi_to_foundation',
+    foundation_establishment: 'foundation_to_core',
+  };
+  const pair = pairs[fromRealm];
+  if (!pair) return null;
+  const v = (suffix: string): number => num(`breakthrough.${pair}.${suffix}`);
+  return [
+    { label: '修为', kind: 'cultivation', required: v('cultivation_cost') },
+    { label: '灵石', kind: 'resource', resourceId: 'spirit_stone', required: v('spirit_stone_cost') },
+    { label: '丹药', kind: 'resource', resourceId: 'pill', required: v('pill_cost') },
+    { label: '古修残卷', kind: 'resource', resourceId: 'ancient_scroll', required: v('scroll_cost') },
+  ];
+}

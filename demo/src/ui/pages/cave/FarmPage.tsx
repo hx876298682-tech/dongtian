@@ -8,7 +8,6 @@ import { PageHeaderBack, EmptyHint } from '../../components/primitives';
 import { FARM_PLANTS, plantName, errorText } from '../../content/meta';
 import type { ApiError } from '../../api/client';
 import { fmtClock } from '../../api/format';
-import { useTicker } from '../../hooks';
 
 const PLOT_COUNT = 4;
 
@@ -21,7 +20,7 @@ export function FarmPage() {
   const shell = useShell();
   const flow = useActionFlow(shell.showToast);
   const [plantingPlot, setPlantingPlot] = useState<string | null>(null);
-  useTicker(1000);
+
 
   if (!player) return null;
   const farm = player.buildings?.spirit_farm;

@@ -70,7 +70,7 @@ export function OfflineLayer({ onDone }: { onDone(): void }) {
               <span style={{ fontSize: 12, color: 'var(--ink-600)', lineHeight: 1.7 }}>{outcome.reason}</span>
             </div>
             <p className="book-note">规则提醒：离线与在线同一口径，结算幂等，绝不二次发放。</p>
-            <div className="book-foot"><button className="btn-primary" onClick={onDone}>知道了</button></div>
+            <div className="book-foot"><button className="btn-primary" autoFocus onClick={onDone}>知道了</button></div>
           </>
         )}
 
@@ -80,7 +80,7 @@ export function OfflineLayer({ onDone }: { onDone(): void }) {
             {outcome.failedNote && (
               <p className="book-note" style={{ color: 'var(--cinnabar)' }}>{outcome.failedNote}</p>
             )}
-            <div className="book-foot"><button className="btn-primary" onClick={onDone}>收入洞府</button></div>
+            <div className="book-foot"><button className="btn-primary" autoFocus onClick={onDone}>收入洞府</button></div>
           </>
         )}
       </div>

@@ -6,11 +6,13 @@ import { useActionFlow } from '../../flows/useActionFlow';
 import { PageHeaderBack } from '../../components/primitives';
 import type { ResourceId } from '../../content/meta';
 import { RESOURCE_META, REALM_LADDER, realmLabel } from '../../content/meta';
+import { breakthroughRequirements } from '../../content/growth';
 import { fmtNum } from '../../api/format';
 import { REALMS } from '../../../game/config';
 
 export function BreakthroughPage() {
   const { player, client, revision } = useGame();
+  const requirements = player ? breakthroughRequirements(player.realmId) : null;
   const shell = useShell();
   const flow = useActionFlow(shell.showToast);
   const [success, setSuccess] = useState<{ from: string; to: string; costs: Partial<Record<ResourceId, number>>; cultivationCost: number } | null>(null);
@@ -68,10 +70,34 @@ export function BreakthroughPage() {
             </p>
           </div>
 
+          {requirements ? (
+            <div className="journal-panel">
+              {requirements.map((req) => {
+                const current = req.kind === 'cultivation'
+                  ? player.cultivationXp
+                  : (player.resources[req.resourceId as keyof typeof player.resources]?.amount ?? 0);
+                const ok = current >= req.required;
+                return (
+                  <div key={req.label} className={`check-line ${ok ? 'ok' : 'miss'}`}>
+                    <span className="check-state">{ok ? '✓' : '✗'}</span>
+                    <span>{req.label}</span>
+                    <span className="check-val num">
+                      {fmtNum(current)} / {fmtNum(req.required)}
+                      {!ok ? ` · 缺 ${fmtNum(req.required - current)}` : ''}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11.5, color: 'var(--ink-600)', lineHeight: 1.7 }}>
+              <li>· 此转阶的突破条件尚未冻结，开放后此处列出核对清单。</li>
+            </ul>
+          )}
+
           <ul style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11.5, color: 'var(--ink-600)', lineHeight: 1.7 }}>
-            <li>· 突破需修为圆满并备齐丹药、灵石、残卷与特殊材料。</li>
             <li>· 材料不齐则玄关不开，且<strong>不损分毫</strong>；材料齐全必定功成，没有失败概率。</li>
-            <li>· 所需清单由服务端按冻结规则实时校验，此处不放演示数值。</li>
+            <li>· 清单取自公开冻结参数，最终以服务端实时校验为准。</li>
           </ul>
 
           <button
