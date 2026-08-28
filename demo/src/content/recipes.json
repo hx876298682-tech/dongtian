@@ -11,6 +11,30 @@
     }
   },
   {
+    "id": "pill_zi_yun",
+    "building_id": "alchemy_room",
+    "interval_parameter": "building.alchemy_room.base_interval",
+    "output_resource": "pill_zi_yun",
+    "output_parameter": "recipe.pill_zi_yun.output",
+    "input_parameters": {
+      "spirit_herb": "recipe.pill_zi_yun.herb_cost",
+      "spirit_stone": "recipe.pill_zi_yun.stone_cost"
+    },
+    "status": "released"
+  },
+  {
+    "id": "pill_ning_lu",
+    "building_id": "alchemy_room",
+    "interval_parameter": "building.alchemy_room.base_interval",
+    "output_resource": "pill_ning_lu",
+    "output_parameter": "recipe.pill_ning_lu.output",
+    "input_parameters": {
+      "spirit_herb": "recipe.pill_ning_lu.herb_cost",
+      "spirit_stone": "recipe.pill_ning_lu.stone_cost"
+    },
+    "status": "released"
+  },
+  {
     "id": "forge_basic",
     "building_id": "forge_room",
     "interval_parameter": "building.forge_room.base_interval",

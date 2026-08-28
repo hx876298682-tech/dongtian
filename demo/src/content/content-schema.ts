@@ -69,7 +69,8 @@ const canonicalEquipment = (item: EquipmentTemplate): Record<string, unknown> =>
 };
 const canonicalRecipe = (recipe: RecipeContent): Record<string, unknown> => {
   const result = canonicalRecord(recipe as unknown as Record<string, unknown>, ['id', 'building_id', 'interval_parameter', 'output_resource', 'output_parameter', 'input_parameters']);
-  const inputOrder = recipe.id === 'alchemy_basic' ? ['spirit_herb', 'spirit_stone'] : recipe.id === 'forge_basic' ? ['spirit_ore', 'spirit_wood', 'spirit_stone'] : [];
+  const varietyPill = /^pill_(zi_yun|ning_lu|huang_long|chi_yan)$/.test(recipe.id);
+  const inputOrder = recipe.id === 'alchemy_basic' ? ['spirit_herb', 'spirit_stone'] : recipe.id === 'forge_basic' ? ['spirit_ore', 'spirit_wood', 'spirit_stone'] : varietyPill ? ['spirit_herb', 'spirit_stone'] : [];
   result.input_parameters = canonicalRecord(recipe.input_parameters, inputOrder);
   return result;
 };

@@ -1149,3 +1149,9 @@ building.alchemy_room.quality_weight.pill_zi_yun.level_5_fine,building,Alchemy q
 building.alchemy_room.quality_weight.pill_zi_yun.level_5_epic,building,Alchemy quality weight epic ZiYun L5,10,probability,scalar,frozen_v1,DT-NUM-20260827-02,"","","",丹药品质权重
 herb.gathering.yield_per_action,core,Herb variety yield per gathering action,2,scalar,constant,frozen_v1,DT-NUM-20260827-02,"","","",采药品种产出
 monster.bai_cao_valley.varieties,map,BaiCao monster varieties,"""[""monster.bai_cao_valley.yao_lang"",""monster.bai_cao_valley.du_xie""]""",json,constant,frozen_v1,DT-NUM-20260827-02,"","","",怪物实例
+recipe.pill_zi_yun.herb_cost,recipe,ZiYun pill herb cost,2,spirit_herb,scalar,frozen_v1,DT-NUM-20260827-02,"","","",紫云丹草药消耗
+recipe.pill_zi_yun.stone_cost,recipe,ZiYun pill stone cost,1,spirit_stone,scalar,frozen_v1,DT-NUM-20260827-02,"","","",紫云丹灵石消耗
+recipe.pill_zi_yun.output,recipe,ZiYun pill output,1,pill_per_batch,scalar,frozen_v1,DT-NUM-20260827-02,"","","",紫云丹产出
+recipe.pill_ning_lu.herb_cost,recipe,NingLu pill herb cost,2,spirit_herb,scalar,frozen_v1,DT-NUM-20260827-02,"","","",凝露散草药消耗
+recipe.pill_ning_lu.stone_cost,recipe,NingLu pill stone cost,1,spirit_stone,scalar,frozen_v1,DT-NUM-20260827-02,"","","",凝露散灵石消耗
+recipe.pill_ning_lu.output,recipe,NingLu pill output,1,pill_per_batch,scalar,frozen_v1,DT-NUM-20260827-02,"","","",凝露散产出

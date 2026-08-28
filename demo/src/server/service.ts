@@ -67,6 +67,14 @@ const gatheringActions: Record<string, { skill: 'herbalism' | 'mining'; resource
   'mining:ore_mine': { skill: 'mining', resource: 'spirit_ore', interval: 60, yield: 1 },
 };
 
+/** 采药品种产出（DT-NUM-20260827-02）：每轮按权重产出对应品种草药 1 株。 */
+const herbVarietyRolls: Record<string, Array<{ resource: ResourceId; weight: number }>> = {
+  'herbalism:herb_grove': [
+    { resource: 'herb_zi_yun_hua', weight: 60 },
+    { resource: 'herb_ning_lu_cao', weight: 40 },
+  ],
+};
+
 const envelope = <T>(data: T, stateRevision: number, context: ServiceContext, now: Date, configVersion: string): ApiEnvelope<T> => ({ requestId: context.requestId ?? randomUUID(), configVersion, stateRevision, serverTime: iso(now), data });
 const parseDate = (input: string): Date => { const date = new Date(input); if (!input || Number.isNaN(date.getTime())) throw new ApiError('TIME_RANGE_INVALID', 'invalid timestamp'); return date; };
 const deterministicUuid = (seed: string): string => {
@@ -2137,6 +2145,19 @@ export class GameService {
       } else {
         const amount = completedActions * gathering!.yield;
         this.addResource(draft, gathering!.resource, amount, resourceDelta, overflow);
+        // DT-NUM-20260827-02：采药按品种权重额外产出对应品种草药（每轮 1 株，确定性轮转）
+        const varieties = herbVarietyRolls[`${action}:${targetId}`] ?? herbVarietyRolls[action];
+        if (varieties && completedActions > 0) {
+          const totalWeight = varieties.reduce((sum, v) => sum + v.weight, 0);
+          for (let i = 0; i < completedActions; i += 1) {
+            const roll = (draft.randomState.seed = (1103515245 * draft.randomState.seed + 12345) >>> 0) / 4294967296 * totalWeight;
+            let acc = 0;
+            for (const variety of varieties) {
+              acc += variety.weight;
+              if (roll <= acc) { this.addResource(draft, variety.resource, 1, resourceDelta, overflow); break; }
+            }
+          }
+        }
         draft.skillProgress[`${gathering!.skill}Xp`] += completedActions;
         skillXpDelta[gathering!.skill] = completedActions;
       }
@@ -2167,6 +2188,29 @@ export class GameService {
         if (recipe.output_resource === 'pill') {
           const produced = this.addResource(draft, 'pill', this.value(recipe.output_parameter), resourceDelta, overflow);
           productionDelta.pill = (productionDelta.pill ?? 0) + produced;
+        } else if (recipe.output_resource.startsWith('pill_')) {
+          // DT-NUM-20260827-02：品种丹药按炼丹房等级品质权重产出对应品质资源
+          const level = draft.buildings.alchemy_room?.level ?? 1;
+          const qualityWeightKey = `building.alchemy_room.quality_weight.${recipe.output_resource}.level_${level}`;
+          const qualityWeightsRaw = Object.entries(this.parameters)
+            .filter(function ([key]) { return key.startsWith(qualityWeightKey + '_'); })
+            .map(function ([key, entry]) {
+              const quality = key.slice((qualityWeightKey + '_').length);
+              return { quality, weight: Number(entry.value) };
+            })
+            .filter(function (entry) { return Number.isFinite(entry.weight) && entry.weight > 0; });
+          const totalWeight = qualityWeightsRaw.reduce(function (sum, q) { return sum + q.weight; }, 0);
+          if (qualityWeightsRaw.length === 0 || totalWeight <= 0) throw new ApiError('CONTENT_LOCKED', `pill quality weights are missing for ${recipe.output_resource} at level ${level}`);
+          const roll = (draft.randomState.seed = (1103515245 * draft.randomState.seed + 12345) >>> 0) / 4294967296 * totalWeight;
+          let acc = 0;
+          let quality = qualityWeightsRaw[0].quality;
+          for (const q of qualityWeightsRaw) {
+            acc += q.weight;
+            if (roll <= acc) { quality = q.quality; break; }
+          }
+          const producedId = `${recipe.output_resource}_${quality}` as ResourceId;
+          const produced = this.addResource(draft, producedId, this.value(recipe.output_parameter), resourceDelta, overflow);
+          productionDelta[producedId] = (productionDelta[producedId] ?? 0) + produced;
         } else if (recipe.output_resource === 'equipment') {
           const outputAmount = this.value(recipe.output_parameter);
           const capacity = this.value('economy.inventory.cap.equipment');

@@ -1,7 +1,7 @@
 /** UI 展示元数据：纯表现层文案与配色映射，不含任何玩法数值。
     数值一律来自服务端 bootstrap/catalog/preview；此处只决定“怎么画”。 */
 
-export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core' | 'herb_zi_yun_hua' | 'herb_ning_lu_cao' | 'herb_jin_huan_she_xin' | 'herb_chi_yan_zhi' | 'pill_zi_yun' | 'pill_ning_lu' | 'pill_huang_long' | 'pill_chi_yan';
+export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core' | 'herb_zi_yun_hua' | 'herb_ning_lu_cao' | 'herb_jin_huan_she_xin' | 'herb_chi_yan_zhi' | 'pill_zi_yun_normal' | 'pill_zi_yun_fine' | 'pill_zi_yun_rare' | 'pill_zi_yun_epic' | 'pill_ning_lu_normal' | 'pill_ning_lu_fine' | 'pill_ning_lu_rare' | 'pill_ning_lu_epic' | 'pill_huang_long_normal' | 'pill_huang_long_fine' | 'pill_huang_long_epic' | 'pill_chi_yan_normal' | 'pill_chi_yan_fine' | 'pill_chi_yan_epic';
 
 export const RESOURCE_META: Record<ResourceId, { name: string; short: string }> = {
   spirit_stone: { name: '灵石', short: '石' },
@@ -17,13 +17,23 @@ export const RESOURCE_META: Record<ResourceId, { name: string; short: string }> 
   herb_ning_lu_cao: { name: '凝露草', short: '凝' },
   herb_jin_huan_she_xin: { name: '金环蛇信', short: '信' },
   herb_chi_yan_zhi: { name: '赤炎芝', short: '炎' },
-  pill_zi_yun: { name: '紫云丹', short: '紫' },
-  pill_ning_lu: { name: '凝露散', short: '露' },
-  pill_huang_long: { name: '黄龙丹', short: '黄' },
-  pill_chi_yan: { name: '赤炎丹', short: '赤' },
+  pill_zi_yun_normal: { name: '紫云丹（普通）', short: '紫' },
+  pill_zi_yun_fine: { name: '紫云丹（精良）', short: '紫' },
+  pill_zi_yun_rare: { name: '紫云丹（稀有）', short: '紫' },
+  pill_zi_yun_epic: { name: '紫云丹（史诗）', short: '紫' },
+  pill_ning_lu_normal: { name: '凝露散（普通）', short: '露' },
+  pill_ning_lu_fine: { name: '凝露散（精良）', short: '露' },
+  pill_ning_lu_rare: { name: '凝露散（稀有）', short: '露' },
+  pill_ning_lu_epic: { name: '凝露散（史诗）', short: '露' },
+  pill_huang_long_normal: { name: '黄龙丹（普通）', short: '黄' },
+  pill_huang_long_fine: { name: '黄龙丹（精良）', short: '黄' },
+  pill_huang_long_epic: { name: '黄龙丹（史诗）', short: '黄' },
+  pill_chi_yan_normal: { name: '赤炎丹（普通）', short: '赤' },
+  pill_chi_yan_fine: { name: '赤炎丹（精良）', short: '赤' },
+  pill_chi_yan_epic: { name: '赤炎丹（史诗）', short: '赤' },
 };
 
-export const RESOURCE_ORDER: ResourceId[] = ['spirit_stone', 'spirit_wood', 'spirit_herb', 'spirit_ore', 'pill', 'ancient_scroll', 'herb_zi_yun_hua', 'herb_ning_lu_cao', 'herb_jin_huan_she_xin', 'herb_chi_yan_zhi', 'pill_zi_yun', 'pill_ning_lu', 'pill_huang_long', 'pill_chi_yan', 'millennium_herb', 'meteor_iron', 'demon_core'];
+export const RESOURCE_ORDER: ResourceId[] = ['spirit_stone', 'spirit_wood', 'spirit_herb', 'spirit_ore', 'pill', 'ancient_scroll', 'herb_zi_yun_hua', 'herb_ning_lu_cao', 'herb_jin_huan_she_xin', 'herb_chi_yan_zhi', 'pill_zi_yun_normal', 'pill_zi_yun_fine', 'pill_zi_yun_rare', 'pill_zi_yun_epic', 'pill_ning_lu_normal', 'pill_ning_lu_fine', 'pill_ning_lu_rare', 'pill_ning_lu_epic', 'pill_huang_long_normal', 'pill_huang_long_fine', 'pill_huang_long_epic', 'pill_chi_yan_normal', 'pill_chi_yan_fine', 'pill_chi_yan_epic', 'millennium_herb', 'meteor_iron', 'demon_core'];
 
 export type QualityId = 'normal' | 'fine' | 'rare' | 'epic' | 'legendary' | 'immortal';
 

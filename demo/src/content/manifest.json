@@ -1,6 +1,6 @@
 {
   "config_version": "1.0.0-frozen",
-  "parameter_sha256": "96d2197d9b13bb90f554c815be6822a52be0b45d152ad3c1eec86b351e53ab8e",
+  "parameter_sha256": "f67401fefb406a32b2e58abaabb655c12d56dbfe33309278a3780b9f82565a63",
   "schema_version": "1.1",
   "status": "frozen_v1",
   "content_files": [
@@ -8,7 +8,7 @@
     "equipment.json",
     "recipes.json"
   ],
-  "content_sha256": "463e0e839708aec0ac1b3f3d808ad4210799a8b60be94962611e4b0322fef264",
+  "content_sha256": "4d1f4497704c04d847f3d9f0da52ecc609a2d98f0f3e9f9bcc287ee92596e76d",
   "asset_manifest": [
     {
       "id": "asset.placeholder.equipment.bai_cao_valley.weapon.normal",
