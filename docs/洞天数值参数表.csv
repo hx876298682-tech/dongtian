@@ -1142,3 +1142,10 @@ dungeon.sky_abyss.boss_base_hp.growth_profile.earth100_lamp10,dungeon,sky_abyss 
 dungeon.qing_feng.boss_base_hp.growth_profile.earth100_lamp10_immortal_affix,dungeon,qing_feng full-affix growth-profile Boss base hp,55367,health,target,frozen_v1,洞天设计,"",floor(stress_dps * active_attack_seconds / (1 + barrier)),integer,地阶功法100层+山河印10星+满套功能词条; independent_defence=100
 dungeon.yan_prison.boss_base_hp.growth_profile.earth100_lamp10_immortal_affix,dungeon,yan_prison full-affix growth-profile Boss base hp,50489,health,target,frozen_v1,洞天设计,"",floor(stress_dps * active_attack_seconds / (1 + barrier)),integer,地阶功法100层+山河印10星+满套功能词条; independent_defence=180
 dungeon.sky_abyss.boss_base_hp.growth_profile.earth100_lamp10_immortal_affix,dungeon,sky_abyss full-affix growth-profile Boss base hp,88239,health,target,frozen_v1,洞天设计,"",floor(stress_dps * active_attack_seconds / (1 + barrier)),integer,地阶功法100层+山河印10星+满套功能词条; independent_defence=300
+building.alchemy_room.quality_weight.pill_zi_yun.level_1,building,Alchemy quality weight normal ZiYun L1,70,probability,scalar,frozen_v1,DT-NUM-20260827-02,"","","",丹药品质权重
+building.alchemy_room.quality_weight.pill_zi_yun.level_1_fine,building,Alchemy quality weight fine ZiYun L1,30,probability,scalar,frozen_v1,DT-NUM-20260827-02,"","","",丹药品质权重
+building.alchemy_room.quality_weight.pill_zi_yun.level_5,building,Alchemy quality weight normal ZiYun L5,40,probability,scalar,frozen_v1,DT-NUM-20260827-02,"","","",丹药品质权重
+building.alchemy_room.quality_weight.pill_zi_yun.level_5_fine,building,Alchemy quality weight fine ZiYun L5,50,probability,scalar,frozen_v1,DT-NUM-20260827-02,"","","",丹药品质权重
+building.alchemy_room.quality_weight.pill_zi_yun.level_5_epic,building,Alchemy quality weight epic ZiYun L5,10,probability,scalar,frozen_v1,DT-NUM-20260827-02,"","","",丹药品质权重
+herb.gathering.yield_per_action,core,Herb variety yield per gathering action,2,scalar,constant,frozen_v1,DT-NUM-20260827-02,"","","",采药品种产出
+monster.bai_cao_valley.varieties,map,BaiCao monster varieties,"""[""monster.bai_cao_valley.yao_lang"",""monster.bai_cao_valley.du_xie""]""",json,constant,frozen_v1,DT-NUM-20260827-02,"","","",怪物实例

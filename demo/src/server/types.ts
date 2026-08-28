@@ -3,7 +3,7 @@ export const MAX_OFFLINE_SECONDS = 24 * 60 * 60;
 
 import type { ConfigReleaseSnapshot } from './config-release.ts';
 
-export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core';
+export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core' | 'herb_zi_yun_hua' | 'herb_ning_lu_cao' | 'herb_jin_huan_she_xin' | 'herb_chi_yan_zhi' | 'pill_zi_yun' | 'pill_ning_lu' | 'pill_huang_long' | 'pill_chi_yan';
 export type ProductionOutputId = ResourceId | 'equipment' | 'technique_research_xp';
 export type ResourceState = { amount: number; capacity: number; reservedAmount: number; overflowAmount: number };
 export type ResourceBag = Record<ResourceId, ResourceState>;

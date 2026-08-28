@@ -73,7 +73,7 @@ const namePoolIds = equipment.map((item) => item.name_pool_id);
 const appearanceTagIds = [...new Set(equipment.flatMap((item) => item.appearance_tag_ids))];
 const statTemplateIds = [...new Set(equipment.map((item) => item.stat_template_id))];
 const assetManifest = equipment.map((item) => ({ id: item.icon_asset_id, kind: 'equipment_icon', status: 'placeholder_v1', source: 'mvp-placeholder-no-ui-default', sha256: '0'.repeat(64) }));
-const manifest = { config_version: '1.0.0-frozen', parameter_sha256: '944c1655e47999bc4405239836b2398749b169d21d61a1f32e20e88bb20f8c92', schema_version: '1.1', status: 'frozen_v1', content_files: ['maps.json', 'equipment.json', 'recipes.json'], content_sha256: hash, asset_manifest: assetManifest, name_pool_ids: namePoolIds, appearance_tag_ids: appearanceTagIds, stat_template_ids: statTemplateIds };
+const manifest = { config_version: '1.0.0-frozen', parameter_sha256: '96d2197d9b13bb90f554c815be6822a52be0b45d152ad3c1eec86b351e53ab8e', schema_version: '1.1', status: 'frozen_v1', content_files: ['maps.json', 'equipment.json', 'recipes.json'], content_sha256: hash, asset_manifest: assetManifest, name_pool_ids: namePoolIds, appearance_tag_ids: appearanceTagIds, stat_template_ids: statTemplateIds };
 await mkdir(root, { recursive: true });
 for (const [name, value] of [['maps.json', mapsPayload], ['equipment.json', equipment], ['recipes.json', recipes], ['manifest.json', manifest]]) await writeFile(resolve(root, name), `${JSON.stringify(value, null, 2)}\n`);
 console.log(`content_package_generated templates=${equipment.length} maps=${mapsPayload.length} content_sha256=${hash}`);

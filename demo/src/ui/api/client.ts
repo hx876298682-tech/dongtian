@@ -2,7 +2,7 @@
     UI 不缓存第二份事实；所有结算/成本/门槛以服务端响应为准。 */
 import { uuid } from './format';
 
-export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core';
+export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core' | 'herb_zi_yun_hua' | 'herb_ning_lu_cao' | 'herb_jin_huan_she_xin' | 'herb_chi_yan_zhi' | 'pill_zi_yun' | 'pill_ning_lu' | 'pill_huang_long' | 'pill_chi_yan';
 
 type Envelope<T> = { requestId: string; configVersion: string; stateRevision: number; serverTime: string; data: T };
 

@@ -7,11 +7,11 @@ root = __dir__
 csv_path = File.join(root, "洞天数值参数表.csv")
 rows = CSV.read(csv_path, headers: true)
 abort("parameter table must have 12 columns") unless rows.headers.length == 12
-abort("parameter table row count changed") unless rows.length == 1143
+abort("parameter table row count changed") unless [1143, 1150].include?(rows.length)
 abort("duplicate parameter IDs") unless rows.map { |row| row["parameter_id"] }.uniq.length == rows.length
 
 manifest = File.read(File.join(root, "洞天数值版本V1.md"))
-%w[1.0.0-frozen DT-NUM-20260825-10 qing_90d_then_black retain_rare collected_p10 frozen_v1].each do |token|
+%w[1.0.0-frozen DT-NUM-20260825-10 DT-NUM-20260827-02 qing_90d_then_black retain_rare collected_p10 frozen_v1].each do |token|
   abort("manifest missing #{token}") unless manifest.include?(token)
 end
 

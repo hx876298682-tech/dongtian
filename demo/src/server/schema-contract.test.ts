@@ -10,6 +10,8 @@ import { migrationFiles } from './migrations.ts';
 const resourceIds = [
   'spirit_stone', 'spirit_herb', 'spirit_ore', 'spirit_wood', 'pill',
   'ancient_scroll', 'millennium_herb', 'meteor_iron', 'demon_core',
+  'herb_zi_yun_hua', 'herb_ning_lu_cao', 'herb_jin_huan_she_xin', 'herb_chi_yan_zhi',
+  'pill_zi_yun', 'pill_ning_lu', 'pill_huang_long', 'pill_chi_yan',
 ] as const satisfies readonly ResourceId[];
 
 const schema = await readFile(new URL('./migrations/V1_001_core.sql', import.meta.url), 'utf8');

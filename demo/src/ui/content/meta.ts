@@ -1,7 +1,7 @@
 /** UI 展示元数据：纯表现层文案与配色映射，不含任何玩法数值。
     数值一律来自服务端 bootstrap/catalog/preview；此处只决定“怎么画”。 */
 
-export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core';
+export type ResourceId = 'spirit_stone' | 'spirit_herb' | 'spirit_ore' | 'spirit_wood' | 'pill' | 'ancient_scroll' | 'millennium_herb' | 'meteor_iron' | 'demon_core' | 'herb_zi_yun_hua' | 'herb_ning_lu_cao' | 'herb_jin_huan_she_xin' | 'herb_chi_yan_zhi' | 'pill_zi_yun' | 'pill_ning_lu' | 'pill_huang_long' | 'pill_chi_yan';
 
 export const RESOURCE_META: Record<ResourceId, { name: string; short: string }> = {
   spirit_stone: { name: '灵石', short: '石' },
@@ -13,9 +13,17 @@ export const RESOURCE_META: Record<ResourceId, { name: string; short: string }> 
   millennium_herb: { name: '千年灵药', short: '药' },
   meteor_iron: { name: '天外陨铁', short: '铁' },
   demon_core: { name: '妖丹', short: '妖' },
+  herb_zi_yun_hua: { name: '紫云花', short: '紫' },
+  herb_ning_lu_cao: { name: '凝露草', short: '凝' },
+  herb_jin_huan_she_xin: { name: '金环蛇信', short: '信' },
+  herb_chi_yan_zhi: { name: '赤炎芝', short: '炎' },
+  pill_zi_yun: { name: '紫云丹', short: '紫' },
+  pill_ning_lu: { name: '凝露散', short: '露' },
+  pill_huang_long: { name: '黄龙丹', short: '黄' },
+  pill_chi_yan: { name: '赤炎丹', short: '赤' },
 };
 
-export const RESOURCE_ORDER: ResourceId[] = ['spirit_stone', 'spirit_wood', 'spirit_herb', 'spirit_ore', 'pill', 'ancient_scroll', 'millennium_herb', 'meteor_iron', 'demon_core'];
+export const RESOURCE_ORDER: ResourceId[] = ['spirit_stone', 'spirit_wood', 'spirit_herb', 'spirit_ore', 'pill', 'ancient_scroll', 'herb_zi_yun_hua', 'herb_ning_lu_cao', 'herb_jin_huan_she_xin', 'herb_chi_yan_zhi', 'pill_zi_yun', 'pill_ning_lu', 'pill_huang_long', 'pill_chi_yan', 'millennium_herb', 'meteor_iron', 'demon_core'];
 
 export type QualityId = 'normal' | 'fine' | 'rare' | 'epic' | 'legendary' | 'immortal';
 
