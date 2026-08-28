@@ -1585,7 +1585,7 @@ export class GameService {
     const targetClearTime = fullCombat
       ? findHighTierFullCombatClearTime(fullCombat)
       : this.highTierClearTime(baselineTarget, required.attack, stats.attack, skill);
-    return { realm, currentRealm: player.realmId, targetClearTime, pillBudget: this.highTierValue(realm, 'boss_pill_budget_per_encounter'), bossHp, recoverySeconds: this.highTierValue(realm, 'boss_failure_recovery_seconds'), rewardOnFailure: this.highTierValue(realm, 'boss_reward_on_failure') === 1, pillChargeOnFailure: this.highTierValue(realm, 'boss_pill_charge_on_failure') === 1, stats, skill, fullCombat, gate: { status: gateBlocked ? 'blocked' : 'open', reason: !realmReady ? 'realm' : !collectionReady ? 'collection' : null, profile, requiredRealm: realm, required } };
+    return { realm, currentRealm: player.realmId, targetClearTime, pillBudget: this.highTierValue(realm, 'boss_pill_budget_per_encounter'), bossHp, recoverySeconds: this.highTierValue(realm, 'boss_failure_recovery_seconds'), rewardOnFailure: this.highTierValue(realm, 'boss_reward_on_failure') === 1, pillChargeOnFailure: this.highTierValue(realm, 'boss_pill_charge_on_failure') === 1, stats, skill, fullCombat, gate: { status: gateBlocked ? 'blocked' : 'open', reason: !realmReady ? 'realm' : !collectionReady ? 'collection' : null, profile, requiredRealm: realm, collectionProgress: { marks: player.collection.collectionMarks, requiredMarks: 10 }, required } };
   }
 
   private highTierBaselineTarget(realm: HighTierRealm, required: { attack: number; health: number }): number {

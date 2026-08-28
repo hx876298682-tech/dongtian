@@ -11,7 +11,7 @@ import { ElementTag } from '../../components/ElementTag';
 import { mapPresentation, DUNGEONS, realmLabel } from '../../content/meta';
 import { fmtNum, fmtSpan } from '../../api/format';
 import type { ActionView } from '../../store/actionView';
-import type { CombatPreviewData, DungeonSettlementData, HighTierSettlementData } from '../../api/client';
+import type { CombatPreviewData, DungeonSettlementData, HighTierPreviewData, HighTierSettlementData } from '../../api/client';
 import { BattleLayer } from '../../layers/BattleLayer';
 
 type Segment = 'hunt' | 'herb' | 'mine';
@@ -140,17 +140,23 @@ export function JourneyPage() {
     shell.closeSheet();
     const preview = await game.client.highTierPreview(realm).catch(function () { return null; });
     if (!preview) { shell.showToast('远征预览不可用，稍后再试', 'warn'); return; }
-    const gate = preview.data.gate;
-    if (gate.status === 'blocked') {
-      shell.showToast(gate.reason === 'collection' ? 'P10 构筑门槛未达' : '境界未至，暂不可远征', 'warn');
-      return;
-    }
-    const started = await flow.runMutation(function () { return game.client.startHighTier(realm, game.revision()); }, '');
-    if (!started) return;
-    const attemptId = (started.data as { attemptId?: string }).attemptId;
-    if (!attemptId) { shell.showToast('远征开启异常', 'warn'); return; }
-    const settled = await flow.runMutation(function () { return game.client.settleHighTier(attemptId, game.revision()); }, '');
-    if (settled?.data) setBattle({ name, data: settled.data, retryRealm: realm });
+    shell.openSheet(
+      <HighTierPrepSheet
+        name={name}
+        preview={preview.data}
+        busy={flow.busy}
+        onCancel={() => shell.closeSheet()}
+        onStart={async () => {
+          shell.closeSheet();
+          const started = await flow.runMutation(function () { return game.client.startHighTier(realm, game.revision()); }, '');
+          if (!started) return;
+          const attemptId = (started.data as { attemptId?: string }).attemptId;
+          if (!attemptId) { shell.showToast('远征开启异常', 'warn'); return; }
+          const settled = await flow.runMutation(function () { return game.client.settleHighTier(attemptId, game.revision()); }, '');
+          if (settled?.data) setBattle({ name, data: settled.data, retryRealm: realm });
+        }}
+      />,
+    );
   }
 
   function DungeonBlock() {
@@ -322,3 +328,74 @@ function Stat({ label, value, showDecimal }: { label: string; value: number; sho
   );
 }
 
+function HighTierPrepSheet({ name, preview, busy, onCancel, onStart }: {
+  name: string;
+  preview: HighTierPreviewData;
+  busy: boolean;
+  onCancel(): void;
+  onStart(): Promise<void>;
+}) {
+  const gate = preview.gate;
+  const blocked = gate.status === 'blocked';
+  const reasonText = gate.reason === 'realm'
+    ? `境界需达到 ${realmLabel(gate.requiredRealm ?? '')}`
+    : gate.reason === 'collection'
+      ? `集换印不足（${preview.collectionProgress ? `${preview.collectionProgress.marks}/${preview.collectionProgress.requiredMarks}` : '?'}）`
+      : '门槛未达';
+  const required = gate.required;
+  return (
+    <ConfirmSheet title={`${name} · 战前整备`} onClose={onCancel}>
+      <div style={{ textAlign: 'center', padding: '4px 0 2px' }}>
+        <b style={{ fontFamily: 'var(--font-display)', fontSize: 17, letterSpacing: '.06em' }}>{name} · 高阶远征</b>
+      </div>
+
+      <div className={`gate-banner ${blocked ? 'gate-blocked' : 'gate-open'}`}>
+        {blocked ? `门槛未达：${reasonText}` : '门禁通过。高阶 Boss 失败无奖励、不扣丹药，进入恢复冷却。'}
+      </div>
+
+      {blocked && gate.reason === 'realm' && required && (
+        <div className="journal-panel">
+          {([['攻击', required.attack, preview.stats.attack], ['防御', required.defence, preview.stats.defence], ['生命', required.health, preview.stats.health]] as Array<[string, number, number]>).map(function ([label, need, have]) {
+            const ok = have >= need;
+            return (
+              <div key={label} className={`check-line ${ok ? 'ok' : 'miss'}`}>
+                <span className="check-state">{ok ? '✓' : '✗'}</span>
+                <span>{label}</span>
+                <span className="check-val num">{fmtNum(have)} / {fmtNum(need)}{!ok ? ` · 缺 ${fmtNum(need - have)}` : ''}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {blocked && gate.reason === 'collection' && preview.collectionProgress && (
+        <div className="journal-panel">
+          <div className="check-line miss">
+            <span className="check-state">✗</span>
+            <span>集换印（P10 构筑）</span>
+            <span className="check-val num">{preview.collectionProgress.marks} / {preview.collectionProgress.requiredMarks}</span>
+          </div>
+        </div>
+      )}
+
+      <div className="prep-stats">
+        <Stat label="BOSS 生命" value={preview.bossHp} />
+        <Stat label="丹药预算" value={preview.pillBudget} />
+      </div>
+        <div className="drop-row" style={{ paddingInline: 2 }}>
+          <span>预计清场 {fmtSpan(preview.targetClearTime)}</span>
+          <span className="drop-chip">恢复冷却 {fmtSpan(preview.recoverySeconds)}</span>
+        </div>
+      {preview.skill && (
+        <small style={{ fontSize: 10.5, color: 'var(--ink-600)' }}>
+          BOSS 专属技能：冷却 {fmtSpan(preview.skill.cooldownSeconds)} · 持续 {fmtSpan(preview.skill.durationSeconds)} · 攻击压制 {preview.skill.attackSuppressionPercent}%
+        </small>
+      )}
+
+      <SwitchWarnBlock view={null} newLabel={`${name}远征`} />
+      <button className="btn-primary" disabled={busy || blocked} onClick={() => void onStart()}>
+        {busy ? '结算旧序列…' : blocked ? '造化未足' : '开始远征'}
+      </button>
+      <button className="btn-danger-ghost" onClick={onCancel}>取消</button>
+    </ConfirmSheet>
+  );
+}

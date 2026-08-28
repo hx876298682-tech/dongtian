@@ -657,6 +657,7 @@ export type HighTierPreviewData = {
     reason: 'realm' | 'collection' | null;
     profile: string;
     requiredRealm: HighTierRealm;
+    collectionProgress: { marks: number; requiredMarks: number };
     required: { attack: number; defence: number; health: number };
   };
 };

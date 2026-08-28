@@ -164,9 +164,11 @@ export type HighTierPreviewData = {
   pillBudget: number;
   bossHp: number;
   recoverySeconds: number;
+  skill: { cooldownSeconds: number; durationSeconds: number; attackSuppressionPercent: number };
   rewardOnFailure: boolean;
   stats: CombatStats;
   gate: { status: 'open' | 'blocked'; reason: 'realm' | 'collection' | null; profile?: string; requiredRealm?: string; required?: { attack: number; defence: number; health: number } };
+  collectionProgress?: { marks: number; requiredMarks: number };
 };
 
 export type HighTierSettlementData = {
