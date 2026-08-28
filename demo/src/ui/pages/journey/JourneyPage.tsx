@@ -204,7 +204,7 @@ export function JourneyPage() {
                 <span className="danger-tag" style={{ background: 'var(--jade)' }}>资源区</span>
               </div>
               <div className="map-body">
-                <p>{segment === 'herb' ? '灵气滋养的天然药圃，可直接入篮。' : '灵脉纵横，矿石随手可拾，偶有妖物骚扰。'}</p>
+                <p>{segment === 'herb' ? '灵气滋养的天然药圃，产 紫云花 与 凝露草。' : '灵脉纵横，矿石随手可拾，偶有妖物骚扰。'}</p>
                 <div className="drop-row">
                   <span>产出：</span><span className="drop-chip">每轮 ×{fmtNum(g.yieldPerCompletion)}</span>
                   {gateClosed && <span style={{ fontSize: 10.5, color: 'var(--gold)' }}>提案试玩 · 门禁未放行</span>}

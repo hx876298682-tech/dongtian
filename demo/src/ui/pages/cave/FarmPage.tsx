@@ -116,7 +116,7 @@ export function FarmPage() {
             <span className="option-main">
               <b>{plant.name}</b>
               <span className="option-sub">成熟时长由灵田等级决定；成熟自动入库</span>
-              <span className="option-sub" style={{ color: 'var(--gold)' }}>可用途：{herbUses}</span>
+              <span className="option-sub" style={{ color: 'var(--gold)' }}>可用途：{herbUses} · 百草谷采集亦产</span>
             </span>
             <span className="btn-mini">播种</span>
           </button>

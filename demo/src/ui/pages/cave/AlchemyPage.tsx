@@ -67,6 +67,7 @@ export function AlchemyPage() {
 
       <p style={{ fontSize: 11, color: 'var(--ink-600)', lineHeight: 1.7 }}>
         炼制占用当前行动；完成后持续炼制，产出自动入库，直至材料耗尽或库存满。
+        <br />更多丹方（紫云丹·凝露散等，将分别对应紫云花/凝露草）待草药品种体系冻结后开放。
       </p>
     </div>
   );
