@@ -1,5 +1,12 @@
 # 工作记录
 
+## 2026-08-28（ZCode：journal 只读查询端点 + 流水数据源切换）
+
+- 新增 `GET /v1/journal?limit=&beforeRevision=`（只读，audit_event 表全量行动/结算事件；beforeRevision 游标分页，limit 上限 100）。三层落地：Repository 接口（Memory 过滤排序 / PostgreSQL withClient 查询）、Service.journal（镜像 collectionEvents 的校验与 envelope）、HTTP 路由。
+- 前端流水数据源从 `collection/events`（仅 collection 快照变化）切换为 `/v1/journal`（含 action 生命周期/结算/装备操作全事件），JournalList 载荷解析通用无需改动；实测 action_started 事件可读。
+- 洗练目标词条交互上一批已实装（稀有以上洗练确认面板带 不限/身法/五行/特殊 chips，target/targetAffix 提交），本轮核对无遗漏。
+- 验收：`tsc -b`、oxlint 0 警告、`vite build`、`npm test` 361 项（338 pass、1 flaky 复跑通过、22 skip）全绿。服务端新增只读端点，无写语义变化。
+
 ## 2026-08-28（ZCode：BOSS 图鉴卡片 + 非结算事件方案评估）
 
 - 词条图鉴页新增「高阶 BOSS 图鉴」区：元婴/化神两张机制卡，数据复用 high-tier preview（只读）——BOSS 生命/攻击、专属技能（冷却/持续/攻击压制%）、P10 构筑需求三维、门禁状态（可挑战/门槛未达灰化）。加载失败静默降级。

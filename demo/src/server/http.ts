@@ -242,6 +242,12 @@ export const createGameHttpServer = (service: GameService, options: { authProvid
     }
     const replayMatch = pathname.match(/^\/v1\/replays\/([^/]+)$/);
     if (request.method === 'GET' && replayMatch) return json(response, 200, await routedService.replaySettlement(id, pathSegment(replayMatch[1], 'settlementId'), context));
+    if (request.method === 'GET' && pathname === '/v1/journal') {
+      const url = new URL(request.url ?? '/', 'http://localhost');
+      const limit = queryInteger(url.searchParams, 'limit', 30, 1, 100);
+      const beforeRevision = queryInteger(url.searchParams, 'beforeRevision', Number.MAX_SAFE_INTEGER, 0, Number.MAX_SAFE_INTEGER);
+      return json(response, 200, await routedService.journal({ ...context, playerId: id, limit, beforeRevision }));
+    }
     if (request.method === 'GET' && pathname === '/v1/collection/events') {
       const url = new URL(request.url ?? '/', 'http://localhost');
       const limit = queryInteger(url.searchParams, 'limit', 50, 1, 100);

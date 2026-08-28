@@ -91,8 +91,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const refreshEvents = useCallback(async (silent = true) => {
     try {
-      const envelope = await client.collectionEvents(30);
-      setEvents(envelope.data.events);
+      // journal（audit 全量）替代 collection/events 作为流水源：覆盖行动生命周期且不依赖 collection 快照变化
+      const envelope = await client.journal(30);
+      setEvents(envelope.data.entries);
     } catch (error) {
       if (!silent && error instanceof ApiError) throw error;
     }

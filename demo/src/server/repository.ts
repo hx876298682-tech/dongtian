@@ -45,6 +45,7 @@ export interface Repository {
   /** Atomically claims a batch for one scanner instance when supported. */
   claimPendingSettlements?(limit: number, before: PendingSettlementCursor | Date | undefined, options: PendingSettlementClaimOptions): Promise<SettlementRecord[]>;
   getAuditEvents(playerId: string): Promise<AuditEvent[]>;
+  listJournal(playerId: string, limit: number, beforeRevision?: number): Promise<AuditEvent[]>;
   listCollectionEvents(playerId: string, limit: number, before?: CollectionEventCursor | Date): Promise<CollectionEvent[]>;
   getActionResponse(key: string): Promise<unknown | null>;
   findActionResponseByPrefix(prefix: string): Promise<{ key: string; response: unknown } | null>;
@@ -112,6 +113,19 @@ export class MemoryRepository implements Repository {
 
   async getAuditEvents(playerId: string): Promise<AuditEvent[]> {
     return [...this.audit.values()].filter((event) => event.playerId === playerId).map(clone);
+  }
+  async listJournal(playerId: string, limit: number, beforeRevision?: number): Promise<AuditEvent[]> {
+    return [...this.audit.values()]
+      .filter(function (event) {
+        if (event.playerId !== playerId) return false;
+        if (beforeRevision === undefined) return true;
+        return event.afterRevision < beforeRevision;
+      })
+      .sort(function (left, right) {
+        return right.createdAt.localeCompare(left.createdAt) || right.afterRevision - left.afterRevision;
+      })
+      .slice(0, Math.max(1, Math.min(100, limit)))
+      .map(clone);
   }
 
   async listCollectionEvents(playerId: string, limit: number, before?: CollectionEventCursor | Date): Promise<CollectionEvent[]> {

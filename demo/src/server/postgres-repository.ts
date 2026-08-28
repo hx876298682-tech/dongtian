@@ -128,6 +128,20 @@ export class PostgresRepository implements Repository {
     }, 'claim pending settlements');
   }
 
+  async listJournal(playerId: string, limit: number, beforeRevision?: number): Promise<AuditEvent[]> {
+    this.assertUuid(playerId, 'playerId');
+    const capped = Math.max(1, Math.min(100, limit));
+    const params: unknown[] = [playerId];
+    let cursor = '';
+    if (beforeRevision !== undefined) {
+      params.push(beforeRevision);
+      cursor = ` AND after_revision < $${params.length}`;
+    }
+    params.push(capped);
+    return await this.withClient(async (client) => (await this.query(client, `SELECT event_id, player_id, settlement_id, event_type, before_revision, after_revision, config_version, payload_hash, payload, created_at FROM audit_event WHERE player_id = $1${cursor} ORDER BY after_revision DESC, created_at DESC LIMIT $${params.length}`, params)).rows.map((row) => ({
+      eventId: String(row.event_id), playerId: String(row.player_id), settlementId: row.settlement_id === null ? null : String(row.settlement_id), eventType: String(row.event_type), beforeRevision: numberValue(row.before_revision), afterRevision: numberValue(row.after_revision), configVersion: String(row.config_version), payloadHash: String(row.payload_hash), payload: parseJson(row.payload, null), createdAt: timestamp(row.created_at) ?? new Date(0).toISOString(),
+    })));
+  }
   async getAuditEvents(playerId: string): Promise<AuditEvent[]> {
     this.assertUuid(playerId, 'playerId');
     return await this.withClient(async (client) => (await this.query(client, `SELECT event_id, player_id, settlement_id, event_type, before_revision, after_revision, config_version, payload_hash, payload, created_at FROM audit_event WHERE player_id = $1 ORDER BY created_at, event_id`, [playerId])).rows.map((row) => ({ eventId: String(row.event_id), playerId: String(row.player_id), settlementId: row.settlement_id ? String(row.settlement_id) : null, eventType: String(row.event_type), beforeRevision: numberValue(row.before_revision), afterRevision: numberValue(row.after_revision), configVersion: String(row.config_version), payloadHash: String(row.payload_hash), payload: row.payload === null || row.payload === undefined ? null : parseJson(row.payload, null), createdAt: timestamp(row.created_at) ?? new Date(0).toISOString() })));

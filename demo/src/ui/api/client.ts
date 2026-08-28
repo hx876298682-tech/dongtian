@@ -241,6 +241,11 @@ export class GameClient {
 
   bootstrap(): Promise<Envelope<Bootstrap>> { return this.request('/v1/bootstrap'); }
   catalog(): Promise<Envelope<Catalog>> { return this.request('/v1/action-catalog'); }
+  journal(limit = 30, beforeRevision?: number): Promise<Envelope<{ entries: Array<{ eventId: string; eventType: string; settlementId: string | null; beforeRevision: number; afterRevision: number; payload: unknown; createdAt: string }> }>> {
+    const q = new URLSearchParams({ limit: String(limit) });
+    if (beforeRevision !== undefined) q.set('beforeRevision', String(beforeRevision));
+    return this.request(`/v1/journal?${q.toString()}`);
+  }
   collectionAction(action: 'research' | 'treasure_upgrade', target: { techniqueId?: string; quality?: string; treasureId?: string }, expectedRevision: number) {
     return this.mutate('/v1/collection/actions', { action, ...target }, expectedRevision);
   }

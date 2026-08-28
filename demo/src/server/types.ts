@@ -235,6 +235,8 @@ export type ConfigReleaseOperationRequest = ServiceContext & { operation: Config
 export type ConfigReleaseOperationData = { operation: ConfigReleaseOperation; targetVersion: string; activeVersion: string | null };
 
 export type LeaderboardRequest = ServiceContext & { playerId: string; type: LeaderboardType; limit: number; offset: number };
+export type JournalRequest = ServiceContext & { playerId: string; limit: number; beforeRevision?: number };
+export type JournalData = { entries: AuditEvent[] };
 export type CollectionEventsRequest = ServiceContext & { playerId: string; limit: number; before?: string };
 export type CollectionEventsData = { events: CollectionEvent[]; nextBefore: string | null };
 

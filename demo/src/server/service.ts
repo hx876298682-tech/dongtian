@@ -3,7 +3,7 @@ import { FROZEN_PARAMETERS } from '../game/frozen-parameters.ts';
 import { CONTENT_PACKAGE, diagnoseMapEquipmentReleaseReadiness, isContentPending, validateContentPackage } from '../content/content-schema.ts';
 import { ApiError, CONFIG_VERSION, MAX_OFFLINE_SECONDS } from './types.ts';
 import { SINGLE_SLOT_ACTION_MODEL, SINGLE_SLOT_ACTIONS } from './types.ts';
-import type { ActionCatalogData, ActionCatalogEquipmentTemplate, ActionCatalogGatheringMap, ActionCatalogMap, ActionCatalogRecipe, ActionCatalogTechnique, ApiEnvelope, AutoPromotionCycleData, AutoPromotionCycleRequest, AutoPromotionOperation, AutoPromotionPolicy, AutoPromotionPolicyData, AutoPromotionPolicyRequest, BootstrapData, BreakthroughData, BreakthroughRequest, BuildingId, BuildingUpgradeData, BuildingUpgradeRequest, CollectionActionData, CollectionActionRequest, CollectionEventCursor, CollectionEventsData, CollectionEventsRequest, CollectionExchangeData, CollectionExchangeRequest, CollectionPoolId, CombatEvent, CombatPreviewData, CombatPreviewRequest, CombatStats, ConfigReleaseOperationData, ConfigReleaseOperationRequest, DungeonId, DungeonPreviewData, DungeonSettleRequest, DungeonSettlementData, DungeonStartData, DungeonStartRequest, EquipmentActionData, EquipmentActionRequest, EquipmentDropSummary, EquipmentInstance, HighTierDrop, HighTierPreviewData, HighTierRealm, HighTierSettlementData, HighTierSettleRequest, HighTierSkillSummary, HighTierStartData, HighTierStartRequest, LeaderboardData, LeaderboardRequest, LeaderboardType, PlantSpiritFarmData, PlantSpiritFarmRequest, PlantSpiritFarmPlotData, PlantSpiritFarmPlotRequest, PlayerState, ProductionOutputId, QueueBuildingJobData, QueueBuildingJobRequest, RealmId, ReplayData, ResourceId, SettlementData, SettlementRecord, SettlementRequest, ServiceContext, StartActionRequest, StopActionData, StopActionRequest, SwitchActionData, SwitchActionRequest, TreasureDropProgress } from './types.ts';
+import type { ActionCatalogData, ActionCatalogEquipmentTemplate, ActionCatalogGatheringMap, ActionCatalogMap, ActionCatalogRecipe, ActionCatalogTechnique, ApiEnvelope, AutoPromotionCycleData, AutoPromotionCycleRequest, AutoPromotionOperation, AutoPromotionPolicy, AutoPromotionPolicyData, AutoPromotionPolicyRequest, BootstrapData, BreakthroughData, BreakthroughRequest, BuildingId, BuildingUpgradeData, BuildingUpgradeRequest, CollectionActionData, CollectionActionRequest, CollectionEventCursor, CollectionEventsData, CollectionEventsRequest, JournalData, JournalRequest, CollectionExchangeData, CollectionExchangeRequest, CollectionPoolId, CombatEvent, CombatPreviewData, CombatPreviewRequest, CombatStats, ConfigReleaseOperationData, ConfigReleaseOperationRequest, DungeonId, DungeonPreviewData, DungeonSettleRequest, DungeonSettlementData, DungeonStartData, DungeonStartRequest, EquipmentActionData, EquipmentActionRequest, EquipmentDropSummary, EquipmentInstance, HighTierDrop, HighTierPreviewData, HighTierRealm, HighTierSettlementData, HighTierSettleRequest, HighTierSkillSummary, HighTierStartData, HighTierStartRequest, LeaderboardData, LeaderboardRequest, LeaderboardType, PlantSpiritFarmData, PlantSpiritFarmRequest, PlantSpiritFarmPlotData, PlantSpiritFarmPlotRequest, PlayerState, ProductionOutputId, QueueBuildingJobData, QueueBuildingJobRequest, RealmId, ReplayData, ResourceId, SettlementData, SettlementRecord, SettlementRequest, ServiceContext, StartActionRequest, StopActionData, StopActionRequest, SwitchActionData, SwitchActionRequest, TreasureDropProgress } from './types.ts';
 import type { ContentPackage } from '../content/content-schema.ts';
 import { hashPayload, makeInitialPlayer } from './repository.ts';
 import type { Repository } from './repository.ts';
@@ -364,6 +364,21 @@ export class GameService {
     if (!leaderboardTypes.includes(request.type) || !Number.isSafeInteger(request.limit) || request.limit < 1 || request.limit > 100 || !Number.isSafeInteger(request.offset) || request.offset < 0 || request.offset > 100000) throw new ApiError('VALIDATION_FAILED', 'leaderboard type or pagination is invalid');
     const player = await this.ensurePlayerConfig(request.playerId, request, now);
     return envelope(await this.repository.getLeaderboard(request.type, request.limit, request.offset), player.stateRevision, request, now, this.configVersion);
+  }
+
+  async journal(request: JournalRequest): Promise<ApiEnvelope<JournalData>> {
+    const now = request.now ?? this.clock();
+    this.assertContext(request);
+    if (!Number.isSafeInteger(request.limit) || request.limit < 1 || request.limit > 100) throw new ApiError('VALIDATION_FAILED', 'journal limit must be between 1 and 100');
+    let player: PlayerState;
+    try {
+      player = await this.ensurePlayerConfig(request.playerId, request, now);
+    } catch (error) {
+      if (error instanceof ApiError && error.code === 'VALIDATION_FAILED') throw new ApiError('NOT_FOUND', 'player does not exist');
+      throw error;
+    }
+    const entries = await this.repository.listJournal(request.playerId, request.limit, request.beforeRevision);
+    return envelope({ entries }, player.stateRevision, request, now, this.configVersion);
   }
 
   async collectionEvents(request: CollectionEventsRequest): Promise<ApiEnvelope<CollectionEventsData>> {
