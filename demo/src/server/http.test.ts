@@ -61,7 +61,8 @@ test('HTTP action catalog exposes frozen targets and labels proposal targets wit
     assert.ok(payload.data.techniques.some((entry) => entry.id === 'technique.mortal.qing_mu_chang_sheng'));
     assert.ok(payload.data.recipes.some((entry) => entry.id === 'alchemy_basic'));
     assert.ok(payload.data.maps.some((entry) => entry.id === 'bai_cao_valley' && entry.unlocked));
-    assert.deepEqual(payload.data.gatheringMaps.map((entry) => entry.status), ['proposal_v1', 'proposal_v1']);
+    assert.deepEqual(payload.data.gatheringMaps.map((entry) => entry.status), ['proposal_v1', 'released', 'released', 'proposal_v1']);
+    assert.deepEqual(payload.data.gatheringMaps.map((entry) => entry.id), ['herb_grove', 'herb_black_wind_valley', 'herb_red_flame_cave', 'ore_mine']);
     assert.equal((await repository.getPlayer(playerId)).stateRevision, 0);
   } finally {
     await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));

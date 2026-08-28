@@ -316,8 +316,8 @@ export type ActionCatalogGatheringMap = {
   resourceId: ResourceId;
   intervalSeconds: number;
   yieldPerCompletion: number;
-  status: 'proposal_v1';
-  source: 'runtime_proposal_v1';
+  status: ActionCatalogStatus;
+  source: string;
 };
 export type ActionCatalogData = {
   schemaVersion: 'action_catalog_v1';

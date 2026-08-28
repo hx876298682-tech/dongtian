@@ -65,6 +65,8 @@ const leaderboardTypes: LeaderboardType[] = ['realm', 'cultivation_xp', 'combat_
 const gatheringActions: Record<string, { skill: 'herbalism' | 'mining'; resource: ResourceId; interval: number; yield: number }> = {
   'herbalism:herb_grove': { skill: 'herbalism', resource: 'spirit_herb', interval: 60, yield: 2 },
   'mining:ore_mine': { skill: 'mining', resource: 'spirit_ore', interval: 60, yield: 1 },
+  'herbalism:herb_black_wind_valley': { skill: 'herbalism', resource: 'herb_jin_huan_she_xin', interval: 60, yield: 1 },
+  'herbalism:herb_red_flame_cave': { skill: 'herbalism', resource: 'herb_chi_yan_zhi', interval: 60, yield: 1 },
 };
 
 /** 采药品种产出（DT-NUM-20260827-02）：每轮按权重产出对应品种草药 1 株。 */
@@ -72,6 +74,12 @@ const herbVarietyRolls: Record<string, Array<{ resource: ResourceId; weight: num
   'herbalism:herb_grove': [
     { resource: 'herb_zi_yun_hua', weight: 60 },
     { resource: 'herb_ning_lu_cao', weight: 40 },
+  ],
+  'herbalism:herb_black_wind_valley': [
+    { resource: 'herb_jin_huan_she_xin', weight: 100 },
+  ],
+  'herbalism:herb_red_flame_cave': [
+    { resource: 'herb_chi_yan_zhi', weight: 100 },
   ],
 };
 
@@ -347,6 +355,8 @@ export class GameService {
     }));
     const gatheringMaps: ActionCatalogGatheringMap[] = [
       { id: 'herb_grove', displayName: '灵草药圃', actionId: 'herbalism', kind: 'gathering', resourceId: 'spirit_herb', intervalSeconds: gatheringActions['herbalism:herb_grove'].interval, yieldPerCompletion: gatheringActions['herbalism:herb_grove'].yield, status: 'proposal_v1', source: 'runtime_proposal_v1' },
+      { id: 'herb_black_wind_valley', displayName: '黑风谷药丛', actionId: 'herbalism', kind: 'gathering', resourceId: 'herb_jin_huan_she_xin', intervalSeconds: gatheringActions['herbalism:herb_black_wind_valley'].interval, yieldPerCompletion: gatheringActions['herbalism:herb_black_wind_valley'].yield, status: 'released', source: 'content_package' },
+      { id: 'herb_red_flame_cave', displayName: '赤炎药窟', actionId: 'herbalism', kind: 'gathering', resourceId: 'herb_chi_yan_zhi', intervalSeconds: gatheringActions['herbalism:herb_red_flame_cave'].interval, yieldPerCompletion: gatheringActions['herbalism:herb_red_flame_cave'].yield, status: 'released', source: 'content_package' },
       { id: 'ore_mine', displayName: '灵矿矿脉', actionId: 'mining', kind: 'gathering', resourceId: 'spirit_ore', intervalSeconds: gatheringActions['mining:ore_mine'].interval, yieldPerCompletion: gatheringActions['mining:ore_mine'].yield, status: 'proposal_v1', source: 'runtime_proposal_v1' },
     ];
     const actions: ActionCatalogData['actions'] = [

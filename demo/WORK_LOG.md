@@ -1,5 +1,15 @@
 # 工作记录
 
+## 2026-08-28（ZCode：黑风谷/赤炎洞品种采药接入 + catalog 修正）
+
+- 新增两个品种采药地图：黑风谷药丛（产金环蛇信 100%）、赤炎药窟（产赤炎芝 100%），60s/轮、1株/轮；gatheringActions/herbVarietyRolls/catalog gatheringMaps 三表 key 统一为 `herb_black_wind_valley` / `herb_red_flame_cave`（修复了初版 key 用了地图名导致 CONTENT_LOCKED 的 bug——服务级直调定位，金环蛇信×4 入库验证通过）。
+- ActionCatalogGatheringMap 的 status/source 类型放宽为 ActionCatalogStatus/string（品种地图 status=released, source=content_package）；http.test 期望更新为 4 地图顺序 herb_grove/herb_black_wind_valley/herb_red_flame_cave/ore_mine。
+- 验收：`tsc -b`、oxlint 0 警告、`vite build`、`npm test` 361 项（339 pass、22 skip、0 fail）全绿。
+
+## 2026-08-28（ZCode：品质变体丹药实装完成）
+
+# 工作记录
+
 ## 2026-08-28（ZCode：功法/炼丹/炼器详情按用户反馈修正）
 
 - 练功房/功法阁功法卡：改为显示**当前等级已加属性**（层数 × 每层成长，catalog 数值优先），未研习的显示首层增量；确认面板保留成长线说明。
