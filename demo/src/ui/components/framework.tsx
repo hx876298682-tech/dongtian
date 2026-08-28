@@ -1,6 +1,7 @@
 /** 全局框架层：身份区 / 资源栏 / 行动条五态 / 底部导航 */
 import { Backpack, Check, ChevronRight, CircleAlert, Compass, Home, RefreshCw, Settings, UserRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTicker } from '../hooks';
 import type { ReactNode } from 'react';
 import type { ActionView } from '../store/actionView';
 import type { ResourceId } from '../content/meta';
@@ -77,6 +78,7 @@ export function ActionBar({
   nowMs,
   cooldownRemainSeconds,
   lastGains,
+  lastGainsPerHour,
   lastError,
   onStop,
   onGoAssign,
@@ -86,11 +88,13 @@ export function ActionBar({
   nowMs: number;
   cooldownRemainSeconds: number;
   lastGains: Array<{ label: string; amount: number }>;
+  lastGainsPerHour: Array<{ label: string; amount: number }> | null;
   lastError: string | null;
   onStop(): void;
   onGoAssign(): void;
 }) {
-  // 进度条的秒级推进收殓到叶子组件 <LiveProgress>，避免每秒重渲染整个应用壳
+  useTicker(1000); // 进度条按秒推进（仅本组件重渲染）
+
   // （每秒全树重渲染会让 IAB/合成点击在帧间隙被丢弃——本轮"点了没反应"的根因）。
   let progressPct = 0;
 
@@ -103,6 +107,9 @@ export function ActionBar({
 
   const gainsText = lastGains.length
     ? '最近收获 ' + lastGains.map((g) => `${g.label} ${g.amount > 0 ? '+' : ''}${fmtNum(g.amount)}`).join(' · ')
+    : null;
+  const rateText = lastGainsPerHour && lastGainsPerHour.length
+    ? '约 ' + lastGainsPerHour.map((g) => `${g.label} ${fmtNum(g.amount)}/时`).join(' · ')
     : null;
 
   return (
@@ -119,6 +126,7 @@ export function ActionBar({
         </div>
         <div className="action-meta">
           {gainsText && <span className="action-gain num">{gainsText}</span>}
+          {rateText && <span className="action-gain num" style={{ fontWeight: 400, opacity: .85 }}>{rateText}</span>}
           {phase === 'cooldown' && <CooldownCount untilSeconds={cooldownRemainSeconds} />}
           {phase === 'running' && view && (
             <button className="btn-mini danger" onClick={onStop}>收功</button>

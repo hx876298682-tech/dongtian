@@ -1,5 +1,11 @@
 # 工作记录
 
+## 2026-08-28（ZCode：行动条速率展示 + 词条图鉴骨架）
+
+- 行动条新增"约 X/时"速率行：基于最近一次结算摘要（settledSeconds 窗口 + 资源/修为增项）归一到每小时，纯展示换算（结算仍由服务端完成，窗口 <60s 不展示避免抖动）。GameStore.recordSettlement 扩展 settledSeconds/completedActions 字段。
+- 词条图鉴骨架（道途页入口）：品阶功能槽位表（0/0/1/1/2/3 冻结值）、特殊词条四类（破甲/护体/生机/回春，效果说明+常见部位，已收集高亮）、身法/五行说明卡。已收集词条从装备实例实时聚合。
+- 验收：`tsc -b`、oxlint 0 警告、`vite build`、`npm test` 361 项（339 pass、22 skip、0 fail）全绿。未改服务端代码与冻结参数。
+
 ## 2026-08-28（ZCode：高阶远征 P10 构筑进度实装）
 
 - 服务端：`HighTierPreviewData.gate` 新增 `collectionProgress { marks, requiredMarks }`（元婴起每境界 preview 均返回，阈值 10 为冻结 policy 内的既有常量）。

@@ -43,9 +43,16 @@ export function useActionFlow(showToast: ShowToast) {
     if (!data || typeof data !== 'object') return;
     const obj = data as Record<string, unknown>;
     const settlement = (obj.settlement ?? (obj.stopped as Record<string, unknown> | undefined)?.settlement) as
-      | { data?: { resourceDelta?: Record<string, number>; cultivationDelta?: number } }
+      | { data?: { resourceDelta?: Record<string, number>; cultivationDelta?: number; completedActions?: number; settledSeconds?: number } }
       | undefined;
-    if (settlement?.data) recordSettlement(settlement.data);
+    if (settlement?.data) {
+      recordSettlement({
+        resourceDelta: settlement.data.resourceDelta,
+        cultivationDelta: settlement.data.cultivationDelta,
+        completedActions: settlement.data.completedActions,
+        settledSeconds: settlement.data.settledSeconds,
+      });
+    }
   }, [recordSettlement]);
 
   const startAction = useCallback((options: ActionOptions, label: string) =>

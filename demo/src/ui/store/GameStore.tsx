@@ -10,6 +10,7 @@ type Phase = 'connecting' | 'ready' | 'failed';
 
 /** 最近一次结算的收益摘要（供行动条"最近收获"展示）。 */
 export type GainLine = { label: string; amount: number };
+export type GainWithWindow = { lines: GainLine[]; windowSeconds: number };
 
 type StoreValue = {
   phase: Phase;
@@ -20,11 +21,17 @@ type StoreValue = {
   configVersion: string | null;
   events: CollectionEventItem[];
   lastGains: GainLine[];
+  lastGainsPerHour: GainLine[] | null;
   /** 以服务端时钟为准的当前时间 */
   now(): number;
   revision(): number;
   /** 记录服务端返回的结算摘要（仅展示用） */
-  recordSettlement(data: { resourceDelta?: Partial<Record<string, number>>; cultivationDelta?: number }): void;
+  recordSettlement(data: {
+    resourceDelta?: Partial<Record<string, number>>;
+    cultivationDelta?: number;
+    completedActions?: number;
+    settledSeconds?: number;
+  }): void;
   refresh(silent?: boolean): Promise<void>;
   refreshEvents(silent?: boolean): Promise<void>;
 };
@@ -58,8 +65,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [configVersion, setConfigVersion] = useState<string | null>(null);
   const [events, setEvents] = useState<CollectionEventItem[]>([]);
   const [lastGains, setLastGains] = useState<GainLine[]>([]);
+  const [lastGainsPerHour, setLastGainsPerHour] = useState<GainLine[] | null>(null);
 
-  const recordSettlement = useCallback((data: { resourceDelta?: Partial<Record<string, number>>; cultivationDelta?: number }) => {
+  const recordSettlement = useCallback((data: { resourceDelta?: Partial<Record<string, number>>; cultivationDelta?: number; completedActions?: number; settledSeconds?: number }) => {
     const lines: GainLine[] = [];
     for (const [resId, amount] of Object.entries(data.resourceDelta ?? {})) {
       const meta = RESOURCE_META[resId as keyof typeof RESOURCE_META];
@@ -69,6 +77,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
       lines.push({ label: '修为', amount: data.cultivationDelta });
     }
     setLastGains(lines.slice(0, 4));
+    // 速率展示：基于"本次结算窗口"归一到每小时（纯展示换算；结算仍由服务端完成）。
+    const settled = data.settledSeconds ?? 0;
+    if (settled >= 60) {
+      const factor = 3600 / settled;
+      setLastGainsPerHour(lines.map(function (l) {
+        return { label: l.label, amount: Math.round((l.amount * factor) * 100) / 100 };
+      }));
+    } else {
+      setLastGainsPerHour(null);
+    }
   }, []);
 
   const refreshEvents = useCallback(async (silent = true) => {
@@ -109,12 +127,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     configVersion,
     events,
     lastGains,
+    lastGainsPerHour,
     now: () => client.now(),
     revision: () => player?.stateRevision ?? 0,
     recordSettlement,
     refresh,
     refreshEvents,
-  }), [phase, connectError, client, player, catalog, configVersion, events, lastGains, recordSettlement, refresh, refreshEvents]);
+  }), [phase, connectError, client, player, catalog, configVersion, events, lastGains, lastGainsPerHour, recordSettlement, refresh, refreshEvents]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

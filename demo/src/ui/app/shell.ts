@@ -11,6 +11,7 @@ export type PageId =
   | 'farm'
   | 'pavilion'
   | 'treasure_pavilion'
+  | 'codex'
   | 'leaderboard'
   | 'journal'
   | 'breakthrough'

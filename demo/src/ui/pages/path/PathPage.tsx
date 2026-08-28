@@ -89,7 +89,10 @@ export function PathPage() {
       {/* 真实属性（服务端 preview）+ 技艺等级 */}
       {preview && (
         <>
-          <SectionHead title="属性" sub={`${firstMap ? `以${firstMap.displayName}为准的实战口径` : '服务端口径'} · 战力只是展示值`} />
+          <SectionHead
+        title="属性"
+        tail={<button className="btn-mini" onClick={() => shell.openPage('codex')}>词条图鉴 ›</button>}
+        sub={`${firstMap ? `以${firstMap.displayName}为准的实战口径` : '服务端口径'} · 战力只是展示值`} />
           <div className="stat-grid">
             <AttrBlock label="生命" value={preview.stats.health} />
             <AttrBlock label="攻击" value={preview.stats.attack} />

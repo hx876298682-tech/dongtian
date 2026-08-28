@@ -17,6 +17,7 @@ import { ForgePage } from '../pages/cave/ForgePage';
 import { FarmPage } from '../pages/cave/FarmPage';
 import { PavilionPage } from '../pages/path/PavilionPage';
 import { TreasurePavilionPage } from '../pages/path/TreasurePavilionPage';
+import { CodexPage } from '../pages/path/CodexPage';
 import { LeaderboardPage } from '../pages/journey/LeaderboardPage';
 import { JourneyPage } from '../pages/journey/JourneyPage';
 import { BagPage } from '../pages/bag/BagPage';
@@ -143,6 +144,7 @@ function Inner() {
     farm: <FarmPage />,
     pavilion: <PavilionPage />,
     treasure_pavilion: <TreasurePavilionPage />,
+    codex: <CodexPage />,
     leaderboard: <LeaderboardPage />,
     journal: <JournalPageShell />,
     breakthrough: <BreakthroughPage />,
@@ -168,6 +170,7 @@ function Inner() {
             nowMs={nowMs}
             cooldownRemainSeconds={cooldownRemainMs / 1000}
             lastGains={game.lastGains}
+            lastGainsPerHour={game.lastGainsPerHour}
             lastError={null}
             onStop={() => {
               if (!view) return;
