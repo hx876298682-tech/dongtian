@@ -1,5 +1,12 @@
 # 工作记录
 
+## 2026-08-28（ZCode：高阶远征 P10 构筑进度实装）
+
+- 服务端：`HighTierPreviewData.gate` 新增 `collectionProgress { marks, requiredMarks }`（元婴起每境界 preview 均返回，阈值 10 为冻结 policy 内的既有常量）。
+- 前端：秘境·高阶远征「远征」改走 preview 战前整备面板——境界/P10 集换印 ✓✗ 清单（含缺口数值）、攻击/防御/生命三维差距、BOSS 生命/丹药预算/预计清场/专属技能/恢复冷却；门槛未达时"开始远征"禁用。通过后 start→settle 复用时刻型回放。
+- 洞天等级契约增补评估（结论：暂缓）：服务端无 cave 建筑与参数，新增需按"先改运行时口径与 API/数据契约→再实现"流程走，涉及 PlayerState/迁移/升级公式与 Ruby 验证器；当前以洞府升级弹窗 fail-closed 提示呈现，等产品排期后再立项。
+- 验收：`tsc -b`、oxlint 0 警告、`vite build`、`npm test` 361 项（339 pass、22 skip、0 fail）全绿。已推送。
+
 ## 2026-08-28（ZCode：settlement_committed 集合事件实装，洞府"最近入库"接通真实数据流）
 
 - 根因：集合事件只在 collection 快照变化时写入，而普通挂机/离线结算不动 collection 字段，导致洞府"最近入库"恒为空。
