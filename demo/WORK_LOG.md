@@ -1,5 +1,11 @@
 # 工作记录
 
+## 2026-08-28（ZCode：settlement_committed 集合事件实装，洞府"最近入库"接通真实数据流）
+
+- 根因：集合事件只在 collection 快照变化时写入，而普通挂机/离线结算不动 collection 字段，导致洞府"最近入库"恒为空。
+- 修复：内存与 PostgreSQL 双仓库在**结算类事务**（meta.settlementId 存在）提交时追加一条 `settlement_committed` 集合事件；载荷为 结算ID/资源增项/修为增量/完成次数/失败标记。摘要读取兼容 offline_settlement 事务的 `{response, record}` 返回形（record.responsePayload.data 优先）。
+- 端到端验证：start 训练 → 9 秒 → stop，`collection/events` 返回 `settlement_committed | cultivationDelta +7, completedActions 1`，前端 JournalList 已原生支持该载荷（修为 +N · 完成 N 次）。`npm test` 361 项 0 失败、build/lint 全绿。未改 API 契约形状（事件类型为新增枚举值）。
+
 ## 2026-08-28（ZCode：秘境全链路 + 排行榜 + 突破清单实装；发现并修复进度条/点击两处回归）
 
 - 秘境完整链路：历练·秘境分段「探入」→ `GET /v1/dungeons/{id}/preview` 战前整备（Boss 血量/护盾/阶段阈值/攻击/五行、入口与自动丹药成本、可用丹药、保底计数、自身三维、门禁状态）→ `POST start` → `POST settle`（服务端确定性模拟）→ 全屏时刻型战斗回放层（逐秒事件流、BOSS 血条、×1/×2/×4 变速与跳过、成功/失败两态结算：用时/目标/资源增项/千年灵药·天外陨铁·功法·法宝掉落/BOSS 五行，失败文案明确"本场奖励 0，丹药未扣除"）。
