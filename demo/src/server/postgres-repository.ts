@@ -256,6 +256,27 @@ export class PostgresRepository implements Repository {
           createdAt: meta.at.toISOString(),
         });
       }
+      // 结算类事务始终留一条可读流水（与内存仓库一致）。
+      const envelopeData = (result as { data?: unknown; record?: { responsePayload?: { data?: { resourceDelta?: Record<string, number>; cultivationDelta?: number; completedActions?: number; failed?: boolean } } } } | undefined);
+      const settlementResult = (envelopeData?.record?.responsePayload?.data ?? envelopeData?.data) as
+        | { resourceDelta?: Record<string, number>; cultivationDelta?: number; completedActions?: number; failed?: boolean }
+        | undefined;
+      if (meta.settlementId && settlementResult) {
+        await this.insertCollectionEvent(client, {
+          eventId: randomUUID(), playerId, eventType: 'settlement_committed',
+          beforeRevision: current.stateRevision, afterRevision: draft.stateRevision,
+          configVersion: draft.configVersion,
+          payloadHash: hashPayload({ settlementId: meta.settlementId, resourceDelta: settlementResult.resourceDelta, cultivationDelta: settlementResult.cultivationDelta }),
+          payload: {
+            settlementId: meta.settlementId,
+            resourceDelta: settlementResult.resourceDelta ?? {},
+            cultivationDelta: settlementResult.cultivationDelta ?? 0,
+            completedActions: settlementResult.completedActions ?? 0,
+            failed: settlementResult.failed ?? false,
+          },
+          createdAt: meta.at.toISOString(),
+        });
+      }
       if (actionKey) await this.query(client, `INSERT INTO action_idempotency (action_key, player_id, response_payload, created_at) VALUES ($1,$2,$3::jsonb,$4)`, [actionKey, playerId, json(result), meta.at]);
       return result;
     }, 'transaction');

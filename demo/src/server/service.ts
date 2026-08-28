@@ -536,7 +536,7 @@ export class GameService {
     if (!actionId) throw new ApiError('VALIDATION_FAILED', 'no primary action is active');
     const { idempotencyKey: _stopIdempotencyKey, ...settlementRequest } = request;
     const settlement = await this.offlineSettlement(settlementRequest);
-    const stopped = await this.repository.transaction(request.playerId, settlement.stateRevision, { eventType: 'action_stopped', payload: { actionId, settlementId: request.settlementId }, at: now }, (draft) => {
+    const stopped = await this.repository.transaction(request.playerId, settlement.stateRevision, { eventType: 'action_stopped', settlementId: request.settlementId, payload: { actionId, settlementId: request.settlementId }, at: now }, (draft) => {
       // A failed ordinary map settlement owns the terminal transition and
       // clears the action before stopAction's second CAS. Preserve the stop
       // response contract for that expected state, while rejecting any other

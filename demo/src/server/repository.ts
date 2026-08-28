@@ -183,6 +183,29 @@ export class MemoryRepository implements Repository {
       };
       this.collectionEvents.set(collectionEvent.eventId, collectionEvent);
     }
+    // 结算类事务始终留一条可读流水（挂机/离线收益），供 UI"最近入库"消费；
+    // 载荷取结算摘要字段，事件本身仍走同一幂等/审计管线。
+    const envelopeData = (result as { data?: unknown; record?: { responsePayload?: { data?: { resourceDelta?: Record<string, number>; cultivationDelta?: number; completedActions?: number; failed?: boolean } } } } | undefined);
+    const settlementResult = (envelopeData?.record?.responsePayload?.data ?? envelopeData?.data) as
+      | { resourceDelta?: Record<string, number>; cultivationDelta?: number; completedActions?: number; failed?: boolean }
+      | undefined;
+    if (meta.settlementId && settlementResult) {
+      const settlementEvent: CollectionEvent = {
+        eventId: randomUUID(), playerId, eventType: 'settlement_committed',
+        beforeRevision: current.stateRevision, afterRevision: draft.stateRevision,
+        configVersion: draft.configVersion,
+        payloadHash: hashPayload({ settlementId: meta.settlementId, resourceDelta: settlementResult.resourceDelta, cultivationDelta: settlementResult.cultivationDelta }),
+        payload: {
+          settlementId: meta.settlementId,
+          resourceDelta: clone(settlementResult.resourceDelta ?? {}),
+          cultivationDelta: settlementResult.cultivationDelta ?? 0,
+          completedActions: settlementResult.completedActions ?? 0,
+          failed: settlementResult.failed ?? false,
+        },
+        createdAt: meta.at.toISOString(),
+      };
+      this.collectionEvents.set(settlementEvent.eventId, settlementEvent);
+    }
     const committedSettlement = typeof settlement === 'function' ? settlement(result, draft) : settlement;
     if (committedSettlement) this.settlements.set(committedSettlement.settlementId, clone(committedSettlement));
     if (actionKey) this.actionResponses.set(actionKey, clone(result));
