@@ -1,5 +1,13 @@
 # 工作记录
 
+## 2026-08-28（ZCode：功法/炼丹/炼器详情按用户反馈修正）
+
+- 练功房/功法阁功法卡：改为显示**当前等级已加属性**（层数 × 每层成长，catalog 数值优先），未研习的显示首层增量；确认面板保留成长线说明。
+- 炼丹房：材料名具体化——灵草类材料显示"灵草（紫云花/凝露草均可）"。边界说明：冻结表中丹方输入是资源大类 `spirit_herb`，无具体草药品种字段；"每种丹药对应特定草药、每张地图产特定草药"需要内容包/服务端为丹方增加草药品种绑定后才能真实生效（已列为内容侧待办）。
+- 炼器室：卡片与锻器预览补材料清单（玄铁矿/灵木/灵石）与"稀有度打造时随机，品质越高越难出"说明；去掉整页全品质罗列的旧观感（保留单模板卡 + 品质段随机制说明）。
+- 验收：`tsc -b`、oxlint 0 警告、`vite build`、`npm test` 361 项（339 pass、22 skip、0 fail）全绿。展示层改动，未触服务端/冻结参数。
+- 内容侧待办：丹方↔草药品种绑定、地图↔草药产出绑定（需 recipes.json/maps.json 增字段，走内容包发布流程）。
+
 ## 2026-08-28（ZCode：journal 只读查询端点 + 流水数据源切换）
 
 - 新增 `GET /v1/journal?limit=&beforeRevision=`（只读，audit_event 表全量行动/结算事件；beforeRevision 游标分页，limit 上限 100）。三层落地：Repository 接口（Memory 过滤排序 / PostgreSQL withClient 查询）、Service.journal（镜像 collectionEvents 的校验与 envelope）、HTTP 路由。

@@ -6,7 +6,7 @@ import { useActionFlow } from '../../flows/useActionFlow';
 import { ConfirmSheet, SwitchWarnBlock } from '../../components/sheets';
 import { QualityChip, SectionHead, EmptyHint, PageHeaderBack } from '../../components/primitives';
 import { techniqueName, qualityMeta } from '../../content/meta';
-import { techniqueGrowthFromCatalog } from '../../content/growth';
+import { techniqueBonusAtLevel, techniqueGrowthFromCatalog } from '../../content/growth';
 
 export function TrainingPage() {
   const { player, catalog } = useGame();
@@ -66,7 +66,11 @@ export function TrainingPage() {
               >
                 {lv !== null && <span className="mc-lv num">Lv.{lv}</span>}
                 <span className="mc-name">{techniqueName(tech.id)}</span>
-                <span className="mc-sub">{techniqueGrowthFromCatalog(tech)}</span>
+                <span className="mc-sub">
+                  {lv !== null
+                    ? `已加属性：攻+${techniqueBonusAtLevel(tech, lv).attack} 防+${techniqueBonusAtLevel(tech, lv).defence} 血+${techniqueBonusAtLevel(tech, lv).health}`
+                    : `研习后每层：攻+${techniqueBonusAtLevel(tech, 1).attack} 防+${techniqueBonusAtLevel(tech, 1).defence} 血+${techniqueBonusAtLevel(tech, 1).health}`}
+                </span>
                 <span style={{ marginTop: 2 }}><QualityChip quality={meta.label} /></span>
                 <span style={{ fontSize: 10.5, color: isCurrent ? 'var(--jade)' : 'var(--gold)', fontWeight: 600 }}>
                   {isCurrent ? '研习中 · 点击收功后可换' : '点击研习'}

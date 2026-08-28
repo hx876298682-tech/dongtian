@@ -46,6 +46,8 @@ export function ForgePage() {
                   <span className="mc-name">{template.displayName}</span>
                 </span>
                 <span className="mc-sub">{slotLabel(template.slot)} · 锻成自动入库</span>
+                <span className="mc-sub">材料：玄铁矿 ×8 · 灵木 ×2 · 灵石 ×5（锻前以确认面板为准）</span>
+                <span className="mc-sub" style={{ color: 'var(--gold)' }}>稀有度打造时随机，品质越高越难出</span>
                 <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
                   <QualityChip quality={meta.label} />
                   {isCurrent
@@ -80,6 +82,9 @@ export function ForgePage() {
             </small>
             <small style={{ color: 'var(--ink-600)', fontSize: 10.5 }}>
               基础属性预算 {EQUIPMENT_DISPLAY.slotBudget(template.slot)}（品阶倍率 {meta.label}）
+            </small>
+            <small style={{ color: 'var(--ink-600)', fontSize: 10.5, display: 'block' }}>
+              锻造材料：玄铁矿 ×8 · 灵木 ×2 · 灵石 ×5 —— 稀有度打造时随机，品质越高越难出
             </small>
           </div>
         </div>

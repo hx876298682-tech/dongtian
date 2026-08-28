@@ -8,7 +8,7 @@ import { ConfirmSheet, SwitchWarnBlock } from '../../components/sheets';
 import { useTicker } from '../../hooks';
 import { QualityChip, PageHeaderBack, EmptyHint } from '../../components/primitives';
 import { techniqueName, qualityMeta } from '../../content/meta';
-import { techniqueGrowthFromCatalog } from '../../content/growth';
+import { techniqueBonusAtLevel } from '../../content/growth';
 
 const FILTERS: Array<{ key: string; label: string }> = [
   { key: 'all', label: '全部' },
@@ -83,7 +83,7 @@ export function PavilionPage() {
                   : <span className="mc-lv" style={{ color: 'var(--ink-600)', background: 'var(--bg-sunken)' }}>未获得</span>}
                 <span className="mc-name">{techniqueName(tech.id)}</span>
                 {owned ? (
-                  <span className="mc-sub">{techniqueGrowthFromCatalog(tech)}</span>
+                  <span className="mc-sub">已加属性：攻+{techniqueBonusAtLevel(tech, lv ?? 0).attack} 防+{techniqueBonusAtLevel(tech, lv ?? 0).defence} 血+{techniqueBonusAtLevel(tech, lv ?? 0).health}</span>
                 ) : (
                   <>
                     <span className="mc-sub">每层成长见品阶（数值以冻结表为准）</span>

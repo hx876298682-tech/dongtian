@@ -170,3 +170,17 @@ export function techniqueGrowthFromCatalog(tech: { quality: string; growth?: {
   }
   return techniqueGrowthLines(tech.quality);
 }
+
+/** 功法当前等级"已加属性"展示：层数 × 每层成长（catalog 数值优先，冻结参数回退）。
+    纯展示换算；战斗实际取用仍由服务端结算。 */
+export function techniqueBonusAtLevel(tech: {
+  quality: string;
+  growth?: { attackPerLayer: number; defencePerLayer: number; healthPerLayer: number; qualityMultiplier: number };
+}, level: number): { attack: number; defence: number; health: number } {
+  const mult = tech.growth?.qualityMultiplier ?? techniqueQualityMultiplier(tech.quality);
+  const atkPer = tech.growth?.attackPerLayer ?? TECHNIQUE_GROWTH.attackPerLayer * mult;
+  const defPer = tech.growth?.defencePerLayer ?? TECHNIQUE_GROWTH.defencePerLayer * mult;
+  const hpPer = tech.growth?.healthPerLayer ?? TECHNIQUE_GROWTH.healthPerLayer * mult;
+  const lv = Math.max(0, level);
+  return { attack: Math.round(atkPer * lv * 10) / 10, defence: Math.round(defPer * lv * 10) / 10, health: Math.round(hpPer * lv) };
+}
