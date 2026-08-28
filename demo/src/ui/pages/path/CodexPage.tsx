@@ -2,7 +2,11 @@
     品阶激活槽位、特殊词条四类效果与目标部位、身法/五行说明。 */
 import { useGame } from '../../store/GameStore';
 import { useShell } from '../../app/shell';
+import { useEffect, useState } from 'react';
+import type { HighTierPreviewData } from '../../api/client';
 import { PageHeaderBack, SectionHead } from '../../components/primitives';
+import { fmtNum, fmtSpan } from '../../api/format';
+import { ElementTag } from '../../components/ElementTag';
 import { EQUIPMENT_GROWTH_LIMITS } from '../../content/growth';
 
 const SPECIALS: Array<{ key: string; name: string; hint: string; targets: string }> = [
@@ -21,9 +25,29 @@ const QUALITY_SLOTS: Array<{ quality: string; label: string; slots: number }> = 
   { quality: 'immortal', label: '仙器', slots: EQUIPMENT_GROWTH_LIMITS.utilitySlots.immortal },
 ];
 
+const HIGH_TIERS: Array<{ realm: string; name: string }> = [
+  { realm: 'nascent_soul', name: '元婴' },
+  { realm: 'divine_transformation', name: '化神' },
+];
+
 export function CodexPage() {
   const shell = useShell();
-  const { player } = useGame();
+  const { player, client } = useGame();
+  const [bossBook, setBossBook] = useState<Array<{ realm: string; name: string; data: HighTierPreviewData } | null> | null>(null);
+
+  // BOSS 图鉴：拉三个远征境界的 preview（只读，含机制/门槛），失败静默降级
+  useEffect(function () {
+    let alive = true;
+    void (async function () {
+      const results = await Promise.all(HIGH_TIERS.map(function (ht) {
+        return client.highTierPreview(ht.realm).then(function (env) {
+          return { realm: ht.realm, name: ht.name, data: env.data };
+        }).catch(function () { return null; });
+      }));
+      if (alive) setBossBook(results);
+    })();
+    return function () { alive = false; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!player) return null;
   // 已收集到的特殊词条（从装备实例聚合，纯读取）
@@ -80,6 +104,45 @@ export function CodexPage() {
           </span>
         </div>
       </div>
+
+      <SectionHead title="高阶 BOSS 图鉴" sub="元婴起远征遭遇 · 机制速查" />
+      {!bossBook && <div className="skeleton" style={{ height: 120 }} />}
+      {bossBook && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {bossBook.map(function (entry: { realm: string; name: string; data: HighTierPreviewData } | null) {
+            if (!entry) return null;
+            const d = entry.data;
+            const gate = d.gate;
+            const unlocked = gate.status === 'open';
+            return (
+              <div key={entry.realm} className="card card-padded" style={{ opacity: unlocked ? 1 : .62 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <ElementTag elementKey={d.stats?.element ?? ''} />
+                  <b style={{ fontFamily: 'var(--font-display)', fontSize: 14.5 }}>{entry.name}境 BOSS</b>
+                  <span style={{ marginLeft: 'auto', fontSize: 10.5, color: unlocked ? 'var(--jade)' : 'var(--ink-300)' }}>
+                    {unlocked ? '可挑战' : '门槛未达'}
+                  </span>
+                </div>
+                <div className="stat-grid" style={{ marginTop: 8 }}>
+                  <div className="stat-block"><span>生命</span><b>{fmtNum(d.bossHp)}</b></div>
+                  <div className="stat-block"><span>护盾</span><b>{fmtNum(d.bossHp * (d.pillBudget ? 1 : 1))}</b></div>
+                  <div className="stat-block"><span>攻击</span><b>{fmtNum(d.stats?.attack)}</b></div>
+                </div>
+                {d.skill && (
+                  <small style={{ fontSize: 10.5, color: 'var(--ink-600)', display: 'block', marginTop: 6 }}>
+                    专属技能：冷却 {fmtSpan(d.skill.cooldownSeconds)} · 持续 {fmtSpan(d.skill.durationSeconds)} · 攻击压制 {d.skill.attackSuppressionPercent}%
+                  </small>
+                )}
+                {gate.required && (
+                  <small style={{ fontSize: 10.5, color: 'var(--ink-600)', display: 'block', marginTop: 4 }}>
+                    P10 构筑需求：攻 {fmtNum(gate.required.attack)} / 防 {fmtNum(gate.required.defence)} / 血 {fmtNum(gate.required.health)}
+                  </small>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <p style={{ fontSize: 10.5, color: 'var(--ink-600)', lineHeight: 1.7 }}>
         词条在掉落时按品质随机激活；洗练可重掷未锁定词条，锁定槽在洗练时保留（最多锁 2 槽）。最终效果以服务端战斗结算为准。

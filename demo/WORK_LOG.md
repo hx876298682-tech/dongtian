@@ -1,5 +1,11 @@
 # 工作记录
 
+## 2026-08-28（ZCode：BOSS 图鉴卡片 + 非结算事件方案评估）
+
+- 词条图鉴页新增「高阶 BOSS 图鉴」区：元婴/化神两张机制卡，数据复用 high-tier preview（只读）——BOSS 生命/攻击、专属技能（冷却/持续/攻击压制%）、P10 构筑需求三维、门禁状态（可挑战/门槛未达灰化）。加载失败静默降级。
+- 非结算类事件方案评估（结论）：`collection_events` 语义定位是"collection 快照变化"的审计流（technique/treasure 收集域），把 settlement 塞进去是上一批的特例（UI 消费需要）。更细的入库分类（按行动类型分列/建筑升级/突破等）应由**独立的 journal/audit 只读端点**承接（audit 表数据已全量落库，缺一个查询端点），或由前端继续消费 settlement_committed 特例 + stop/switch 内嵌摘要。建议：短期维持现状（足够覆盖"最近入库"与修行录），中期立项 journal 查询端点。
+- 验收：`tsc -b`、oxlint 0 警告、`vite build`、`npm test` 361 项（339 pass、22 skip、0 fail）全绿；新标签浏览器实测图鉴/BOSS 卡渲染正确。
+
 ## 2026-08-28（ZCode：行动条速率展示 + 词条图鉴骨架）
 
 - 行动条新增"约 X/时"速率行：基于最近一次结算摘要（settledSeconds 窗口 + 资源/修为增项）归一到每小时，纯展示换算（结算仍由服务端完成，窗口 <60s 不展示避免抖动）。GameStore.recordSettlement 扩展 settledSeconds/completedActions 字段。
